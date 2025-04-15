@@ -7,9 +7,12 @@ public class UnitView : MonoBehaviour
 
     private Unit unit;
 
+    public GameObject outlineObject;
+
     public void Initialize(Unit unit)
     {
         this.unit = unit;
+        outlineObject.SetActive(false);
     }
 
     public void PlayAnimation(string animationName)
@@ -27,6 +30,11 @@ public class UnitView : MonoBehaviour
             spriteRenderer.flipX = direction.x < 0;
         }
     }
+    
+    public void SetHighlighted(bool highlighted)
+    {
+        outlineObject.SetActive(highlighted);
+    }  
 
     // Add VFX, UI feedback, etc., as needed
 }
