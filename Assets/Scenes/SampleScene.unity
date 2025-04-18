@@ -119,11 +119,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &223253236 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5962902433353028650, guid: f3e834a2deb494341bd0cbf9a0310321, type: 3}
-  m_PrefabInstance: {fileID: 1999618287}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &446983552
 GameObject:
   m_ObjectHideFlags: 0
@@ -1033,11 +1028,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &1170582125 stripped
-SpriteRenderer:
-  m_CorrespondingSourceObject: {fileID: 2925659429816984434, guid: f3e834a2deb494341bd0cbf9a0310321, type: 3}
-  m_PrefabInstance: {fileID: 1999618287}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1246841680
 GameObject:
   m_ObjectHideFlags: 0
@@ -1311,14 +1301,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7599311687441353785, guid: f3e834a2deb494341bd0cbf9a0310321, type: 3}
-      propertyPath: outlineObject
-      value: 
-      objectReference: {fileID: 223253236}
-    - target: {fileID: 7599311687441353785, guid: f3e834a2deb494341bd0cbf9a0310321, type: 3}
-      propertyPath: spriteRenderer
-      value: 
-      objectReference: {fileID: 1170582125}
+    - target: {fileID: 8405049396517202850, guid: f3e834a2deb494341bd0cbf9a0310321, type: 3}
+      propertyPath: speed
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8510424159604125785, guid: f3e834a2deb494341bd0cbf9a0310321, type: 3}
       propertyPath: m_Name
       value: TainingDummy

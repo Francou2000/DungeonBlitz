@@ -129,9 +129,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd448d041b8cbeb40b96b9502b6ca337, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unitName: 
-  maxHP: 1
-  strength: 0
+  unitName: TestUnit
+  maxHP: 50
+  strength: 10
   magicPower: 0
   physicalDefense: 0
   magicalDefense: 0
