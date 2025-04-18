@@ -16,8 +16,13 @@ public class UnitModel : MonoBehaviour
     public int currentHP;
     public int currentActions;
 
+    public bool isTrainingDummy = false; // To try things on
+
+    private Unit unit;
+
     public void Initialize(Unit unit)
     {
+        this.unit = unit;
         currentHP = maxHP;
         currentActions = actionsPerTurn;
     }
@@ -36,5 +41,24 @@ public class UnitModel : MonoBehaviour
     {
         if (currentActions > 0)
             currentActions--;
+    }
+
+    public void TakeDamage(int amount)
+    {
+        currentHP -= amount;
+        currentHP = Mathf.Max(0, currentHP);
+
+        Debug.Log($"{unitName} takes {amount} damage. HP left: {currentHP}");
+
+        if (currentHP <= 0)
+        {
+            Die();
+        }
+    }
+
+    private void Die()
+    {
+        Debug.Log($"{unitName} has died!");
+        Destroy(unit.gameObject);
     }
 }
