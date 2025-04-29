@@ -12,13 +12,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87a2cda1909aa01468970337e13de8dc, type: 3}
   m_Name: Goblin
   m_EditorClassIdentifier: 
-  unitName: 
-  maxHP: 0
-  performance: 0
+  unitName: Goblin
+  maxHP: 100
+  performance: 3
   affinity: 0
-  armor: 0
-  magicResistance: 0
-  strength: 0
+  armor: 5
+  magicResistance: 5
+  strength: 5
   magicPower: 0
-  actionsPerTurn: 0
-  abilities: []
+  actionsPerTurn: 2
+  reactionsPerTurn: 0
+  abilities:
+  - abilityName: GoblinSlash
+    baseDamage: 10
+    requiresAnxietyThreshold: 0
+    anxietyThreshold: 0
+    hits: 1
+    actionCost: 1
+  - abilityName: GoblinStab
+    baseDamage: 12
+    requiresAnxietyThreshold: 0
+    anxietyThreshold: 0
+    hits: 1
+    actionCost: 1
+  - abilityName: GoblinFlurry
+    baseDamage: 5
+    requiresAnxietyThreshold: 1
+    anxietyThreshold: 20
+    hits: 3
+    actionCost: 1
+  isTrainingDummy: 0

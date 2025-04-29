@@ -1305,6 +1305,10 @@ PrefabInstance:
       propertyPath: speed
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8405049396517202850, guid: f3e834a2deb494341bd0cbf9a0310321, type: 3}
+      propertyPath: unitData
+      value: 
+      objectReference: {fileID: 11400000, guid: 9485ab4d68c40a547b3a4e53d6ca6be1, type: 2}
     - target: {fileID: 8510424159604125785, guid: f3e834a2deb494341bd0cbf9a0310321, type: 3}
       propertyPath: m_Name
       value: TainingDummy
@@ -1443,6 +1447,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2775032902162649876, guid: 2e23c544bb0ceea4bace97c5d640217e, type: 3}
+      propertyPath: unitData
+      value: 
+      objectReference: {fileID: 11400000, guid: 43678f5a5f7debe46baf49f42dabb2bb, type: 2}
     - target: {fileID: 4723805065706460994, guid: 2e23c544bb0ceea4bace97c5d640217e, type: 3}
       propertyPath: m_Name
       value: TestUnit

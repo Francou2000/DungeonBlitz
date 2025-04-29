@@ -18,4 +18,7 @@ public class UnitData : ScriptableObject
 
     [Header("Abilities")]
     public List<UnitAbility> abilities = new List<UnitAbility>();
+
+    [Header("Flags")]
+    public bool isTrainingDummy = false;
 }

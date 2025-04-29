@@ -6,7 +6,7 @@ public class CombatUI : MonoBehaviour
 
     public void OnAbilityButtonPressed(int index)
     {
-        var abilities = activeUnit.unit.Model.abilities;
+        var abilities = activeUnit.unit.Model.Abilities;
         if (index < abilities.Count)
         {
             activeUnit.SetSelectedAbility(abilities[index]);

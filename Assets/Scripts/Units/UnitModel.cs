@@ -3,121 +3,112 @@ using UnityEngine;
 
 public class UnitModel : MonoBehaviour
 {
-    [Header("Base Stats")]
-    public string unitName;
-    public int maxHP;
-    public int currentHP;
+    [Header("Static Data")]
+    [SerializeField] private UnitData unitData;
 
-    public int performance; // Speed and movement
-    public int affinity;    // Weapon hit bonus (future use)
-    public int armor;       // Physical defense
-    public int magicResistance; // Magic defense
-    public int strength;    // Physical attack modifier
-    public int magicPower;  // Magic attack modifier
-    public int anxiety;     // Special behavior trigger
+    [Header("Runtime Values")]
+    private int currentHP;
+    private int currentActions;
+    private int currentReactions;
+    private int anxiety;
 
-    public int actionsPerTurn;
-    public int currentActions;
+    [Header("Movement Modifiers")]
+    private readonly List<float> movementBuffs = new();
+    private readonly List<float> movementDebuffs = new();
 
-    public int reactionsPerTurn;
-    public int currentReactions;
+    public List<UnitAbility> Abilities { get; private set; } = new();
 
-    public float moveDistFactor = 10f; // m per Perf point
-    public float moveTimeBase = 6f;    // base duration
-    public List<float> movementBuffs = new();
-    public List<float> movementDebuffs = new();
 
-    public bool isTrainingDummy = false; // differentiate for targeting
+    [Header("Public Getters")]
+    public string UnitName => unitData.unitName;
+    public int MaxHP => unitData.maxHP;
+    public int CurrentHP => currentHP;
 
-    private Unit unit;
-    public UnitData unitData; // Drag and drop in Inspector
-    public List<UnitAbility> abilities = new List<UnitAbility>();
+    public int MaxActions => unitData.actionsPerTurn;
+    public int CurrentActions => currentActions;
 
-    public void Initialize(Unit unit)
+    public int MaxReactions => unitData.reactionsPerTurn;
+    public int CurrentReactions => currentReactions;
+
+    public int Performance => unitData.performance;
+    public int Affinity => unitData.affinity;
+    public int Armor => unitData.armor;
+    public int MagicResistance => unitData.magicResistance;
+    public int Strength => unitData.strength;
+    public int MagicPower => unitData.magicPower;
+
+    public int Anxiety => anxiety;
+
+    public bool IsTrainingDummy => unitData.isTrainingDummy;
+
+    // === Initialization ===
+
+    public void Initialize()
     {
-        this.unit = unit;
-
-        maxHP = unitData.maxHP;
-        currentHP = maxHP;
-        performance = unitData.performance;
-        affinity = unitData.affinity;
-        armor = unitData.armor;
-        magicResistance = unitData.magicResistance;
-        strength = unitData.strength;
-        magicPower = unitData.magicPower;
-        actionsPerTurn = unitData.actionsPerTurn;
-        currentActions = actionsPerTurn;
-        reactionsPerTurn = unitData.reactionsPerTurn;
-        currentReactions = reactionsPerTurn;
+        currentHP = MaxHP;
+        currentActions = MaxActions;
+        currentReactions = MaxReactions;
         anxiety = 0;
 
-        abilities = new List<UnitAbility>(unitData.abilities);
+        Abilities = new List<UnitAbility>(unitData.abilities);
     }
 
     public void ResetTurn()
     {
-        currentActions = actionsPerTurn;
-        currentReactions = reactionsPerTurn;
+        currentActions = MaxActions;
+        currentReactions = MaxReactions;
     }
 
-    public bool CanAct()
-    {
-        return currentActions > 0;
-    }
+    // === Action/Reactions ===
 
-    public bool CanReact()
-    {
-        return currentReactions > 0;
-    }
+    public bool CanAct() => currentActions > 0;
+    public void SpendAction(int amount = 1) => currentActions = Mathf.Max(0, currentActions - amount);
 
-    public void SpendAction()
-    {
-        if (currentActions > 0)
-            currentActions--;
-    }
+    public bool CanReact() => currentReactions > 0;
+    public void SpendReaction(int amount = 1) => currentReactions = Mathf.Max(0, currentReactions - amount);
 
-    public void SpendReaction()
-    {
-        if (currentReactions > 0)
-            currentReactions--;
-    }
+    // === Movement Speed ===
+
+    public float MoveDistanceFactor = 10f;
+    public float MoveTimeBase = 6f;
 
     public float GetMovementSpeed()
     {
-        float distance = performance * moveDistFactor;
-
+        float distance = Performance * MoveDistanceFactor;
         float multiplier = 1f;
 
-        foreach (var buff in movementBuffs)
-            multiplier *= (1f + buff);
+        foreach (float buff in movementBuffs) multiplier *= (1f + buff);
+        foreach (float debuff in movementDebuffs) multiplier *= (1f - debuff);
 
-        foreach (var debuff in movementDebuffs)
-            multiplier *= (1f - debuff);
-
-        float moveTime = moveTimeBase / multiplier;
-
-        return distance / moveTime; // units per second
+        float moveTime = MoveTimeBase / multiplier;
+        return distance / moveTime;
     }
 
-    public void TakePhysicalDamage(int baseDamage)
+    public void AddMoveBuff(float percent) => movementBuffs.Add(percent);
+    public void AddMoveDebuff(float percent) => movementDebuffs.Add(percent);
+    public void ClearMovementModifiers()
     {
-        int finalDamage = Mathf.FloorToInt(baseDamage * 100f / (100f + armor));
-        ApplyDamage(finalDamage);
+        movementBuffs.Clear();
+        movementDebuffs.Clear();
     }
 
-    public void TakeMagicDamage(int baseDamage)
+    // === Damage Handling ===
+
+    public void TakePhysicalDamage(int rawDamage)
     {
-        int finalDamage = Mathf.FloorToInt(baseDamage * 100f / (100f + magicResistance));
-        ApplyDamage(finalDamage);
+        int reduced = Mathf.FloorToInt(rawDamage * 100f / (100f + Armor));
+        ApplyDamage(reduced);
+    }
+
+    public void TakeMagicDamage(int rawDamage)
+    {
+        int reduced = Mathf.FloorToInt(rawDamage * 100f / (100f + MagicResistance));
+        ApplyDamage(reduced);
     }
 
     private void ApplyDamage(int amount)
     {
-        currentHP -= amount;
-        currentHP = Mathf.Max(0, currentHP);
-
-        Debug.Log($"{unitName} takes {amount} damage. HP left: {currentHP}");
-
+        currentHP = Mathf.Max(0, currentHP - amount);
         if (currentHP <= 0)
         {
             Die();
@@ -126,7 +117,12 @@ public class UnitModel : MonoBehaviour
 
     private void Die()
     {
-        Debug.Log($"{unitName} has died!");
-        Destroy(unit.gameObject);
+        Debug.Log($"{UnitName} has died.");
+        Destroy(gameObject);
     }
+
+    // === Anxiety ===
+
+    public void AddAnxiety(int amount) => anxiety += amount;
+    public void ResetAnxiety() => anxiety = 0;
 }

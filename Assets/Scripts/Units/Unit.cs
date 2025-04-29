@@ -13,7 +13,7 @@ public class Unit : MonoBehaviour
         Controller = GetComponent<UnitController>();
 
         
-        Model.Initialize(this);
+        Model.Initialize();
         View.Initialize(this);
         Controller.Initialize(this);
     }

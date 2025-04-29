@@ -76,7 +76,7 @@ public class UnitController : MonoBehaviour
 
     public void TryAttack()
     {
-        if (!unit.Model.CanAct() || unit.Model.currentActions < selectedAbility.actionCost)
+        if (!unit.Model.CanAct() || unit.Model.CurrentActions < selectedAbility.actionCost)
         {
             Debug.Log("Not enough actions to use this ability.");
             return;
@@ -94,22 +94,22 @@ public class UnitController : MonoBehaviour
             if (targetUnit != null && targetUnit != unit)
             {
                 if (selectedAbility.requiresAnxietyThreshold &&
-                    unit.Model.anxiety < selectedAbility.anxietyThreshold)
+                    unit.Model.Anxiety < selectedAbility.anxietyThreshold)
                 {
                     Debug.Log("Not enough anxiety for this ability.");
                     return;
                 }
 
-                Debug.Log($"{unit.Model.unitName} uses {selectedAbility.abilityName}!");
+                Debug.Log($"{unit.Model.UnitName} uses {selectedAbility.abilityName}!");
 
                 for (int i = 0; i < selectedAbility.hits; i++)
                 {
-                    int attackStat = unit.Model.strength + selectedAbility.baseDamage;
+                    int attackStat = unit.Model.Strength + selectedAbility.baseDamage;
                     targetUnit.Model.TakePhysicalDamage(attackStat);
                 }
 
                 unit.Model.SpendAction();
-                unit.Model.anxiety += 5; //each attack raises anxiety for now
+                unit.Model.AddAnxiety(5); //each attack raises anxiety for now
                 ActionUI.Instance.ClearAction();
                 unit.View.PlayAnimation("Attack"); //Placeholder for later
 
