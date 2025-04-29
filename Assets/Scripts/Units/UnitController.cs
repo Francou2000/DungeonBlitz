@@ -1,12 +1,13 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class UnitController : MonoBehaviour
 {
-    private Unit unit;
+    public Unit unit;
     private bool isMoving = false;
-
+    private UnitAbility selectedAbility;
 
     public void Initialize(Unit unit)
     {
@@ -44,8 +45,9 @@ public class UnitController : MonoBehaviour
 
         Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mouseWorldPos.z = transform.position.z;
+        float moveSpeed = unit.Model.GetMovementSpeed();
 
-        StartCoroutine(MoveToPosition(mouseWorldPos, unit.Model.speed));
+        StartCoroutine(MoveToPosition(mouseWorldPos, moveSpeed));
     }
 
     private IEnumerator MoveToPosition(Vector3 targetPos, float moveSpeed)
@@ -74,9 +76,14 @@ public class UnitController : MonoBehaviour
 
     public void TryAttack()
     {
-        if (!unit.Model.CanAct()) return;
+        if (!unit.Model.CanAct() || unit.Model.currentActions < selectedAbility.actionCost)
+        {
+            Debug.Log("Not enough actions to use this ability.");
+            return;
+        }
 
-        // Check if hovering over another unit
+        if (selectedAbility == null) return;
+
         Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector2 mousePos2D = new Vector2(mouseWorldPos.x, mouseWorldPos.y);
 
@@ -84,24 +91,35 @@ public class UnitController : MonoBehaviour
         if (hit.collider != null)
         {
             Unit targetUnit = hit.collider.GetComponent<Unit>();
-            if (targetUnit != null && targetUnit != unit) // Make sure it's not attacking itself
+            if (targetUnit != null && targetUnit != unit)
             {
-                if (!targetUnit.Model.isTrainingDummy)
+                if (selectedAbility.requiresAnxietyThreshold &&
+                    unit.Model.anxiety < selectedAbility.anxietyThreshold)
                 {
-                    Debug.Log("Cannot attack a player-controlled unit.");
+                    Debug.Log("Not enough anxiety for this ability.");
                     return;
                 }
 
-                int attackStat = unit.Model.strength;
-                int defenseStat = targetUnit.Model.physicalDefense;
-                int damage = Mathf.Max(0, attackStat - defenseStat); // No negative damage
+                Debug.Log($"{unit.Model.unitName} uses {selectedAbility.abilityName}!");
 
-                targetUnit.Model.TakeDamage(damage);
+                for (int i = 0; i < selectedAbility.hits; i++)
+                {
+                    int attackStat = unit.Model.strength + selectedAbility.baseDamage;
+                    targetUnit.Model.TakePhysicalDamage(attackStat);
+                }
 
-                unit.View.PlayAnimation("Attack");
                 unit.Model.SpendAction();
+                unit.Model.anxiety += 5; //each attack raises anxiety for now
                 ActionUI.Instance.ClearAction();
+                unit.View.PlayAnimation("Attack"); //Placeholder for later
+
+                selectedAbility = null; // Reset after use
             }
         }
+    }
+
+    public void SetSelectedAbility(UnitAbility ability)
+    {
+        selectedAbility = ability;
     }
 }

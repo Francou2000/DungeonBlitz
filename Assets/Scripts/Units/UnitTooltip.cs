@@ -29,9 +29,13 @@ public class UnitTooltip : MonoBehaviour
         var model = unit.Model;
 
         text.text =
-            $"{model.unitName}\n" +
-            $"HP: {model.currentHP} / {model.maxHP}\n" +
-            $"STR: {model.strength}  SPD: {model.speed}\n" +
-            $"DEF: {model.physicalDefense}  MAG DEF: {model.magicalDefense}";
+             $"{model.unitName}\n" +
+        $"HP: {model.currentHP} / {model.maxHP}\n" +
+        $"AC: {model.currentActions} / {model.actionsPerTurn}\n" +
+        $"RC: {model.currentReactions} / {model.reactionsPerTurn}\n" +
+        $"Perf: {model.performance}   Aff: {model.affinity}\n" +
+        $"STR: {model.strength}   MP: {model.magicPower}\n" +
+        $"AR: {model.armor}   MR: {model.magicResistance}\n" +
+        $"Anxiety: {model.anxiety}";
     }
 }
