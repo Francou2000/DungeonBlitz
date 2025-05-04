@@ -130,6 +130,8 @@ GameObject:
   - component: {fileID: 376170216}
   - component: {fileID: 376170218}
   - component: {fileID: 376170217}
+  - component: {fileID: 376170220}
+  - component: {fileID: 376170219}
   m_Layer: 5
   m_Name: ActionPanel
   m_TagString: Untagged
@@ -173,7 +175,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 0}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -197,6 +199,36 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 376170215}
   m_CullTransparentMesh: 1
+--- !u!114 &376170219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 376170215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92f002a71d065d4489f6c536c72c6cc2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  abilityPanel: {fileID: 1654487910}
+  abilityButtonPrefab: {fileID: 7404161039888414090, guid: 2bf3bbf3e2679f046b4a03e57f95bc16, type: 3}
+  abilityListContainer: {fileID: 1654487911}
+--- !u!114 &376170220
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 376170215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85e34e3aeb8e7fa4a95ba89309c0f4d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveButton: {fileID: 848908209}
+  attackButton: {fileID: 2044591204}
+  cancelButton: {fileID: 1300631551}
 --- !u!1 &446983552
 GameObject:
   m_ObjectHideFlags: 0
@@ -499,8 +531,6 @@ GameObject:
   m_Component:
   - component: {fileID: 568910057}
   - component: {fileID: 568910056}
-  - component: {fileID: 568910058}
-  - component: {fileID: 568910059}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -536,36 +566,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &568910058
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 568910055}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 85e34e3aeb8e7fa4a95ba89309c0f4d4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveButton: {fileID: 848908209}
-  attackButton: {fileID: 2044591204}
-  cancelButton: {fileID: 1300631551}
---- !u!114 &568910059
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 568910055}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 92f002a71d065d4489f6c536c72c6cc2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  abilityPanel: {fileID: 1654487910}
-  abilityButtonPrefab: {fileID: 7404161039888414090, guid: 2bf3bbf3e2679f046b4a03e57f95bc16, type: 3}
-  abilityListContainer: {fileID: 1654487911}
 --- !u!1 &584282240
 GameObject:
   m_ObjectHideFlags: 0
@@ -1424,7 +1424,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 0}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
