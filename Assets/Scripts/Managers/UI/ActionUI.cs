@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public enum UnitAction
@@ -38,18 +38,31 @@ public class ActionUI : MonoBehaviour
     public void SetAction(UnitAction action)
     {
         currentAction = action;
+        UnitController.SetAction(action);
+        Debug.Log("[UI] Selected action: " + action);
         UpdateButtonVisuals();
-    }
 
-    public UnitAction GetCurrentAction()
-    {
-        return currentAction;
+        if (action == UnitAction.Attack)
+        {
+            CombatUI.Instance.ShowAbilities(UnitController.ActiveUnit);
+        }
+        else
+        {
+            CombatUI.Instance.HideAbilities();
+        }
     }
 
     public void ClearAction()
     {
         currentAction = UnitAction.None;
+        UnitController.SetAction(UnitAction.None);
         UpdateButtonVisuals();
+        CombatUI.Instance.HideAbilities();
+    }
+
+    public UnitAction GetCurrentAction()
+    {
+        return currentAction;
     }
 
     private void UpdateButtonVisuals()

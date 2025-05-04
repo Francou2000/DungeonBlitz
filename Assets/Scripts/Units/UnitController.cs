@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -9,9 +9,12 @@ public class UnitController : MonoBehaviour
     private bool isMoving = false;
     private UnitAbility selectedAbility;
 
+    public static UnitController ActiveUnit { get; private set; }
+
     public void Initialize(Unit unit)
     {
         this.unit = unit;
+        ActiveUnit = this;
     }
 
     void Update()
@@ -20,10 +23,11 @@ public class UnitController : MonoBehaviour
 
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             return;
+        Debug.Log("[Controller] CurrentAction = " + GetCurrentAction());
 
         if (Input.GetMouseButtonDown(0))
         {
-            switch (ActionUI.Instance.GetCurrentAction())
+            switch (UnitController.GetCurrentAction())
             {
                 case UnitAction.Move:
                     TryMove();
@@ -31,8 +35,7 @@ public class UnitController : MonoBehaviour
                 case UnitAction.Attack:
                     TryAttack();
                     break;
-                default:
-                    // No action selected, do nothing
+                case UnitAction.None:
                     break;
             }
         }
@@ -46,7 +49,8 @@ public class UnitController : MonoBehaviour
         Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mouseWorldPos.z = transform.position.z;
         float moveSpeed = unit.Model.GetMovementSpeed();
-
+        Debug.Log("[Controller] Moved to " + mouseWorldPos);
+        
         StartCoroutine(MoveToPosition(mouseWorldPos, moveSpeed));
     }
 
@@ -81,7 +85,8 @@ public class UnitController : MonoBehaviour
             Debug.Log("Not enough actions to use this ability.");
             return;
         }
-
+        Debug.Log("[Controller] Attack logic would run here");
+        
         if (selectedAbility == null) return;
 
         Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -122,4 +127,8 @@ public class UnitController : MonoBehaviour
     {
         selectedAbility = ability;
     }
+
+    private static UnitAction currentAction = UnitAction.None;
+    public static void SetAction(UnitAction action) => currentAction = action;
+    public static UnitAction GetCurrentAction() => currentAction;
 }
