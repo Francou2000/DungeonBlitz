@@ -519,8 +519,8 @@ MonoBehaviour:
   zoomSpeed: 1
   minZoom: 3
   maxZoom: 5
-  minBounds: {x: -15.12, y: -5}
-  maxBounds: {x: 12.06, y: 5}
+  minBounds: {x: -30, y: -5}
+  maxBounds: {x: 30, y: 5}
 --- !u!1 &568910055
 GameObject:
   m_ObjectHideFlags: 0
@@ -1646,6 +1646,10 @@ PrefabInstance:
       propertyPath: unitData
       value: 
       objectReference: {fileID: 11400000, guid: 43678f5a5f7debe46baf49f42dabb2bb, type: 2}
+    - target: {fileID: 3218011562944710740, guid: 2e23c544bb0ceea4bace97c5d640217e, type: 3}
+      propertyPath: rangeIndicatorPrefab
+      value: 
+      objectReference: {fileID: 7234173896536831813, guid: 056320df30eb94f43bb71359392dc8d8, type: 3}
     - target: {fileID: 4723805065706460994, guid: 2e23c544bb0ceea4bace97c5d640217e, type: 3}
       propertyPath: m_Name
       value: TestUnit
