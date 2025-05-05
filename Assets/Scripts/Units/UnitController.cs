@@ -11,6 +11,10 @@ public class UnitController : MonoBehaviour
 
     public static UnitController ActiveUnit { get; private set; }
 
+    [Header("Move Range Indicator")]
+    [SerializeField] private GameObject rangeIndicatorPrefab;
+    private GameObject rangeIndicatorInstance;
+
     public void Initialize(Unit unit)
     {
         this.unit = unit;
@@ -46,12 +50,27 @@ public class UnitController : MonoBehaviour
         if (!unit.Model.CanAct())
             return;
 
-        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        mouseWorldPos.z = transform.position.z;
+        //Get clicked world position
+        Vector3 clickWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        clickWorld.z = transform.position.z;
+
+        //Compute max allowed distance this turn
+        float maxDistance = unit.Model.Performance * unit.Model.MoveDistanceFactor;
+
+        //Clamp targetPos to within range
+        Vector3 origin = transform.position;
+        Vector3 dir = clickWorld - origin;
+        if (dir.magnitude > maxDistance)
+        {
+            dir.Normalize();
+            clickWorld = origin + dir * maxDistance;
+            Debug.Log($"[Controller] Click beyond range, clamped to {clickWorld}");
+        }
+
         float moveSpeed = unit.Model.GetMovementSpeed();
-        Debug.Log("[Controller] Moved to " + mouseWorldPos);
-        
-        StartCoroutine(MoveToPosition(mouseWorldPos, moveSpeed));
+        Debug.Log($"[Controller] Moving to {clickWorld} at speed {moveSpeed}");
+
+        StartCoroutine(MoveToPosition(clickWorld, moveSpeed));
     }
 
     private IEnumerator MoveToPosition(Vector3 targetPos, float moveSpeed)
@@ -62,20 +81,44 @@ public class UnitController : MonoBehaviour
         unit.View.SetFacingDirection(direction);
         unit.View.PlayAnimation("Move");
 
+        //Smooth movement
         while (Vector3.Distance(transform.position, targetPos) > 0.05f)
         {
             transform.position = Vector3.MoveTowards(transform.position, targetPos, moveSpeed * Time.deltaTime);
             yield return null;
         }
 
+        //Snap exactly
         transform.position = targetPos;
 
+        //Spend action & reset state
         unit.Model.SpendAction();
         isMoving = false;
-
         unit.View.PlayAnimation("Idle");
+        ActionUI.Instance.ClearAction();
+    }
 
-        ActionUI.Instance.ClearAction(); // After moving, clear action
+    public void ShowMoveRange()
+    {
+        if (rangeIndicatorInstance == null)
+        {
+            rangeIndicatorInstance = Instantiate(
+                rangeIndicatorPrefab,
+                transform.position,
+                Quaternion.identity,
+                transform  // parent under the unit
+            );
+        }
+        float range = unit.Model.Performance * unit.Model.MoveDistanceFactor;
+        // Since the sprite’s radius is 0.5 units, scale = range*2
+        rangeIndicatorInstance.transform.localScale = new Vector3(range * 2f, range * 2f, 1f);
+        rangeIndicatorInstance.SetActive(true);
+    }
+
+    public void HideMoveRange()
+    {
+        if (rangeIndicatorInstance != null)
+            rangeIndicatorInstance.SetActive(false);
     }
 
     public void TryAttack()

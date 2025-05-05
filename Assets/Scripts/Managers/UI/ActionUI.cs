@@ -42,6 +42,15 @@ public class ActionUI : MonoBehaviour
         Debug.Log("[UI] Selected action: " + action);
         UpdateButtonVisuals();
 
+        // show/hide range indicator on the active unit:
+        var uc = UnitController.ActiveUnit;
+        if (uc != null)
+        {
+            if (action == UnitAction.Move) uc.ShowMoveRange();
+            else uc.HideMoveRange();
+        }
+
+        // show ability panel only on Attack:
         if (action == UnitAction.Attack)
         {
             CombatUI.Instance.ShowAbilities(UnitController.ActiveUnit);
@@ -57,7 +66,11 @@ public class ActionUI : MonoBehaviour
         currentAction = UnitAction.None;
         UnitController.SetAction(UnitAction.None);
         UpdateButtonVisuals();
+
         CombatUI.Instance.HideAbilities();
+
+        var uc = UnitController.ActiveUnit;
+        if (uc != null) uc.HideMoveRange();
     }
 
     public UnitAction GetCurrentAction()
