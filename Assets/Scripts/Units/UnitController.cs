@@ -25,22 +25,16 @@ public class UnitController : MonoBehaviour
     {
         if (isMoving) return;
 
+        // Avoid handling input when clicking on UI
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             return;
-        Debug.Log("[Controller] CurrentAction = " + GetCurrentAction());
 
         if (Input.GetMouseButtonDown(0))
         {
-            switch (UnitController.GetCurrentAction())
+            switch (GetCurrentAction())
             {
-                case UnitAction.Move:
-                    TryMove();
-                    break;
-                case UnitAction.Attack:
-                    TryAttack();
-                    break;
-                case UnitAction.None:
-                    break;
+                case UnitAction.Move: TryMove(); break;
+                case UnitAction.Attack: TryAttack(); break;
             }
         }
     }

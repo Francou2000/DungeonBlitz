@@ -41,15 +41,17 @@ public class UnitModel : MonoBehaviour
 
     public bool IsTrainingDummy => unitData.isTrainingDummy;
 
-    // === Initialization ===
+    // Initialization
 
     public void Initialize()
     {
+        // Set runtime values from static config
         currentHP = MaxHP;
         currentActions = MaxActions;
         currentReactions = MaxReactions;
         anxiety = 0;
 
+        // Copy ability list from SO to runtime
         Abilities = new List<UnitAbility>(unitData.abilities);
     }
 
@@ -59,7 +61,7 @@ public class UnitModel : MonoBehaviour
         currentReactions = MaxReactions;
     }
 
-    // === Action/Reactions ===
+    // Action/Reactions
 
     public bool CanAct() => currentActions > 0;
     public void SpendAction(int amount = 1) => currentActions = Mathf.Max(0, currentActions - amount);
@@ -67,7 +69,7 @@ public class UnitModel : MonoBehaviour
     public bool CanReact() => currentReactions > 0;
     public void SpendReaction(int amount = 1) => currentReactions = Mathf.Max(0, currentReactions - amount);
 
-    // === Movement Speed ===
+    // Movement Speed
 
     public float MoveDistanceFactor = 10f;
     public float MoveTimeBase = 6f;
@@ -92,7 +94,7 @@ public class UnitModel : MonoBehaviour
         movementDebuffs.Clear();
     }
 
-    // === Damage Handling ===
+    // Damage Handling 
 
     public void TakePhysicalDamage(int rawDamage)
     {
@@ -121,7 +123,7 @@ public class UnitModel : MonoBehaviour
         Destroy(gameObject);
     }
 
-    // === Anxiety ===
+    // Anxiety
 
     public void AddAnxiety(int amount) => anxiety += amount;
     public void ResetAnxiety() => anxiety = 0;
