@@ -122,41 +122,92 @@ public class UnitController : MonoBehaviour
             Debug.Log("Not enough actions to use this ability.");
             return;
         }
-        Debug.Log("[Controller] Attack logic would run here");
         
         if (selectedAbility == null) return;
 
-        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Vector2 mousePos2D = new Vector2(mouseWorldPos.x, mouseWorldPos.y);
+        Vector3 clickWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        RaycastHit2D hit = Physics2D.Raycast(clickWorld, Vector2.zero);
 
-        RaycastHit2D hit = Physics2D.Raycast(mousePos2D, Vector2.zero);
         if (hit.collider != null)
         {
-            Unit targetUnit = hit.collider.GetComponent<Unit>();
-            if (targetUnit != null && targetUnit != unit)
-            {
-                if (selectedAbility.requiresAnxietyThreshold &&
-                    unit.Model.Anxiety < selectedAbility.anxietyThreshold)
-                {
-                    Debug.Log("Not enough anxiety for this ability.");
-                    return;
-                }
+            var targetUnit = hit.collider.GetComponent<Unit>();
+            if (targetUnit == null || selectedAbility == null) return;
 
-                Debug.Log($"{unit.Model.UnitName} uses {selectedAbility.abilityName}!");
+            // Range check
+            if (!CombatCalculator.IsInRange(
+                    transform.position,
+                    targetUnit.transform.position,
+                    selectedAbility.range))
+            {
+                Debug.Log("Target out of range");
+                return;
+            }
+
+            // Build hit chance inputs
+            int affinity = unit.Model.Affinity;
+            int flankCount = CombatCalculator.CountFlankingAllies(targetUnit, unit);
+            bool isFlanked = flankCount > 0;
+            bool hasMediumCover, hasHeavyCover;
+
+            CombatCalculator.CheckCover(
+                attackerPos: transform.position,
+                targetPos: targetUnit.transform.position,
+                out hasMediumCover,
+                out hasHeavyCover
+            );
+
+            float hitChance = CombatCalculator.GetHitChance(
+                selectedAbility.baseHitChance,
+                affinity,
+                flankCount,
+                isFlanked,
+                hasMediumCover,
+                hasHeavyCover);
+
+            // Roll to hit
+            float roll = Random.value * 100f;
+            if (roll > hitChance)
+            {
+                Debug.Log($"Missed! Rolled {roll:F1} vs {hitChance:F1}");
+            }
+            else
+            {
+                Debug.Log($"{unit.Model.UnitName} hits {targetUnit.Model.UnitName}!");
+
+                int attackStat = selectedAbility.damageSource switch
+                {
+                    DamageSourceType.Strength => unit.Model.Strength,
+                    DamageSourceType.MagicPower => unit.Model.MagicPower,
+                    _ => 0
+                };
+
+                int defense = selectedAbility.damageSource == DamageSourceType.Strength
+                    ? targetUnit.Model.Armor
+                    : targetUnit.Model.MagicResistance;
 
                 for (int i = 0; i < selectedAbility.hits; i++)
                 {
-                    int attackStat = unit.Model.Strength + selectedAbility.baseDamage;
-                    targetUnit.Model.TakePhysicalDamage(attackStat);
+                    float damage = CombatCalculator.CalculateDamage(
+                        selectedAbility.baseDamage,
+                        attackStat,
+                        defense
+                    );
+
+                    DamageType type = selectedAbility.damageSource == DamageSourceType.Strength
+                        ? DamageType.Physical
+                        : DamageType.Magical;
+
+                    targetUnit.Model.TakeDamage(Mathf.RoundToInt(damage), type);
                 }
-
-                unit.Model.SpendAction();
-                unit.Model.AddAnxiety(5); //each attack raises anxiety for now
-                ActionUI.Instance.ClearAction();
-                unit.View.PlayAnimation("Attack"); //Placeholder for later
-
-                selectedAbility = null; // Reset after use
             }
+
+            // Consume action & adrenaline
+            unit.Model.SpendAction(selectedAbility.actionCost);
+            unit.Model.AddAdrenaline(5);
+
+            // Clear state
+            selectedAbility = null;
+            ActionUI.Instance.ClearAction();
         }
     }
 
