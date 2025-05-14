@@ -36,6 +36,6 @@ public class UnitTooltip : MonoBehaviour
         $"Perf: {model.Performance}   Aff: {model.Affinity}\n" +
         $"STR: {model.Strength}   MP: {model.MagicPower}\n" +
         $"AR: {model.Armor}   MR: {model.MagicResistance}\n" +
-        $"Anxiety: {model.Anxiety}";
+        $"Adrenaline: {model.Adrenaline}";
     }
 }
