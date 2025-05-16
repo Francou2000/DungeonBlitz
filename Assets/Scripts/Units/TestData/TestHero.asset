@@ -10,18 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 87a2cda1909aa01468970337e13de8dc, type: 3}
-  m_Name: TrainingDummy
+  m_Name: TestHero
   m_EditorClassIdentifier: 
-  unitName: TrainingDummy
-  faction: 2
-  maxHP: 50
+  unitName: TestHero
+  faction: 0
+  maxHP: 100
   performance: 0
   affinity: 0
-  armor: 5
-  magicResistance: 5
+  armor: 10
+  magicResistance: 10
   strength: 0
   magicPower: 0
   actionsPerTurn: 0
   reactionsPerTurn: 0
   abilities: []
-  isTrainingDummy: 1
+  isTrainingDummy: 0

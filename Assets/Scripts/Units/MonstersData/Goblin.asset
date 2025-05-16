@@ -13,9 +13,10 @@ MonoBehaviour:
   m_Name: Goblin
   m_EditorClassIdentifier: 
   unitName: Goblin
+  faction: 1
   maxHP: 100
   performance: 3
-  affinity: 0
+  affinity: 10
   armor: 5
   magicResistance: 5
   strength: 5
@@ -24,21 +25,30 @@ MonoBehaviour:
   reactionsPerTurn: 0
   abilities:
   - abilityName: GoblinSlash
+    baseHitChance: 50
+    range: 3
     baseDamage: 10
-    requiresAnxietyThreshold: 0
-    anxietyThreshold: 0
+    damageSource: 0
+    requiresAdrenalineThreshold: 0
+    adrenalineThreshold: 0
     hits: 1
     actionCost: 1
   - abilityName: GoblinStab
+    baseHitChance: 50
+    range: 3
     baseDamage: 12
-    requiresAnxietyThreshold: 0
-    anxietyThreshold: 0
+    damageSource: 0
+    requiresAdrenalineThreshold: 0
+    adrenalineThreshold: 0
     hits: 1
     actionCost: 1
   - abilityName: GoblinFlurry
+    baseHitChance: 50
+    range: 3
     baseDamage: 5
-    requiresAnxietyThreshold: 1
-    anxietyThreshold: 20
+    damageSource: 0
+    requiresAdrenalineThreshold: 0
+    adrenalineThreshold: 0
     hits: 3
     actionCost: 1
   isTrainingDummy: 0
