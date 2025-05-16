@@ -25,6 +25,7 @@ public class DC_Buttons : MonoBehaviour
         }
         else if (trap_to_select != Traps.NONE)
         {
+            Debug.Log("asldfkj");
             my_button.onClick.AddListener(trap_on_click_button);
         }
         else
@@ -40,11 +41,11 @@ public class DC_Buttons : MonoBehaviour
     }
     void unit_on_click_button()
     {
-        Dungeon_Creator_Manager.Instance.Selected_unit = unit_to_select;
+        Dungeon_Creator_Manager.Instance.select_unit(unit_to_select, state_to_change);
     }
     void trap_on_click_button()
     {
-        Dungeon_Creator_Manager.Instance.Selected_trap = trap_to_select;
+        Dungeon_Creator_Manager.Instance.select_trap(trap_to_select, state_to_change);
     }
     void change_panel()
     {

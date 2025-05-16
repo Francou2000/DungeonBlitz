@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Net.NetworkInformation;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UIElements;
 
 public class Dungeon_Creator_Manager : MonoBehaviour
@@ -8,10 +9,15 @@ public class Dungeon_Creator_Manager : MonoBehaviour
     public static Dungeon_Creator_Manager Instance;
     
     Vector3 mouse_position      = new Vector3();
+    public GameObject[] map_list;
     Units selected_unit         = Units.NONE;
+    public GameObject[] unit_list;
     Traps selected_trap         = Traps.NONE;
-    DC_State dc_state           = DC_State.NONE;
-    [SerializeField] Playable_Map finished_map   = new Playable_Map();
+    public GameObject[] trap_list;
+    public Transform spawn_point;
+    public DC_State dc_state           = DC_State.NONE;
+    Playable_Map finished_map   = new Playable_Map();
+    public UnityEvent PlaceSelected = new UnityEvent();
 
     public Units Selected_unit  { get { return selected_unit;   }   set { selected_unit = value; }  }
     public Traps Selected_trap  { get { return selected_trap;   }   set { selected_trap = value; }  }
@@ -26,22 +32,31 @@ public class Dungeon_Creator_Manager : MonoBehaviour
     }
     void Start()
     {
-
+        finished_map.SetMap(Maps.MAP_NAME1);
+        map_list[(int)finished_map.Actual_map].gameObject.SetActive(true);
     }
 
     void Update()
     {
-        mouse_position = Input.mousePosition;
+        // mouse_position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        if (Input.GetMouseButtonDown(0))
+        {
+            Debug.Log("AAAA");
+            on_mouse_clicked();
+        }
+        
     }
 
     void on_mouse_clicked()
     {
+        mouse_position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         if (dc_state == DC_State.PLACING_UNIT)
         {
             DC_Unit new_unit = new DC_Unit();
             new_unit.unit_type = selected_unit;
             new_unit.pos = mouse_position;
             finished_map.AddUnit(new_unit);
+            PlaceSelected.Invoke();
         }
         if (dc_state == DC_State.PLAICING_TRAP)
         {
@@ -49,9 +64,26 @@ public class Dungeon_Creator_Manager : MonoBehaviour
             trap.trap_type = selected_trap;
             trap.pos = mouse_position;
             finished_map.AddTrap(trap);
+            PlaceSelected.Invoke();
         }
     }
-    public void change_map(Maps new_map) { finished_map.SetMap(new_map); }
+    public void change_map(Maps new_map) {
+        map_list[(int)finished_map.Actual_map].gameObject.SetActive(false);
+        finished_map.SetMap(new_map);
+        map_list[(int)finished_map.Actual_map].gameObject.SetActive(true);
+    }
+    public void select_unit(Units new_unit, DC_State new_state = DC_State.PLACING_UNIT)
+    {
+        selected_unit = new_unit;
+        Instantiate(unit_list[(int)selected_unit], spawn_point);
+        dc_state = new_state;
+    }
+    public void select_trap(Traps new_trap, DC_State new_state = DC_State.PLAICING_TRAP)
+    {
+        selected_trap = new_trap;
+        Instantiate(trap_list[(int)selected_trap], spawn_point);
+        dc_state = new_state;
+    }
     void save_map() { }
 
 }
@@ -64,12 +96,13 @@ public enum Maps { NONE, MAP_NAME1, MAP_NAME2, ETC}
 public enum Units { NONE, UNIT_NAME1, UNIT_NAME2, ETC}
 public enum Traps { NONE, TRAP_NAME1, TRAP_NAME2, ETC}
 
-public struct Playable_Map
+public class Playable_Map
 {
-    Maps map;
-    List<DC_Unit> units;
-    List<DC_Trap> traps;
+    Maps map = Maps.NONE;
+    List<DC_Unit> units = new List<DC_Unit>();
+    List<DC_Trap> traps = new List<DC_Trap>();
 
+    public Maps Actual_map => map;
     public void SetMap(Maps new_map)
     {
         map = new_map;
