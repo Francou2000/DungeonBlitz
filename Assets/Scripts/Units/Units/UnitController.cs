@@ -9,6 +9,10 @@ public class UnitController : MonoBehaviour
     private bool isMoving = false;
     private UnitAbility selectedAbility;
 
+    public bool isControllable = true;
+
+    public UnitMovement movement;
+
     public static UnitController ActiveUnit { get; private set; }
 
     [Header("Move Range Indicator")]
@@ -18,11 +22,14 @@ public class UnitController : MonoBehaviour
     public void Initialize(Unit unit)
     {
         this.unit = unit;
+        movement = GetComponent<UnitMovement>();
         ActiveUnit = this;
     }
 
     void Update()
     {
+        if (!isControllable) return; //prevent input if not allowed
+
         if (isMoving) return;
 
         // Avoid handling input when clicking on UI
@@ -41,85 +48,25 @@ public class UnitController : MonoBehaviour
 
     public void TryMove()
     {
-        if (!unit.Model.CanAct())
-            return;
+        if (!unit.Model.CanAct()) return;
 
-        //Get clicked world position
-        Vector3 clickWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        clickWorld.z = transform.position.z;
+        Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        mouseWorld.z = transform.position.z;
 
-        //Compute max allowed distance this turn
-        float maxDistance = unit.Model.Performance * unit.Model.MoveDistanceFactor;
-
-        //Clamp targetPos to within range
-        Vector3 origin = transform.position;
-        Vector3 dir = clickWorld - origin;
-        if (dir.magnitude > maxDistance)
-        {
-            dir.Normalize();
-            clickWorld = origin + dir * maxDistance;
-            Debug.Log($"[Controller] Click beyond range, clamped to {clickWorld}");
-        }
-
-        float moveSpeed = unit.Model.GetMovementSpeed();
-        Debug.Log($"[Controller] Moving to {clickWorld} at speed {moveSpeed}");
-
-        StartCoroutine(MoveToPosition(clickWorld, moveSpeed));
-    }
-
-    private IEnumerator MoveToPosition(Vector3 targetPos, float moveSpeed)
-    {
         isMoving = true;
 
-        Vector3 direction = (targetPos - transform.position).normalized;
-        unit.View.SetFacingDirection(direction);
-        unit.View.PlayAnimation("Move");
-
-        //Smooth movement
-        while (Vector3.Distance(transform.position, targetPos) > 0.05f)
+        movement.MoveTo(mouseWorld, () =>
         {
-            transform.position = Vector3.MoveTowards(transform.position, targetPos, moveSpeed * Time.deltaTime);
-            yield return null;
-        }
-
-        //Snap exactly
-        transform.position = targetPos;
-
-        //Spend action & reset state
-        unit.Model.SpendAction();
-        isMoving = false;
-        unit.View.PlayAnimation("Idle");
-        ActionUI.Instance.ClearAction();
-    }
-
-    public void ShowMoveRange()
-    {
-        if (rangeIndicatorInstance == null)
-        {
-            rangeIndicatorInstance = Instantiate(
-                rangeIndicatorPrefab,
-                transform.position,
-                Quaternion.identity,
-                transform  // parent under the unit
-            );
-        }
-        float range = unit.Model.Performance * unit.Model.MoveDistanceFactor;
-        // Since the sprite’s radius is 0.5 units, scale = range*2
-        rangeIndicatorInstance.transform.localScale = new Vector3(range * 2f, range * 2f, 1f);
-        rangeIndicatorInstance.SetActive(true);
-    }
-
-    public void HideMoveRange()
-    {
-        if (rangeIndicatorInstance != null)
-            rangeIndicatorInstance.SetActive(false);
+            ActionUI.Instance.ClearAction();
+            isMoving = false;
+        });
     }
 
     public void TryAttack()
     {
         if (!unit.Model.CanAct() || unit.Model.CurrentActions < selectedAbility.actionCost)
         {
-            Debug.Log("Not enough actions to use this ability.");
+            Debug.Log("[Attack] Not enough actions to use this ability.");
             return;
         }
         
@@ -139,7 +86,7 @@ public class UnitController : MonoBehaviour
                     targetUnit.transform.position,
                     selectedAbility.range))
             {
-                Debug.Log("Target out of range");
+                Debug.Log("[Attack] Target out of range");
                 return;
             }
 
@@ -168,11 +115,11 @@ public class UnitController : MonoBehaviour
             float roll = Random.value * 100f;
             if (roll > hitChance)
             {
-                Debug.Log($"Missed! Rolled {roll:F1} vs {hitChance:F1}");
+                Debug.Log($"[Attack] Missed! Rolled {roll:F1} vs {hitChance:F1}");
             }
             else
             {
-                Debug.Log($"{unit.Model.UnitName} hits {targetUnit.Model.UnitName}!");
+                Debug.Log($"[Attack] {unit.Model.UnitName} hits {targetUnit.Model.UnitName}!");
 
                 int attackStat = selectedAbility.damageSource switch
                 {

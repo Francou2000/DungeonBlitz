@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 2775032902162649876}
   - component: {fileID: 3229033492943732991}
   - component: {fileID: 4278027369828502262}
+  - component: {fileID: 5596979723585727476}
   m_Layer: 0
   m_Name: TestUnit
   m_TagString: Untagged
@@ -117,6 +118,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce25985688ea0864b9db31b1b7712a0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  unit: {fileID: 0}
+  isControllable: 1
+  movement: {fileID: 0}
+  rangeIndicatorPrefab: {fileID: 7234173896536831813, guid: 056320df30eb94f43bb71359392dc8d8, type: 3}
 --- !u!114 &2775032902162649876
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -129,17 +134,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd448d041b8cbeb40b96b9502b6ca337, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unitName: TestUnit
-  maxHP: 50
-  strength: 10
-  magicPower: 0
-  physicalDefense: 0
-  magicalDefense: 0
-  speed: 5
-  actionsPerTurn: 2
-  currentHP: 0
-  currentActions: 0
-  isTrainingDummy: 0
+  unitData: {fileID: 11400000, guid: 43678f5a5f7debe46baf49f42dabb2bb, type: 2}
+  MoveDistanceFactor: 10
+  MoveTimeBase: 6
 --- !u!114 &3229033492943732991
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -201,6 +198,20 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &5596979723585727476
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4723805065706460994}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f26d701a20e0fa7439ca6ebd576bc7a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rangeIndicatorPrefab: {fileID: 7234173896536831813, guid: 056320df30eb94f43bb71359392dc8d8, type: 3}
+  pathLineRenderer: {fileID: 0}
 --- !u!1 &4953297582352794232
 GameObject:
   m_ObjectHideFlags: 0
