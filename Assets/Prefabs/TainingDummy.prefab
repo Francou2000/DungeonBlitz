@@ -204,8 +204,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce25985688ea0864b9db31b1b7712a0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unit: {fileID: 0}
-  rangeIndicatorPrefab: {fileID: 0}
 --- !u!114 &8405049396517202850
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -218,9 +216,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd448d041b8cbeb40b96b9502b6ca337, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unitData: {fileID: 11400000, guid: 9485ab4d68c40a547b3a4e53d6ca6be1, type: 2}
-  MoveDistanceFactor: 10
-  MoveTimeBase: 6
+  unitName: TrainingDummy
+  maxHP: 50
+  strength: 0
+  magicPower: 0
+  physicalDefense: 0
+  magicalDefense: 0
+  speed: 0
+  actionsPerTurn: 2
+  currentHP: 0
+  currentActions: 0
+  isTrainingDummy: 1
 --- !u!114 &7599311687441353785
 MonoBehaviour:
   m_ObjectHideFlags: 0

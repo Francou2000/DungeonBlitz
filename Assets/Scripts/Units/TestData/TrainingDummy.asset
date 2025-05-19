@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: TrainingDummy
   m_EditorClassIdentifier: 
   unitName: TrainingDummy
-  faction: 2
   maxHP: 50
   performance: 0
   affinity: 0

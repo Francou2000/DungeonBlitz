@@ -6,7 +6,6 @@ public class UnitData : ScriptableObject
 {
     [Header("Base Info")]
     public string unitName;
-    public UnitFaction faction;
     public int maxHP;
     public int performance;
     public int affinity;

@@ -10,7 +10,7 @@ public class UnitModel : MonoBehaviour
     private int currentHP;
     private int currentActions;
     private int currentReactions;
-    private int adrenaline;
+    private int anxiety;
 
     [Header("Movement Modifiers")]
     private readonly List<float> movementBuffs = new();
@@ -21,9 +21,6 @@ public class UnitModel : MonoBehaviour
 
     [Header("Public Getters")]
     public string UnitName => unitData.unitName;
-    public UnitFaction Faction => unitData.faction;
-
-
     public int MaxHP => unitData.maxHP;
     public int CurrentHP => currentHP;
 
@@ -40,7 +37,7 @@ public class UnitModel : MonoBehaviour
     public int Strength => unitData.strength;
     public int MagicPower => unitData.magicPower;
 
-    public int Adrenaline => adrenaline;
+    public int Anxiety => anxiety;
 
     public bool IsTrainingDummy => unitData.isTrainingDummy;
 
@@ -52,7 +49,7 @@ public class UnitModel : MonoBehaviour
         currentHP = MaxHP;
         currentActions = MaxActions;
         currentReactions = MaxReactions;
-        adrenaline = 0;
+        anxiety = 0;
 
         // Copy ability list from SO to runtime
         Abilities = new List<UnitAbility>(unitData.abilities);
@@ -99,16 +96,21 @@ public class UnitModel : MonoBehaviour
 
     // Damage Handling 
 
-    public void TakeDamage(int amount, DamageType type)
+    public void TakePhysicalDamage(int rawDamage)
     {
-        ApplyDamage(amount);
+        int reduced = Mathf.FloorToInt(rawDamage * 100f / (100f + Armor));
+        ApplyDamage(reduced);
+    }
+
+    public void TakeMagicDamage(int rawDamage)
+    {
+        int reduced = Mathf.FloorToInt(rawDamage * 100f / (100f + MagicResistance));
+        ApplyDamage(reduced);
     }
 
     private void ApplyDamage(int amount)
     {
         currentHP = Mathf.Max(0, currentHP - amount);
-        Debug.Log($"{UnitName} took {amount} damage!");
-
         if (currentHP <= 0)
         {
             Die();
@@ -121,8 +123,8 @@ public class UnitModel : MonoBehaviour
         Destroy(gameObject);
     }
 
-    // Adrenaline
+    // Anxiety
 
-    public void AddAdrenaline(int amount) => adrenaline += amount;
-    public void ResetAdrenaline() => adrenaline = 0;
+    public void AddAnxiety(int amount) => anxiety += amount;
+    public void ResetAnxiety() => anxiety = 0;
 }
