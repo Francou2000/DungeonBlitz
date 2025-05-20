@@ -38,11 +38,7 @@ public class Dungeon_Creator_Manager : MonoBehaviour
 
     void Update()
     {
-        // mouse_position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        if (Input.GetMouseButtonDown(0))
-        {
-            on_mouse_clicked();
-        }
+        if (Input.GetMouseButtonDown(0)) on_mouse_clicked();
         
     }
 
@@ -51,24 +47,15 @@ public class Dungeon_Creator_Manager : MonoBehaviour
         mouse_position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         if (dc_state == DC_State.PLACING_UNIT)
         {
-            DC_Unit new_unit = new DC_Unit();
-            new_unit.unit_type = selected_unit;
-            new_unit.pos = mouse_position;
-            finished_map.AddUnit(new_unit);
             PlaceSelected.Invoke();
         }
         if (dc_state == DC_State.PLAICING_TRAP)
         {
-            DC_Trap trap = new DC_Trap();
-            trap.trap_type = selected_trap;
-            trap.pos = mouse_position;
-            finished_map.AddTrap(trap);
             PlaceSelected.Invoke();
         }
     }
     public void change_map(Maps new_map) {
         map_list[(int)finished_map.Actual_map].gameObject.SetActive(false);
-        finished_map.SetMap(new_map);
         map_list[(int)finished_map.Actual_map].gameObject.SetActive(true);
     }
     public void select_unit(Units new_unit, DC_State new_state = DC_State.PLACING_UNIT)
@@ -83,7 +70,33 @@ public class Dungeon_Creator_Manager : MonoBehaviour
         Instantiate(trap_list[(int)selected_trap], spawn_point);
         dc_state = new_state;
     }
-    void save_map() { }
+    public void save_map() 
+    {
+        GameObject[] selected_elements = spawn_point.GetComponentsInChildren<GameObject>();
+        foreach (GameObject element in selected_elements)
+        {
+            if (element.active) continue;
+            DC_Elements_Data data = element.GetComponent<DC_Elements_Data>();
+            if (data.map != Maps.NONE)
+            {
+                finished_map.SetMap(data.map);
+            }
+            if (data.unit != Units.NONE)
+            {
+                DC_Unit new_unit = new DC_Unit();
+                new_unit.unit_type = data.unit;
+                new_unit.pos = element.transform.position;
+                finished_map.AddUnit(new_unit);
+            }
+            if (data.trap != Traps.NONE)
+            {
+                DC_Trap trap = new DC_Trap();
+                trap.trap_type = data.trap;
+                trap.pos = element.transform.position;
+                finished_map.AddTrap(trap);
+            }
+        }
+    }
 
 }
 

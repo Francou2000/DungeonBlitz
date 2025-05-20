@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 7351894385585213146}
   - component: {fileID: 4371147509640607945}
   - component: {fileID: 116415427755843033}
+  - component: {fileID: -6893387555090693142}
   m_Layer: 0
   m_Name: Trap_example_2
   m_TagString: Untagged
@@ -100,3 +101,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eeb4d89c7e0ed5d4eb1ffa369826e6d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &-6893387555090693142
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 922638733670684499}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f3d7baf1eee2e54aa31b0b690018de2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maps: 0
+  unit: 0
+  trap: 2

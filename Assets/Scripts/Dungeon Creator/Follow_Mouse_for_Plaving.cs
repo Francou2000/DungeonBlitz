@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class Follow_Mouse_for_Placing : MonoBehaviour
 {
+    public float radius;
+    public LayerMask standable_layer;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -20,7 +22,15 @@ public class Follow_Mouse_for_Placing : MonoBehaviour
 
     void place_selected()
     {
+        Collider2D[] collitions = Physics2D.OverlapCircleAll(transform.position, radius);
+        foreach (Collider2D col in collitions)
+        {
+            Map_Zone_Data map_zone_Data = col.GetComponent<Map_Zone_Data>();
+            if (map_zone_Data == null) continue;
+            if (!map_zone_Data.is_standaple) return;
+        }
+
         gameObject.GetComponent<Follow_Mouse_for_Placing>().enabled = false;
-        //transform.parent = null;
+        //CHANGE STATE
     }
 }
