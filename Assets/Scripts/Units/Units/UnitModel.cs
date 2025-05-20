@@ -17,7 +17,6 @@ public class UnitModel : MonoBehaviour
     private readonly List<float> movementDebuffs = new();
 
     public List<UnitAbility> Abilities { get; private set; } = new();
-    private StatusEffectHandler statusEffects;
 
 
     [Header("Public Getters")]
@@ -34,12 +33,12 @@ public class UnitModel : MonoBehaviour
     public int MaxReactions => unitData.reactionsPerTurn;
     public int CurrentReactions => currentReactions;
 
-    public int Performance => unitData.performance + statusEffects.GetStatModifier(StatModifier.Performance);
-    public int Affinity => unitData.affinity + statusEffects.GetStatModifier(StatModifier.Affinity);
-    public int Armor => unitData.armor + statusEffects.GetStatModifier(StatModifier.Armor);
-    public int MagicResistance => unitData.magicResistance + statusEffects.GetStatModifier(StatModifier.MagicResistance);
-    public int Strength => unitData.strength + statusEffects.GetStatModifier(StatModifier.Strength);
-    public int MagicPower => unitData.magicPower + statusEffects.GetStatModifier(StatModifier.MagicPower);
+    public int Performance => unitData.performance;
+    public int Affinity => unitData.affinity;
+    public int Armor => unitData.armor;
+    public int MagicResistance => unitData.magicResistance;
+    public int Strength => unitData.strength;
+    public int MagicPower => unitData.magicPower;
 
     public int Adrenaline => adrenaline;
 
@@ -57,9 +56,6 @@ public class UnitModel : MonoBehaviour
 
         // Copy ability list from SO to runtime
         Abilities = new List<UnitAbility>(unitData.abilities);
-
-        statusEffects = GetComponent<StatusEffectHandler>();
-
     }
 
     public void ResetTurn()
