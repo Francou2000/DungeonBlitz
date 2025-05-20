@@ -41,7 +41,6 @@ public class Dungeon_Creator_Manager : MonoBehaviour
         // mouse_position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         if (Input.GetMouseButtonDown(0))
         {
-            Debug.Log("AAAA");
             on_mouse_clicked();
         }
         
@@ -92,9 +91,9 @@ public class Dungeon_Creator_Manager : MonoBehaviour
 
 
 public enum DC_State { NONE, BUTTON, PLACING_UNIT, PLAICING_TRAP}
-public enum Maps { NONE, MAP_NAME1, MAP_NAME2, ETC}
-public enum Units { NONE, UNIT_NAME1, UNIT_NAME2, ETC}
-public enum Traps { NONE, TRAP_NAME1, TRAP_NAME2, ETC}
+public enum Maps { NONE, MAP_NAME1, MAP_NAME2}
+public enum Units { NONE, UNIT_NAME1, UNIT_NAME2}
+public enum Traps { NONE, TRAP_NAME1, TRAP_NAME2}
 
 public class Playable_Map
 {
