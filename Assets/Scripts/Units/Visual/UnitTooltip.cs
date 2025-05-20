@@ -3,7 +3,9 @@ using TMPro;
 
 public class UnitTooltip : MonoBehaviour
 {
-    public TextMeshProUGUI text;
+    public TextMeshProUGUI statText;
+    public TextMeshProUGUI statusText;
+
     private Unit unit;
     private Camera cam;
 
@@ -28,7 +30,7 @@ public class UnitTooltip : MonoBehaviour
     {
         var model = unit.Model;
 
-        text.text =
+        statText.text =
              $"{model.UnitName}\n" +
         $"HP: {model.CurrentHP} / {model.MaxHP}\n" +
         $"AC: {model.CurrentActions} / {model.MaxActions}\n" +
@@ -37,5 +39,23 @@ public class UnitTooltip : MonoBehaviour
         $"STR: {model.Strength}   MP: {model.MagicPower}\n" +
         $"AR: {model.Armor}   MR: {model.MagicResistance}\n" +
         $"Adrenaline: {model.Adrenaline}";
+
+        var handler = unit.GetComponent<StatusEffectHandler>();
+        if (handler != null)
+        {
+            var effects = handler.GetAllActiveEffects();
+            if (effects.Count > 0)
+            {
+                statusText.text = "Status Effects:\n";
+                foreach (var effect in effects)
+                {
+                    statusText.text += $"- {effect.effectName} ({effect.duration})\n";
+                }
+            }
+            else
+            {
+                statusText.text = "No active effects";
+            }
+        }
     }
 }

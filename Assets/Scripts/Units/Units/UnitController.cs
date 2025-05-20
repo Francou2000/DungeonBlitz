@@ -146,6 +146,29 @@ public class UnitController : MonoBehaviour
 
                     targetUnit.Model.TakeDamage(Mathf.RoundToInt(damage), type);
                 }
+
+                if (selectedAbility.appliedEffects != null && selectedAbility.appliedEffects.Count > 0)
+                {
+                    var handler = targetUnit.GetComponent<StatusEffectHandler>();
+                    if (handler != null)
+                    {
+                        foreach (var effect in selectedAbility.appliedEffects)
+                        {
+                            // Clone the effect so each unit has its own copy
+                            StatusEffect clone = new StatusEffect
+                            {
+                                effectName = effect.effectName,
+                                type = effect.type,
+                                modifier = effect.modifier,
+                                amount = effect.amount,
+                                duration = effect.duration,
+                                isStackable = effect.isStackable
+                            };
+
+                            handler.ApplyEffect(clone);
+                        }
+                    }
+                }
             }
 
             // Consume action & adrenaline
