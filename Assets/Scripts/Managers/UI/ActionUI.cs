@@ -46,8 +46,8 @@ public class ActionUI : MonoBehaviour
         var uc = UnitController.ActiveUnit;
         if (uc != null)
         {
-            if (action == UnitAction.Move) uc.ShowMoveRange();
-            else uc.HideMoveRange();
+            if (action == UnitAction.Move) uc.movement.ShowRange();
+            else uc.movement.HideRange();
         }
 
         // show ability panel only on Attack:
@@ -70,7 +70,7 @@ public class ActionUI : MonoBehaviour
         CombatUI.Instance.HideAbilities();
 
         var uc = UnitController.ActiveUnit;
-        if (uc != null) uc.HideMoveRange();
+        if (uc != null) uc.movement.HideRange();
     }
 
     public UnitAction GetCurrentAction()
