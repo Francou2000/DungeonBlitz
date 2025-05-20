@@ -7,6 +7,8 @@ public class UnitMovement : MonoBehaviour
     private GameObject rangeIndicator;
 
     [SerializeField] private GameObject rangeIndicatorPrefab;
+    [SerializeField] private LineRenderer pathLineRenderer;
+
     private void Awake()
     {
         unit = GetComponent<Unit>();

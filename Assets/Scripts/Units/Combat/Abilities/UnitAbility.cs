@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public enum DamageSourceType
@@ -32,6 +31,4 @@ public class UnitAbility
     public int hits = 1; // Default is 1 hit
 
     public int actionCost = 1; //Default is 1 action
-
-    public List<StatusEffect> appliedEffects = new();
 }
