@@ -40,10 +40,17 @@ public class UnitMovement : MonoBehaviour
     //Moves to the given world position, clamped to range. Calls onFinish when done
     public void MoveTo(Vector3 mouseWorld, System.Action onFinish)
     {
-        Vector3 clampedTarget = ClampToRange(mouseWorld, unit.transform.position);
+        Vector3 oldPosition = unit.transform.position;
+
+        Vector3 clampedTarget = ClampToRange(mouseWorld, oldPosition);
         float speed = unit.Model.GetMovementSpeed();
 
-        unit.StartCoroutine(MoveCoroutine(clampedTarget, speed, onFinish));
+        unit.StartCoroutine(MoveCoroutine(clampedTarget, speed, () =>
+        {
+            //After finishing movement, check for reactions
+            ReactionManager.TryTriggerReactions(unit, oldPosition);
+            onFinish?.Invoke();
+        }));
     }
 
     //Ensures the target is within move range
@@ -59,6 +66,8 @@ public class UnitMovement : MonoBehaviour
     {
         unit.View.SetFacingDirection((targetPos - transform.position).normalized);
         unit.View.PlayAnimation("Move");
+
+        Vector3 startPos = transform.position;
 
         while (Vector3.Distance(transform.position, targetPos) > 0.05f)
         {

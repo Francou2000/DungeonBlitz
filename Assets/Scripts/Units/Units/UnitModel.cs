@@ -54,7 +54,7 @@ public class UnitModel : MonoBehaviour
         currentHP = MaxHP;
         currentActions = MaxActions;
         currentReactions = MaxReactions;
-        adrenaline = 0;
+        adrenaline = unitData.baseAdrenaline;
 
         // Copy ability list from SO to runtime
         Abilities = new List<UnitAbility>(unitData.abilities);
@@ -132,4 +132,32 @@ public class UnitModel : MonoBehaviour
 
     public void AddAdrenaline(int amount) => adrenaline += amount;
     public void ResetAdrenaline() => adrenaline = 0;
+
+    //Reaction
+
+    public IEnumerable<UnitAbility> GetReactionsForTrigger(ReactionTrigger trigger)
+    {
+        foreach (var ability in Abilities)
+        {
+            if (ability.isReaction && ability.reactionTrigger == trigger)
+                yield return ability;
+        }
+    }
+
+    public void TryPromote()
+    {
+        if (!unitData.isPromotable || unitData.promotedForm == null)
+        {
+            Debug.Log($"[Promotion] {UnitName} is not promotable.");
+            return;
+        }
+
+        Debug.Log($"[Promotion] {UnitName} is promoting to {unitData.promotedForm.unitName}");
+
+        // Swap data
+        unitData = unitData.promotedForm;
+
+        // Reinitialize with new stats/abilities
+        Initialize();
+    }
 }

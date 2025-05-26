@@ -10,19 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 87a2cda1909aa01468970337e13de8dc, type: 3}
-  m_Name: Goblin
+  m_Name: GoblinPromoted
   m_EditorClassIdentifier: 
-  unitName: Goblin
+  unitName: PromotedGoblin
   faction: 1
   maxHP: 100
   performance: 3
   affinity: 10
-  armor: 5
-  magicResistance: 5
-  strength: 5
+  armor: 10
+  magicResistance: 10
+  strength: 10
   magicPower: 0
   actionsPerTurn: 2
   reactionsPerTurn: 0
+  baseAdrenaline: 100
   abilities:
   - abilityName: GoblinSlash
     baseHitChance: 50
@@ -61,5 +62,5 @@ MonoBehaviour:
     isReaction: 0
     reactionTrigger: 0
   isTrainingDummy: 0
-  isPromotable: 1
-  promotedForm: {fileID: 11400000, guid: d703ee64856cd7441bec0064fa1c68a3, type: 2}
+  isPromotable: 0
+  promotedForm: {fileID: 0}

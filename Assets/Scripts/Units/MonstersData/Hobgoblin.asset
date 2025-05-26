@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 87a2cda1909aa01468970337e13de8dc, type: 3}
-  m_Name: Goblin
+  m_Name: Hobgoblin
   m_EditorClassIdentifier: 
-  unitName: Goblin
+  unitName: Hobgoblin
   faction: 1
   maxHP: 100
-  performance: 3
+  performance: 2
   affinity: 10
-  armor: 5
-  magicResistance: 5
-  strength: 5
-  magicPower: 0
+  armor: 10
+  magicResistance: 10
+  strength: 10
+  magicPower: 5
   actionsPerTurn: 2
   reactionsPerTurn: 0
   abilities:
@@ -36,26 +36,14 @@ MonoBehaviour:
     appliedEffects: []
     isReaction: 0
     reactionTrigger: 0
-  - abilityName: GoblinStab
+  - abilityName: SpearThrow
     baseHitChance: 50
-    range: 3
-    baseDamage: 12
+    range: 12
+    baseDamage: 10
     damageSource: 0
     requiresAdrenalineThreshold: 0
     adrenalineThreshold: 0
     hits: 1
-    actionCost: 1
-    appliedEffects: []
-    isReaction: 0
-    reactionTrigger: 0
-  - abilityName: GoblinFlurry
-    baseHitChance: 50
-    range: 3
-    baseDamage: 5
-    damageSource: 0
-    requiresAdrenalineThreshold: 0
-    adrenalineThreshold: 0
-    hits: 3
     actionCost: 1
     appliedEffects: []
     isReaction: 0
