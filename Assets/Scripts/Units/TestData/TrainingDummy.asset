@@ -22,6 +22,21 @@ MonoBehaviour:
   strength: 0
   magicPower: 0
   actionsPerTurn: 0
-  reactionsPerTurn: 0
-  abilities: []
-  isTrainingDummy: 1
+  reactionsPerTurn: 1
+  baseAdrenaline: 0
+  abilities:
+  - abilityName: Opportunity Attack
+    baseHitChance: 100
+    range: 3
+    baseDamage: 5
+    damageSource: 0
+    requiresAdrenalineThreshold: 0
+    adrenalineThreshold: 0
+    hits: 1
+    actionCost: 0
+    appliedEffects: []
+    isReaction: 1
+    reactionTrigger: 4
+  isTrainingDummy: 0
+  isPromotable: 0
+  promotedForm: {fileID: 0}

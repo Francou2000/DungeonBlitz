@@ -15,7 +15,7 @@ public class UnitController : MonoBehaviour
 
     public UnitMovement Movement => movement;
 
-    public static UnitController ActiveUnit { get; private set; }
+    public static UnitController ActiveUnit { get;  set; }
 
     void Awake()
     {
@@ -42,7 +42,8 @@ public class UnitController : MonoBehaviour
 
     void Update()
     {
-        if (!isControllable) return; //prevent input if not allowed
+        if (!isControllable || UnitController.ActiveUnit != this)
+            return;
 
         if (isMoving) return;
 

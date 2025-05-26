@@ -16,10 +16,15 @@ public class UnitData : ScriptableObject
     public int magicPower;
     public int actionsPerTurn;
     public int reactionsPerTurn;
+    public int baseAdrenaline = 0;
 
     [Header("Abilities")]
     public List<UnitAbility> abilities = new List<UnitAbility>();
 
     [Header("Flags")]
     public bool isTrainingDummy = false;
+
+    [Header("Promotion")]
+    public bool isPromotable;
+    public UnitData promotedForm;
 }

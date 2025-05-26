@@ -130,7 +130,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   text: {fileID: 4425191239432352761}
-  statusText: {fileID: 0}
+  statusText: {fileID: 2870968679856481516}
 --- !u!1 &6080344639516453129
 GameObject:
   m_ObjectHideFlags: 0

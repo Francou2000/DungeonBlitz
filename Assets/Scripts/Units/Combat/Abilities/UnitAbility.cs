@@ -12,6 +12,14 @@ public enum DamageType
     Physical,
     Magical
 }
+public enum ReactionTrigger
+{
+    None,
+    OnEnemyEnterRange,
+    OnEnemyAttack,
+    OnAllyDamaged,
+    OnEnemyLeavesRange
+}
 
 [System.Serializable]
 public class UnitAbility 
@@ -34,4 +42,12 @@ public class UnitAbility
     public int actionCost = 1; //Default is 1 action
 
     public List<StatusEffect> appliedEffects = new List<StatusEffect>();
+
+    public bool isReaction;
+    public ReactionTrigger reactionTrigger;
+
+    public DamageType GetDamageType()
+    {
+        return damageSource == DamageSourceType.Strength ? DamageType.Physical : DamageType.Magical;
+    }
 }
