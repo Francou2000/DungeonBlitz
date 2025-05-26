@@ -100,6 +100,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f3d7baf1eee2e54aa31b0b690018de2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maps: 2
+  map: 2
   unit: 0
   trap: 0

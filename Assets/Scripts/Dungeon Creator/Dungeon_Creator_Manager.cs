@@ -33,7 +33,7 @@ public class Dungeon_Creator_Manager : MonoBehaviour
     void Start()
     {
         finished_map.SetMap(Maps.MAP_NAME1);
-        map_list[(int)finished_map.Actual_map].gameObject.SetActive(true);
+        Instantiate(map_list[(int)finished_map.Actual_map], spawn_point);
     }
 
     void Update()
@@ -55,8 +55,16 @@ public class Dungeon_Creator_Manager : MonoBehaviour
         }
     }
     public void change_map(Maps new_map) {
-        map_list[(int)finished_map.Actual_map].gameObject.SetActive(false);
-        map_list[(int)finished_map.Actual_map].gameObject.SetActive(true);
+        DC_Elements_Data[] selected_elements = spawn_point.GetComponentsInChildren<DC_Elements_Data>();
+        for (int i = selected_elements.Length - 1; i > -1; i--)
+        {
+            Destroy(selected_elements[i].gameObject);
+        }
+
+        Instantiate(map_list[(int)new_map], spawn_point);
+        //map_list[(int)finished_map.Actual_map].gameObject.SetActive(false);
+        //map_list[(int)finished_map.Actual_map].gameObject.SetActive(true);
+
     }
     public void select_unit(Units new_unit, DC_State new_state = DC_State.PLACING_UNIT)
     {

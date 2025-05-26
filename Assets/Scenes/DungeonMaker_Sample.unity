@@ -1767,11 +1767,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 654821149}
   m_CullTransparentMesh: 1
---- !u!1 &666292027 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 761055906239392120, guid: 3dece2663038d9048834dcc339175158, type: 3}
-  m_PrefabInstance: {fileID: 1744191067}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &666292028 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2499155209391937649, guid: 3dece2663038d9048834dcc339175158, type: 3}
@@ -2302,6 +2297,10 @@ PrefabInstance:
     - target: {fileID: 323520596652738345, guid: 31c7ec851c75edb49b811818435e6796, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1281469378713292065, guid: 31c7ec851c75edb49b811818435e6796, type: 3}
+      propertyPath: map
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1971020734271823997, guid: 31c7ec851c75edb49b811818435e6796, type: 3}
       propertyPath: m_LocalPosition.x
@@ -3005,11 +3004,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1589345699}
   m_CullTransparentMesh: 1
---- !u!1 &1632857469 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 323520596652738345, guid: 31c7ec851c75edb49b811818435e6796, type: 3}
-  m_PrefabInstance: {fileID: 892373228}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1632857470 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1971020734271823997, guid: 31c7ec851c75edb49b811818435e6796, type: 3}
@@ -3061,8 +3055,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   map_list:
   - {fileID: 42741190224895191, guid: 759cc09388047494f939f4301e6453e6, type: 3}
-  - {fileID: 1632857469}
-  - {fileID: 666292027}
+  - {fileID: 323520596652738345, guid: 31c7ec851c75edb49b811818435e6796, type: 3}
+  - {fileID: 761055906239392120, guid: 3dece2663038d9048834dcc339175158, type: 3}
   unit_list:
   - {fileID: 42741190224895191, guid: 759cc09388047494f939f4301e6453e6, type: 3}
   - {fileID: 5896987866108865537, guid: 9421ea6de57abdd4385aec8b2d94f19b, type: 3}
@@ -3205,6 +3199,10 @@ PrefabInstance:
     - target: {fileID: 2499155209391937649, guid: 3dece2663038d9048834dcc339175158, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9181468153069098033, guid: 3dece2663038d9048834dcc339175158, type: 3}
+      propertyPath: map
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
