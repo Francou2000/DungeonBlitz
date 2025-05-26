@@ -11,19 +11,33 @@ public class UnitController : MonoBehaviour
 
     public bool isControllable = true;
 
-    public UnitMovement movement;
+    private UnitMovement movement;
+
+    public UnitMovement Movement => movement;
 
     public static UnitController ActiveUnit { get; private set; }
 
-    [Header("Move Range Indicator")]
-    [SerializeField] private GameObject rangeIndicatorPrefab;
-    private GameObject rangeIndicatorInstance;
+    void Awake()
+    {
+        unit = GetComponent<Unit>();
+
+        if (isControllable)
+        {
+            movement = GetComponent<UnitMovement>();
+            if (movement == null)
+                Debug.LogError("[UnitController] No UnitMovement found on this controllable unit!");
+        }
+    }
 
     public void Initialize(Unit unit)
     {
         this.unit = unit;
-        movement = GetComponent<UnitMovement>();
-        ActiveUnit = this;
+        ActiveUnit = this; 
+        
+        if (isControllable)
+        {
+            ActiveUnit = this;
+        }
     }
 
     void Update()
@@ -145,6 +159,13 @@ public class UnitController : MonoBehaviour
                         : DamageType.Magical;
 
                     targetUnit.Model.TakeDamage(Mathf.RoundToInt(damage), type);
+                }
+
+                var handler = targetUnit.GetComponent<StatusEffectHandler>();
+                if (handler != null && selectedAbility.appliedEffects != null)
+                {
+                    foreach (var effect in selectedAbility.appliedEffects)
+                        handler.ApplyEffect(effect);
                 }
             }
 
