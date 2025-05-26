@@ -15,9 +15,11 @@ public class Dungeon_Creator_Manager : MonoBehaviour
     Traps selected_trap         = Traps.NONE;
     public GameObject[] trap_list;
     public Transform spawn_point;
+    public GameObject menu_for_selection;
     public DC_State dc_state           = DC_State.NONE;
-    Playable_Map finished_map   = new Playable_Map();
+    Playable_Map finished_map       = new Playable_Map();
     public UnityEvent PlaceSelected = new UnityEvent();
+
 
     public Units Selected_unit  { get { return selected_unit;   }   set { selected_unit = value; }  }
     public Traps Selected_trap  { get { return selected_trap;   }   set { selected_trap = value; }  }
@@ -33,17 +35,12 @@ public class Dungeon_Creator_Manager : MonoBehaviour
     void Start()
     {
         finished_map.SetMap(Maps.MAP_NAME1);
-        map_list[(int)finished_map.Actual_map].gameObject.SetActive(true);
+        Instantiate(map_list[(int)finished_map.Actual_map], spawn_point);
     }
 
     void Update()
     {
-        // mouse_position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        if (Input.GetMouseButtonDown(0))
-        {
-            Debug.Log("AAAA");
-            on_mouse_clicked();
-        }
+        if (Input.GetMouseButtonDown(0)) on_mouse_clicked();
         
     }
 
@@ -52,39 +49,63 @@ public class Dungeon_Creator_Manager : MonoBehaviour
         mouse_position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         if (dc_state == DC_State.PLACING_UNIT)
         {
-            DC_Unit new_unit = new DC_Unit();
-            new_unit.unit_type = selected_unit;
-            new_unit.pos = mouse_position;
-            finished_map.AddUnit(new_unit);
             PlaceSelected.Invoke();
         }
         if (dc_state == DC_State.PLAICING_TRAP)
         {
-            DC_Trap trap = new DC_Trap();
-            trap.trap_type = selected_trap;
-            trap.pos = mouse_position;
-            finished_map.AddTrap(trap);
             PlaceSelected.Invoke();
         }
     }
     public void change_map(Maps new_map) {
-        map_list[(int)finished_map.Actual_map].gameObject.SetActive(false);
-        finished_map.SetMap(new_map);
-        map_list[(int)finished_map.Actual_map].gameObject.SetActive(true);
+        DC_Elements_Data[] selected_elements = spawn_point.GetComponentsInChildren<DC_Elements_Data>();
+        for (int i = selected_elements.Length - 1; i > -1; i--)
+        {
+            Destroy(selected_elements[i].gameObject);
+        }
+
+        Instantiate(map_list[(int)new_map], spawn_point);
     }
     public void select_unit(Units new_unit, DC_State new_state = DC_State.PLACING_UNIT)
     {
         selected_unit = new_unit;
-        Instantiate(unit_list[(int)selected_unit], spawn_point);
+        GameObject new_element = Instantiate(unit_list[(int)selected_unit], spawn_point);
+        new_element.GetComponent<Follow_Mouse_for_Placing>().selected_menu = menu_for_selection;
         dc_state = new_state;
     }
     public void select_trap(Traps new_trap, DC_State new_state = DC_State.PLAICING_TRAP)
     {
         selected_trap = new_trap;
-        Instantiate(trap_list[(int)selected_trap], spawn_point);
+        GameObject new_element = Instantiate(trap_list[(int)selected_trap], spawn_point);
+        new_element.GetComponent<Follow_Mouse_for_Placing>().selected_menu = menu_for_selection;
         dc_state = new_state;
     }
-    void save_map() { }
+    public void save_map() 
+    {
+        GameObject[] selected_elements = spawn_point.GetComponentsInChildren<GameObject>();
+        foreach (GameObject element in selected_elements)
+        {
+            if (element.active) continue;
+            DC_Elements_Data data = element.GetComponent<DC_Elements_Data>();
+            if (data.map != Maps.NONE)
+            {
+                finished_map.SetMap(data.map);
+            }
+            if (data.unit != Units.NONE)
+            {
+                DC_Unit new_unit = new DC_Unit();
+                new_unit.unit_type = data.unit;
+                new_unit.pos = element.transform.position;
+                finished_map.AddUnit(new_unit);
+            }
+            if (data.trap != Traps.NONE)
+            {
+                DC_Trap trap = new DC_Trap();
+                trap.trap_type = data.trap;
+                trap.pos = element.transform.position;
+                finished_map.AddTrap(trap);
+            }
+        }
+    }
 
 }
 
@@ -92,9 +113,9 @@ public class Dungeon_Creator_Manager : MonoBehaviour
 
 
 public enum DC_State { NONE, BUTTON, PLACING_UNIT, PLAICING_TRAP}
-public enum Maps { NONE, MAP_NAME1, MAP_NAME2, ETC}
-public enum Units { NONE, UNIT_NAME1, UNIT_NAME2, ETC}
-public enum Traps { NONE, TRAP_NAME1, TRAP_NAME2, ETC}
+public enum Maps { NONE, MAP_NAME1, MAP_NAME2}
+public enum Units { NONE, UNIT_NAME1, UNIT_NAME2}
+public enum Traps { NONE, TRAP_NAME1, TRAP_NAME2}
 
 public class Playable_Map
 {
