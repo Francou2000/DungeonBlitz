@@ -15,9 +15,11 @@ public class Dungeon_Creator_Manager : MonoBehaviour
     Traps selected_trap         = Traps.NONE;
     public GameObject[] trap_list;
     public Transform spawn_point;
+    public GameObject menu_for_selection;
     public DC_State dc_state           = DC_State.NONE;
-    Playable_Map finished_map   = new Playable_Map();
+    Playable_Map finished_map       = new Playable_Map();
     public UnityEvent PlaceSelected = new UnityEvent();
+
 
     public Units Selected_unit  { get { return selected_unit;   }   set { selected_unit = value; }  }
     public Traps Selected_trap  { get { return selected_trap;   }   set { selected_trap = value; }  }
@@ -62,20 +64,19 @@ public class Dungeon_Creator_Manager : MonoBehaviour
         }
 
         Instantiate(map_list[(int)new_map], spawn_point);
-        //map_list[(int)finished_map.Actual_map].gameObject.SetActive(false);
-        //map_list[(int)finished_map.Actual_map].gameObject.SetActive(true);
-
     }
     public void select_unit(Units new_unit, DC_State new_state = DC_State.PLACING_UNIT)
     {
         selected_unit = new_unit;
-        Instantiate(unit_list[(int)selected_unit], spawn_point);
+        GameObject new_element = Instantiate(unit_list[(int)selected_unit], spawn_point);
+        new_element.GetComponent<Follow_Mouse_for_Placing>().selected_menu = menu_for_selection;
         dc_state = new_state;
     }
     public void select_trap(Traps new_trap, DC_State new_state = DC_State.PLAICING_TRAP)
     {
         selected_trap = new_trap;
-        Instantiate(trap_list[(int)selected_trap], spawn_point);
+        GameObject new_element = Instantiate(trap_list[(int)selected_trap], spawn_point);
+        new_element.GetComponent<Follow_Mouse_for_Placing>().selected_menu = menu_for_selection;
         dc_state = new_state;
     }
     public void save_map() 
