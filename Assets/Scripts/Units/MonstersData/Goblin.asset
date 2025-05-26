@@ -33,6 +33,7 @@ MonoBehaviour:
     adrenalineThreshold: 0
     hits: 1
     actionCost: 1
+    appliedEffects: []
   - abilityName: GoblinStab
     baseHitChance: 50
     range: 3
@@ -42,6 +43,7 @@ MonoBehaviour:
     adrenalineThreshold: 0
     hits: 1
     actionCost: 1
+    appliedEffects: []
   - abilityName: GoblinFlurry
     baseHitChance: 50
     range: 3
@@ -51,4 +53,5 @@ MonoBehaviour:
     adrenalineThreshold: 0
     hits: 3
     actionCost: 1
+    appliedEffects: []
   isTrainingDummy: 0

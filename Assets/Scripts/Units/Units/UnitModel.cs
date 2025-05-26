@@ -18,6 +18,8 @@ public class UnitModel : MonoBehaviour
 
     public List<UnitAbility> Abilities { get; private set; } = new();
 
+    private StatusEffectHandler statusHandler;
+
 
     [Header("Public Getters")]
     public string UnitName => unitData.unitName;
@@ -33,12 +35,12 @@ public class UnitModel : MonoBehaviour
     public int MaxReactions => unitData.reactionsPerTurn;
     public int CurrentReactions => currentReactions;
 
-    public int Performance => unitData.performance;
-    public int Affinity => unitData.affinity;
-    public int Armor => unitData.armor;
-    public int MagicResistance => unitData.magicResistance;
-    public int Strength => unitData.strength;
-    public int MagicPower => unitData.magicPower;
+    public int Performance => unitData.performance + statusHandler.GetStatBonus(StatModifier.Performance);
+    public int Affinity => unitData.affinity + statusHandler.GetStatBonus(StatModifier.Affinity);
+    public int Armor => unitData.armor + statusHandler.GetStatBonus(StatModifier.Armor);
+    public int MagicResistance => unitData.magicResistance + statusHandler.GetStatBonus(StatModifier.MagicResistance);
+    public int Strength => unitData.strength + statusHandler.GetStatBonus(StatModifier.Strength);
+    public int MagicPower => unitData.magicPower + statusHandler.GetStatBonus(StatModifier.MagicPower);
 
     public int Adrenaline => adrenaline;
 
@@ -56,6 +58,11 @@ public class UnitModel : MonoBehaviour
 
         // Copy ability list from SO to runtime
         Abilities = new List<UnitAbility>(unitData.abilities);
+
+        statusHandler = GetComponent<StatusEffectHandler>();
+        if (statusHandler == null)
+            Debug.LogWarning("[UnitModel] No StatusEffectHandler found on this unit.");
+
     }
 
     public void ResetTurn()

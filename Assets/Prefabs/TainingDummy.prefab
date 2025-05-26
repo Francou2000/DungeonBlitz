@@ -102,6 +102,8 @@ GameObject:
   - component: {fileID: 8405049396517202850}
   - component: {fileID: 7599311687441353785}
   - component: {fileID: 2953543453077520507}
+  - component: {fileID: 1761506796211344521}
+  - component: {fileID: 15676998241751077}
   m_Layer: 0
   m_Name: TainingDummy
   m_TagString: Untagged
@@ -205,7 +207,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unit: {fileID: 0}
-  rangeIndicatorPrefab: {fileID: 0}
+  isControllable: 0
 --- !u!114 &8405049396517202850
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -282,3 +284,28 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &1761506796211344521
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8510424159604125785}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f26d701a20e0fa7439ca6ebd576bc7a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rangeIndicatorPrefab: {fileID: 7234173896536831813, guid: 056320df30eb94f43bb71359392dc8d8, type: 3}
+--- !u!114 &15676998241751077
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8510424159604125785}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ca1c91521b4b194a85d4bfdaef2e8a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
