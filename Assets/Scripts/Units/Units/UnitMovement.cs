@@ -7,13 +7,13 @@ public class UnitMovement : MonoBehaviour
     private GameObject rangeIndicator;
 
     [SerializeField] private GameObject rangeIndicatorPrefab;
-    [SerializeField] private LineRenderer pathLineRenderer;
 
     private void Awake()
     {
         unit = GetComponent<Unit>();
     }
 
+    //Shows a visual indicator of the movement range
     public void ShowRange()
     {
         if (rangeIndicator == null)
@@ -37,6 +37,7 @@ public class UnitMovement : MonoBehaviour
             rangeIndicator.SetActive(false);
     }
 
+    //Moves to the given world position, clamped to range. Calls onFinish when done
     public void MoveTo(Vector3 mouseWorld, System.Action onFinish)
     {
         Vector3 clampedTarget = ClampToRange(mouseWorld, unit.transform.position);
@@ -45,6 +46,7 @@ public class UnitMovement : MonoBehaviour
         unit.StartCoroutine(MoveCoroutine(clampedTarget, speed, onFinish));
     }
 
+    //Ensures the target is within move range
     private Vector3 ClampToRange(Vector3 target, Vector3 origin)
     {
         float range = unit.Model.Performance * unit.Model.MoveDistanceFactor;

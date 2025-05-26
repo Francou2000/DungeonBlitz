@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 3229033492943732991}
   - component: {fileID: 4278027369828502262}
   - component: {fileID: 5596979723585727476}
+  - component: {fileID: 813704401357603263}
   m_Layer: 0
   m_Name: TestUnit
   m_TagString: Untagged
@@ -212,6 +213,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rangeIndicatorPrefab: {fileID: 7234173896536831813, guid: 056320df30eb94f43bb71359392dc8d8, type: 3}
   pathLineRenderer: {fileID: 0}
+--- !u!114 &813704401357603263
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4723805065706460994}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ca1c91521b4b194a85d4bfdaef2e8a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4953297582352794232
 GameObject:
   m_ObjectHideFlags: 0
