@@ -51,7 +51,7 @@ public class Dungeon_Creator_Manager : MonoBehaviour
         {
             PlaceSelected.Invoke();
         }
-        if (dc_state == DC_State.PLAICING_TRAP)
+        else if (dc_state == DC_State.PLAICING_TRAP)
         {
             PlaceSelected.Invoke();
         }
