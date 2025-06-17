@@ -21,10 +21,12 @@ public class ReadyButton : MonoBehaviour
     {
         if (is_ready) {
             is_ready = false;
+            my_text.text = "Ready";
         }
         else
         {
             is_ready = true;
+            my_text.text = "Cancel";
         }
     }
 }

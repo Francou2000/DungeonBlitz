@@ -4,20 +4,15 @@ using UnityEngine;
 public class PlayerManager : MonoBehaviourPunCallbacks
 {
     [SerializeField] LobbyCharacterShow[] characterList;
-        
 
-    public void CheckEmptyCharacter()
+    private void Start()
     {
-        foreach (var character in characterList)
-        {
-            if (character.is_claimed) continue;
-            ClaimCharacter(character);
-        }
-
+        ClaimCharacter();
     }
 
-    void ClaimCharacter(LobbyCharacterShow char_to_claim)
+    void ClaimCharacter()
     {
-        char_to_claim.SetCharacter(PhotonNetwork.LocalPlayer.ActorNumber.ToString());
+        int player_number = PhotonNetwork.LocalPlayer.ActorNumber;
+        characterList[player_number - 1].SetCharacter(player_number.ToString());
     }
 }

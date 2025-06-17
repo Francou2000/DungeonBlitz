@@ -1,15 +1,16 @@
+using Photon.Pun;
 using TMPro;
 using UnityEngine;
 
-public class LobbyCharacterShow : MonoBehaviour
+public class LobbyCharacterShow : MonoBehaviourPunCallbacks
 {
     public bool is_claimed = false;
     string player_name;
-    TextMeshProUGUI my_name;
+    [SerializeField] TextMeshProUGUI my_name;
 
     void Start()
     {
-        my_name = GetComponent<TextMeshProUGUI>();
+        //my_name = GetComponentInChildren<TextMeshProUGUI>();
     }
 
     void UpdateUI()
