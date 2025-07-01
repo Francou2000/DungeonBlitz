@@ -10,25 +10,25 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 87a2cda1909aa01468970337e13de8dc, type: 3}
-  m_Name: Hobgoblin
+  m_Name: Paladin
   m_EditorClassIdentifier: 
-  unitName: Hobgoblin
-  faction: 1
-  maxHP: 4
+  unitName: Paladin
+  faction: 0
+  maxHP: 10
   performance: 1
   affinity: 0
-  armor: 3
-  magicResistance: 3
-  strength: 5
-  magicPower: 2
+  armor: 5
+  magicResistance: 5
+  strength: 3
+  magicPower: 3
   actionsPerTurn: 2
   reactionsPerTurn: 1
   baseAdrenaline: 0
   abilities:
-  - abilityName: GoblinSlash
+  - abilityName: Justice Strike
     baseHitChance: 50
     range: 3
-    baseDamage: 10
+    baseDamage: 5
     damageSource: 0
     requiresAdrenalineThreshold: 0
     adrenalineThreshold: 0
@@ -37,10 +37,10 @@ MonoBehaviour:
     appliedEffects: []
     isReaction: 0
     reactionTrigger: 0
-  - abilityName: SpearThrow
+  - abilityName: Shield Bash
     baseHitChance: 50
-    range: 12
-    baseDamage: 10
+    range: 3
+    baseDamage: 3
     damageSource: 0
     requiresAdrenalineThreshold: 0
     adrenalineThreshold: 0
@@ -50,5 +50,5 @@ MonoBehaviour:
     isReaction: 0
     reactionTrigger: 0
   isTrainingDummy: 0
-  isPromotable: 1
-  promotedForm: {fileID: 11400000, guid: d703ee64856cd7441bec0064fa1c68a3, type: 2}
+  isPromotable: 0
+  promotedForm: {fileID: 0}
