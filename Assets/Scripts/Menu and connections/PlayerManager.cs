@@ -12,7 +12,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
 
     void ClaimCharacter()
     {
-        int player_number = PhotonNetwork.LocalPlayer.ActorNumber;
-        characterList[player_number - 1].SetCharacter(player_number.ToString());
+        //int player_number = PhotonNetwork.LocalPlayer.ActorNumber;
+        //characterList[player_number - 1].SetCharacter(player_number);
     }
 }
