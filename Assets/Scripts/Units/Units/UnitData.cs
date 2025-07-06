@@ -6,9 +6,11 @@ public class UnitData : ScriptableObject
 {
     [Header("Base Info")]
     public string unitName;
+    public Sprite full_body_foto;
+    public Sprite portrait_foto;
     public UnitFaction faction;
     public int maxHP;
-    public float performance;
+    public int performance;
     public int affinity;
     public int armor;
     public int magicResistance;
