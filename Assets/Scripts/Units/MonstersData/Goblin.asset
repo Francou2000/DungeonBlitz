@@ -14,15 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitName: Goblin
   faction: 1
-  maxHP: 100
-  performance: 3
-  affinity: 10
-  armor: 5
-  magicResistance: 5
-  strength: 5
+  maxHP: 3
+  performance: 2
+  affinity: 0
+  armor: 2
+  magicResistance: 0
+  strength: 3
   magicPower: 0
   actionsPerTurn: 2
-  reactionsPerTurn: 0
+  reactionsPerTurn: 1
+  baseAdrenaline: 0
   abilities:
   - abilityName: GoblinSlash
     baseHitChance: 50

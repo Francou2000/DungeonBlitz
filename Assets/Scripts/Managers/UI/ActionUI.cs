@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Photon.Pun;
+using UnityEngine;
 using UnityEngine.UI;
 
 public enum UnitAction
@@ -15,6 +16,7 @@ public class ActionUI : MonoBehaviour
     public Button moveButton;
     public Button attackButton;
     public Button cancelButton;
+    public Button endTurnButton;
 
     private UnitAction currentAction = UnitAction.None;
 
@@ -33,6 +35,7 @@ public class ActionUI : MonoBehaviour
         moveButton.onClick.AddListener(() => SetAction(UnitAction.Move));
         attackButton.onClick.AddListener(() => SetAction(UnitAction.Attack));
         cancelButton.onClick.AddListener(ClearAction);
+        endTurnButton.onClick.AddListener(EndTurn);
     }
 
     public void SetAction(UnitAction action)
@@ -77,6 +80,16 @@ public class ActionUI : MonoBehaviour
 
         var uc = UnitController.ActiveUnit;
         if (uc != null) uc.Movement.HideRange();
+    }
+
+    public void EndTurn()
+    {
+        if (!TurnManager.Instance.CanEndTurnNow()) return;
+
+        if (PhotonNetwork.IsMasterClient && TurnManager.Instance.currentTurn == UnitFaction.Monster)
+            TurnManager.Instance.RequestMonsterEndTurn();
+        else
+            TurnManager.Instance.RequestHeroEndTurn();
     }
 
     public UnitAction GetCurrentAction()
