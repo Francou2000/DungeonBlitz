@@ -4158,6 +4158,7 @@ GameObject:
   - component: {fileID: 1546151949}
   - component: {fileID: 1546151948}
   - component: {fileID: 1546151947}
+  - component: {fileID: 1546151950}
   m_Layer: 5
   m_Name: SelectoinReadyButton
   m_TagString: Untagged
@@ -4267,6 +4268,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1546151945}
   m_CullTransparentMesh: 1
+--- !u!114 &1546151950
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1546151945}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e83714b264afe3498a69083161797a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  actual_unit: {fileID: 0}
 --- !u!1 &1547372008
 GameObject:
   m_ObjectHideFlags: 0
@@ -4881,7 +4895,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16fbf0743b1c4d642889ee62757a6221, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playable_heroes: 
+  playable_heroes:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!4 &1737350056
 Transform:
   m_ObjectHideFlags: 0
@@ -5086,6 +5104,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: e8be8a2be05365349970a9e8cf9da96d, type: 2}
   - {fileID: 11400000, guid: 7b891e1065b92e74f86540f0fe5edd15, type: 2}
   - {fileID: 11400000, guid: 162afed650d1ede48a7f6d42d4742000, type: 2}
+  actual_heroe: {fileID: 1546151950}
 --- !u!1 &1801662497
 GameObject:
   m_ObjectHideFlags: 0
