@@ -24,6 +24,7 @@ public class Modify_Selection_Button : MonoBehaviour
         DC_Elements_Data dC_Elements_Data = actual_selection.GetComponent<DC_Elements_Data>();
         if (dC_Elements_Data.unit != Units.NONE) Dungeon_Creator_Manager.Instance.dc_state = DC_State.PLACING_UNIT;
         if (dC_Elements_Data.trap != Traps.NONE) Dungeon_Creator_Manager.Instance.dc_state = DC_State.PLAICING_TRAP;
+        Dungeon_Creator_Manager.Instance.actual_prefab = actual_selection;
     }
 
     public void RemoveSelection()

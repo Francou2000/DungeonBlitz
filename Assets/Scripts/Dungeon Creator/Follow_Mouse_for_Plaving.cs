@@ -8,10 +8,13 @@ public class Follow_Mouse_for_Placing : MonoBehaviour
 
     public bool follow_mouse = true;
     public GameObject selected_menu;
+
+    Dungeon_Creator_Manager creator;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        Dungeon_Creator_Manager.Instance.PlaceSelected.AddListener(place_selected);
+        creator = Dungeon_Creator_Manager.Instance;
+        creator.PlaceSelected.AddListener(place_selected);
 
     }
 
@@ -29,18 +32,20 @@ public class Follow_Mouse_for_Placing : MonoBehaviour
 
     void place_selected()
     {
+        if (creator.actual_prefab != this.gameObject) return;
         Collider2D[] collitions = Physics2D.OverlapCircleAll(transform.position, radius);
         foreach (Collider2D col in collitions)
         {
             if (col.gameObject == this.gameObject) continue;
             Map_Zone_Data map_zone_Data = col.GetComponent<Map_Zone_Data>();
             if (map_zone_Data == null) continue;
-            if (!map_zone_Data.is_standaple) return;
+            if (!map_zone_Data.is_standaple) { return; }
         }
 
         selected_menu.SetActive(false);
         follow_mouse = false;
-        Dungeon_Creator_Manager.Instance.dc_state = DC_State.BUTTON;
+        creator.dc_state = DC_State.BUTTON;
+        creator.actual_prefab = null;
     }
 
     private void OnMouseDown()

@@ -20,6 +20,8 @@ public class Dungeon_Creator_Manager : MonoBehaviour
     Playable_Map finished_map       = new Playable_Map();
     public UnityEvent PlaceSelected = new UnityEvent();
 
+    public GameObject actual_prefab;
+    
 
     public Units Selected_unit  { get { return selected_unit;   }   set { selected_unit = value; }  }
     public Traps Selected_trap  { get { return selected_trap;   }   set { selected_trap = value; }  }
@@ -38,7 +40,7 @@ public class Dungeon_Creator_Manager : MonoBehaviour
         Instantiate(map_list[(int)finished_map.Actual_map], spawn_point);
     }
 
-    void Update()
+    void LateUpdate()
     {
         if (Input.GetMouseButtonDown(0)) on_mouse_clicked();
         
@@ -50,10 +52,12 @@ public class Dungeon_Creator_Manager : MonoBehaviour
         if (dc_state == DC_State.PLACING_UNIT)
         {
             PlaceSelected.Invoke();
+            //actual_prefab = null;
         }
         else if (dc_state == DC_State.PLAICING_TRAP)
         {
             PlaceSelected.Invoke();
+            //actual_prefab = null;
         }
     }
     public void change_map(Maps new_map) {
@@ -67,16 +71,18 @@ public class Dungeon_Creator_Manager : MonoBehaviour
     }
     public void select_unit(Units new_unit, DC_State new_state = DC_State.PLACING_UNIT)
     {
+        Destroy(actual_prefab);
         selected_unit = new_unit;
-        GameObject new_element = Instantiate(unit_list[(int)selected_unit], spawn_point);
-        new_element.GetComponent<Follow_Mouse_for_Placing>().selected_menu = menu_for_selection;
+        actual_prefab = Instantiate(unit_list[(int)selected_unit], spawn_point);
+        actual_prefab.GetComponent<Follow_Mouse_for_Placing>().selected_menu = menu_for_selection;
         dc_state = new_state;
     }
     public void select_trap(Traps new_trap, DC_State new_state = DC_State.PLAICING_TRAP)
     {
+        Destroy(actual_prefab);
         selected_trap = new_trap;
-        GameObject new_element = Instantiate(trap_list[(int)selected_trap], spawn_point);
-        new_element.GetComponent<Follow_Mouse_for_Placing>().selected_menu = menu_for_selection;
+        actual_prefab = Instantiate(trap_list[(int)selected_trap], spawn_point);
+        actual_prefab.GetComponent<Follow_Mouse_for_Placing>().selected_menu = menu_for_selection;
         dc_state = new_state;
     }
     public void save_map() 
@@ -105,6 +111,8 @@ public class Dungeon_Creator_Manager : MonoBehaviour
                 finished_map.AddTrap(trap);
             }
         }
+
+        UnitLoaderController.Instance.AddMapDM(finished_map);
     }
 
 }
@@ -115,7 +123,7 @@ public class Dungeon_Creator_Manager : MonoBehaviour
 public enum DC_State { NONE, BUTTON, PLACING_UNIT, PLAICING_TRAP}
 public enum Maps { NONE, MAP_NAME1, MAP_NAME2}
 public enum Units { NONE, UNIT_NAME1, UNIT_NAME2}
-public enum Traps { NONE, TRAP_NAME1, TRAP_NAME2}
+public enum Traps { NONE, /*TRAP_NAME1, TRAP_NAME2*/}
 
 public class Playable_Map
 {
