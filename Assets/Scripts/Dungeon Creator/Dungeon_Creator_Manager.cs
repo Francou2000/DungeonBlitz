@@ -87,10 +87,11 @@ public class Dungeon_Creator_Manager : MonoBehaviour
     }
     public void save_map() 
     {
-        GameObject[] selected_elements = spawn_point.GetComponentsInChildren<GameObject>();
-        foreach (GameObject element in selected_elements)
+        Transform[] selected_elements = spawn_point.GetComponentsInChildren<Transform>();
+        foreach (Transform this_element in selected_elements)
         {
-            if (element.active) continue;
+            GameObject element = this_element.gameObject;
+            if (element.activeInHierarchy) continue;
             DC_Elements_Data data = element.GetComponent<DC_Elements_Data>();
             if (data.map != Maps.NONE)
             {

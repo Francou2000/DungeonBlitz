@@ -1,21 +1,36 @@
+using Photon.Pun;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ReadyButton : MonoBehaviour
+public class ReadyButton : MonoBehaviourPunCallbacks
 {
     Button my_button;
     TextMeshProUGUI my_text;
     bool is_ready = false;
 
-
+    public bool is_test = false;
+    public string test_level;
     void Start()
     {
         my_button = GetComponent<Button>();
         my_text = GetComponentInChildren<TextMeshProUGUI>();
 
-        my_button.onClick.AddListener(SwapReadiness);
+        my_button.onClick.AddListener(OnButtonClick);
     }
+
+    void OnButtonClick()
+    {
+        if (is_test)
+        {
+            PhotonNetwork.LoadLevel(test_level);
+        }
+        else
+        {
+            SwapReadiness();
+        }
+    }
+
 
     void SwapReadiness()
     {

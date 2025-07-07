@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Goblin Shaman_0: 3274347120714742855
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
