@@ -41,6 +41,8 @@ public class TurnManager : MonoBehaviourPun
                     heroPlayerReady[player.ActorNumber] = false;
                 }
             }
+
+            DecideFirstTurn(); // Only Master Client decides who goes first
         }
 
         UpdateTurnUI();
@@ -123,6 +125,15 @@ public class TurnManager : MonoBehaviourPun
     }
 
     // === TURN FLOW ===
+    private void DecideFirstTurn()
+    {
+        UnitFaction starting = Random.value < 0.5f ? UnitFaction.Hero : UnitFaction.Monster;
+        float timeLeft = timePool[starting];
+
+        Debug.Log($"[TurnManager] Coin flip! {starting} will start.");
+
+        photonView.RPC(nameof(RPC_SyncTurn), RpcTarget.All, starting, turnNumber, timeLeft);
+    }
 
     private void AdvanceTurn()
     {
