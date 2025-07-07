@@ -1988,6 +1988,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce76640fe3e8519478742e9331177d4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  is_test: 1
+  test_level: UnitsSelection
 --- !u!1 &1688544949
 GameObject:
   m_ObjectHideFlags: 0
