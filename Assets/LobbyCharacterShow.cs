@@ -16,6 +16,8 @@ public class LobbyCharacterShow : MonoBehaviourPunCallbacks
         //if (player_number != my_place + 1 )
         //my_name.text = LobbyManager.Instance.slots_used[my_place];
         //my_name = GetComponentInChildren<TextMeshProUGUI>();
+        player_name = PhotonNetwork.NickName;
+        SetCharacter(player_name);
     }
 
     void UpdateUI()
@@ -23,7 +25,7 @@ public class LobbyCharacterShow : MonoBehaviourPunCallbacks
         my_name.text = player_name;
     }
 
-    public void SetCharacter(int new_name)
+    public void SetCharacter(string new_name)
     {
         photonView.RPC("AddCharacter", RpcTarget.All, new_name);
     }
@@ -35,12 +37,16 @@ public class LobbyCharacterShow : MonoBehaviourPunCallbacks
         UpdateUI();
     }
     [PunRPC]
-    public void AddCharacter(int new_name)
+    public void AddCharacter(string new_name)
     {
         is_claimed = true;
-        player_name = new_name.ToString();
+        //player_name = new_name.ToString(); Wazel changes
+        int idPlayer = PhotonNetwork.LocalPlayer.ActorNumber;
+        player_name = PhotonNetwork.NickName;
         UpdateUI();
-        LobbyManager.Instance.slots_used[new_name - 1] = new_name.ToString();
+        //LobbyManager.Instance.slots_used[new_name - 1] = new_name.ToString(); Wazel changes
+        LobbyManager.Instance.slots_used[idPlayer - 1] = player_name;
+        Debug.Log("RPC SLOT USED " + (idPlayer-1)+ " new name - 1");
     }
 
     public override void OnPlayerEnteredRoom(Player newPlayer)
@@ -54,6 +60,7 @@ public class LobbyCharacterShow : MonoBehaviourPunCallbacks
         {
             my_name.text = player_number.ToString();
         }
+        Debug.LogWarning("ON ENTERED ROOM");
     }
 
 }
