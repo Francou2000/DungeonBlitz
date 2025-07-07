@@ -26,6 +26,7 @@ public class HeroeSelectionController : MonoBehaviour
     [SerializeField] TextMeshProUGUI heroe_stats;
 
     [SerializeField] UnitData[] heroes_list;
+    [SerializeField] ReadyHeroeSelection actual_heroe;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -52,6 +53,6 @@ public class HeroeSelectionController : MonoBehaviour
             heroe.magicPower + "\n" +
             heroe.armor + "\n" +
             heroe.magicResistance;
-        
+        actual_heroe.actual_unit = heroe;
     }
 }

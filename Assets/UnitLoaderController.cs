@@ -1,8 +1,9 @@
 using NUnit.Framework;
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class UnitLoaderController : MonoBehaviour
+public class UnitLoaderController : MonoBehaviourPunCallbacks
 {
     public static UnitLoaderController Instance;
 
@@ -20,11 +21,11 @@ public class UnitLoaderController : MonoBehaviour
     }
 
     public Playable_Map playable_Map;
-    public int[] playable_heroes;
+    public UnitData[] playable_heroes;
 
     
 
-    public void AddHeoroe(int heroe, int client_id)
+    public void AddHeroe(UnitData heroe, int client_id)
     {
         playable_heroes[client_id] = heroe;
     }
