@@ -8,7 +8,7 @@ public class UnitData : ScriptableObject
     public string unitName;
     public UnitFaction faction;
     public int maxHP;
-    public float performance;
+    public int performance;
     public int affinity;
     public int armor;
     public int magicResistance;
