@@ -9,6 +9,7 @@ public class UnitData : ScriptableObject
     public Sprite full_body_foto;
     public Sprite portrait_foto;
     public UnitFaction faction;
+    public HeroesList heroe_id;
     public int maxHP;
     public int performance;
     public int affinity;
@@ -29,4 +30,12 @@ public class UnitData : ScriptableObject
     [Header("Promotion")]
     public bool isPromotable;
     public UnitData promotedForm;
+}
+
+public enum HeroesList
+{
+    Paladin,
+    Rogue,
+    Elementalist,
+    Sorcerer,
 }

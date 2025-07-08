@@ -1,7 +1,8 @@
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ReadyHeroeSelection : MonoBehaviour
+public class ReadyHeroeSelection : MonoBehaviourPunCallbacks
 {
     Button my_button;
     public UnitData actual_unit;
@@ -14,7 +15,7 @@ public class ReadyHeroeSelection : MonoBehaviour
 
     public void SelectionReady()
     {
-        UnitLoaderController.Instance.AddHeroe(actual_unit, 0);//usar numero de cliente o algo así para el segundo valor
+        UnitLoaderController.Instance.photonView.RPC("AddHeroe", RpcTarget.All, actual_unit.heroe_id, PhotonNetwork.LocalPlayer.ActorNumber);
         //UI Feedback
     }
 }

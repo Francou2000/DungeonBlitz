@@ -550,8 +550,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58912cbf85db6044d9dea79c08ee327d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dm_scene: 
-  heroe_scene: 
+  selection_scene: UnitsSelection
   ready_button: {fileID: 0}
   slots_used:
   - 
@@ -565,6 +564,7 @@ MonoBehaviour:
   - {fileID: 143068220}
   - {fileID: 1413192083}
   - {fileID: 450331918}
+  player_ready: 0000000000
 --- !u!4 &214355493
 Transform:
   m_ObjectHideFlags: 0
@@ -1988,7 +1988,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce76640fe3e8519478742e9331177d4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  is_test: 1
+  is_test: 0
   test_level: UnitsSelection
 --- !u!1 &1688544949
 GameObject:

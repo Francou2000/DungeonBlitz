@@ -2814,8 +2814,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6952c4c28c746943982e815f1856642, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  DM_dungeon_creator: {fileID: 1837146001}
+  HEROE_selection: {fileID: 436249600}
   game_scene_name: GameScene
   preparation_time_limit: 60
+  time: 0
 --- !u!4 &954046893
 Transform:
   m_ObjectHideFlags: 0
@@ -4923,6 +4926,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1737350056}
   - component: {fileID: 1737350055}
+  - component: {fileID: 1737350057}
   m_Layer: 0
   m_Name: UnitLoaderController
   m_TagString: Untagged
@@ -4948,6 +4952,11 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  heroes_data:
+  - {fileID: 11400000, guid: 2b0388415e04d4345bc77d0187eade9b, type: 2}
+  - {fileID: 11400000, guid: e8be8a2be05365349970a9e8cf9da96d, type: 2}
+  - {fileID: 11400000, guid: 7b891e1065b92e74f86540f0fe5edd15, type: 2}
+  - {fileID: 11400000, guid: 162afed650d1ede48a7f6d42d4742000, type: 2}
 --- !u!4 &1737350056
 Transform:
   m_ObjectHideFlags: 0
@@ -4963,6 +4972,28 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1737350057
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1737350054}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 1
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &1742148070
 GameObject:
   m_ObjectHideFlags: 0
@@ -5487,7 +5518,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1837146002
 Transform:
   m_ObjectHideFlags: 0

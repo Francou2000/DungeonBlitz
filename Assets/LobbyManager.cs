@@ -8,8 +8,8 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 {
     public static LobbyManager Instance;
 
-    [SerializeField] string dm_scene;
-    [SerializeField] string heroe_scene;
+    [SerializeField] string selection_scene;
+    //[SerializeField] string heroe_scene;
     [SerializeField] Button ready_button;
 
     public string[] slots_used = new string[5];
@@ -49,9 +49,16 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             slots_used[0] = PhotonNetwork.MasterClient.NickName;
             slots_text[0].text = PhotonNetwork.MasterClient.NickName;
             int playernumber = PhotonNetwork.LocalPlayer.ActorNumber;
+            foreach (var player in PhotonNetwork.PlayerList)
+            {
+                if (player.ActorNumber > playernumber) continue;
+                string player_name = player.NickName;
+                slots_used[player.ActorNumber - 1] = player_name;
+                slots_text[player.ActorNumber - 1].text = player_name;
+            }
             string playername = PhotonNetwork.NickName;
-            slots_used[playernumber - 1] = playername;
-            slots_text[playernumber - 1].text = playername;
+            // slots_used[playernumber - 1] = playername;
+            // slots_text[playernumber - 1].text = playername;
             Debug.Log("Player number lobby manager " + playernumber);
             
             photonView.RPC("AddCharacter", RpcTarget.All, playernumber,playername);
@@ -85,17 +92,28 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         
     }
 
-    public void ChangeSceneDM()
-    {
-        SceneManager.LoadScene(dm_scene);
-    }
+    //public void ChangeSceneDM()
+    //{
+    //    SceneManager.LoadScene(dm_scene);
+    //}
 
-    public void ChangeSceneHEROE()
+    //public void ChangeSceneHEROE()
+    //{
+    //    SceneManager.LoadScene(heroe_scene);
+    //}
+    
+    public bool[] player_ready = new bool[5];
+    
+    [PunRPC]
+    public void ReadyPlayer(int playerID)
     {
-        SceneManager.LoadScene(heroe_scene);
+        player_ready[playerID - 1] = !player_ready[playerID - 1];
+        foreach (bool is_ready in player_ready)
+        {
+            if (!is_ready) return;
+        }
+        SceneManager.LoadScene(selection_scene);
     }
-    
-    
     [PunRPC]
     public void AddCharacter(int playerID,string playerNick)
     {

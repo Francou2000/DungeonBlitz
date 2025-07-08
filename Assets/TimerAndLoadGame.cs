@@ -16,6 +16,10 @@ public class TimerAndLoadGame : MonoBehaviourPunCallbacks
         }
     }
 
+    public GameObject DM_dungeon_creator;
+    public GameObject HEROE_selection;
+
+
     public string game_scene_name;
 
     public float preparation_time_limit;
@@ -24,6 +28,14 @@ public class TimerAndLoadGame : MonoBehaviourPunCallbacks
     void Start()
     {
         time = 0;
+        if (PhotonNetwork.IsMasterClient)
+        {
+            DM_dungeon_creator.SetActive(true);
+        }
+        else
+        {
+            HEROE_selection.SetActive(true);
+        }
     }
 
 

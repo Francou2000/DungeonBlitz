@@ -27,7 +27,8 @@ public class ReadyButton : MonoBehaviourPunCallbacks
         }
         else
         {
-            SwapReadiness();
+            // SwapReadiness();
+            LobbyManager.Instance.photonView.RPC("ReadyPlayer", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber);
         }
     }
 

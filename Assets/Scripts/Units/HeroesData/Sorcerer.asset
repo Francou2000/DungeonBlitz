@@ -13,7 +13,10 @@ MonoBehaviour:
   m_Name: Sorcerer
   m_EditorClassIdentifier: 
   unitName: Sorcerer
+  full_body_foto: {fileID: 0}
+  portrait_foto: {fileID: 0}
   faction: 0
+  heroe_id: 3
   maxHP: 3
   performance: 1
   affinity: 0

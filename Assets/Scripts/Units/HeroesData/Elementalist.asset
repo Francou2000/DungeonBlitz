@@ -13,7 +13,10 @@ MonoBehaviour:
   m_Name: Elementalist
   m_EditorClassIdentifier: 
   unitName: Elementalist
+  full_body_foto: {fileID: 0}
+  portrait_foto: {fileID: 0}
   faction: 0
+  heroe_id: 2
   maxHP: 5
   performance: 1
   affinity: 0

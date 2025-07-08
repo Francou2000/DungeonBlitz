@@ -113,7 +113,7 @@ public class Dungeon_Creator_Manager : MonoBehaviour
             }
         }
 
-        UnitLoaderController.Instance.AddMapDM(finished_map);
+        UnitLoaderController.Instance.photonView.RPC("AddMapDM", Photon.Pun.RpcTarget.All, finished_map);
     }
 
 }
