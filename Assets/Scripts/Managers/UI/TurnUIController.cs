@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -25,30 +24,26 @@ public class TurnUIController : MonoBehaviour
         Instance = this;
     }
 
-    public void UpdateTurnUI(int turnNumber, UnitFaction currentFaction, float currentTimeRemaining, Dictionary<UnitFaction, float> timePools)
+    public void UpdateTurnUI(int turnNumber, UnitFaction currentFaction, float currentTimeRemaining)
     {
         turnNumberText.text = $"Turn: {turnNumber}";
         turnOwnerText.text = $"Current: {currentFaction}";
 
-        // Time left in this turn
+        // Time left this turn
         timerText.text = $"Turn Time Left: {Mathf.CeilToInt(currentTimeRemaining)}s";
 
-        // Show total time pool for each faction using the synced dictionary
-        if (timePools.TryGetValue(UnitFaction.Hero, out float heroTime))
-            heroTimeText.text = $"Hero Time: {FormatTime(heroTime)}";
-        else
-            heroTimeText.text = "Hero Time: --:--";
+        // Update total time pools
+        float heroTime = TurnManager.Instance?.GetTimePool(UnitFaction.Hero) ?? 0f;
+        float monsterTime = TurnManager.Instance?.GetTimePool(UnitFaction.Monster) ?? 0f;
 
-        if (timePools.TryGetValue(UnitFaction.Monster, out float monsterTime))
-            monsterTimeText.text = $"Monster Time: {FormatTime(monsterTime)}";
-        else
-            monsterTimeText.text = "Monster Time: --:--";
+        heroTimeText.text = $"Hero Time: {FormatTime(heroTime)}";
+        monsterTimeText.text = $"Monster Time: {FormatTime(monsterTime)}";
     }
 
     private string FormatTime(float seconds)
     {
-        int mins = Mathf.FloorToInt(seconds / 60f);
-        int secs = Mathf.FloorToInt(seconds % 60f);
-        return $"{mins:00}:{secs:00}";
+        int minutes = Mathf.FloorToInt(seconds / 60);
+        int sec = Mathf.FloorToInt(seconds % 60);
+        return $"{minutes:D2}:{sec:D2}";
     }
 }

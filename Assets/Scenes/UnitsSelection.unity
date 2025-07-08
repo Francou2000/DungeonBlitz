@@ -2816,7 +2816,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DM_dungeon_creator: {fileID: 1837146001}
   HEROE_selection: {fileID: 436249600}
-  game_scene_name: SampleScene
+  game_scene_name: GameScene
   preparation_time_limit: 60
   time: 0
 --- !u!4 &954046893
