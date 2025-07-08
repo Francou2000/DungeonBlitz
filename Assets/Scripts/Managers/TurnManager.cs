@@ -19,6 +19,8 @@ public class TurnManager : MonoBehaviourPun
     private PhotonView view;
     private bool gamePaused = false;
 
+    private double turnStartTime; // PhotonNetwork.Time is in seconds, synced
+
     void Awake()
     {
         if (Instance != null && Instance != this) Destroy(gameObject);
@@ -42,22 +44,18 @@ public class TurnManager : MonoBehaviourPun
                 }
             }
 
-            DecideFirstTurn(); // Only Master Client decides who goes first
+            DecideFirstTurn();
         }
-
-        UpdateTurnUI();
     }
 
     void Update()
     {
-        if (!PhotonNetwork.IsMasterClient || gamePaused) return;
+        if (gamePaused) return;
 
-        timePool[currentTurn] -= Time.deltaTime;
-        timePool[currentTurn] = Mathf.Max(0f, timePool[currentTurn]);
+        float elapsed = (float)(PhotonNetwork.Time - turnStartTime);
+        float remaining = Mathf.Max(0f, timePool[currentTurn] - elapsed);
 
-        UpdateTurnUI();
-
-        if (timePool[currentTurn] <= 0f)
+        if (PhotonNetwork.IsMasterClient && remaining <= 0f)
         {
             EndGame(GetOpposingFaction(currentTurn));
         }
@@ -115,28 +113,34 @@ public class TurnManager : MonoBehaviourPun
     }
 
     [PunRPC]
-    private void RPC_SyncTurn(UnitFaction newTurn, int newTurnNumber, float newTime)
+    private void RPC_SyncTurn(UnitFaction newTurn, int newTurnNumber, float newTime, double startTime)
     {
         currentTurn = newTurn;
         turnNumber = newTurnNumber;
         timePool[currentTurn] = newTime;
+        turnStartTime = startTime;
 
-        UpdateTurnUI();
+        TurnUIController.Instance.UpdateTurnUI(turnNumber, currentTurn, newTime, timePool);
     }
 
+
+
     // === TURN FLOW ===
+
     private void DecideFirstTurn()
     {
         UnitFaction starting = Random.value < 0.5f ? UnitFaction.Hero : UnitFaction.Monster;
-        float timeLeft = timePool[starting];
-
         Debug.Log($"[TurnManager] Coin flip! {starting} will start.");
 
-        photonView.RPC(nameof(RPC_SyncTurn), RpcTarget.All, starting, turnNumber, timeLeft);
+        double start = PhotonNetwork.Time;
+        photonView.RPC(nameof(RPC_SyncTurn), RpcTarget.All, starting, turnNumber, timePool[starting], start);
     }
 
     private void AdvanceTurn()
     {
+        float elapsed = (float)(PhotonNetwork.Time - turnStartTime);
+        timePool[currentTurn] = Mathf.Max(0f, timePool[currentTurn] - elapsed);
+
         currentTurn = GetOpposingFaction(currentTurn);
         turnNumber++;
 
@@ -148,8 +152,8 @@ public class TurnManager : MonoBehaviourPun
 
         ResetUnitsForFaction(currentTurn);
 
-        float timeLeft = timePool[currentTurn];
-        photonView.RPC(nameof(RPC_SyncTurn), RpcTarget.All, currentTurn, turnNumber, timeLeft);
+        double start = PhotonNetwork.Time;
+        photonView.RPC(nameof(RPC_SyncTurn), RpcTarget.All, currentTurn, turnNumber, timePool[currentTurn], start);
     }
 
     private void ResetUnitsForFaction(UnitFaction faction)
@@ -179,14 +183,5 @@ public class TurnManager : MonoBehaviourPun
     {
         gamePaused = true;
         Debug.Log($"[TurnManager] {winner} wins! (Time Out)");
-        // Show UI message, kick to lobby, etc.
-    }
-
-    // === UI ===
-
-    private void UpdateTurnUI()
-    {
-        float remaining = timePool.ContainsKey(currentTurn) ? timePool[currentTurn] : 0f;
-        TurnUIController.Instance.UpdateTurnUI(turnNumber, currentTurn, remaining);
     }
 }

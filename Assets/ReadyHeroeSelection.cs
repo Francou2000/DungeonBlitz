@@ -6,7 +6,7 @@ public class ReadyHeroeSelection : MonoBehaviourPunCallbacks
 {
     Button my_button;
     public UnitData actual_unit;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
     void Start()
     {
         my_button = GetComponent<Button>();
