@@ -27,17 +27,6 @@ public class HeroeSelectionController : MonoBehaviour
 
     [SerializeField] UnitData[] heroes_list;
     [SerializeField] ReadyHeroeSelection actual_heroe;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 
     public void UpdateHeroeData(HeroesList heroe_id)
     {

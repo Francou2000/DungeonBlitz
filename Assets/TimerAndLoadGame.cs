@@ -41,7 +41,7 @@ public class TimerAndLoadGame : MonoBehaviourPunCallbacks
 
     void Update()
     {
-        if (PhotonNetwork.MasterClient != PhotonNetwork.LocalPlayer) return;
+        //if (PhotonNetwork.MasterClient != PhotonNetwork.LocalPlayer) return;
         time += Time.deltaTime;
         if (time > preparation_time_limit)
         {
