@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.NetworkInformation;
 using UnityEngine;
 using UnityEngine.Events;
@@ -88,6 +90,17 @@ public class Dungeon_Creator_Manager : MonoBehaviour
     public void save_map() 
     {
         Transform[] selected_elements = spawn_point.GetComponentsInChildren<Transform>();
+        Maps spawned_map =  Maps.NONE;
+
+        Units[] spawned_units_name = new Units[30];
+        Vector3[] spawned_units_pos = new Vector3[30];
+        bool[] is_unit_spawned = new bool[30];
+        int unit_idx = 0;
+        Traps[] spawned_traps_name = new Traps[30];
+        Vector3[] spawned_traps_pos = new Vector3[30];
+        bool[] is_trap_spawned = new bool[30];
+        int trap_idx = 0;
+
         foreach (Transform this_element in selected_elements)
         {
             GameObject element = this_element.gameObject;
@@ -95,25 +108,30 @@ public class Dungeon_Creator_Manager : MonoBehaviour
             DC_Elements_Data data = element.GetComponent<DC_Elements_Data>();
             if (data.map != Maps.NONE)
             {
-                finished_map.SetMap(data.map);
+                spawned_map = data.map;
+                //finished_map.SetMap(data.map);
             }
             if (data.unit != Units.NONE)
             {
-                DC_Unit new_unit = new DC_Unit();
-                new_unit.unit_type = data.unit;
-                new_unit.pos = element.transform.position;
-                finished_map.AddUnit(new_unit);
+                spawned_units_name[unit_idx] = data.unit;
+                spawned_units_pos[unit_idx] = element.transform.position;
+                is_unit_spawned[unit_idx] = true;
+                unit_idx++;
             }
             if (data.trap != Traps.NONE)
             {
-                DC_Trap trap = new DC_Trap();
-                trap.trap_type = data.trap;
-                trap.pos = element.transform.position;
-                finished_map.AddTrap(trap);
+                spawned_traps_name[trap_idx] = data.trap;
+                spawned_traps_pos[trap_idx] = element.transform.position;
+                is_trap_spawned[trap_idx] = true;
+                trap_idx++;
+
             }
         }
 
-        UnitLoaderController.Instance.photonView.RPC("AddMapDM", Photon.Pun.RpcTarget.All, finished_map);
+        int[] unitInts = spawned_units_name.Select(u => (int)u).ToArray();
+        int[] trapInts = spawned_traps_name.Select(u => (int)u).ToArray();
+
+        UnitLoaderController.Instance.photonView.RPC("AddMapDM", Photon.Pun.RpcTarget.All, spawned_map, unitInts, spawned_units_pos, is_unit_spawned, trapInts, spawned_traps_pos, is_trap_spawned);
     }
 
 }
@@ -123,7 +141,9 @@ public class Dungeon_Creator_Manager : MonoBehaviour
 
 public enum DC_State { NONE, BUTTON, PLACING_UNIT, PLAICING_TRAP}
 public enum Maps { NONE, MAP_NAME1, MAP_NAME2}
+[Serializable]
 public enum Units { NONE, UNIT_NAME1, UNIT_NAME2}
+[Serializable]
 public enum Traps { NONE, /*TRAP_NAME1, TRAP_NAME2*/}
 
 public class Playable_Map
@@ -132,6 +152,9 @@ public class Playable_Map
     List<DC_Unit> units = new List<DC_Unit>();
     List<DC_Trap> traps = new List<DC_Trap>();
 
+    public Maps MAP => map;
+    public List<DC_Unit> UNITS => units;
+    public List<DC_Trap> TRAPS => traps;
     public Maps Actual_map => map;
     public void SetMap(Maps new_map)
     {
