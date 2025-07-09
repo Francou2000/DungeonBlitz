@@ -9,6 +9,7 @@ public class Follow_Mouse_for_Placing : MonoBehaviour
     public bool follow_mouse = true;
     public GameObject selected_menu;
 
+    public Monsters my_monster_type;
     Dungeon_Creator_Manager creator;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -46,6 +47,8 @@ public class Follow_Mouse_for_Placing : MonoBehaviour
         follow_mouse = false;
         creator.dc_state = DC_State.BUTTON;
         creator.actual_prefab = null;
+        creator.used_total_unit_badge += 2 ^ ((int)my_monster_type - 1);
+        creator.used_units_badge[(int)my_monster_type - 1]++;
     }
 
     private void OnMouseDown()

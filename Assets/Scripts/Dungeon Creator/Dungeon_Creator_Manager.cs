@@ -23,7 +23,12 @@ public class Dungeon_Creator_Manager : MonoBehaviour
     public UnityEvent PlaceSelected = new UnityEvent();
 
     public GameObject actual_prefab;
-    
+
+    public int total_unit_badge;
+    public int used_total_unit_badge;
+    public int[] units_badge;
+    public int[] used_units_badge;
+
 
     public Monsters Selected_unit  { get { return selected_unit;   }   set { selected_unit = value; }  }
     public Traps Selected_trap  { get { return selected_trap;   }   set { selected_trap = value; }  }
@@ -40,6 +45,7 @@ public class Dungeon_Creator_Manager : MonoBehaviour
     {
         finished_map.SetMap(Maps.MAP_NAME1);
         Instantiate(map_list[(int)finished_map.Actual_map], spawn_point);
+        total_unit_badge *= 2;
     }
 
     void LateUpdate()
@@ -73,6 +79,10 @@ public class Dungeon_Creator_Manager : MonoBehaviour
     }
     public void select_unit(Monsters new_unit, DC_State new_state = DC_State.PLACING_UNIT)
     {
+        int unit_cost = 2^((int)new_unit - 1);
+        if (units_badge[(int)new_unit - 1] <= used_units_badge[(int)new_unit - 1]) return;
+        if (total_unit_badge < used_total_unit_badge + unit_cost) return;
+
         Destroy(actual_prefab);
         selected_unit = new_unit;
         actual_prefab = Instantiate(unit_list[(int)selected_unit], spawn_point);

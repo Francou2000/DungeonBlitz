@@ -108,6 +108,9 @@ MonoBehaviour:
   standable_layer:
     serializedVersion: 2
     m_Bits: 0
+  follow_mouse: 1
+  selected_menu: {fileID: 0}
+  my_monster_type: 1
 --- !u!114 &5294308723769496455
 MonoBehaviour:
   m_ObjectHideFlags: 0

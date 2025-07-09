@@ -1556,6 +1556,10 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   actual_prefab: {fileID: 0}
+  total_unit_badge: 7
+  used_total_unit_badge: 0
+  units_badge: 07000000020000000000000000000000
+  used_units_badge: 00000000000000000000000000000000
 --- !u!1 &600144530
 GameObject:
   m_ObjectHideFlags: 0

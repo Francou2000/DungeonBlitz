@@ -31,5 +31,9 @@ public class Modify_Selection_Button : MonoBehaviour
     {
         Destroy(actual_selection);
         transform.parent.gameObject.SetActive(false);
+        int idx = (int)actual_selection.GetComponent<Follow_Mouse_for_Placing>().my_monster_type;
+        Dungeon_Creator_Manager.Instance.used_total_unit_badge -= 2 ^ (idx - 1);
+        Dungeon_Creator_Manager.Instance.used_units_badge[idx - 1]--;
+
     }
 }

@@ -110,6 +110,7 @@ MonoBehaviour:
     m_Bits: 0
   follow_mouse: 1
   selected_menu: {fileID: 0}
+  my_monster_type: 3
 --- !u!114 &7990333304346945988
 MonoBehaviour:
   m_ObjectHideFlags: 0
