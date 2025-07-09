@@ -47,6 +47,7 @@ MonoBehaviour:
   - ReadyPlayer
   - AddHeroe
   - AddMapDM
+  - LoadGame
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

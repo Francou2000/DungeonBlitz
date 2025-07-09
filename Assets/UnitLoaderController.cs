@@ -32,7 +32,7 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
     public void AddHeroe(HeroesList heroe, int client_id)
     {
         playable_heroes[client_id - 2] = heroes_data[(int)heroe];
-        players_ready[client_id - 2] = true;
+        players_ready[client_id - 1] = true;
         CheckIfStart();
     }
 

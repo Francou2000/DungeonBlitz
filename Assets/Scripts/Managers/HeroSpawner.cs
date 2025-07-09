@@ -10,10 +10,9 @@ public class HeroSpawner : MonoBehaviourPunCallbacks
     {
         if (!PhotonNetwork.IsConnected || !PhotonNetwork.InRoom) return;
 
-        if (PhotonNetwork.LocalPlayer == PhotonNetwork.MasterClient)
-            return; // Master client shouldn't spawn heroes
+        if (PhotonNetwork.IsMasterClient) return; // Master client shouldn't spawn heroes
 
-        int playerIndex = GetHeroPlayerIndex();
+        int playerIndex = PhotonNetwork.LocalPlayer.ActorNumber - 2;      // GetHeroPlayerIndex();
         if (playerIndex < 0 || playerIndex >= 4) return;
 
         UnitData data = UnitLoaderController.Instance.playable_heroes[playerIndex];
@@ -22,6 +21,7 @@ public class HeroSpawner : MonoBehaviourPunCallbacks
             Debug.LogError("[HeroSpawner] No UnitData for player index " + playerIndex);
             return;
         }
+        Debug.Log("Found hero: " + data.name);
 
         GameObject prefab = FindPrefabFor(data);
         if (prefab != null)

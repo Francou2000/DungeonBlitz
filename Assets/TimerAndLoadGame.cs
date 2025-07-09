@@ -41,15 +41,16 @@ public class TimerAndLoadGame : MonoBehaviourPunCallbacks
 
     void Update()
     {
-        //if (PhotonNetwork.MasterClient != PhotonNetwork.LocalPlayer) return;
+        if (PhotonNetwork.MasterClient != PhotonNetwork.LocalPlayer) return;
         time += Time.deltaTime;
         if (time > preparation_time_limit)
         {
-            LoadGame();
+            // LoadGame();
+            photonView.RPC("LoadGame", RpcTarget.All);
         }
     }
 
-
+    [PunRPC]
     public void LoadGame()
     {
         PhotonNetwork.LoadLevel(game_scene_name);
