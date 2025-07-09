@@ -5,7 +5,7 @@ public class DC_Buttons : MonoBehaviour
 {
     public DC_State state_to_change;
     public Maps map_to_select;
-    public Units unit_to_select;
+    public Monsters unit_to_select;
     public Traps trap_to_select;
     public GameObject menu_to_active;
     public GameObject menu_to_deactive;
@@ -19,7 +19,7 @@ public class DC_Buttons : MonoBehaviour
         {
             my_button.onClick.AddListener(map_on_click_button);
         }
-        else if (unit_to_select != Units.NONE)
+        else if (unit_to_select != Monsters.NONE)
         {
             my_button.onClick.AddListener(unit_on_click_button);
         }

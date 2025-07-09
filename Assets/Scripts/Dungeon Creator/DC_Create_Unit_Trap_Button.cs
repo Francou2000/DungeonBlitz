@@ -8,13 +8,13 @@ public class DC_Create_Unit_Trap_Button : MonoBehaviour
 
     void Start()
     {
-        foreach (Units unit in Enum.GetValues(typeof(Units)))
+        foreach (Monsters unit in Enum.GetValues(typeof(Monsters)))
         {
             if ((int)unit == 0) continue;
             var new_button = Instantiate(button_to_spawn, transform);
             new_button.GetComponent<DC_Buttons>().unit_to_select = unit;
             new_button.GetComponent<DC_Buttons>().state_to_change = DC_State.PLACING_UNIT;
-            new_button.GetComponentInChildren<TextMeshProUGUI>().text = Enum.GetName(typeof(Units), unit);
+            new_button.GetComponentInChildren<TextMeshProUGUI>().text = Enum.GetName(typeof(Monsters), unit);
         }
         
         foreach (Traps trap in Enum.GetValues(typeof(Traps)))

@@ -27,6 +27,7 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
     public UnitData[] playable_heroes;
 
     [SerializeField] UnitData[] heroes_data;
+    [SerializeField] UnitData[] goblins_data;
 
     [PunRPC]
     public void AddHeroe(HeroesList heroe, int client_id)
@@ -39,14 +40,14 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
     [PunRPC]
     public void AddMapDM(Maps map, int[] unitInts, Vector3[] spawned_units_pos, bool[] is_unit_spawned, int[] trapInts, Vector3[] spawned_traps_pos, bool[] is_trap_spawned)
     {
-        Units[] spawned_units_name = unitInts.Select(i => (Units)i).ToArray();
+        Monsters[] spawned_units_name = unitInts.Select(i => (Monsters)i).ToArray();
         Traps[] spawned_traps_name = trapInts.Select(i => (Traps)i).ToArray();
         playable_Map.SetMap(map);
         for (int i = 0; i < spawned_units_name.Length; i++)
         {
             if (!is_unit_spawned[i]) continue;
             DC_Unit new_unit = new DC_Unit();
-            new_unit.unit_type = spawned_units_name[i];
+            new_unit.unit_type = goblins_data[(int)spawned_units_name[i] - 1];
             new_unit.pos = spawned_units_pos[i];
             playable_Map.AddUnit(new_unit);
         }

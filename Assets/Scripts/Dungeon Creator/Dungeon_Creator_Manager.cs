@@ -12,7 +12,7 @@ public class Dungeon_Creator_Manager : MonoBehaviour
     
     Vector3 mouse_position      = new Vector3();
     public GameObject[] map_list;
-    Units selected_unit         = Units.NONE;
+    Monsters selected_unit         = Monsters.NONE;
     public GameObject[] unit_list;
     Traps selected_trap         = Traps.NONE;
     public GameObject[] trap_list;
@@ -25,7 +25,7 @@ public class Dungeon_Creator_Manager : MonoBehaviour
     public GameObject actual_prefab;
     
 
-    public Units Selected_unit  { get { return selected_unit;   }   set { selected_unit = value; }  }
+    public Monsters Selected_unit  { get { return selected_unit;   }   set { selected_unit = value; }  }
     public Traps Selected_trap  { get { return selected_trap;   }   set { selected_trap = value; }  }
     public DC_State DC_state    { get { return dc_state;        }   set { dc_state = value;      }  }
 
@@ -71,7 +71,7 @@ public class Dungeon_Creator_Manager : MonoBehaviour
 
         Instantiate(map_list[(int)new_map], spawn_point);
     }
-    public void select_unit(Units new_unit, DC_State new_state = DC_State.PLACING_UNIT)
+    public void select_unit(Monsters new_unit, DC_State new_state = DC_State.PLACING_UNIT)
     {
         Destroy(actual_prefab);
         selected_unit = new_unit;
@@ -92,7 +92,7 @@ public class Dungeon_Creator_Manager : MonoBehaviour
         Transform[] selected_elements = spawn_point.GetComponentsInChildren<Transform>();
         Maps spawned_map =  Maps.NONE;
 
-        Units[] spawned_units_name = new Units[30];
+        Monsters[] spawned_units_name = new Monsters[30];
         Vector3[] spawned_units_pos = new Vector3[30];
         bool[] is_unit_spawned = new bool[30];
         int unit_idx = 0;
@@ -111,7 +111,7 @@ public class Dungeon_Creator_Manager : MonoBehaviour
                 spawned_map = data.map;
                 //finished_map.SetMap(data.map);
             }
-            if (data.unit != Units.NONE)
+            if (data.unit != Monsters.NONE)
             {
                 spawned_units_name[unit_idx] = data.unit;
                 spawned_units_pos[unit_idx] = element.transform.position;
@@ -142,7 +142,7 @@ public class Dungeon_Creator_Manager : MonoBehaviour
 public enum DC_State { NONE, BUTTON, PLACING_UNIT, PLAICING_TRAP}
 public enum Maps { NONE, MAP_NAME1, MAP_NAME2}
 [Serializable]
-public enum Units { NONE, UNIT_NAME1, UNIT_NAME2}
+public enum Monsters { NONE, GOBLIN, HOBGOBLIN, SHAMAN, CHAMPION}
 [Serializable]
 public enum Traps { NONE, /*TRAP_NAME1, TRAP_NAME2*/}
 
@@ -190,7 +190,7 @@ public class Playable_Map
 
 public struct DC_Unit
 {
-    public Units unit_type;
+    public UnitData unit_type;
     public Vector3 pos;
 }
 public struct DC_Trap

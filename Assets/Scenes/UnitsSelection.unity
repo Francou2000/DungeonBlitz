@@ -1543,6 +1543,8 @@ MonoBehaviour:
   - {fileID: 42741190224895191, guid: 759cc09388047494f939f4301e6453e6, type: 3}
   - {fileID: 5896987866108865537, guid: 9421ea6de57abdd4385aec8b2d94f19b, type: 3}
   - {fileID: 3256069128544801992, guid: 936a5ea868acc5949af987058a329382, type: 3}
+  - {fileID: 3256069128544801992, guid: 5956b4341bceb024ba1047055fcb0820, type: 3}
+  - {fileID: 3256069128544801992, guid: b886faeace1565943a79642052cd2c19, type: 3}
   trap_list:
   - {fileID: 42741190224895191, guid: 759cc09388047494f939f4301e6453e6, type: 3}
   - {fileID: 3227867422856246641, guid: c71e9eca4c50ccb429db4a0b1f660b37, type: 3}
@@ -4980,6 +4982,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: e8be8a2be05365349970a9e8cf9da96d, type: 2}
   - {fileID: 11400000, guid: 7b891e1065b92e74f86540f0fe5edd15, type: 2}
   - {fileID: 11400000, guid: 162afed650d1ede48a7f6d42d4742000, type: 2}
+  goblins_data:
+  - {fileID: 11400000, guid: 43678f5a5f7debe46baf49f42dabb2bb, type: 2}
+  - {fileID: 11400000, guid: 3354bc6fd1f631c44b7367a26a9d3cc3, type: 2}
+  - {fileID: 11400000, guid: 25ff566eea8650f47b43c2a69552f6e0, type: 2}
+  - {fileID: 11400000, guid: 6a4f1152ffb1eae4d887118301e6d6e4, type: 2}
 --- !u!4 &1737350056
 Transform:
   m_ObjectHideFlags: 0
@@ -5541,7 +5548,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1837146002
 Transform:
   m_ObjectHideFlags: 0

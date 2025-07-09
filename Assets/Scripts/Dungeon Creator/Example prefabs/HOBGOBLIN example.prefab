@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: -5728387559051679013}
   - component: {fileID: -443030284614328409}
   m_Layer: 0
-  m_Name: Unit_example_2
+  m_Name: HOBGOBLIN example
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -81,7 +81,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 0.7264151, g: 0.25013348, b: 0.25013348, a: 1}
+  m_Color: {r: 0.020069422, g: 0.38679248, b: 0.023880828, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -108,6 +108,8 @@ MonoBehaviour:
   standable_layer:
     serializedVersion: 2
     m_Bits: 0
+  follow_mouse: 1
+  selected_menu: {fileID: 0}
 --- !u!114 &7990333304346945988
 MonoBehaviour:
   m_ObjectHideFlags: 0
