@@ -42,15 +42,29 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
     {
         Monsters[] spawned_units_name = unitInts.Select(i => (Monsters)i).ToArray();
         Traps[] spawned_traps_name = trapInts.Select(i => (Traps)i).ToArray();
+        Debug.Log($"[AddMapDM] Received {spawned_units_name.Length} monster slots from Dungeon Creator");
         playable_Map.SetMap(map);
         for (int i = 0; i < spawned_units_name.Length; i++)
         {
+            Debug.Log($"[AddMapDM] Unit[{i}] - {spawned_units_name[i]} | IsSpawned: {is_unit_spawned[i]}");
             if (!is_unit_spawned[i]) continue;
+
+            int unitIndex = (int)spawned_units_name[i] - 1;
+
+            if (unitIndex < 0 || unitIndex >= goblins_data.Length)
+            {
+                Debug.LogError($"[AddMapDM] Invalid monster index: {unitIndex}");
+                continue;
+            }
+
             DC_Unit new_unit = new DC_Unit();
             new_unit.unit_type = goblins_data[(int)spawned_units_name[i] - 1];
             new_unit.pos = spawned_units_pos[i];
             playable_Map.AddUnit(new_unit);
+
+            Debug.Log($"[AddMapDM] Added monster: {new_unit.unit_type.unitName} at {new_unit.pos}");
         }
+
         for (int i = 0; i < spawned_traps_name.Length; i++)
         {
             if (!is_trap_spawned[i]) continue;
@@ -60,6 +74,7 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
             playable_Map.AddTrap(new_unit);
         }
 
+        Debug.Log($"[AddMapDM] Total monsters added: {playable_Map.UNITS.Count}");
         players_ready[0] = true;
         CheckIfStart();
     }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.NetworkInformation;
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UIElements;
@@ -114,8 +115,9 @@ public class Dungeon_Creator_Manager : MonoBehaviour
         foreach (Transform this_element in selected_elements)
         {
             GameObject element = this_element.gameObject;
-            if (element.activeInHierarchy) continue;
+            if (!element.activeInHierarchy) continue;
             DC_Elements_Data data = element.GetComponent<DC_Elements_Data>();
+            if (data == null) continue;
             if (data.map != Maps.NONE)
             {
                 spawned_map = data.map;
@@ -134,16 +136,13 @@ public class Dungeon_Creator_Manager : MonoBehaviour
                 spawned_traps_pos[trap_idx] = element.transform.position;
                 is_trap_spawned[trap_idx] = true;
                 trap_idx++;
-
             }
-        }
-
+        }        
         int[] unitInts = spawned_units_name.Select(u => (int)u).ToArray();
         int[] trapInts = spawned_traps_name.Select(u => (int)u).ToArray();
 
         UnitLoaderController.Instance.photonView.RPC("AddMapDM", Photon.Pun.RpcTarget.All, spawned_map, unitInts, spawned_units_pos, is_unit_spawned, trapInts, spawned_traps_pos, is_trap_spawned);
     }
-
 }
 
 

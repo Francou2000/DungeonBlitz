@@ -979,6 +979,7 @@ GameObject:
   - component: {fileID: 568910056}
   - component: {fileID: 568910058}
   - component: {fileID: 568910059}
+  - component: {fileID: 568910060}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -1048,6 +1049,23 @@ MonoBehaviour:
   - {fileID: 671761192709153641, guid: a4f0956ee648ec145a86851fe3a7957a, type: 3}
   - {fileID: 671761192709153641, guid: d77cea6307479cc4b9dad2c75f976d86, type: 3}
   - {fileID: 671761192709153641, guid: 44bca66a5ce95b646a5d734ae0faaaad, type: 3}
+--- !u!114 &568910060
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 568910055}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53f08d7ab3425224692bdf3be959c261, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  monsterPrefabs:
+  - {fileID: 671761192709153641, guid: aa059fd9915f7f34dbf6e6cb37bf8b65, type: 3}
+  - {fileID: 671761192709153641, guid: 1b7ad2984fc5d444982150c4d884617d, type: 3}
+  - {fileID: 671761192709153641, guid: c4c06ae159476a8428995e189e29ba98, type: 3}
+  - {fileID: 671761192709153641, guid: a7e2175c13e961f4194a854e110d8260, type: 3}
 --- !u!1 &584282240
 GameObject:
   m_ObjectHideFlags: 0
