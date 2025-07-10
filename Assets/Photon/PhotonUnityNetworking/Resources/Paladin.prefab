@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: 7313924406118528382}
   - component: {fileID: 1758931014776470608}
   - component: {fileID: 4032747607444462544}
+  - component: {fileID: 5404710414940058283}
   m_Layer: 0
   m_Name: Paladin
   m_TagString: Untagged
@@ -267,6 +268,18 @@ MonoBehaviour:
     InterpolateOption: 0
     InterpolateMoveTowardsSpeed: 1
     InterpolateLerpSpeed: 0
+--- !u!114 &5404710414940058283
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 671761192709153641}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6852836edc32ea94eaf4bbcb7e4acc0f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &9073731304434709722
 GameObject:
   m_ObjectHideFlags: 0

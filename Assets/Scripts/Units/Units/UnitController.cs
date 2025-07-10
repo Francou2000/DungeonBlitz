@@ -33,12 +33,6 @@ public class UnitController : MonoBehaviourPun
     public void Initialize(Unit unit)
     {
         this.unit = unit;
-        ActiveUnit = this; 
-        
-        if (isControllable)
-        {
-            ActiveUnit = this;
-        }
     }
 
     void Update()
@@ -48,9 +42,10 @@ public class UnitController : MonoBehaviourPun
 
         if (isMoving) return;
 
-        if (!TurnManager.Instance.IsCurrentTurn(unit)) return;
+        if (TurnManager.Instance != null && !TurnManager.Instance.IsCurrentTurn(unit))
+            return;
 
-        if (!photonView.IsMine) return; // only local player can issue input
+        if (!photonView.IsMine) return;
 
         // Avoid handling input when clicking on UI
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())

@@ -27,8 +27,14 @@ public class HeroSpawner : MonoBehaviourPunCallbacks
         if (prefab != null)
         {
             Vector3 pos = spawnPoints[playerIndex].position;
-            PhotonNetwork.Instantiate(prefab.name, pos, Quaternion.identity);
+            GameObject obj = PhotonNetwork.Instantiate(prefab.name, pos, Quaternion.identity);
             Debug.Log($"[HeroSpawner] Spawned {prefab.name} for player {playerIndex + 1}");
+
+            if (obj.TryGetComponent(out UnitController controller) && controller.photonView.IsMine)
+            {
+                UnitController.ActiveUnit = controller;
+                Debug.Log("[HeroSpawner] Assigned player unit as active unit: " + controller.unit.Model.UnitName);
+            }            
         }
         else
         {

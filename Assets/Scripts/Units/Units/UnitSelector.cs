@@ -1,8 +1,14 @@
+using Photon.Pun;
 using UnityEngine;
 
 public class UnitSelector : MonoBehaviour
 {
     private UnitController currentActiveUnit;
+
+    private void Start()
+    {
+        StartCoroutine(DelayedAssign());
+    }
 
     void Update()
     {
@@ -26,6 +32,13 @@ public class UnitSelector : MonoBehaviour
         }
     }
 
+    private System.Collections.IEnumerator DelayedAssign()
+    {
+        yield return new WaitForSeconds(0.5f); // wait for units to be instantiated
+
+        AssignLocalHero();
+    }
+
     void SetActiveUnit(UnitController newUnit)
     {
         if (currentActiveUnit != null)
@@ -39,5 +52,21 @@ public class UnitSelector : MonoBehaviour
         currentActiveUnit.unit.View.SetHighlighted(true);
 
         Debug.Log($"[Selector] Active unit is now: {currentActiveUnit.unit.Model.UnitName}");
+    }
+
+    private void AssignLocalHero()
+    {
+        int myActorNumber = PhotonNetwork.LocalPlayer.ActorNumber;
+        UnitController[] allUnits = Object.FindObjectsByType<UnitController>(FindObjectsSortMode.None);
+
+        foreach (var unit in allUnits)
+        {
+            if (!unit.isControllable) continue;
+            if (!unit.photonView.IsMine) continue;
+
+            UnitController.ActiveUnit = unit;
+
+            Debug.Log($"[HeroSelector] Assigned hero unit to player {myActorNumber}: {unit.unit.Model.UnitName}");
+        }
     }
 }
