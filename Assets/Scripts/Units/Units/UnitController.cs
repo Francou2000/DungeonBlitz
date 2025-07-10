@@ -48,6 +48,10 @@ public class UnitController : MonoBehaviourPun
 
         if (isMoving) return;
 
+        if (!TurnManager.Instance.IsCurrentTurn(unit)) return;
+
+        if (!photonView.IsMine) return; // only local player can issue input
+
         // Avoid handling input when clicking on UI
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             return;
