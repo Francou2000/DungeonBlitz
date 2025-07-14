@@ -77,9 +77,82 @@ public class UnitController : MonoBehaviourPun
             return;
 
         Vector3 clickWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        clickWorld.z = 0f;
+        RaycastHit2D hit = Physics2D.Raycast(clickWorld, Vector2.zero);
 
-        photonView.RPC(nameof(RPC_TryAttack), RpcTarget.All, clickWorld.x, clickWorld.y, selectedAbility.abilityName);
+        if (hit.collider == null) return;
+
+        var targetUnit = hit.collider.GetComponent<Unit>();
+        if (targetUnit == null || unit == targetUnit) return;
+
+        if (!CombatCalculator.IsInRange(transform.position, targetUnit.transform.position, selectedAbility.range))
+        {
+            Debug.Log("[Attack] Target out of range");
+            return;
+        }
+
+        // Calculate hit logic
+        int affinity = unit.Model.Affinity;
+        int flankCount = CombatCalculator.CountFlankingAllies(targetUnit, unit);
+        bool isFlanked = flankCount > 0;
+        bool hasMediumCover, hasHeavyCover;
+
+        CombatCalculator.CheckCover(
+            transform.position,
+            targetUnit.transform.position,
+            out hasMediumCover,
+            out hasHeavyCover
+        );
+
+        float hitChance = CombatCalculator.GetHitChance(
+            selectedAbility.baseHitChance,
+            affinity,
+            flankCount,
+            isFlanked,
+            hasMediumCover,
+            hasHeavyCover
+        );
+
+        float roll = Random.Range(0f, 100f);
+        if (roll > hitChance)
+        {
+            Debug.Log($"[Attack] Missed! Rolled {roll:F1} vs {hitChance:F1}");
+            return;
+        }
+
+        Debug.Log($"[Attack] {unit.Model.UnitName} hits {targetUnit.Model.UnitName}!");
+
+        int attackStat = selectedAbility.damageSource == DamageSourceType.Strength
+            ? unit.Model.Strength
+            : unit.Model.MagicPower;
+
+        int defense = selectedAbility.damageSource == DamageSourceType.Strength
+            ? targetUnit.Model.Armor
+            : targetUnit.Model.MagicResistance;
+
+        int totalDamage = 0;
+        DamageType damageType = selectedAbility.damageSource == DamageSourceType.Strength ? DamageType.Physical : DamageType.Magical;
+
+        for (int i = 0; i < selectedAbility.hits; i++)
+        {
+            float damage = CombatCalculator.CalculateDamage(selectedAbility.baseDamage, attackStat, defense);
+            totalDamage += Mathf.RoundToInt(damage);
+        }
+
+        // Apply status effects locally (optional to sync later)
+        var handler = targetUnit.GetComponent<StatusEffectHandler>();
+        if (handler != null && selectedAbility.appliedEffects != null)
+        {
+            foreach (var effect in selectedAbility.appliedEffects)
+                handler.ApplyEffect(effect);
+        }
+
+        // Sync damage
+        int targetID = targetUnit.GetComponent<PhotonView>().ViewID;
+        photonView.RPC(nameof(RPC_ApplyDamage), RpcTarget.All, targetID, totalDamage, (int)damageType);
+
+        unit.Model.SpendAction(selectedAbility.actionCost);
+        unit.Model.AddAdrenaline(5);
+        ActionUI.Instance.ClearAction();
     }
 
     public void SetSelectedAbility(UnitAbility ability)
@@ -105,80 +178,23 @@ public class UnitController : MonoBehaviourPun
     }
 
     [PunRPC]
-    public void RPC_TryAttack(float x, float y, string abilityName)
+    public void RPC_ApplyDamage(int targetViewID, int damageAmount, int damageTypeInt)
     {
-        Vector3 clickWorld = new Vector3(x, y, 0);
-        RaycastHit2D hit = Physics2D.Raycast(clickWorld, Vector2.zero);
-
-        if (hit.collider == null) return;
-
-        var targetUnit = hit.collider.GetComponent<Unit>();
-        if (targetUnit == null || unit == targetUnit) return;
-
-        var ability = unit.Model.Abilities.Find(a => a.abilityName == abilityName);
-        if (ability == null) return;
-
-        if (!CombatCalculator.IsInRange(transform.position, targetUnit.transform.position, ability.range))
+        PhotonView targetView = PhotonView.Find(targetViewID);
+        if (targetView == null)
         {
-            Debug.Log("[Attack] Target out of range");
+            Debug.LogWarning("[Attack] Target PhotonView not found.");
             return;
         }
 
-        // Calculate hit logic
-        int affinity = unit.Model.Affinity;
-        int flankCount = CombatCalculator.CountFlankingAllies(targetUnit, unit);
-        bool isFlanked = flankCount > 0;
-        bool hasMediumCover, hasHeavyCover;
-
-        CombatCalculator.CheckCover(
-            transform.position,
-            targetUnit.transform.position,
-            out hasMediumCover,
-            out hasHeavyCover
-        );
-
-        float hitChance = CombatCalculator.GetHitChance(
-            ability.baseHitChance,
-            affinity,
-            flankCount,
-            isFlanked,
-            hasMediumCover,
-            hasHeavyCover
-        );
-
-        float roll = Random.Range(0f, 100f);
-        if (roll > hitChance)
+        Unit targetUnit = targetView.GetComponent<Unit>();
+        if (targetUnit == null)
         {
-            Debug.Log($"[Attack] Missed! Rolled {roll:F1} vs {hitChance:F1}");
+            Debug.LogWarning("[Attack] Target Unit not found.");
             return;
         }
 
-        Debug.Log($"[Attack] {unit.Model.UnitName} hits {targetUnit.Model.UnitName}!");
-
-        int attackStat = ability.damageSource == DamageSourceType.Strength
-            ? unit.Model.Strength
-            : unit.Model.MagicPower;
-
-        int defense = ability.damageSource == DamageSourceType.Strength
-            ? targetUnit.Model.Armor
-            : targetUnit.Model.MagicResistance;
-
-        for (int i = 0; i < ability.hits; i++)
-        {
-            float damage = CombatCalculator.CalculateDamage(ability.baseDamage, attackStat, defense);
-            DamageType type = ability.damageSource == DamageSourceType.Strength ? DamageType.Physical : DamageType.Magical;
-            targetUnit.Model.TakeDamage(Mathf.RoundToInt(damage), type);
-        }
-
-        var handler = targetUnit.GetComponent<StatusEffectHandler>();
-        if (handler != null && ability.appliedEffects != null)
-        {
-            foreach (var effect in ability.appliedEffects)
-                handler.ApplyEffect(effect);
-        }
-
-        unit.Model.SpendAction(ability.actionCost);
-        unit.Model.AddAdrenaline(5);
-        ActionUI.Instance.ClearAction();
+        DamageType damageType = (DamageType)damageTypeInt;
+        targetUnit.Model.TakeDamage(damageAmount, damageType);
     }
 }

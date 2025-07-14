@@ -13,7 +13,10 @@ MonoBehaviour:
   m_Name: Goblin
   m_EditorClassIdentifier: 
   unitName: Goblin
+  full_body_foto: {fileID: 0}
+  portrait_foto: {fileID: 0}
   faction: 1
+  heroe_id: 0
   maxHP: 3
   performance: 2
   affinity: 0
@@ -28,7 +31,7 @@ MonoBehaviour:
   - abilityName: GoblinSlash
     baseHitChance: 50
     range: 3
-    baseDamage: 10
+    baseDamage: 5
     damageSource: 0
     requiresAdrenalineThreshold: 0
     adrenalineThreshold: 0
@@ -40,7 +43,7 @@ MonoBehaviour:
   - abilityName: GoblinStab
     baseHitChance: 50
     range: 3
-    baseDamage: 12
+    baseDamage: 6
     damageSource: 0
     requiresAdrenalineThreshold: 0
     adrenalineThreshold: 0
@@ -52,7 +55,7 @@ MonoBehaviour:
   - abilityName: GoblinFlurry
     baseHitChance: 50
     range: 3
-    baseDamage: 5
+    baseDamage: 2
     damageSource: 0
     requiresAdrenalineThreshold: 0
     adrenalineThreshold: 0
