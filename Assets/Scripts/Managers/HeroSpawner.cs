@@ -40,7 +40,7 @@ public class HeroSpawner : MonoBehaviourPunCallbacks
         {
             Debug.LogError("[HeroSpawner] Could not find prefab for " + data.unitName);
         }
-        TurnManager.Instance.HeroeGotInstanciated(playerIndex);
+        photonView.RPC("GotInstanciated", RpcTarget.MasterClient, playerIndex);
     }
 
     GameObject FindPrefabFor(UnitData data)
@@ -70,5 +70,11 @@ public class HeroSpawner : MonoBehaviourPunCallbacks
 
         Debug.LogError("[HeroSpawner] Could not determine hero player index.");
         return -1;
+    }
+
+    [PunRPC]
+    public void GotInstanciated(int idx)
+    {
+        TurnManager.Instance.HeroeGotInstanciated(idx);
     }
 }
