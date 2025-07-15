@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Elementalist
   m_EditorClassIdentifier: 
   unitName: Elementalist
-  full_body_foto: {fileID: 0}
-  portrait_foto: {fileID: 0}
+  full_body_foto: {fileID: -1681403913845898144, guid: 6fa53ced01f1cf24283210dc323ca0b2, type: 3}
+  portrait_foto: {fileID: -1681403913845898144, guid: 6fa53ced01f1cf24283210dc323ca0b2, type: 3}
   faction: 0
   heroe_id: 2
   maxHP: 5

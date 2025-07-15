@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Goblin
   m_EditorClassIdentifier: 
   unitName: Goblin
-  full_body_foto: {fileID: 0}
-  portrait_foto: {fileID: 0}
+  full_body_foto: {fileID: -1139428579820881798, guid: e4d20302412cb0742ae24ff286c2abd6, type: 3}
+  portrait_foto: {fileID: -1139428579820881798, guid: e4d20302412cb0742ae24ff286c2abd6, type: 3}
   faction: 1
   heroe_id: 0
   maxHP: 3
