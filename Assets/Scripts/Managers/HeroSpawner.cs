@@ -40,6 +40,7 @@ public class HeroSpawner : MonoBehaviourPunCallbacks
         {
             Debug.LogError("[HeroSpawner] Could not find prefab for " + data.unitName);
         }
+        TurnManager.Instance.HeroeGotInstanciated(playerIndex);
     }
 
     GameObject FindPrefabFor(UnitData data)

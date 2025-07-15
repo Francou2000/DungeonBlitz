@@ -17,8 +17,18 @@ public class TurnManager : MonoBehaviourPun
     private Dictionary<int, bool> heroPlayerReady = new();
 
     private PhotonView view;
-    private bool gamePaused = false;
+    private bool gamePaused = true;
+    private bool[] has_been_instanciated = new bool[4];
 
+    public void HeroeGotInstanciated(int idx)
+    {
+        has_been_instanciated[idx] = true;
+        foreach (bool check in has_been_instanciated)
+        {
+            if (!check) return;
+        }
+        gamePaused = false;
+    }
     private float turnTimer = 0f;
     private float syncCooldown = 0f;
 
