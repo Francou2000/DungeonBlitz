@@ -24,7 +24,7 @@ public class UnitSelector : MonoBehaviourPun
             if (hit.collider != null)
             {
                 Unit clickedUnit = hit.collider.GetComponent<Unit>();
-                if (clickedUnit != null && clickedUnit.Controller != null && clickedUnit.Controller.isControllable && clickedUnit.Model.Faction == UnitFaction.Monster || PhotonNetwork.IsMasterClient)
+                if (clickedUnit != null && clickedUnit.Controller != null && clickedUnit.Controller.isControllable && clickedUnit.Model.Faction == UnitFaction.Monster && PhotonNetwork.IsMasterClient)
                 {
                     SetActiveUnit(clickedUnit.Controller);
                 }
