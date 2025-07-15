@@ -1,7 +1,7 @@
 using Photon.Pun;
 using UnityEngine;
 
-public class UnitSelector : MonoBehaviour
+public class UnitSelector : MonoBehaviourPun
 {
     private UnitController currentActiveUnit;
 
@@ -24,7 +24,7 @@ public class UnitSelector : MonoBehaviour
             if (hit.collider != null)
             {
                 Unit clickedUnit = hit.collider.GetComponent<Unit>();
-                if (clickedUnit != null && clickedUnit.Controller != null && clickedUnit.Controller.isControllable && clickedUnit.Model.Faction == UnitFaction.Monster)
+                if (clickedUnit != null && clickedUnit.Controller != null && clickedUnit.Controller.isControllable && clickedUnit.Model.Faction == UnitFaction.Monster || PhotonNetwork.IsMasterClient)
                 {
                     SetActiveUnit(clickedUnit.Controller);
                 }
