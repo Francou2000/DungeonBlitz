@@ -72,11 +72,14 @@ public class TurnManager : MonoBehaviourPun
             syncCooldown = 1f;
         }
 
-        UpdateTurnUI();
-
+        // === CHECK WIN CONDITION ===
         if (timePool[currentTurn] <= 0f)
         {
             EndGame(GetOpposingFaction(currentTurn));
+        }
+        else if (IsFactionDefeated(GetOpposingFaction(currentTurn)))
+        {
+            EndGame(currentTurn); // current faction wins
         }
     }
 
@@ -165,6 +168,12 @@ public class TurnManager : MonoBehaviourPun
         UpdateTurnUI();
     }
 
+    [PunRPC]
+    private void RPC_LoadEndScene(string sceneName)
+    {
+        PhotonNetwork.LoadLevel(sceneName);
+    }
+
     // === TURN FLOW ===
     private void DecideFirstTurn()
     {
@@ -220,11 +229,31 @@ public class TurnManager : MonoBehaviourPun
         return faction == UnitFaction.Hero ? UnitFaction.Monster : UnitFaction.Hero;
     }
 
+    private bool IsFactionDefeated(UnitFaction faction)
+    {
+        foreach (var unit in UnityEngine.Object.FindObjectsByType<Unit>(FindObjectsSortMode.None))
+        {
+            if (unit.Model.Faction == faction && unit.Model.IsAlive())
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private void EndGame(UnitFaction winner)
     {
+        if (gamePaused) return;
         gamePaused = true;
-        Debug.Log($"[TurnManager] {winner} wins! (Time Out)");
-        // Show UI message, kick to lobby, etc.
+
+        Debug.Log($"[TurnManager] {winner} wins!");
+
+        // MasterClient tells everyone to load the win scene
+        if (PhotonNetwork.IsMasterClient)
+        {
+            string sceneName = (winner == UnitFaction.Hero) ? "Heroes_WinScreen" : "DM_WinScreen";
+            photonView.RPC(nameof(RPC_LoadEndScene), RpcTarget.All, sceneName);
+        }
     }
 
     // === UI ===

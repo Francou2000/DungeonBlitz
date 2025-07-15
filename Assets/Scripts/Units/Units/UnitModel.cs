@@ -106,6 +106,11 @@ public class UnitModel : MonoBehaviour
 
     // Damage Handling 
 
+    public bool IsAlive()
+    {
+        return CurrentHP > 0;
+    }
+
     public void TakeDamage(int amount, DamageType type)
     {
         ApplyDamage(amount);
