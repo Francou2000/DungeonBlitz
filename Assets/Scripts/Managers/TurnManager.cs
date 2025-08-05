@@ -17,8 +17,8 @@ public class TurnManager : MonoBehaviourPunCallbacks
     private Dictionary<int, bool> heroPlayerReady = new();
 
     private PhotonView view;
-    private bool gamePaused = true;
-    private bool[] has_been_instanciated = new bool[4];
+    public bool gamePaused = true;
+    public bool[] has_been_instanciated = new bool[4];
 
     public void HeroeGotInstanciated(int idx)
     {

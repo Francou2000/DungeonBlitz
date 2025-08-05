@@ -1,4 +1,5 @@
 using Photon.Pun;
+using Photon.Realtime;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -17,7 +18,21 @@ public class MainMenuButton : MonoBehaviourPunCallbacks
 
     public void ReturnToMainMenu()
     {
+        LobbyManager.Instance.photonView.RPC("PlayerLeaveRoom", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber);
         PhotonNetwork.LeaveRoom();
         SceneManager.LoadScene(mainMenu_sceneName);
     }
+
+    //public override void OnLeftRoom()
+    //{
+    //    base.OnLeftRoom();
+    //}
+    public virtual void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        LobbyManager.Instance.PlayerLeaveRoom(otherPlayer.ActorNumber);
+    }
+
+
+
+
 }

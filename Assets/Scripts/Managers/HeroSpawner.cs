@@ -40,7 +40,7 @@ public class HeroSpawner : MonoBehaviourPunCallbacks
         {
             Debug.LogError("[HeroSpawner] Could not find prefab for " + data.unitName);
         }
-        photonView.RPC("GotInstanciated", RpcTarget.MasterClient, playerIndex);
+        photonView.RPC("GotInstanciated", RpcTarget.All, playerIndex);
     }
 
     GameObject FindPrefabFor(UnitData data)

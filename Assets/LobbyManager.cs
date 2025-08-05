@@ -15,6 +15,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public string[] slots_used = new string[5];
     public TextMeshProUGUI[] slots_text = new TextMeshProUGUI[5];
 
+    public GameObject start_game_button;
     private void Awake()
     {
         if (Instance == null)
@@ -35,6 +36,8 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         slots_used[3] = "P3 name";
         slots_used[4] = "P4 name";
         CheckPlayerName();
+        if (!PhotonNetwork.IsMasterClient) { photonView.RPC("GetReadyState", RpcTarget.MasterClient); }
+        else { start_game_button.SetActive(true); }
     }
 
     public void CheckPlayerName()
@@ -69,9 +72,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         // Debug.Log("player ID  " + PhotonNetwork.LocalPlayer.ActorNumber);
         // Debug.Log("player count  " + PhotonNetwork.CountOfPlayers);
         
-        
-        
-        
     }
 
     public void debugButton()
@@ -92,15 +92,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         
     }
 
-    //public void ChangeSceneDM()
-    //{
-    //    SceneManager.LoadScene(dm_scene);
-    //}
-
-    //public void ChangeSceneHEROE()
-    //{
-    //    SceneManager.LoadScene(heroe_scene);
-    //}
     
     public bool[] player_ready = new bool[5];
     
@@ -112,7 +103,14 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         {
             if (!is_ready) return;
         }
-        SceneManager.LoadScene(selection_scene);
+        start_game_button.GetComponent<Button>().interactable = true;
+    }
+    [PunRPC]
+    public void PlayerLeaveRoom(int playerID)
+    {
+        slots_used[playerID - 1] = "";
+        slots_text[playerID - 1].text = "";
+        player_ready[playerID - 1] = false;
     }
     [PunRPC]
     public void AddCharacter(int playerID,string playerNick)
@@ -123,5 +121,19 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         
         Debug.Log("RPC SLOT USED " + (playerID-1)+ " new name - 1");
     }
-
+    [PunRPC]
+    public void GetReadyState()
+    {
+        photonView.RPC("ShareReadyState", RpcTarget.All, player_ready);
+    }
+    [PunRPC]
+    public void ShareReadyState(bool[] ready_list)
+    {
+        player_ready = ready_list;
+    }
+    [PunRPC]
+    public void LoadGame()
+    {
+        SceneManager.LoadScene(selection_scene);
+    }
 }

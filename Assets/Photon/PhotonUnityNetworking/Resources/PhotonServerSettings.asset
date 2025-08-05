@@ -54,6 +54,9 @@ MonoBehaviour:
   - RPC_ApplyDamage
   - RPC_LoadEndScene
   - GotInstanciated
+  - GetReadyState
+  - ShareReadyState
+  - PlayerLeaveRoom
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1
