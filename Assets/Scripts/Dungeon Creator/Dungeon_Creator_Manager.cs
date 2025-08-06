@@ -61,11 +61,13 @@ public class Dungeon_Creator_Manager : MonoBehaviour
         if (dc_state == DC_State.PLACING_UNIT)
         {
             PlaceSelected.Invoke();
+            save_map();
             //actual_prefab = null;
         }
         else if (dc_state == DC_State.PLAICING_TRAP)
         {
             PlaceSelected.Invoke();
+            save_map();
             //actual_prefab = null;
         }
     }
@@ -77,6 +79,7 @@ public class Dungeon_Creator_Manager : MonoBehaviour
         }
 
         Instantiate(map_list[(int)new_map], spawn_point);
+        save_map();
     }
     public void select_unit(Monsters new_unit, DC_State new_state = DC_State.PLACING_UNIT)
     {

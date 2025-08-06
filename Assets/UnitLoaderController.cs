@@ -76,10 +76,11 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
 
         Debug.Log($"[AddMapDM] Total monsters added: {playable_Map.UNITS.Count}");
         players_ready[0] = true;
-        CheckIfStart();
+        // CheckIfStart();
     }
 
-    void CheckIfStart()
+    [PunRPC]
+    public void CheckIfStart()
     {
         foreach (bool ready in players_ready)
         {
