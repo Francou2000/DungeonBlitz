@@ -116,6 +116,7 @@ public class UnitController : MonoBehaviourPun
         if (roll > hitChance)
         {
             Debug.Log($"[Attack] Missed! Rolled {roll:F1} vs {hitChance:F1}");
+            ActionUsed();
             return;
         }
 
@@ -150,9 +151,24 @@ public class UnitController : MonoBehaviourPun
         int targetID = targetUnit.GetComponent<PhotonView>().ViewID;
         photonView.RPC(nameof(RPC_ApplyDamage), RpcTarget.All, targetID, totalDamage, (int)damageType);
 
-        unit.Model.SpendAction(selectedAbility.actionCost);
+        //Adrenaline mechanic
         unit.Model.AddAdrenaline(5);
-        ActionUI.Instance.ClearAction();
+
+        ActionUsed();
+    }
+
+    private void ActionUsed()
+    {
+        unit.Model.SpendAction(selectedAbility.actionCost);
+
+        selectedAbility = null;
+        SetAction(UnitAction.None);
+
+        if (ActionUI.Instance != null)
+            ActionUI.Instance.ClearAction();
+
+        if (CombatUI.Instance != null)
+            CombatUI.Instance.HideAbilities();
     }
 
     public void SetSelectedAbility(UnitAbility ability)
