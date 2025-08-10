@@ -195,6 +195,19 @@ public class UnitController : MonoBehaviourPun
         }
 
         DamageType damageType = (DamageType)damageTypeInt;
-        targetUnit.Model.TakeDamage(damageAmount, damageType);
+        UnitGotDamaged(damageAmount, damageType);
+
+    }
+
+    public void UnitGotDamaged(int dmg_amount, DamageType dmg_type)
+    {
+        unit.View.PlayOneShotAnimation(AnimationName.Hit);
+        //TODO: Add damage ui feedback
+        unit.Model.TakeDamage(dmg_amount, dmg_type);
+    }
+    public void UnitDied()
+    {
+        unit.View.DeadAnimation();
+        unit.Model.Die();
     }
 }
