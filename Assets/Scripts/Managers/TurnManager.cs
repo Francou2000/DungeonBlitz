@@ -20,6 +20,10 @@ public class TurnManager : MonoBehaviourPunCallbacks
     public bool gamePaused = true;
     public bool[] has_been_instanciated = new bool[4];
 
+    // debug
+    private float lastPeriodicLog = 0f;
+    private const float periodicLogInterval = 1f; // once per second
+
     public void HeroeGotInstanciated(int idx)
     {
         has_been_instanciated[idx] = true;
@@ -68,12 +72,21 @@ public class TurnManager : MonoBehaviourPunCallbacks
 
     void Update()
     {
-        if (!PhotonNetwork.IsMasterClient || gamePaused) return;
+        // Periodic log so we can see who is updating
+        if (Time.time - lastPeriodicLog >= periodicLogInterval)
+        {
+            lastPeriodicLog = Time.time;
+        }
 
+        if (!PhotonNetwork.IsMasterClient || gamePaused)
+            return;
+        
         float delta = Time.deltaTime;
         turnTimer += delta;
         timePool[currentTurn] -= delta;
         timePool[currentTurn] = Mathf.Max(0f, timePool[currentTurn]);
+
+        Debug.Log($"[TurnManager][MasterTick] delta={delta:F4} currentTurn={currentTurn} poolBefore={timePool[currentTurn]:F2} poolAfter={Mathf.Max(0f, timePool[currentTurn] - delta):F2}");
 
         syncCooldown -= delta;
         if (syncCooldown <= 0f)
@@ -115,6 +128,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
         if (!PhotonNetwork.IsMasterClient)
         {
             photonView.RPC(nameof(RPC_PlayerEndedTurn), RpcTarget.MasterClient, PhotonNetwork.LocalPlayer.ActorNumber);
+            Debug.Log($"[TurnManager] RequestHeroEndTurn sent by {PhotonNetwork.LocalPlayer.ActorNumber}");
         }
     }
 
@@ -149,6 +163,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
         }
     }
 
+    // include sender info to know who invoked the RPC
     [PunRPC]
     private void RPC_SyncTurn(UnitFaction newTurn, int newTurnNumber, float newTime)
     {
@@ -163,13 +178,14 @@ public class TurnManager : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    private void RPC_UpdateTimer(float syncedTurnTime, float syncedTimePool)
+    private void RPC_UpdateTimer(float syncedTurnTime, float syncedTimePool, PhotonMessageInfo info)
     {
-        // If timePool doesn't exist for currentTurn, ignore the update
+        // If the client doesn't have the timePool key for currentTurn, log it
         if (!timePool.ContainsKey(currentTurn))
         {
-            Debug.LogWarning($"[RPC_UpdateTimer] Missing timePool key for: {currentTurn}");
-            return;
+            // Try to create missing keys (defensive)
+            if (!timePool.ContainsKey(UnitFaction.Hero)) timePool[UnitFaction.Hero] = initialTimePool;
+            if (!timePool.ContainsKey(UnitFaction.Monster)) timePool[UnitFaction.Monster] = initialTimePool;
         }
 
         turnTimer = syncedTurnTime;
