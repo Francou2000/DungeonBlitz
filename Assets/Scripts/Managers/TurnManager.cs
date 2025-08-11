@@ -20,19 +20,6 @@ public class TurnManager : MonoBehaviourPunCallbacks
     public bool gamePaused = true;
     public bool[] has_been_instanciated = new bool[4];
 
-    // debug
-    private float lastPeriodicLog = 0f;
-    private const float periodicLogInterval = 1f; // once per second
-
-    public void HeroeGotInstanciated(int idx)
-    {
-        has_been_instanciated[idx] = true;
-        foreach (bool check in has_been_instanciated)
-        {
-            if (!check) return;
-        }
-        gamePaused = false;
-    }
     private float turnTimer = 0f;
     private float syncCooldown = 0f;
 
@@ -72,12 +59,6 @@ public class TurnManager : MonoBehaviourPunCallbacks
 
     void Update()
     {
-        // Periodic log so we can see who is updating
-        if (Time.time - lastPeriodicLog >= periodicLogInterval)
-        {
-            lastPeriodicLog = Time.time;
-        }
-
         if (!PhotonNetwork.IsMasterClient || gamePaused)
             return;
         
@@ -85,8 +66,6 @@ public class TurnManager : MonoBehaviourPunCallbacks
         turnTimer += delta;
         timePool[currentTurn] -= delta;
         timePool[currentTurn] = Mathf.Max(0f, timePool[currentTurn]);
-
-        Debug.Log($"[TurnManager][MasterTick] delta={delta:F4} currentTurn={currentTurn} poolBefore={timePool[currentTurn]:F2} poolAfter={Mathf.Max(0f, timePool[currentTurn] - delta):F2}");
 
         syncCooldown -= delta;
         if (syncCooldown <= 0f)
@@ -191,6 +170,8 @@ public class TurnManager : MonoBehaviourPunCallbacks
         turnTimer = syncedTurnTime;
         timePool[currentTurn] = syncedTimePool;
 
+        Debug.Log($"[RPC_UpdateTimer] On Actor={PhotonNetwork.LocalPlayer.ActorNumber} IsMaster={PhotonNetwork.IsMasterClient} Sender={info.Sender.ActorNumber}");
+
         UpdateTurnUI();
     }
 
@@ -198,6 +179,23 @@ public class TurnManager : MonoBehaviourPunCallbacks
     private void RPC_LoadEndScene(string sceneName)
     {
         PhotonNetwork.LoadLevel(sceneName);
+    }
+
+    [PunRPC]
+    public void RPC_HeroeGotInstanciated(int idx)
+    {
+        Debug.Log($"[TurnManager] RPC_HeroeGotInstanciated CALLED on Actor={PhotonNetwork.LocalPlayer.ActorNumber} idx={idx}");
+
+        has_been_instanciated[idx] = true;
+
+        foreach (bool check in has_been_instanciated)
+        {
+            if (!check) return; // Still waiting for some heroes
+        }
+
+        // All heroes have been instantiated — unpause the game
+        gamePaused = false;
+        Debug.Log($"[TurnManager] All heroes instantiated — game unpaused on Actor={PhotonNetwork.LocalPlayer.ActorNumber}");
     }
 
     // === TURN FLOW ===
