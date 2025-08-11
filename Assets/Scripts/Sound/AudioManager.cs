@@ -14,6 +14,7 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioSource musicSource;
     [SerializeField] private AudioSource sfxSource;
 
+    //Rename to whatever (this manager was used on other projects)
     [Header("Audio Clips")]
     [SerializeField] private AudioClip backgroundMusicClip;
     [SerializeField] private AudioClip catchItemSFX;
@@ -46,12 +47,14 @@ public class AudioManager : MonoBehaviour
         }
     }
 
+    //Rename to whatever (this manager was used on other projects)
     public void PlayCatchItemSound()
     {
         if (sfxSource && catchItemSFX)
             sfxSource.PlayOneShot(catchItemSFX);
     }
 
+    //Rename to whatever (this manager was used on other projects)
     public void PlayDangerousItemSound()
     {
         if (sfxSource && dangerousItemSFX)
