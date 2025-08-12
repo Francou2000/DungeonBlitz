@@ -32,6 +32,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
             return;
         }
 
+        Debug.Log($"[TurnManager][Awake] Instance set on Actor={PhotonNetwork.LocalPlayer.ActorNumber} IsMaster={PhotonNetwork.IsMasterClient} View={GetComponent<PhotonView>()?.ViewID}");
         Instance = this;
         view = GetComponent<PhotonView>();
     }
@@ -71,8 +72,10 @@ public class TurnManager : MonoBehaviourPunCallbacks
         if (syncCooldown <= 0f)
         {
             photonView.RPC(nameof(RPC_UpdateTimer), RpcTarget.Others, turnTimer, timePool[currentTurn]);
-            syncCooldown = 1f;
+            UpdateTurnUI();
+            syncCooldown = 1f;        
         }
+
 
         // === CHECK WIN CONDITION ===
         if (timePool[currentTurn] <= 0f)

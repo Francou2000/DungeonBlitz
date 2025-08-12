@@ -1,3 +1,4 @@
+using System.Collections;
 using Photon.Pun;
 using UnityEngine;
 
@@ -8,9 +9,19 @@ public class HeroSpawner : MonoBehaviourPunCallbacks
 
     void Start()
     {
-        if (!PhotonNetwork.IsConnected || !PhotonNetwork.InRoom) return;
+        Debug.Log($"[HeroSpawner] Start() running on Actor={PhotonNetwork.LocalPlayer.ActorNumber} IsMaster={PhotonNetwork.IsMasterClient}");
 
-        if (PhotonNetwork.IsMasterClient) return; // Master client shouldn't spawn heroes
+        if (!PhotonNetwork.IsConnected || !PhotonNetwork.InRoom)
+        {
+            Debug.LogWarning("[HeroSpawner] Not connected or not in room.");
+            return;
+        }
+
+        if (PhotonNetwork.IsMasterClient)
+        {
+            Debug.LogWarning("[HeroSpawner] Master client, skipping hero spawn.");
+            return;
+        }
 
         int playerIndex = PhotonNetwork.LocalPlayer.ActorNumber - 2;      // GetHeroPlayerIndex();
         if (playerIndex < 0 || playerIndex >= 4) return;
@@ -41,7 +52,7 @@ public class HeroSpawner : MonoBehaviourPunCallbacks
             Debug.LogError("[HeroSpawner] Could not find prefab for " + data.unitName);
         }
 
-        TurnManager.Instance.GetComponent<PhotonView>().RPC(nameof(TurnManager.RPC_HeroeGotInstanciated), RpcTarget.All, playerIndex);
+        StartCoroutine(WaitForTurnManager(playerIndex));
     }
 
 
@@ -72,5 +83,14 @@ public class HeroSpawner : MonoBehaviourPunCallbacks
 
         Debug.LogError("[HeroSpawner] Could not determine hero player index.");
         return -1;
+    }
+
+    private IEnumerator WaitForTurnManager(int idx)
+    {
+        while (TurnManager.Instance == null || TurnManager.Instance.GetComponent<PhotonView>() == null)
+            yield return null;
+
+        PhotonView tmView = TurnManager.Instance.GetComponent<PhotonView>();
+        tmView.RPC(nameof(TurnManager.RPC_HeroeGotInstanciated), RpcTarget.All, idx);
     }
 }
