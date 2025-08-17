@@ -18,6 +18,8 @@ public class UnitController : MonoBehaviourPun
 
     public static UnitController ActiveUnit { get;  set; }
 
+    public Transform dmgPopUp;
+
     void Awake()
     {
         unit = GetComponent<Unit>();
@@ -204,6 +206,8 @@ public class UnitController : MonoBehaviourPun
         unit.View.PlayOneShotAnimation(AnimationName.Hit);
         //TODO: Add damage ui feedback
         unit.Model.TakeDamage(dmg_amount, dmg_type);
+        Vector3 poUP_position = Camera.main.WorldToScreenPoint(dmgPopUp.position);
+        FeedbackDisplayManager.Instance.showDmgFeedback(dmg_amount, poUP_position);
     }
     public void UnitDied()
     {

@@ -119,6 +119,7 @@ public class UnitModel : MonoBehaviour
     public void TakeDamage(int amount, DamageType type)
     {
         ApplyDamage(amount);
+
     }
 
     private void ApplyDamage(int amount)
