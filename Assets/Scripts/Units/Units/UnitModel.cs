@@ -25,6 +25,7 @@ public class UnitModel : MonoBehaviour
     public string UnitName => unitData.unitName;
     public UnitFaction Faction => unitData.faction;
 
+    UnitController my_controller;
 
     public int MaxHP => unitData.maxHP;
     public int CurrentHP => currentHP;
@@ -70,6 +71,10 @@ public class UnitModel : MonoBehaviour
         currentActions = MaxActions;
         currentReactions = MaxReactions;
     }
+    private void Start()
+    {
+        my_controller = GetComponent<UnitController>();
+    }
 
     // Action/Reactions
 
@@ -114,6 +119,7 @@ public class UnitModel : MonoBehaviour
     public void TakeDamage(int amount, DamageType type)
     {
         ApplyDamage(amount);
+
     }
 
     private void ApplyDamage(int amount)
@@ -121,13 +127,10 @@ public class UnitModel : MonoBehaviour
         currentHP = Mathf.Max(0, currentHP - amount);
         Debug.Log($"{UnitName} took {amount} damage!");
 
-        if (currentHP <= 0)
-        {
-            Die();
-        }
+        if (currentHP <= 0) { my_controller.UnitDied(); }
     }
 
-    private void Die()
+    public void Die()
     {
         Debug.Log($"{UnitName} has died.");
         Destroy(gameObject);
