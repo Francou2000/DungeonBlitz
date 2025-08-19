@@ -198,6 +198,12 @@ public class Playable_Map
     {
         traps.Remove(old_trap);
     }
+    public void Reset()
+    {
+        map = Maps.NONE;
+        units = new List<DC_Unit>();
+        traps = new List<DC_Trap>();
+    }
 }
 
 public struct DC_Unit
