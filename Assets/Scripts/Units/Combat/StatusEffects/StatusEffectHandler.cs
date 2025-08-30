@@ -58,6 +58,45 @@ public class StatusEffectHandler : MonoBehaviour
         return sum;
     }
 
+    public bool HasTag(string tag)
+    {
+        foreach (var e in activeEffects)
+            if (e.tags != null && e.tags.Contains(tag)) return true;
+        return false;
+    }
+
+    public int GetBarrierHP() // total barrier pool (sum of effect barriers)
+    {
+        int total = 0;
+        foreach (var e in activeEffects) total += Mathf.Max(0, e.barrierHP);
+        return total;
+    }
+
+    public int ConsumeBarrier(int amount)
+    {
+        if (amount <= 0) return 0;
+        int absorbed = 0;
+        for (int i = 0; i < activeEffects.Count && amount > 0; i++)
+        {
+            var e = activeEffects[i];
+            if (e.barrierHP <= 0) continue;
+            int take = Mathf.Min(e.barrierHP, amount);
+            e.barrierHP -= take;
+            absorbed += take;
+            amount -= take;
+        }
+        return absorbed;
+    }
+
     //Expose a read‐only list for UI display
     public List<StatusEffect> GetActiveEffects() => new List<StatusEffect>(activeEffects);
+
+    // Hooks (safe no-ops until we add behaviors)
+    public void OnApply(Unit self, StatusEffect e) { }
+    public void OnExpire(Unit self, StatusEffect e) { }
+    public void OnStartTurn(Unit self) { }
+    public void OnEndTurn(Unit self) { }
+    public void OnMove(Unit self, Vector3 from, Vector3 to) { }
+   // public void OnBeforeHit(Unit attacker, Unit target, ref CombatContext ctx) { }
+   // public void OnAfterHit(Unit attacker, Unit target, CombatResult result) { }
 }

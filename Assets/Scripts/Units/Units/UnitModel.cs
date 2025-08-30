@@ -10,6 +10,7 @@ public class UnitModel : MonoBehaviour
     private int currentHP;
     private int currentActions;
     private int currentReactions;
+    private Unit thisUnit;
     private int adrenaline;
 
     [Header("Movement Modifiers")]
@@ -24,7 +25,6 @@ public class UnitModel : MonoBehaviour
     [Header("Public Getters")]
     public string UnitName => unitData.unitName;
     public UnitFaction Faction => unitData.faction;
-
 
     public int MaxHP => unitData.maxHP;
     public int CurrentHP => currentHP;
@@ -46,8 +46,9 @@ public class UnitModel : MonoBehaviour
 
     public bool IsTrainingDummy => unitData.isTrainingDummy;
 
-    // Initialization
+    private Dictionary<string, int> _resources;
 
+    // Initialization
     public void Initialize()
     {
         // Set runtime values from static config
@@ -63,12 +64,16 @@ public class UnitModel : MonoBehaviour
         if (statusHandler == null)
             Debug.LogWarning("[UnitModel] No StatusEffectHandler found on this unit.");
 
+        EnsureResources();
     }
 
     public void ResetTurn()
     {
         currentActions = MaxActions;
         currentReactions = MaxReactions;
+
+        thisUnit = GetComponent<Unit>();
+        //StatusEffectHandler.OnStartTurn(thisUnit);
     }
 
     // Action/Reactions
@@ -78,6 +83,39 @@ public class UnitModel : MonoBehaviour
 
     public bool CanReact() => currentReactions > 0;
     public void SpendReaction(int amount = 1) => currentReactions = Mathf.Max(0, currentReactions - amount);
+
+    // Resources (components that units need to perform an action beside actions, ie, spears for hobgoblin)
+    private void EnsureResources()
+    {
+        if (_resources == null) _resources = new Dictionary<string, int>(8);
+    }
+
+    public int GetRes(string key)
+    {
+        EnsureResources();
+        return _resources.TryGetValue(key, out var v) ? v : 0;
+    }
+
+    public void SetRes(string key, int value)
+    {
+        EnsureResources();
+        _resources[key] = Mathf.Max(0, value);
+    }
+
+    public void AddRes(string key, int delta)
+    {
+        EnsureResources();
+        _resources[key] = Mathf.Max(0, GetRes(key) + delta);
+    }
+
+    public bool TryConsume(string key, int amount)
+    {
+        EnsureResources();
+        var cur = GetRes(key);
+        if (cur < amount) return false;
+        _resources[key] = cur - amount;
+        return true;
+    }
 
     // Movement Speed
 
@@ -125,6 +163,25 @@ public class UnitModel : MonoBehaviour
         {
             Die();
         }
+    }
+
+    public int ApplyDamageWithBarrier(int incoming, DamageType type)
+    {
+        if (incoming <= 0) return 0;
+        int remaining = incoming;
+
+        // Ask status handler how much barrier is available & consume it first
+        if (statusHandler != null)
+        {
+            int absorbed = statusHandler.ConsumeBarrier(remaining);
+            remaining -= absorbed;
+        }
+
+        if (remaining <= 0) return incoming; // fully absorbed
+
+        // Now apply the remainder to HP using your existing damage logic:
+        TakeDamage(remaining, type);
+        return incoming;
     }
 
     private void Die()
