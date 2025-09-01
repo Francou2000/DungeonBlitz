@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -5,6 +6,7 @@ public class ChangeMenuButton : MonoBehaviour
 {
     [SerializeField] GameObject menuToActive;
     [SerializeField] GameObject menuToDeactive;
+    [SerializeField] TMP_InputField nickName = null;
     Button my_button;
 
     
@@ -12,10 +14,16 @@ public class ChangeMenuButton : MonoBehaviour
     {
         my_button = GetComponent<Button>();
         my_button.onClick.AddListener(ChangeMenuUI);
+        if (nickName != null) { nickName.onValueChanged.AddListener(activeButtons); }
     }
     void ChangeMenuUI()
     {
         menuToActive.SetActive(true);
         menuToDeactive.SetActive(false);
+    }
+
+    void activeButtons(string value)
+    {
+        my_button.interactable = value != "";
     }
 }
