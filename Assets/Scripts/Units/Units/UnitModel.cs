@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using SharpToken;
 using UnityEngine;
 
 public class UnitModel : MonoBehaviour
