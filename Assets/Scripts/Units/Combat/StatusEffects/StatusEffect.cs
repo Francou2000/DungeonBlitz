@@ -38,6 +38,9 @@ public class StatusEffect
     // absorbs damage before HP
     public int barrierHP = 0;
 
+    // damage per turn (for DoTs like bleeding, burning)
+    public int damagePerTurn = 0;
+
     // Hook flags: the effect can respond to lifecycle/combat events
     public bool onApply, onExpire, onStartTurn, onEndTurn, onMove, onBeforeHit, onAfterHit;
 }

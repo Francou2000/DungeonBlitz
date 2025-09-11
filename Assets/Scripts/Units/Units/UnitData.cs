@@ -10,6 +10,8 @@ public class UnitData : ScriptableObject
     public Sprite portrait_foto;
     public UnitFaction faction;
     public HeroesList heroe_id;
+    
+    [Header("Core Stats")]
     public int maxHP;
     public int performance;
     public int affinity;
@@ -17,12 +19,30 @@ public class UnitData : ScriptableObject
     public int magicResistance;
     public int strength;
     public int magicPower;
+    
+    [Header("Action System")]
     public int actionsPerTurn;
     public int reactionsPerTurn;
+    
+    [Header("Adrenaline System")]
     public int baseAdrenaline = 0;
+    public int adrenalineThreshold = 30;
+    public int maxAdrenaline = 100;
 
     [Header("Abilities")]
     public List<UnitAbility> abilities = new List<UnitAbility>();
+    public List<UnitAbility> adrenalineAbilities = new List<UnitAbility>();
+ 
+    public struct StartingResource
+    {
+        public string key;
+        public int amount;
+    }
+
+    [Header("Resources")]
+    public List<StartingResource> startingResources = new List<StartingResource>();
+    public string startingForm;   // e.g., "Fire", "Frost", "Lightning"
+    public string startingWeapon; // e.g., "Bow", "Dagger"
 
     [Header("Flags")]
     public bool isTrainingDummy = false;
@@ -30,6 +50,18 @@ public class UnitData : ScriptableObject
     [Header("Promotion")]
     public bool isPromotable;
     public UnitData promotedForm;
+    
+    [Header("Special Mechanics")]
+    public bool hasAttackOfOpportunity = false;
+    public List<string> specialTags = new List<string>();
+}
+
+[System.Serializable]
+public class UnitResource
+{
+    public string resourceName;
+    public int amount;
+    public int maxAmount;
 }
 
 public enum HeroesList
@@ -38,4 +70,5 @@ public enum HeroesList
     Rogue,
     Elementalist,
     Sorcerer,
+    None
 }

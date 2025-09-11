@@ -17,41 +17,420 @@ MonoBehaviour:
   portrait_foto: {fileID: -7142336298008020796, guid: ab77e99104ad9754d8340cf50a4b8585, type: 3}
   faction: 0
   heroe_id: 0
-  maxHP: 10
+  maxHP: 35
   performance: 1
   affinity: 0
-  armor: 5
-  magicResistance: 5
-  strength: 3
-  magicPower: 3
+  armor: 60
+  magicResistance: 60
+  strength: 6
+  magicPower: 6
   actionsPerTurn: 2
   reactionsPerTurn: 1
   baseAdrenaline: 0
+  adrenalineThreshold: 75
+  maxAdrenaline: 100
   abilities:
   - abilityName: Justice Strike
-    baseHitChance: 50
-    range: 3
-    baseDamage: 5
-    damageSource: 0
+    description: 
+    abilityType: 0
+    baseHitChance: 70
+    actionCost: 1
+    adrenalineCost: 0
+    resourceCosts: []
     requiresAdrenalineThreshold: 0
     adrenalineThreshold: 0
-    hits: 1
-    actionCost: 1
-    appliedEffects: []
-    isReaction: 0
-    reactionTrigger: 0
-  - abilityName: Shield Bash
-    baseHitChance: 50
-    range: 3
+    targetType: 1
+    range: 0.5
+    isAreaOfEffect: 0
+    aoeRadius: 0
+    damageSource: 0
     baseDamage: 3
-    damageSource: 0
-    requiresAdrenalineThreshold: 0
-    adrenalineThreshold: 0
+    damageMultiplier: 1
+    bonusDamage: 0
     hits: 1
-    actionCost: 1
+    useTargetMissingHealth: 0
+    missingHealthPercentage: 0
+    canChain: 0
+    chainRange: 0
+    castDuration: 1
     appliedEffects: []
+    statusEffectChance: 100
+    healsTarget: 0
+    healAmount: 0
+    healPercentage: 0
+    grantsBarrier: 0
+    barrierAmount: 0
+    grantsMovement: 0
+    movementRange: 0
+    isMovementFree: 0
+    summons: 0
+    summonUnitType: 
+    summonCount: 0
     isReaction: 0
     reactionTrigger: 0
+    hasConditionalEffect: 0
+    conditionTag: 
+    reducesActionCostOnCondition: 0
+    reducedActionCost: 0
+  - abilityName: Shield Bash
+    description: 
+    abilityType: 0
+    baseHitChance: 60
+    actionCost: 1
+    adrenalineCost: 0
+    resourceCosts: []
+    requiresAdrenalineThreshold: 0
+    adrenalineThreshold: 0
+    targetType: 1
+    range: 0.5
+    isAreaOfEffect: 0
+    aoeRadius: 0
+    damageSource: 0
+    baseDamage: 1
+    damageMultiplier: 1
+    bonusDamage: 0
+    hits: 1
+    useTargetMissingHealth: 0
+    missingHealthPercentage: 0
+    canChain: 0
+    chainRange: 0
+    castDuration: 1
+    appliedEffects:
+    - effectName: Root
+      type: 2
+      modifier: 4
+      amount: 0
+      duration: 1
+      isStackable: 0
+      maxStacks: 0
+      tags:
+      - Root
+      barrierHP: 0
+      damagePerTurn: 0
+      onApply: 0
+      onExpire: 0
+      onStartTurn: 0
+      onEndTurn: 1
+      onMove: 0
+      onBeforeHit: 0
+      onAfterHit: 0
+    statusEffectChance: 25
+    healsTarget: 0
+    healAmount: 0
+    healPercentage: 0
+    grantsBarrier: 0
+    barrierAmount: 0
+    grantsMovement: 0
+    movementRange: 0
+    isMovementFree: 0
+    summons: 0
+    summonUnitType: 
+    summonCount: 0
+    isReaction: 0
+    reactionTrigger: 0
+    hasConditionalEffect: 0
+    conditionTag: 
+    reducesActionCostOnCondition: 0
+    reducedActionCost: 0
+  - abilityName: Smite
+    description: 
+    abilityType: 1
+    baseHitChance: 70
+    actionCost: 2
+    adrenalineCost: 0
+    resourceCosts: []
+    requiresAdrenalineThreshold: 0
+    adrenalineThreshold: 0
+    targetType: 1
+    range: 0.5
+    isAreaOfEffect: 0
+    aoeRadius: 0
+    damageSource: 1
+    baseDamage: 3
+    damageMultiplier: 1
+    bonusDamage: 0
+    hits: 1
+    useTargetMissingHealth: 0
+    missingHealthPercentage: 0
+    canChain: 0
+    chainRange: 0
+    castDuration: 1
+    appliedEffects: []
+    statusEffectChance: 25
+    healsTarget: 0
+    healAmount: 0
+    healPercentage: 0
+    grantsBarrier: 0
+    barrierAmount: 0
+    grantsMovement: 0
+    movementRange: 0
+    isMovementFree: 0
+    summons: 0
+    summonUnitType: 
+    summonCount: 0
+    isReaction: 0
+    reactionTrigger: 0
+    hasConditionalEffect: 0
+    conditionTag: 
+    reducesActionCostOnCondition: 0
+    reducedActionCost: 0
+  - abilityName: Divine Smite
+    description: 
+    abilityType: 1
+    baseHitChance: 70
+    actionCost: 2
+    adrenalineCost: 50
+    resourceCosts: []
+    requiresAdrenalineThreshold: 0
+    adrenalineThreshold: 0
+    targetType: 1
+    range: 0.5
+    isAreaOfEffect: 0
+    aoeRadius: 0
+    damageSource: 1
+    baseDamage: 5
+    damageMultiplier: 1
+    bonusDamage: 0
+    hits: 1
+    useTargetMissingHealth: 0
+    missingHealthPercentage: 0
+    canChain: 0
+    chainRange: 0
+    castDuration: 1
+    appliedEffects: []
+    statusEffectChance: 25
+    healsTarget: 0
+    healAmount: 0
+    healPercentage: 0
+    grantsBarrier: 0
+    barrierAmount: 0
+    grantsMovement: 0
+    movementRange: 0
+    isMovementFree: 0
+    summons: 0
+    summonUnitType: 
+    summonCount: 0
+    isReaction: 0
+    reactionTrigger: 0
+    hasConditionalEffect: 0
+    conditionTag: 
+    reducesActionCostOnCondition: 0
+    reducedActionCost: 0
+  - abilityName: Shield Of Hope
+    description: 
+    abilityType: 1
+    baseHitChance: 100
+    actionCost: 1
+    adrenalineCost: 0
+    resourceCosts: []
+    requiresAdrenalineThreshold: 0
+    adrenalineThreshold: 0
+    targetType: 0
+    range: 0.5
+    isAreaOfEffect: 0
+    aoeRadius: 0
+    damageSource: 1
+    baseDamage: 0
+    damageMultiplier: 1
+    bonusDamage: 0
+    hits: 1
+    useTargetMissingHealth: 0
+    missingHealthPercentage: 0
+    canChain: 0
+    chainRange: 0
+    castDuration: 1
+    appliedEffects:
+    - effectName: ArmorBuff
+      type: 0
+      modifier: 1
+      amount: 10
+      duration: 2
+      isStackable: 1
+      maxStacks: 4
+      tags: []
+      barrierHP: 0
+      damagePerTurn: 0
+      onApply: 1
+      onExpire: 0
+      onStartTurn: 0
+      onEndTurn: 0
+      onMove: 0
+      onBeforeHit: 0
+      onAfterHit: 0
+    - effectName: MRBuff
+      type: 0
+      modifier: 3
+      amount: 10
+      duration: 2
+      isStackable: 1
+      maxStacks: 4
+      tags: []
+      barrierHP: 0
+      damagePerTurn: 0
+      onApply: 1
+      onExpire: 0
+      onStartTurn: 0
+      onEndTurn: 0
+      onMove: 0
+      onBeforeHit: 0
+      onAfterHit: 0
+    - effectName: PerformanceDebuff
+      type: 1
+      modifier: 4
+      amount: 25
+      duration: 2
+      isStackable: 1
+      maxStacks: 4
+      tags: []
+      barrierHP: 0
+      damagePerTurn: 0
+      onApply: 0
+      onExpire: 0
+      onStartTurn: 0
+      onEndTurn: 0
+      onMove: 0
+      onBeforeHit: 0
+      onAfterHit: 0
+    statusEffectChance: 100
+    healsTarget: 0
+    healAmount: 0
+    healPercentage: 0
+    grantsBarrier: 0
+    barrierAmount: 0
+    grantsMovement: 0
+    movementRange: 0
+    isMovementFree: 0
+    summons: 0
+    summonUnitType: 
+    summonCount: 0
+    isReaction: 0
+    reactionTrigger: 0
+    hasConditionalEffect: 0
+    conditionTag: 
+    reducesActionCostOnCondition: 0
+    reducedActionCost: 0
+  - abilityName: Link Of Hope
+    description: 
+    abilityType: 1
+    baseHitChance: 100
+    actionCost: 2
+    adrenalineCost: 100
+    resourceCosts: []
+    requiresAdrenalineThreshold: 0
+    adrenalineThreshold: 0
+    targetType: 2
+    range: 6
+    isAreaOfEffect: 0
+    aoeRadius: 0
+    damageSource: 1
+    baseDamage: 0
+    damageMultiplier: 1
+    bonusDamage: 0
+    hits: 1
+    useTargetMissingHealth: 0
+    missingHealthPercentage: 0
+    canChain: 0
+    chainRange: 0
+    castDuration: 2
+    appliedEffects:
+    - effectName: ArmorBuff
+      type: 0
+      modifier: 1
+      amount: 10
+      duration: 2
+      isStackable: 1
+      maxStacks: 4
+      tags: []
+      barrierHP: 0
+      damagePerTurn: 0
+      onApply: 1
+      onExpire: 0
+      onStartTurn: 0
+      onEndTurn: 0
+      onMove: 0
+      onBeforeHit: 0
+      onAfterHit: 0
+    - effectName: MRBuff
+      type: 0
+      modifier: 3
+      amount: 10
+      duration: 2
+      isStackable: 1
+      maxStacks: 4
+      tags: []
+      barrierHP: 0
+      damagePerTurn: 0
+      onApply: 1
+      onExpire: 0
+      onStartTurn: 0
+      onEndTurn: 0
+      onMove: 0
+      onBeforeHit: 0
+      onAfterHit: 0
+    statusEffectChance: 100
+    healsTarget: 0
+    healAmount: 0
+    healPercentage: 0
+    grantsBarrier: 0
+    barrierAmount: 0
+    grantsMovement: 0
+    movementRange: 0
+    isMovementFree: 0
+    summons: 0
+    summonUnitType: 
+    summonCount: 0
+    isReaction: 0
+    reactionTrigger: 0
+    hasConditionalEffect: 0
+    conditionTag: 
+    reducesActionCostOnCondition: 0
+    reducedActionCost: 0
+  - abilityName: Healing Prayer
+    description: 
+    abilityType: 1
+    baseHitChance: 100
+    actionCost: 1
+    adrenalineCost: 30
+    resourceCosts: []
+    requiresAdrenalineThreshold: 0
+    adrenalineThreshold: 0
+    targetType: 0
+    range: 0.5
+    isAreaOfEffect: 0
+    aoeRadius: 0
+    damageSource: 1
+    baseDamage: 0
+    damageMultiplier: 1
+    bonusDamage: 0
+    hits: 1
+    useTargetMissingHealth: 0
+    missingHealthPercentage: 0
+    canChain: 0
+    chainRange: 0
+    castDuration: 1
+    appliedEffects: []
+    statusEffectChance: 100
+    healsTarget: 1
+    healAmount: 0
+    healPercentage: 25
+    grantsBarrier: 0
+    barrierAmount: 0
+    grantsMovement: 0
+    movementRange: 0
+    isMovementFree: 0
+    summons: 0
+    summonUnitType: 
+    summonCount: 0
+    isReaction: 0
+    reactionTrigger: 0
+    hasConditionalEffect: 0
+    conditionTag: 
+    reducesActionCostOnCondition: 0
+    reducedActionCost: 0
+  adrenalineAbilities: []
+  startingResources: []
   isTrainingDummy: 0
   isPromotable: 0
   promotedForm: {fileID: 0}
+  hasAttackOfOpportunity: 0
+  specialTags: []

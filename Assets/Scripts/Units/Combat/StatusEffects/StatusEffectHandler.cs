@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class StatusEffectHandler : MonoBehaviour
@@ -28,7 +28,10 @@ public class StatusEffectHandler : MonoBehaviour
             modifier = newEffect.modifier,
             amount = newEffect.amount,
             duration = newEffect.duration,
-            isStackable = newEffect.isStackable
+            isStackable = newEffect.isStackable,
+            barrierHP = newEffect.barrierHP,
+            damagePerTurn = newEffect.damagePerTurn,
+            tags = new List<string>(newEffect.tags ?? new List<string>())
         };
         activeEffects.Add(clone);
         Debug.Log($"[Status] Applied {clone.effectName} for {clone.duration} turns");
@@ -98,5 +101,45 @@ public class StatusEffectHandler : MonoBehaviour
     public void OnEndTurn(Unit self) { }
     public void OnMove(Unit self, Vector3 from, Vector3 to) { }
    // public void OnBeforeHit(Unit attacker, Unit target, ref CombatContext ctx) { }
+    // Additional methods for compatibility with new controllers
+    public void ApplyStatusEffect(StatusEffect effect, Unit caster = null)
+    {
+        ApplyEffect(effect);
+    }
+
+    public void RemoveStatusEffectByName(string effectName)
+    {
+        for (int i = activeEffects.Count - 1; i >= 0; i--)
+        {
+            if (activeEffects[i].effectName == effectName)
+            {
+                Debug.Log($"[Status] Removed {effectName}");
+                activeEffects.RemoveAt(i);
+            }
+        }
+    }
+
+    public void RemoveStatusEffect(StatusEffect effect)
+    {
+        if (activeEffects.Remove(effect))
+        {
+            Debug.Log($"[Status] Removed {effect.effectName}");
+        }
+    }
+
+    public bool HasStatusEffect(string effectName)
+    {
+        return activeEffects.Exists(e => e.effectName == effectName);
+    }
+
+    public bool HasAnyStatusEffect()
+    {
+        return activeEffects.Count > 0;
+    }
+
+    public List<StatusEffect> GetStatusEffects()
+    {
+        return GetActiveEffects();
+    }
    // public void OnAfterHit(Unit attacker, Unit target, CombatResult result) { }
 }

@@ -1,22 +1,34 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
-public static class ReactionManager
+public class ReactionManager : MonoBehaviour
 {
-    public static void TryTriggerReactions(Unit movingUnit, Vector3 oldPosition)
+    public static ReactionManager Instance { get; private set; }
+
+    void Awake()
     {
-        Debug.Log($"[Reaction] Checking opportunity attacks on move by {movingUnit.Model.UnitName}");
+        if (Instance != null && Instance != this) 
+        {
+            Destroy(gameObject); 
+            return; 
+        }
+        Instance = this;
+    }
 
-        var allUnits = Object.FindObjectsByType<Unit>(FindObjectsSortMode.None);
+    public void TryTriggerReactions(Unit mover, Vector3 fromPos)
+    {
+        if (mover == null) return;
 
-        foreach (var enemy in enemies)
+        foreach (var enemy in FindThreateningEnemies(mover))
         {
             if (!enemy.Model.CanReact()) continue;
 
-            // Prefer a defined reaction ability
+            // Look for a defined reaction ability
             var reactAbility = GetReactionAbility(enemy);
             if (reactAbility != null)
             {
-                // (Later) validate range/trigger type, then execute via AbilityResolver
+                // Route through resolver, authoritative
                 AbilityResolver.Instance.RequestCast(
                     enemy.Controller,
                     reactAbility,
@@ -26,9 +38,40 @@ public static class ReactionManager
                 continue;
             }
 
-            // Fallback: your current OA logic (physical hit)
-            PerformOpportunityAttack(enemy, mover);
+            //PerformOpportunityAttack(enemy, mover);
             enemy.Model.SpendReaction();
         }
     }
+
+    UnitAbility GetReactionAbility(Unit enemy)
+    {
+        foreach (var ab in enemy.Model.Abilities)
+            if (ab.isReaction) return ab;
+        return null;
+    }
+
+    List<Unit> FindThreateningEnemies(Unit mover)
+    {
+        var enemies = new List<Unit>();
+        var fromPos = transform.position;
+        foreach (var u in FindObjectsByType<Unit>(FindObjectsSortMode.None))
+        {
+            if (u == mover) continue;
+            if (u.Model.Faction == mover.Model.Faction) continue;
+
+            float dist = Vector3.Distance(u.transform.position, fromPos); 
+            if (dist < 1.5f) enemies.Add(u);
+        }
+        return enemies;
+    }
+
+    /*
+    void PerformOpportunityAttack(Unit enemy, Unit mover)
+    {
+        var basic = enemy.Model.GetBasicAttackAbility();
+        if (basic != null)
+        {
+            AbilityResolver.Instance.RequestCast(enemy.Controller, basic, new Unit[] { mover });
+        }
+    }*/
 }

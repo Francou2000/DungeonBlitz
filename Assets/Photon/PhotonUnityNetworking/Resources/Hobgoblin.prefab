@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 1651042191916801156}
   - component: {fileID: 2572878191279461665}
   - component: {fileID: 778253703200391807}
-  - component: {fileID: 2508049781977751128}
   - component: {fileID: 6965386814850586551}
   - component: {fileID: 4020468755041615607}
   - component: {fileID: 3955947690574530163}
@@ -19,6 +18,7 @@ GameObject:
   - component: {fileID: 1758931014776470608}
   - component: {fileID: 4032747607444462544}
   - component: {fileID: -3672377598579711313}
+  - component: {fileID: -544538635439859406}
   m_Layer: 0
   m_Name: Hobgoblin
   m_TagString: Untagged
@@ -109,20 +109,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2aaf9819352fbb44ab68180c84f905bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &2508049781977751128
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 671761192709153641}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce25985688ea0864b9db31b1b7712a0b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  unit: {fileID: 0}
-  isControllable: 1
 --- !u!114 &6965386814850586551
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -280,6 +266,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6852836edc32ea94eaf4bbcb7e4acc0f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &-544538635439859406
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 671761192709153641}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dbf7771e6ffa05f489740d3994ac98db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  unit: {fileID: 0}
+  model: {fileID: 0}
+  isControllable: 1
 --- !u!1 &9073731304434709722
 GameObject:
   m_ObjectHideFlags: 0

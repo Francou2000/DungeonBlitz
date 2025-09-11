@@ -45,10 +45,10 @@ public class UnitMovement : MonoBehaviour
         Vector3 clampedTarget = ClampToRange(mouseWorld, oldPosition);
         float speed = unit.Model.GetMovementSpeed();
 
-        unit.StartCoroutine(MoveCoroutine(clampedTarget, speed, () =>
+        unit.StartCoroutine(MoveCoroutine(clampedTarget, oldPosition, speed, () =>
         {
             //After finishing movement, check for reactions
-            ReactionManager.TryTriggerReactions(unit, oldPosition);
+            ReactionManager.Instance?.TryTriggerReactions(unit, oldPosition);
             onFinish?.Invoke();
         }));
     }
@@ -62,20 +62,27 @@ public class UnitMovement : MonoBehaviour
         return dir.magnitude > range ? origin + dir.normalized * range : target;
     }
 
-    private IEnumerator MoveCoroutine(Vector3 targetPos, float speed, System.Action onFinish)
+    private IEnumerator MoveCoroutine(Vector3 targetPos, Vector3 oldPosition, float speed, System.Action onFinish)
     {
         unit.View.SetFacingDirection((targetPos - transform.position).normalized);
         unit.View.PlayAnimation("Move");
-
-        Vector3 startPos = transform.position;
 
         while (Vector3.Distance(transform.position, targetPos) > 0.05f)
         {
             transform.position = Vector3.MoveTowards(transform.position, targetPos, speed * Time.deltaTime);
             yield return null;
         }
+        
+        var from = oldPosition;   
+        var to = transform.position; 
 
-        transform.position = targetPos;
+        if (unit != null && unit.Model?.statusHandler != null)
+        {
+            unit.Model.statusHandler.OnMove(unit, from, to);
+        }
+
+        // (re)enable reactions call here as well, immediately after move:
+        ReactionManager.Instance?.TryTriggerReactions(unit, from);
 
         unit.Model.SpendAction();
         unit.View.PlayAnimation("Idle");

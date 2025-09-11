@@ -13,54 +13,195 @@ MonoBehaviour:
   m_Name: GoblinPromoted
   m_EditorClassIdentifier: 
   unitName: PromotedGoblin
+  full_body_foto: {fileID: 0}
+  portrait_foto: {fileID: 0}
   faction: 1
-  maxHP: 100
-  performance: 3
-  affinity: 10
-  armor: 10
-  magicResistance: 10
-  strength: 10
+  heroe_id: 4
+  maxHP: 8
+  performance: 2
+  affinity: 1
+  armor: 30
+  magicResistance: 15
+  strength: 3
   magicPower: 0
   actionsPerTurn: 2
   reactionsPerTurn: 0
-  baseAdrenaline: 100
+  baseAdrenaline: 50
+  adrenalineThreshold: 50
+  maxAdrenaline: 100
   abilities:
   - abilityName: GoblinSlash
+    description: 
+    abilityType: 0
     baseHitChance: 50
+    actionCost: 1
+    adrenalineCost: 0
+    resourceCosts: []
+    requiresAdrenalineThreshold: 0
+    adrenalineThreshold: 0
+    targetType: 1
     range: 3
+    isAreaOfEffect: 0
+    aoeRadius: 0
+    damageSource: 0
     baseDamage: 10
-    damageSource: 0
-    requiresAdrenalineThreshold: 0
-    adrenalineThreshold: 0
+    damageMultiplier: 1
+    bonusDamage: 0
     hits: 1
-    actionCost: 1
+    useTargetMissingHealth: 0
+    missingHealthPercentage: 0
+    canChain: 0
+    chainRange: 0
+    castDuration: 1
     appliedEffects: []
+    statusEffectChance: 100
+    healsTarget: 0
+    healAmount: 0
+    healPercentage: 0
+    grantsBarrier: 0
+    barrierAmount: 0
+    grantsMovement: 0
+    movementRange: 0
+    isMovementFree: 0
+    summons: 0
+    summonUnitType: 
+    summonCount: 0
     isReaction: 0
     reactionTrigger: 0
+    hasConditionalEffect: 0
+    conditionTag: 
+    reducesActionCostOnCondition: 0
+    reducedActionCost: 0
   - abilityName: GoblinStab
+    description: 
+    abilityType: 0
     baseHitChance: 50
+    actionCost: 1
+    adrenalineCost: 0
+    resourceCosts: []
+    requiresAdrenalineThreshold: 0
+    adrenalineThreshold: 0
+    targetType: 1
     range: 3
+    isAreaOfEffect: 0
+    aoeRadius: 0
+    damageSource: 0
     baseDamage: 12
-    damageSource: 0
-    requiresAdrenalineThreshold: 0
-    adrenalineThreshold: 0
+    damageMultiplier: 1
+    bonusDamage: 0
     hits: 1
-    actionCost: 1
+    useTargetMissingHealth: 0
+    missingHealthPercentage: 0
+    canChain: 0
+    chainRange: 0
+    castDuration: 1
     appliedEffects: []
+    statusEffectChance: 100
+    healsTarget: 0
+    healAmount: 0
+    healPercentage: 0
+    grantsBarrier: 0
+    barrierAmount: 0
+    grantsMovement: 0
+    movementRange: 0
+    isMovementFree: 0
+    summons: 0
+    summonUnitType: 
+    summonCount: 0
     isReaction: 0
     reactionTrigger: 0
+    hasConditionalEffect: 0
+    conditionTag: 
+    reducesActionCostOnCondition: 0
+    reducedActionCost: 0
   - abilityName: GoblinFlurry
+    description: 
+    abilityType: 0
     baseHitChance: 50
-    range: 3
-    baseDamage: 5
-    damageSource: 0
+    actionCost: 1
+    adrenalineCost: 0
+    resourceCosts: []
     requiresAdrenalineThreshold: 0
     adrenalineThreshold: 0
+    targetType: 1
+    range: 3
+    isAreaOfEffect: 0
+    aoeRadius: 0
+    damageSource: 0
+    baseDamage: 5
+    damageMultiplier: 1
+    bonusDamage: 0
     hits: 3
-    actionCost: 1
+    useTargetMissingHealth: 0
+    missingHealthPercentage: 0
+    canChain: 0
+    chainRange: 0
+    castDuration: 1
     appliedEffects: []
+    statusEffectChance: 100
+    healsTarget: 0
+    healAmount: 0
+    healPercentage: 0
+    grantsBarrier: 0
+    barrierAmount: 0
+    grantsMovement: 0
+    movementRange: 0
+    isMovementFree: 0
+    summons: 0
+    summonUnitType: 
+    summonCount: 0
     isReaction: 0
     reactionTrigger: 0
+    hasConditionalEffect: 0
+    conditionTag: 
+    reducesActionCostOnCondition: 0
+    reducedActionCost: 0
+  adrenalineAbilities:
+  - abilityName: 
+    description: 
+    abilityType: 0
+    baseHitChance: 0
+    actionCost: 0
+    adrenalineCost: 0
+    resourceCosts: []
+    requiresAdrenalineThreshold: 0
+    adrenalineThreshold: 0
+    targetType: 0
+    range: 0
+    isAreaOfEffect: 0
+    aoeRadius: 0
+    damageSource: 0
+    baseDamage: 0
+    damageMultiplier: 0
+    bonusDamage: 0
+    hits: 0
+    useTargetMissingHealth: 0
+    missingHealthPercentage: 0
+    canChain: 0
+    chainRange: 0
+    castDuration: 0
+    appliedEffects: []
+    statusEffectChance: 0
+    healsTarget: 0
+    healAmount: 0
+    healPercentage: 0
+    grantsBarrier: 0
+    barrierAmount: 0
+    grantsMovement: 0
+    movementRange: 0
+    isMovementFree: 0
+    summons: 0
+    summonUnitType: 
+    summonCount: 0
+    isReaction: 0
+    reactionTrigger: 0
+    hasConditionalEffect: 0
+    conditionTag: 
+    reducesActionCostOnCondition: 0
+    reducedActionCost: 0
+  startingResources: []
   isTrainingDummy: 0
   isPromotable: 0
   promotedForm: {fileID: 0}
+  hasAttackOfOpportunity: 0
+  specialTags: []

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public static class CombatCalculator 
@@ -115,5 +116,100 @@ public static class CombatCalculator
 
         if (!hasHeavyCover && !hasMediumCover)
             Debug.Log("[Cover] No cover detected");
+    }
+
+    // ---- Area queries ----
+
+    // Collect enemy units within radius of 'center'
+    public static List<Unit> GetUnitsInRadius(Vector3 center, float radius, Unit caster)
+    {
+        var result = new List<Unit>();
+        if (radius <= 0f || caster == null) return result;
+
+        var all = Object.FindObjectsByType<Unit>(FindObjectsSortMode.None);
+        foreach (var u in all)
+        {
+            if (u == null || u == caster) continue;
+            if (u.Model.Faction == caster.Model.Faction) continue; // enemies only for now
+            if (Vector3.Distance(center, u.transform.position) <= radius + 0.01f)
+                result.Add(u);
+        }
+        return result;
+    }
+
+    // Collect enemy units roughly along the line from 'origin' towards 'directionTo',
+    // limited by range and maxTargets. Uses a dot check to ensure alignment.
+    public static List<Unit> GetLineTargets(Unit caster, Unit primaryTarget, float range, int maxTargets, float alignmentTolerance)
+    {
+        var result = new List<Unit>();
+        if (caster == null || primaryTarget == null) return result;
+
+        var origin = caster.transform.position;
+        var dir = (primaryTarget.transform.position - origin).normalized;
+        if (dir.sqrMagnitude < 0.0001f) return result;
+
+        var all = Object.FindObjectsByType<Unit>(FindObjectsSortMode.None);
+        var candidates = new List<(Unit u, float dist)>();
+
+        foreach (var u in all)
+        {
+            if (u == null || u == caster) continue;
+            if (u.Model.Faction == caster.Model.Faction) continue; // enemies only
+            var to = u.transform.position - origin;
+            var dist = to.magnitude;
+            if (dist > range + 0.01f) continue;
+
+            var align = Vector3.Dot(dir, to.normalized);
+            if (align >= alignmentTolerance) // close to the ray
+                candidates.Add((u, dist));
+        }
+
+        // sort along the ray from nearest to farthest
+        candidates.Sort((a, b) => a.dist.CompareTo(b.dist));
+
+        foreach (var (u, _) in candidates)
+        {
+            result.Add(u);
+            if (result.Count >= Mathf.Max(1, maxTargets)) break;
+        }
+        return result;
+    }
+
+    // ---- Advanced damage ----
+
+    // Mixed damage: split into physical and magical, mitigate each separately, then sum.
+    public static int CalculateMixedDamage(int baseDamage, int attackerStrength, int defenderArmor,
+                                           int attackerMagic, int defenderMR, int physicalPercent)
+    {
+        physicalPercent = Mathf.Clamp(physicalPercent, 0, 100);
+        int magicalPercent = 100 - physicalPercent;
+
+        int physBase = Mathf.RoundToInt(baseDamage * (physicalPercent / 100f));
+        int magBase = baseDamage - physBase;
+
+        float physOut = CalculateDamage(physBase, attackerStrength, defenderArmor);
+        float magOut = CalculateDamage(magBase, attackerMagic, defenderMR);
+
+        return Mathf.Max(0, Mathf.RoundToInt(physOut + magOut));
+    }
+
+    // Apply collateral reduction for non-primary line targets
+    public static int ApplyCollateralPercent(int damage, int percent)
+    {
+        return Mathf.Max(0, Mathf.RoundToInt(damage * Mathf.Clamp01(percent / 100f)));
+    }
+
+    // Add bonus based on target's missing HP (if you expose MaxHP/CurrentHP)
+    public static int ApplyMissingHpBonus(int damage, Unit target, int bonusPerMissingHpPercent)
+    {
+        if (bonusPerMissingHpPercent <= 0 || target == null) return damage;
+
+        // Try to read from your model; if you name it differently, adjust here.
+        int maxHp = target.Model.MaxHP;       // <- ensure your model exposes MaxHP
+        int curHp = target.Model.CurrentHP;   // <- ensure your model exposes CurrentHP
+
+        int missing = Mathf.Max(0, maxHp - curHp);
+        int bonus = Mathf.RoundToInt(missing * (bonusPerMissingHpPercent / 100f));
+        return Mathf.Max(0, damage + bonus);
     }
 }

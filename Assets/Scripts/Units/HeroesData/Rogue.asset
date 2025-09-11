@@ -17,41 +17,275 @@ MonoBehaviour:
   portrait_foto: {fileID: 1504909034587979103, guid: 1d04168933e087a469c820683f580cd0, type: 3}
   faction: 0
   heroe_id: 1
-  maxHP: 7
+  maxHP: 25
   performance: 2
   affinity: 0
-  armor: 5
-  magicResistance: 3
-  strength: 5
-  magicPower: 3
+  armor: 40
+  magicResistance: 50
+  strength: 6
+  magicPower: 0
   actionsPerTurn: 2
   reactionsPerTurn: 1
   baseAdrenaline: 0
+  adrenalineThreshold: 50
+  maxAdrenaline: 100
   abilities:
   - abilityName: Focus Shot
-    baseHitChance: 50
-    range: 12
-    baseDamage: 5
-    damageSource: 0
+    description: 
+    abilityType: 0
+    baseHitChance: 65
+    actionCost: 1
+    adrenalineCost: 0
+    resourceCosts: []
     requiresAdrenalineThreshold: 0
     adrenalineThreshold: 0
+    targetType: 1
+    range: 9
+    isAreaOfEffect: 0
+    aoeRadius: 0
+    damageSource: 0
+    baseDamage: 2
+    damageMultiplier: 1
+    bonusDamage: 0
     hits: 1
-    actionCost: 1
+    useTargetMissingHealth: 0
+    missingHealthPercentage: 0
+    canChain: 0
+    chainRange: 0
+    castDuration: 1
     appliedEffects: []
+    statusEffectChance: 100
+    healsTarget: 0
+    healAmount: 0
+    healPercentage: 0
+    grantsBarrier: 0
+    barrierAmount: 0
+    grantsMovement: 0
+    movementRange: 0
+    isMovementFree: 0
+    summons: 0
+    summonUnitType: 
+    summonCount: 0
     isReaction: 0
     reactionTrigger: 0
+    hasConditionalEffect: 0
+    conditionTag: 
+    reducesActionCostOnCondition: 0
+    reducedActionCost: 0
   - abilityName: Swift Dagger
-    baseHitChance: 50
-    range: 3
-    baseDamage: 3
-    damageSource: 0
+    description: 
+    abilityType: 0
+    baseHitChance: 70
+    actionCost: 1
+    adrenalineCost: 0
+    resourceCosts: []
     requiresAdrenalineThreshold: 0
     adrenalineThreshold: 0
+    targetType: 1
+    range: 0.5
+    isAreaOfEffect: 0
+    aoeRadius: 0
+    damageSource: 0
+    baseDamage: 2
+    damageMultiplier: 1
+    bonusDamage: 0
     hits: 1
-    actionCost: 1
+    useTargetMissingHealth: 0
+    missingHealthPercentage: 0
+    canChain: 0
+    chainRange: 0
+    castDuration: 1
     appliedEffects: []
+    statusEffectChance: 100
+    healsTarget: 0
+    healAmount: 0
+    healPercentage: 0
+    grantsBarrier: 0
+    barrierAmount: 0
+    grantsMovement: 0
+    movementRange: 0
+    isMovementFree: 0
+    summons: 0
+    summonUnitType: 
+    summonCount: 0
     isReaction: 0
     reactionTrigger: 0
+    hasConditionalEffect: 0
+    conditionTag: 
+    reducesActionCostOnCondition: 0
+    reducedActionCost: 0
+  - abilityName: Piercing Shot
+    description: 
+    abilityType: 0
+    baseHitChance: 65
+    actionCost: 2
+    adrenalineCost: 0
+    resourceCosts: []
+    requiresAdrenalineThreshold: 0
+    adrenalineThreshold: 0
+    targetType: 1
+    range: 9
+    isAreaOfEffect: 0
+    aoeRadius: 0
+    damageSource: 0
+    baseDamage: 3
+    damageMultiplier: 1
+    bonusDamage: 0
+    hits: 1
+    useTargetMissingHealth: 0
+    missingHealthPercentage: 0
+    canChain: 0
+    chainRange: 0
+    castDuration: 1
+    appliedEffects: []
+    statusEffectChance: 100
+    healsTarget: 0
+    healAmount: 0
+    healPercentage: 0
+    grantsBarrier: 0
+    barrierAmount: 0
+    grantsMovement: 0
+    movementRange: 0
+    isMovementFree: 0
+    summons: 0
+    summonUnitType: 
+    summonCount: 0
+    isReaction: 0
+    reactionTrigger: 0
+    hasConditionalEffect: 0
+    conditionTag: 
+    reducesActionCostOnCondition: 0
+    reducedActionCost: 0
+  - abilityName: Blade Barrage
+    description: 
+    abilityType: 0
+    baseHitChance: 70
+    actionCost: 2
+    adrenalineCost: 0
+    resourceCosts: []
+    requiresAdrenalineThreshold: 0
+    adrenalineThreshold: 0
+    targetType: 1
+    range: 0.5
+    isAreaOfEffect: 0
+    aoeRadius: 0
+    damageSource: 0
+    baseDamage: 1
+    damageMultiplier: 1
+    bonusDamage: 0
+    hits: 3
+    useTargetMissingHealth: 0
+    missingHealthPercentage: 0
+    canChain: 0
+    chainRange: 0
+    castDuration: 1
+    appliedEffects: []
+    statusEffectChance: 100
+    healsTarget: 0
+    healAmount: 0
+    healPercentage: 0
+    grantsBarrier: 0
+    barrierAmount: 0
+    grantsMovement: 0
+    movementRange: 0
+    isMovementFree: 0
+    summons: 0
+    summonUnitType: 
+    summonCount: 0
+    isReaction: 0
+    reactionTrigger: 0
+    hasConditionalEffect: 0
+    conditionTag: 
+    reducesActionCostOnCondition: 0
+    reducedActionCost: 0
+  - abilityName: Shadow Arrows
+    description: 
+    abilityType: 2
+    baseHitChance: 65
+    actionCost: 2
+    adrenalineCost: 50
+    resourceCosts: []
+    requiresAdrenalineThreshold: 0
+    adrenalineThreshold: 0
+    targetType: 1
+    range: 9
+    isAreaOfEffect: 0
+    aoeRadius: 0
+    damageSource: 0
+    baseDamage: 4
+    damageMultiplier: 1
+    bonusDamage: 0
+    hits: 1
+    useTargetMissingHealth: 1
+    missingHealthPercentage: 20
+    canChain: 0
+    chainRange: 0
+    castDuration: 1
+    appliedEffects: []
+    statusEffectChance: 100
+    healsTarget: 0
+    healAmount: 0
+    healPercentage: 0
+    grantsBarrier: 0
+    barrierAmount: 0
+    grantsMovement: 0
+    movementRange: 0
+    isMovementFree: 0
+    summons: 0
+    summonUnitType: 
+    summonCount: 0
+    isReaction: 0
+    reactionTrigger: 0
+    hasConditionalEffect: 0
+    conditionTag: 
+    reducesActionCostOnCondition: 0
+    reducedActionCost: 0
+  - abilityName: Shadow Blade
+    description: 
+    abilityType: 2
+    baseHitChance: 70
+    actionCost: 2
+    adrenalineCost: 25
+    resourceCosts: []
+    requiresAdrenalineThreshold: 0
+    adrenalineThreshold: 0
+    targetType: 1
+    range: 0.5
+    isAreaOfEffect: 0
+    aoeRadius: 0
+    damageSource: 0
+    baseDamage: 5
+    damageMultiplier: 1
+    bonusDamage: 0
+    hits: 1
+    useTargetMissingHealth: 1
+    missingHealthPercentage: 20
+    canChain: 0
+    chainRange: 0
+    castDuration: 1
+    appliedEffects: []
+    statusEffectChance: 100
+    healsTarget: 0
+    healAmount: 0
+    healPercentage: 0
+    grantsBarrier: 0
+    barrierAmount: 0
+    grantsMovement: 0
+    movementRange: 0
+    isMovementFree: 0
+    summons: 0
+    summonUnitType: 
+    summonCount: 0
+    isReaction: 0
+    reactionTrigger: 0
+    hasConditionalEffect: 0
+    conditionTag: 
+    reducesActionCostOnCondition: 0
+    reducedActionCost: 0
+  adrenalineAbilities: []
+  startingResources: []
   isTrainingDummy: 0
   isPromotable: 0
   promotedForm: {fileID: 0}
+  hasAttackOfOpportunity: 0
+  specialTags: []
