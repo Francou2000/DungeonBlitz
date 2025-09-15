@@ -62,6 +62,7 @@ MonoBehaviour:
   - RPC_RequestCast
   - RPC_ResolveAbility
   - RPC_ResolveAbility_Area
+  - RPC_CreateCircleZone
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

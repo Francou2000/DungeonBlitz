@@ -148,6 +148,12 @@ public class UnitAbility
     public bool reducesActionCostOnCondition = false;
     public int reducedActionCost = 0;
 
+    [Header("Spawns Zone")]
+    public bool spawnsZone;
+    public ZoneKind zoneKind;
+    public float zoneRadius = 3f;
+    public float zoneDuration = 10f;
+
     public DamageType GetDamageType()
     {
         return damageSource == DamageType.Physical ? DamageType.Physical : DamageType.Magical;

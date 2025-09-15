@@ -99,8 +99,21 @@ public class StatusEffectHandler : MonoBehaviour
     public void OnExpire(Unit self, StatusEffect e) { }
     public void OnStartTurn(Unit self) { }
     public void OnEndTurn(Unit self) { }
-    public void OnMove(Unit self, Vector3 from, Vector3 to) { }
-   // public void OnBeforeHit(Unit attacker, Unit target, ref CombatContext ctx) { }
+    public void OnMove(Unit self, Vector3 from, Vector3 to) 
+    {
+        if (ZoneManager.Instance != null)
+        {
+            // Frozen Zone (stay as you had)
+            if (ZoneManager.Instance.IsInsideZone(to, ZoneKind.Frozen))
+                ApplyEffect(EffectLibrary.Frozen(1));
+
+            // Storm Crossing trigger (authoritative handled inside)
+            ZoneManager.Instance.HandleOnMove(self, from, to);
+        }
+    }
+
+    // public void OnBeforeHit(Unit attacker, Unit target, ref CombatContext ctx) { }
+
     // Additional methods for compatibility with new controllers
     public void ApplyStatusEffect(StatusEffect effect, Unit caster = null)
     {

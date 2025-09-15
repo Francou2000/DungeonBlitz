@@ -310,6 +310,17 @@ public sealed class AbilityResolver : MonoBehaviourPun
             }
         }
 
+        // Negative Zone rule: if ATTACKER is outside and TARGET is inside ⇒ 0 damage
+        if (ZoneManager.Instance != null &&
+            ZoneManager.Instance.IsTargetProtectedByNegativeZone(
+                casterCtrl.unit.transform.position,
+                target.transform.position))
+        {
+            // You can still roll hit so effects/on-hit may occur; but final damage is zero.
+            damage = 0;
+            // Optionally: force hit = true to allow on-hit statuses; or leave your existing 'hit' result. (TO CHECK)
+        }
+
         // Damage
         if (target != null && hit && damage > 0)
         {
@@ -374,6 +385,23 @@ public sealed class AbilityResolver : MonoBehaviourPun
             if (target == null || !hits[i] || damages[i] <= 0) continue;
 
             target.Model.ApplyDamageWithBarrier(damages[i], damageTypes[i]);
+        }
+
+        if (casterCtrl != null)
+        {
+            var list = casterCtrl.unit.Model.Abilities;
+            if (abilityIndex >= 0 && abilityIndex < list.Count)
+            {
+                var ab = list[abilityIndex];
+
+                // Spawn zone centered on primary target for now (or on ground click later)
+                if (ab.spawnsZone && targetViewIds != null && targetViewIds.Length > 0 && ZoneManager.Instance != null)
+                {
+                    var primary = FindByView<Unit>(targetViewIds[0]);
+                    var pos = primary != null ? primary.transform.position : casterCtrl.unit.transform.position;
+                    ZoneManager.Instance.SpawnCircleZone(ab.zoneKind, pos, ab.zoneRadius, ab.zoneDuration);
+                }
+            }
         }
 
         // TO TALK: apply attached effects from the ability to the PRIMARY target only, or to all — your choice.
