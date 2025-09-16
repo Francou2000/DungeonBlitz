@@ -114,6 +114,18 @@ public static class CombatCalculator
             }
         }
 
+        Vector3 to = new Vector3(3f, 3f, 0f);
+
+        if (StructureManager.Instance != null)
+        {
+            bool sMed, sHeavy;
+            if (StructureManager.Instance.HasStructureCoverBetween(direction, to, out sMed, out sHeavy))
+            {
+                hasHeavyCover = hasHeavyCover || sHeavy;
+                hasMediumCover = hasMediumCover || sMed;
+            }
+        }
+
         if (!hasHeavyCover && !hasMediumCover)
             Debug.Log("[Cover] No cover detected");
     }

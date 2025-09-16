@@ -134,9 +134,17 @@ public class UnitAbility
     public bool isMovementFree = false;
 
     [Header("Summoning")]
-    public bool summons = false;
-    public string summonUnitType = "";
-    public int summonCount = 0;
+    [Header("Summon (optional)")]
+    public bool spawnsSummons;
+    public string summonPrefabName = "DeadGoblin";  // must match a Resources/Photon prefab name
+    public int summonCount = 2;
+    public float summonDuration = 20f;              // lifetime in seconds (game time)
+    public int summonMaxHP = 12;
+    public int summonActionsPerTurn = 1;
+    public int summonStrength = 4;                  
+    public int summonMagicPower = 0;
+    public int summonArmor = 0;
+    public int summonMagicRes = 0;
 
     [Header("Reactions")]
     public bool isReaction;
@@ -148,11 +156,6 @@ public class UnitAbility
     public bool reducesActionCostOnCondition = false;
     public int reducedActionCost = 0;
 
-    [Header("Spawns Zone")]
-    public bool spawnsZone;
-    public ZoneKind zoneKind;
-    public float zoneRadius = 3f;
-    public float zoneDuration = 10f;
 
     public DamageType GetDamageType()
     {

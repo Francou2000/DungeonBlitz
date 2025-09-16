@@ -167,7 +167,7 @@ public class Unit : MonoBehaviour
     public bool IsInAdrenalineState => Model.IsInAdrenalineState;
     public bool CanAct => Model.CanAct();
     public bool CanReact => Model.CanReact();
-    
+
     // Resource access
     public int GetResource(string resourceName) => Model.GetRes(resourceName);
     public void SetResource(string resourceName, int amount) => Model.SetRes(resourceName, amount);

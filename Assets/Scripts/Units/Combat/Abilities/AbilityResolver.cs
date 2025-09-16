@@ -377,6 +377,25 @@ public sealed class AbilityResolver : MonoBehaviourPun
             }
         }
 
+        if (casterCtrl != null)
+        {
+            var list = casterCtrl.unit.Model.Abilities;
+            if (abilityIndex >= 0 && abilityIndex < list.Count)
+            {
+                var ab = list[abilityIndex];
+                if (ab.spawnsSummons && SummonManager.Instance != null)
+                {
+                    Vector3 center = casterCtrl.unit.transform.position;
+                    if (targetViewIds != null && targetViewIds.Length > 0)
+                    {
+                        var primary = FindByView<Unit>(targetViewIds[0]);
+                        if (primary) center = primary.transform.position;
+                    }
+                    SummonManager.Instance.SpawnSummons(casterCtrl.unit, ab, center);
+                }
+            }
+        }
+
         // Apply results per target
         int count = targetViewIds != null ? targetViewIds.Length : 0;
         for (int i = 0; i < count; i++)
@@ -385,24 +404,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
             if (target == null || !hits[i] || damages[i] <= 0) continue;
 
             target.Model.ApplyDamageWithBarrier(damages[i], damageTypes[i]);
-        }
-
-        if (casterCtrl != null)
-        {
-            var list = casterCtrl.unit.Model.Abilities;
-            if (abilityIndex >= 0 && abilityIndex < list.Count)
-            {
-                var ab = list[abilityIndex];
-
-                // Spawn zone centered on primary target for now (or on ground click later)
-                if (ab.spawnsZone && targetViewIds != null && targetViewIds.Length > 0 && ZoneManager.Instance != null)
-                {
-                    var primary = FindByView<Unit>(targetViewIds[0]);
-                    var pos = primary != null ? primary.transform.position : casterCtrl.unit.transform.position;
-                    ZoneManager.Instance.SpawnCircleZone(ab.zoneKind, pos, ab.zoneRadius, ab.zoneDuration);
-                }
-            }
-        }
+        }  
 
         // TO TALK: apply attached effects from the ability to the PRIMARY target only, or to all — your choice.
         // If to all targets:

@@ -97,8 +97,8 @@ public class UnitModel : MonoBehaviour
         if (statusHandler != null)
         {
             // Fires per-unit when a faction’s turn begins
-            statusHandler.OnStartTurn(thisUnit); // 'unit' = your Unit/owner reference; if you store it as a field, pass that                                                   
-            // If you tick durations here, do it AFTER OnStartTurn: (future proof)                                   
+            statusHandler.OnStartTurn(thisUnit);
+            StructureManager.Instance?.ApplyStartTurnAuras(thisUnit);
             // statusHandler.TickEffectsAtTurnStart(); 
         }
 
@@ -252,6 +252,15 @@ public class UnitModel : MonoBehaviour
     {
         EnsureStates();
         _states[key] = value;
+    }
+
+    // Summons
+
+    public void OverrideUnitData(UnitData newData)
+    {
+        if (newData == null) return;
+        unitData = newData;
+        Initialize(); // call whatever you already use to rebuild cached values/UI
     }
 
     // Movement Speed
