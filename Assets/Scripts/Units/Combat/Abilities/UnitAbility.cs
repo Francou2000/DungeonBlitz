@@ -11,14 +11,6 @@ public enum DamageType
     //  Mixed (cosmetic only; mitigation is done per-split on the master)
     Mixed = 5
 }
-
-public enum CastDuration
-{
-    Fast,
-    Medium,
-    Slow
-}
-
 public enum ReactionTrigger
 {
     None,
@@ -44,10 +36,13 @@ public enum AreaType
     Circle 
 }
 
+    [System.Serializable]
+    public struct ResourceCost { public string key; public int amount; }
+
 [System.Serializable]
 public class UnitAbility 
 {
-    [Header("Basic Info")]
+    [Header("Core")]
     public string abilityName;
     public string description;
     public AbilityType abilityType = AbilityType.BasicAttack;
@@ -58,8 +53,6 @@ public class UnitAbility
     public int actionCost = 1;
     public int adrenalineCost = 0;
 
-    [System.Serializable]
-    public struct ResourceCost { public string key; public int amount; }
 
     public List<ResourceCost> resourceCosts = new List<ResourceCost>();
 
@@ -106,9 +99,6 @@ public class UnitAbility
     public bool canChain = false;
     public float chainRange = 0f;
 
-    [Header("Timing & Animation")]
-    public CastDuration castDuration = CastDuration.Medium;
-
     [Header("Status Effects")]
     public List<StatusEffect> appliedEffects = new List<StatusEffect>();
     public float statusEffectChance = 100f;
@@ -125,18 +115,22 @@ public class UnitAbility
     public float movementRange = 0f;
     public bool isMovementFree = false;
 
-    [Header("Summoning")]
-    [Header("Summon (optional)")]
-    public bool spawnsSummons;
-    public string summonPrefabName = "DeadGoblin";  // must match a Resources/Photon prefab name
-    public int summonCount = 2;
-    public float summonDuration = 20f;              // lifetime in seconds (game time)
-    public int summonMaxHP = 12;
-    public int summonActionsPerTurn = 1;
-    public int summonStrength = 4;                  
-    public int summonMagicPower = 0;
-    public int summonArmor = 0;
-    public int summonMagicRes = 0;
+    [Header("Spawns (optional)")]
+    public bool spawnsSummons = false;
+    public string summonPrefabName = "";
+    public int summonCount = 0;
+    public float summonDuration = 0f;
+
+    public bool spawnsStructure = false; // if you added structures earlier
+    public StructureKind structureKind;
+    public int structureHP;
+    public float structureDuration;
+    public float structureRadius;
+
+    public bool spawnsZone = false; // if you added zones earlier
+    public ZoneKind zoneKind;
+    public float zoneRadius;
+    public float zoneDuration;
 
     [Header("Reactions")]
     public bool isReaction;
