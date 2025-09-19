@@ -7,6 +7,8 @@ public sealed class AbilityResolver : MonoBehaviourPun
     public static AbilityResolver Instance { get; private set; }
     PhotonView _view;
 
+    const float MeleeRangeMeters = 1.5f; // 1 tile (tweak if your grid differs)
+
     void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
@@ -20,59 +22,119 @@ public sealed class AbilityResolver : MonoBehaviourPun
         if (caster == null || ability == null) { reason = "No caster/ability"; return false; }
         if (!caster.Model.CanAct()) { reason = "No actions left"; return false; }
 
-        // Resource costs
-        foreach (var cost in ability.resourceCosts)
+        // --- Resource costs ---
+        if (ability.resourceCosts != null)
         {
-            if (caster.Model.GetRes(cost.key) < cost.amount)
+            foreach (var cost in ability.resourceCosts)
             {
-                reason = $"Need {cost.amount} {cost.key}";
-                return false;
+                if (caster.Model.GetRes(cost.key) < cost.amount)
+                {
+                    reason = $"Need {cost.amount} {cost.key}";
+                    return false;
+                }
             }
         }
 
-        // Adrenaline threshold
+        // --- Adrenaline threshold ---
         if (ability.minAdrenaline > 0 && caster.Model.Adrenaline < ability.minAdrenaline)
         {
             reason = $"Need ≥ {ability.minAdrenaline} adrenaline";
             return false;
         }
 
-        // State requirements (Form, Weapon)
-        foreach (var state in ability.requiredStates)
+        // --- State requirements (Form, Weapon, etc.) ---
+        if (ability.requiredStates != null)
         {
-            var parts = state.Split(':'); // e.g., "Form:Fire"
-            if (parts.Length == 2)
+            foreach (var state in ability.requiredStates)
             {
-                var current = caster.Model.GetState(parts[0]);
-                if (current != parts[1])
+                var parts = state.Split(':'); // e.g., "Form:Fire"
+                if (parts.Length == 2)
                 {
-                    reason = $"Requires {parts[0]} = {parts[1]}";
+                    var current = caster.Model.GetState(parts[0]);
+                    if (current != parts[1])
+                    {
+                        reason = $"Requires {parts[0]} = {parts[1]}";
+                        return false;
+                    }
+                }
+            }
+        }
+
+        // --- Tags on caster ---
+        if (ability.requiredTags != null)
+        {
+            foreach (var tag in ability.requiredTags)
+            {
+                if (!caster.Model.statusHandler.HasTag(tag))
+                {
+                    reason = $"Requires {tag}";
                     return false;
                 }
             }
         }
 
-        // Tags on caster
-        foreach (var tag in ability.requiredTags)
-            if (!caster.Model.statusHandler.HasTag(tag))
+        if (caster.Model.statusHandler.HasTag("Taunted")
+            && targets != null && targets.Length > 0 && targets[0] != null)
+        {
+            int tv = targets[0].GetComponent<PhotonView>()?.ViewID ?? -1;
+            if (!caster.Model.statusHandler.IsTauntedTo(tv))
             {
-                reason = $"Requires {tag}";
+                reason = "Taunted: must target the taunter";
                 return false;
             }
+        }
 
-        // Tags on target
+        // --- Targeting filters (only enforced if the fields exist on your UnitAbility) ---
+        bool groundTarget = ability.groundTarget;   // if you haven't added these fields yet, add them to UnitAbility
+        bool selfOnly = ability.selfOnly;
+        bool alliesOnly = ability.alliesOnly;
+        bool enemiesOnly = ability.enemiesOnly;
+
+        // Ground-target: allow no unit target; otherwise we need a unit target
+        if (!groundTarget)
+        {
+            if (targets == null || targets.Length == 0 || targets[0] == null)
+            {
+                reason = "No target";
+                return false;
+            }
+        }
+
+        // Self-only must target the caster
+        if (selfOnly)
+        {
+            if (targets == null || targets.Length == 0 || targets[0] != caster)
+            {
+                reason = "Must target self";
+                return false;
+            }
+        }
+
+        // Allies/Enemies-only (when a unit target is provided)
         if (targets != null && targets.Length > 0 && targets[0] != null)
         {
+            var t = targets[0];
+            if (alliesOnly && t.Model.Faction != caster.Model.Faction)
+            { reason = "Allies only"; return false; }
+            if (enemiesOnly && t.Model.Faction == caster.Model.Faction)
+            { reason = "Enemies only"; return false; }
+        }
+
+        // --- Tags on target ---
+        if (targets != null && targets.Length > 0 && targets[0] != null && ability.requiredTargetTags != null)
+        {
             foreach (var tag in ability.requiredTargetTags)
+            {
                 if (!targets[0].Model.statusHandler.HasTag(tag))
                 {
                     reason = $"Target must have {tag}";
                     return false;
                 }
+            }
         }
 
-        // Range
-        if (targets != null && targets.Length > 0 && targets[0] != null)
+        // --- Range ---
+        if (!groundTarget && targets != null && targets.Length > 0 && targets[0] != null)
         {
             var t = targets[0];
             if (!CombatCalculator.IsInRange(caster.transform.position, t.transform.position, ability.range))
@@ -115,40 +177,58 @@ public sealed class AbilityResolver : MonoBehaviourPun
 
         // Build target list according to area type
         var computedTargets = new List<Unit>();
+        Unit primaryTarget = (targets != null && targets.Length > 0) ? targets[0] : null;
 
         if (ability.areaType == AreaType.Single)
         {
-            var t = (targets != null && targets.Length > 0) ? targets[0] : null;
-            if (t != null) computedTargets.Add(t);
+            if (primaryTarget != null) computedTargets.Add(primaryTarget);
         }
         else if (ability.areaType == AreaType.Circle)
         {
-            // Center on the first provided target (or you can allow ground-targeting later)
-            var center = ((targets != null && targets.Length > 0) ? targets[0].transform.position : casterCtrl.unit.transform.position);
+            // Center on the first provided target (for now). Ground target can be added later.
+            var center = (primaryTarget != null) ? primaryTarget.transform.position : casterCtrl.unit.transform.position;
             computedTargets = CombatCalculator.GetUnitsInRadius(center, ability.aoeRadius, casterCtrl.unit);
         }
         else if (ability.areaType == AreaType.Line)
         {
-            var t = (targets != null && targets.Length > 0) ? targets[0] : null;
-            if (t != null)
+            if (primaryTarget != null)
             {
                 computedTargets = CombatCalculator.GetLineTargets(
-                    casterCtrl.unit, t, ability.lineRange,
+                    casterCtrl.unit, primaryTarget,
+                    ability.range, // use generic range
                     Mathf.Max(1, ability.lineMaxTargets),
                     Mathf.Clamp01(ability.lineAlignmentTolerance)
                 );
             }
         }
 
+        // Faction filtering for AoE/Line (Single already validated in CanCast)
+        if (computedTargets.Count > 0)
+        {
+            bool allowAllies = !ability.enemiesOnly;
+            bool allowEnemies = !ability.alliesOnly;
+
+            var filtered = new List<Unit>(computedTargets.Count);
+            foreach (var u in computedTargets)
+            {
+                bool isAlly = (u.Model.Faction == casterCtrl.unit.Model.Faction);
+                if ((isAlly && allowAllies) || (!isAlly && allowEnemies))
+                    filtered.Add(u);
+            }
+            computedTargets = filtered;
+        }
+
         // Prepare per-target results
         var outIds = new List<int>(computedTargets.Count);
         var outHits = new List<bool>(computedTargets.Count);
         var outDamages = new List<int>(computedTargets.Count);
-        var outTypes = new List<int>(computedTargets.Count); // 0=phys,1=mag,2=mixed (cosmetic)
+        var outTypes = new List<DamageType>(computedTargets.Count); // true enum for RPC
+        var outProcs = new List<byte>(computedTargets.Count);       // 0=None,1=Burn,2=Freeze,3=Shock
 
         int idx = 0;
         foreach (var tgt in computedTargets)
         {
+            // Cover check
             bool hasMediumCover, hasHeavyCover;
             CombatCalculator.CheckCover(
                 casterCtrl.unit.transform.position,
@@ -157,10 +237,18 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 out hasHeavyCover
             );
 
+            // Melee ignores cover (single-target melee distance check)
+            float dist = Vector3.Distance(casterCtrl.unit.transform.position, tgt.transform.position);
+            bool meleeAttack = (ability.areaType == AreaType.Single) && (dist <= MeleeRangeMeters);
+            if (meleeAttack) { hasMediumCover = false; hasHeavyCover = false; }
+
+            // Flanking
             int flankCount = CombatCalculator.CountFlankingAllies(tgt, casterCtrl.unit);
             bool isFlanked = flankCount > 0;
 
+            // Attacker affinity bonus
             int attackerAffinity = casterCtrl.unit.Model.Affinity;
+
             float hitchance = CombatCalculator.GetHitChance(
                 ability.baseHitChance,
                 attackerAffinity,
@@ -170,11 +258,11 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 hasHeavyCover
             );
 
-            bool hitProb = (Random.Range(0f, 100f) <= hitchance);
-            int damageTotal = 0;
-            int dtype = 0;
+            bool hit = (Random.Range(0f, 100f) <= hitchance);
+            int damage = 0;
+            DamageType dtype = ability.damageSource; // default to ability’s configured source
 
-            if (hitProb)
+            if (hit)
             {
                 if (ability.isMixedDamage)
                 {
@@ -183,184 +271,73 @@ public sealed class AbilityResolver : MonoBehaviourPun
                     int armor = tgt.Model.Armor;
                     int mr = tgt.Model.MagicResistance;
 
-                    damageTotal = CombatCalculator.CalculateMixedDamage(
+                    damage = CombatCalculator.CalculateMixedDamage(
                         ability.baseDamage, strength, armor, mpower, mr, ability.mixedPhysicalPercent
                     );
-                    dtype = 2; // mixed (cosmetic)
+                    dtype = DamageType.Mixed; // cosmetic; mitigation already applied in sum
                 }
                 else
                 {
-                    bool isPhysical = ability.damageSource == DamageType.Physical;
+                    bool isPhysical = (ability.damageSource == DamageType.Physical);
                     int attackerStat = isPhysical ? casterCtrl.unit.Model.Strength : casterCtrl.unit.Model.MagicPower;
                     int defenderStat = isPhysical ? tgt.Model.Armor : tgt.Model.MagicResistance;
-                    damageTotal = Mathf.RoundToInt(CombatCalculator.CalculateDamage(ability.baseDamage, attackerStat, defenderStat));
-                    dtype = isPhysical ? 0 : 1;
+
+                    damage = Mathf.RoundToInt(
+                        CombatCalculator.CalculateDamage(ability.baseDamage, attackerStat, defenderStat)
+                    );
+
+                    // Keep elemental type if declared
+                    if (ability.damageSource == DamageType.Fire) dtype = DamageType.Fire;
+                    else if (ability.damageSource == DamageType.Frost) dtype = DamageType.Frost;
+                    else if (ability.damageSource == DamageType.Electric) dtype = DamageType.Electric;
+                    else dtype = isPhysical ? DamageType.Physical : DamageType.Magical;
                 }
 
-                // HP-missing bonus (Shadow kit)
+                // Missing HP bonus (if configured)
                 if (ability.bonusPerMissingHpPercent > 0)
-                    damageTotal = CombatCalculator.ApplyMissingHpBonus(damageTotal, tgt, ability.bonusPerMissingHpPercent);
+                    damage = CombatCalculator.ApplyMissingHpBonus(damage, tgt, ability.bonusPerMissingHpPercent);
 
                 // Line collateral for non-primary targets
                 if (ability.areaType == AreaType.Line && idx > 0 && ability.lineCollateralPercent < 100)
-                    damageTotal = CombatCalculator.ApplyCollateralPercent(damageTotal, ability.lineCollateralPercent);
+                    damage = CombatCalculator.ApplyCollateralPercent(damage, ability.lineCollateralPercent);
+            }
+
+            // Elemental proc per spec: chance = 2.5 × final damage (clamped 0..100)
+            byte proc = 0;
+            if (hit && (dtype == DamageType.Fire || dtype == DamageType.Frost || dtype == DamageType.Electric))
+            {
+                float procChance = Mathf.Clamp(damage * 2.5f, 0f, 100f);
+                if (Random.Range(0f, 100f) < procChance)
+                    proc = (byte)(dtype == DamageType.Fire ? 1 : dtype == DamageType.Frost ? 2 : 3);
             }
 
             outIds.Add(tgt.GetComponent<PhotonView>()?.ViewID ?? -1);
-            outHits.Add(hitProb);
-            outDamages.Add(Mathf.Max(0, damageTotal));
+            outHits.Add(hit);
+            outDamages.Add(Mathf.Max(0, damage));
             outTypes.Add(dtype);
+            outProcs.Add(proc);
             idx++;
         }
 
-        // Spend AP on ALL in Resolve (not here). Broadcast batched result arrays.
+        // Broadcast batched result arrays — single authoritative resolve path
         _view.RPC(nameof(RPC_ResolveAbility_Area), RpcTarget.All,
             casterViewId, abilityIndex,
             outIds.ToArray(),
             outHits.ToArray(),
             outDamages.ToArray(),
-            outTypes.ToArray()
+            outTypes.ToArray(),
+            outProcs.ToArray()
         );
-
-        var target = (targets != null && targets.Length > 0) ? targets[0] : null;
-
-        bool hit = false;
-        int damage = 0;
-        DamageType damageType = ability.damageSource;
-        if (target != null)
-        {
-            // cover
-            CombatCalculator.CheckCover(
-                casterCtrl.unit.transform.position,
-                target.transform.position,
-                out bool hasMediumCover,
-                out bool hasHeavyCover
-            );
-
-            // flanking
-            int flankCount = CombatCalculator.CountFlankingAllies(target, casterCtrl.unit);
-            bool isFlanked = flankCount > 0;
-
-            // attacker affinity bonus (if you track it via StatusEffectHandler or stats; fallback 0)
-            int attackerAffinity = casterCtrl.unit.Model.Affinity;
-
-            // hitchance is 0..100
-            float hitchance = CombatCalculator.GetHitChance(
-                ability.baseHitChance,          // baseChance from ability
-                attackerAffinity,               // affinity bonus
-                flankCount,                     // +10 per flanker
-                isFlanked,
-                hasMediumCover,
-                hasHeavyCover
-            );
-
-            // roll against 0..100
-            hit = (Random.Range(0f, 100f) <= hitchance);
-
-            if (hit)
-            {
-                // damage source: Strength (physical) vs MagicPower (magical)
-                bool isPhysical = ability.damageSource == DamageType.Physical;
-
-                int attackerStat = isPhysical ? casterCtrl.unit.Model.Strength : casterCtrl.unit.Model.MagicPower;
-                int defenderStat = isPhysical ? target.Model.Armor : target.Model.MagicResistance;
-
-                float result = CombatCalculator.CalculateDamage(
-                    ability.baseDamage,        // raw/base damage from ability
-                    attackerStat,
-                    defenderStat
-                );
-                damage = Mathf.Max(0, Mathf.RoundToInt(result));
-            }   
-        }
-
-        // IMPORTANT: Do NOT spend AP here (to avoid double). Spend in Resolve on ALL clients.
-        _view.RPC(nameof(RPC_ResolveAbility), RpcTarget.All,
-            casterViewId,
-            abilityIndex,
-            target != null ? target.GetComponent<PhotonView>()?.ViewID ?? -1 : -1,
-            hit,
-            damage,
-            damageType
-        );
-    }
-
-    [PunRPC]
-    private void RPC_ResolveAbility(int casterViewId, int abilityIndex, int targetViewId, bool hit, int damage, DamageType damageType)
-    {
-        var casterCtrl = FindByView<UnitController>(casterViewId);
-        var target = FindByView<Unit>(targetViewId);
-
-        // Spend AP deterministically on all
-        if (casterCtrl != null)
-        {
-            var list = casterCtrl.unit.Model.Abilities;
-            if (abilityIndex >= 0 && abilityIndex < list.Count)
-            {
-                var ab = list[abilityIndex];
-                casterCtrl.unit.Model.SpendAction(ab.actionCost);
-
-                // Deduct resources
-                foreach (var cost in ab.resourceCosts)
-                    casterCtrl.unit.Model.TryConsume(cost.key, cost.amount);
-
-                // Adrenaline consumption (if you model it that way)
-                if (ab.minAdrenaline > 0)
-                    casterCtrl.unit.Model.SpendAdrenaline(ab.minAdrenaline);
-            }
-        }
-
-        // Negative Zone rule: if ATTACKER is outside and TARGET is inside ⇒ 0 damage
-        if (ZoneManager.Instance != null &&
-            ZoneManager.Instance.IsTargetProtectedByNegativeZone(
-                casterCtrl.unit.transform.position,
-                target.transform.position))
-        {
-            // You can still roll hit so effects/on-hit may occur; but final damage is zero.
-            damage = 0;
-            // Optionally: force hit = true to allow on-hit statuses; or leave your existing 'hit' result. (TO CHECK)
-        }
-
-        // Damage
-        if (target != null && hit && damage > 0)
-        {
-            target.Model.ApplyDamageWithBarrier(damage, damageType);
-        }
-
-        // Apply attached status effects using your handler + ability fields
-        if (casterCtrl != null)
-        {
-            var list = casterCtrl.unit.Model.Abilities;
-            if (abilityIndex >= 0 && abilityIndex < list.Count)
-            {
-                var ab = list[abilityIndex];
-
-                if (target != null && ab.appliedEffects != null && ab.appliedEffects.Count > 0)
-                {
-                    var handler = target.GetComponent<StatusEffectHandler>();
-                    if (handler != null)
-                    {
-                        foreach (var eff in ab.appliedEffects)
-                        {
-                            // chance is in 0..100 per your UnitController
-                            if (Random.Range(0f, 100f) <= ab.statusEffectChance)
-                            {
-                                handler.ApplyEffect(eff);
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 
     [PunRPC]
     private void RPC_ResolveAbility_Area(int casterViewId, int abilityIndex,
-                                     int[] targetViewIds, bool[] hits, int[] damages, DamageType[] damageTypes)
+                                         int[] targetViewIds, bool[] hits, int[] damages,
+                                         DamageType[] damageTypes, byte[] elementalProcs)
     {
         var casterCtrl = FindByView<UnitController>(casterViewId);
 
-        // Spend AP deterministically
+        // Spend AP/resources/adrenaline deterministically
         if (casterCtrl != null)
         {
             var list = casterCtrl.unit.Model.Abilities;
@@ -369,20 +346,25 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 var ab = list[abilityIndex];
                 casterCtrl.unit.Model.SpendAction(ab.actionCost);
 
-                // Resource costs & adrenaline consumption 
-                foreach (var cost in ab.resourceCosts)
-                    casterCtrl.unit.Model.TryConsume(cost.key, cost.amount);
+                if (ab.resourceCosts != null)
+                {
+                    foreach (var cost in ab.resourceCosts)
+                        casterCtrl.unit.Model.TryConsume(cost.key, cost.amount);
+                }
+
                 if (ab.adrenalineCost > 0)
                     casterCtrl.unit.Model.SpendAdrenaline(ab.adrenalineCost);
             }
         }
 
+        // Optional: Summons/Structures/Zones after spending (kept as before – summons example)
         if (casterCtrl != null)
         {
             var list = casterCtrl.unit.Model.Abilities;
             if (abilityIndex >= 0 && abilityIndex < list.Count)
             {
                 var ab = list[abilityIndex];
+
                 if (ab.spawnsSummons && SummonManager.Instance != null)
                 {
                     Vector3 center = casterCtrl.unit.transform.position;
@@ -393,31 +375,63 @@ public sealed class AbilityResolver : MonoBehaviourPun
                     }
                     SummonManager.Instance.SpawnSummons(casterCtrl.unit, ab, center);
                 }
+
+                // (If you also have spawnsZone/Structure fields, trigger them here similarly)
             }
         }
 
-        // Apply results per target
-        int count = targetViewIds != null ? targetViewIds.Length : 0;
+        // Apply per-target results
+        int count = (targetViewIds != null) ? targetViewIds.Length : 0;
         for (int i = 0; i < count; i++)
         {
             var target = FindByView<Unit>(targetViewIds[i]);
-            if (target == null || !hits[i] || damages[i] <= 0) continue;
+            if (target == null) continue;
 
-            target.Model.ApplyDamageWithBarrier(damages[i], damageTypes[i]);
-        }  
+            // Negative Zone protection: attacker outside & target inside ⇒ zero damage
+            if (ZoneManager.Instance != null &&
+                casterCtrl != null &&
+                ZoneManager.Instance.IsTargetProtectedByNegativeZone(
+                    casterCtrl.unit.transform.position,
+                    target.transform.position))
+            {
+                // Keep 'hit' as-is; just nullify damage
+                if (hits != null && i < hits.Length && hits[i] && damages != null && i < damages.Length)
+                    damages[i] = 0;
+            }
 
-        // TO TALK: apply attached effects from the ability to the PRIMARY target only, or to all — your choice.
-        // If to all targets:
-        if (casterCtrl != null)
+            // Damage application
+            if (hits != null && i < hits.Length && hits[i] &&
+                damages != null && i < damages.Length && damages[i] > 0 &&
+                damageTypes != null && i < damageTypes.Length)
+            {
+                target.Model.ApplyDamageWithBarrier(damages[i], damageTypes[i]);
+            }
+
+            // Elemental proc → status
+            if (elementalProcs != null && i < elementalProcs.Length)
+            {
+                switch (elementalProcs[i])
+                {
+                    case 1: target.Model.statusHandler?.ApplyEffect(EffectLibrary.Burning(1)); break;
+                    case 2: target.Model.statusHandler?.ApplyEffect(EffectLibrary.Frozen(1)); break;
+                    case 3: target.Model.statusHandler?.ApplyEffect(EffectLibrary.Shocked(1)); break;
+                }
+            }
+        }
+
+        // Apply attached effects from the ability — ONLY on hit
+        if (casterCtrl != null && targetViewIds != null && targetViewIds.Length > 0)
         {
             var list = casterCtrl.unit.Model.Abilities;
             if (abilityIndex >= 0 && abilityIndex < list.Count)
             {
                 var ab = list[abilityIndex];
-                if (ab.appliedEffects != null && ab.appliedEffects.Count > 0 && targetViewIds != null)
+                if (ab.appliedEffects != null && ab.appliedEffects.Count > 0)
                 {
                     for (int i = 0; i < targetViewIds.Length; i++)
                     {
+                        if (hits == null || i >= hits.Length || !hits[i]) continue;
+
                         var target = FindByView<Unit>(targetViewIds[i]);
                         if (target == null) continue;
 

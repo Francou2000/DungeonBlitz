@@ -3,21 +3,13 @@ using UnityEngine;
 
 public enum DamageType
 {
-    Physical,
-    Magical
-}
-
-public enum TargetType
-{
-    Self,
-    Enemy,
-    Ally,
-    Ground,
-    Area,
-    AllEnemies,
-    AllAllies,
-    NearbyAllies,
-    NearbyEnemies
+    Physical = 0,
+    Magical = 1,
+    Fire = 2,
+    Frost = 3,
+    Electric = 4,
+    //  Mixed (cosmetic only; mitigation is done per-split on the master)
+    Mixed = 5
 }
 
 public enum CastDuration
@@ -155,6 +147,12 @@ public class UnitAbility
     public string conditionTag = "";
     public bool reducesActionCostOnCondition = false;
     public int reducedActionCost = 0;
+
+    [Header("Targeting Filters")]
+    public bool selfOnly;
+    public bool alliesOnly;
+    public bool enemiesOnly;
+    public bool groundTarget;
 
 
     public DamageType GetDamageType()

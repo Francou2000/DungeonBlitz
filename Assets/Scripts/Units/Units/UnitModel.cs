@@ -163,7 +163,7 @@ public class UnitModel : MonoBehaviour
     // Action/Reactions
     public bool CanAct() => currentActions > 0;
     public void SpendAction(int amount = 1) => currentActions = Mathf.Max(0, currentActions - amount);
-
+    public void SetCurrentActions(int v) { currentActions = Mathf.Max(0, v); }
     public bool CanReact() => currentReactions > 0;
     public void SpendReaction(int amount = 1) => currentReactions = Mathf.Max(0, currentReactions - amount);
 
@@ -328,15 +328,16 @@ public class UnitModel : MonoBehaviour
     }
 
     public void Heal(int amount)
-    {
+    {   
+        if (statusHandler != null)
+            amount = statusHandler.ModifyIncomingHealing(amount);
+        
         int oldHP = currentHP;
         currentHP = Mathf.Min(MaxHP, currentHP + amount);
         int actualHealing = currentHP - oldHP;
-        
+
         if (actualHealing > 0)
-        {
             Debug.Log($"{UnitName} heals {actualHealing} HP. HP: {currentHP}/{MaxHP}");
-        }
     }
 
     public int ApplyDamageWithBarrier(int incoming, DamageType type)

@@ -29,6 +29,17 @@ public static class EffectLibrary
         };
     }
 
+    public static StatusEffect Burning(int duration = 1)
+    {
+        return new StatusEffect
+        {
+            duration = duration,
+            isStackable = false,
+            tags = new List<string> { "Burning" },
+            // Could gate movement/attacks via tags; hook behaviors later
+        };
+    }
+
     public static StatusEffect Shocked(int duration = 1)
     {
         return new StatusEffect
