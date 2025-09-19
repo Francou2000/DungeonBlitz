@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87a2cda1909aa01468970337e13de8dc, type: 3}
+  m_Name: Elementalist
+  m_EditorClassIdentifier: 
+  unitName: Elementalist
+  full_body_foto: {fileID: 0}
+  portrait_foto: {fileID: 0}
+  faction: 0
+  heroe_id: 0
+  maxHP: 30
+  performance: 100
+  affinity: 0
+  armor: 2
+  magicResistance: 2
+  strength: 3
+  magicPower: 3
+  actionsPerTurn: 2
+  reactionsPerTurn: 1
+  baseAdrenaline: 0
+  adrenalineThreshold: 30
+  maxAdrenaline: 100
+  abilities:
+  - {fileID: 11400000, guid: aee407997cf191e4cbbca5a97e94c1a6, type: 2}
+  - {fileID: 11400000, guid: 4d613408443f5004397d744bcc4e65bf, type: 2}
+  - {fileID: 11400000, guid: 9fc83d37ad353f548b25a0c1aba2413d, type: 2}
+  - {fileID: 11400000, guid: 2f518e92cb270f542bb2f3b508554543, type: 2}
+  - {fileID: 11400000, guid: 97d213a0f817e5640853658c2b73fdc1, type: 2}
+  - {fileID: 11400000, guid: 62b01ce7864378943bed2426aa5188d6, type: 2}
+  - {fileID: 11400000, guid: b28dd743d701f454aac69b5482f43d16, type: 2}
+  - {fileID: 11400000, guid: 90953e9d8e4f64243a1c7f1148b488d7, type: 2}
+  - {fileID: 11400000, guid: c47d1f72220c22949a7dd53842641f5b, type: 2}
+  startingForm: Frost
+  startingWeapon: Staff
+  isTrainingDummy: 0
+  isPromotable: 0
+  promotedForm: {fileID: 0}
+  hasAttackOfOpportunity: 0
+  specialTags: []

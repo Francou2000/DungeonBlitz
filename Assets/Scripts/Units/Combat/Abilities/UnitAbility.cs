@@ -40,7 +40,7 @@ public enum AreaType
     public struct ResourceCost { public string key; public int amount; }
 
 [System.Serializable]
-public class UnitAbility 
+public class UnitAbility : ScriptableObject
 {
     [Header("Core")]
     public string abilityName;

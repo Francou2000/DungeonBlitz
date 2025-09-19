@@ -64,7 +64,6 @@ public class UnitModel : MonoBehaviour
 
         // Copy ability lists from SO to runtime
         Abilities = new List<UnitAbility>(unitData.abilities);
-        AdrenalineAbilities = new List<UnitAbility>(unitData.adrenalineAbilities);
 
         statusHandler = GetComponent<StatusEffectHandler>();
         if (statusHandler == null)

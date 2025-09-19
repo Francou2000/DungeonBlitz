@@ -31,7 +31,6 @@ public class UnitData : ScriptableObject
 
     [Header("Abilities")]
     public List<UnitAbility> abilities = new List<UnitAbility>();
-    public List<UnitAbility> adrenalineAbilities = new List<UnitAbility>();
  
     public struct StartingResource
     {
