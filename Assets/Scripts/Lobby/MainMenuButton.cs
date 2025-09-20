@@ -23,11 +23,7 @@ public class MainMenuButton : MonoBehaviourPunCallbacks
         SceneManager.LoadScene(mainMenu_sceneName);
     }
 
-    //public override void OnLeftRoom()
-    //{
-    //    base.OnLeftRoom();
-    //}
-    public override void OnPlayerLeftRoom(Player otherPlayer)
+    public virtual void OnPlayerLeftRoom(Player otherPlayer)
     {
         LobbyManager.Instance.PlayerLeaveRoom(otherPlayer.ActorNumber);
     }

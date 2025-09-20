@@ -18,4 +18,8 @@ public class SelectHeroeButton : MonoBehaviour
     {
         HeroeSelectionController.instance.UpdateHeroeData(my_heroe);
     }
+    public void RecolorBorder()
+    {
+
+    }
 }
