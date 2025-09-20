@@ -59,16 +59,6 @@ MonoBehaviour:
   - PlayerLeaveRoom
   - CheckIfStart
   - AskForNewCharacter
-  - RPC_ApplyHasteFromStorm
-  - RPC_ApplyStormEnemy
-  - RPC_CreateBonfire
-  - RPC_CreateCircleZone
-  - RPC_CreateIcePillar
-  - RPC_CreateStormCrossing
-  - RPC_CreateSummon
-  - RPC_HeroeGotInstanciated
-  - RPC_RequestCast
-  - RPC_ResolveAbility_Area
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1
