@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class ReadyHeroeSelection : MonoBehaviourPunCallbacks
 {
     Button my_button;
-    public UnitData actual_unit;
+    public HeroesList actual_unit;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -15,7 +15,7 @@ public class ReadyHeroeSelection : MonoBehaviourPunCallbacks
 
     public void SelectionReady()
     {
-        UnitLoaderController.Instance.photonView.RPC("AddHeroe", RpcTarget.All, actual_unit.heroe_id, PhotonNetwork.LocalPlayer.ActorNumber);
+        UnitLoaderController.Instance.photonView.RPC("AddHeroe", RpcTarget.All, actual_unit, PhotonNetwork.LocalPlayer.ActorNumber);
         //UI Feedback
     }
 }

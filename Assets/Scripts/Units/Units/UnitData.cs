@@ -35,7 +35,7 @@ public class UnitData : ScriptableObject
 public enum HeroesList
 {
     Paladin,
+    Sorcerer,
     Rogue,
     Elementalist,
-    Sorcerer,
 }

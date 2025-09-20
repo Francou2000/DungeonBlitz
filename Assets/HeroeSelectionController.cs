@@ -19,29 +19,16 @@ public class HeroeSelectionController : MonoBehaviour
         }
     }
 
-    [SerializeField] Image full_body;
-
-    [SerializeField] Image heroe_portrait;
-    [SerializeField] TextMeshProUGUI heroe_name;
-    [SerializeField] TextMeshProUGUI heroe_stats;
-
-    [SerializeField] UnitData[] heroes_list;
+    [SerializeField] Image[] buttons_border;
     [SerializeField] ReadyHeroeSelection actual_heroe;
 
     public void UpdateHeroeData(HeroesList heroe_id)
     {
-        UnitData heroe = heroes_list[(int)heroe_id];
-
-        full_body.sprite = heroe.full_body_foto;
-
-        heroe_portrait.sprite = heroe.portrait_foto;
-        heroe_name.text = heroe.unitName;
-        heroe_stats.text =  
-            heroe.maxHP + "\n" +
-            heroe.strength + "\n" +
-            heroe.magicPower + "\n" +
-            heroe.armor + "\n" +
-            heroe.magicResistance;
-        actual_heroe.actual_unit = heroe;
+        for (int i = 0; i < buttons_border.Length; i++)
+        {
+            if (i == (int)heroe_id) { buttons_border[i].color = Color.green; }
+            else { buttons_border[i].color = Color.red; }
+        }
+        actual_heroe.actual_unit = heroe_id;
     }
 }
