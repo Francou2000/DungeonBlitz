@@ -2388,7 +2388,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &436249601
 Transform:
   m_ObjectHideFlags: 0
@@ -8031,20 +8031,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   players_ready: 0000000000
   playable_heroes:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 11400000, guid: e908555b489ee984aae154fd64288041, type: 2}
+  - {fileID: 11400000, guid: 0df5dd05f4978a144aad0fb408d62168, type: 2}
+  - {fileID: 11400000, guid: 0fd3714fdea6f294dbc4df8080bd6353, type: 2}
+  - {fileID: 11400000, guid: 5abf3bf8766dfa04f9f9434c99419c54, type: 2}
   heroes_data:
-  - {fileID: 11400000, guid: 2b0388415e04d4345bc77d0187eade9b, type: 2}
-  - {fileID: 11400000, guid: e8be8a2be05365349970a9e8cf9da96d, type: 2}
-  - {fileID: 11400000, guid: 7b891e1065b92e74f86540f0fe5edd15, type: 2}
-  - {fileID: 11400000, guid: 162afed650d1ede48a7f6d42d4742000, type: 2}
+  - {fileID: 11400000, guid: e908555b489ee984aae154fd64288041, type: 2}
+  - {fileID: 11400000, guid: 0df5dd05f4978a144aad0fb408d62168, type: 2}
+  - {fileID: 11400000, guid: 0fd3714fdea6f294dbc4df8080bd6353, type: 2}
+  - {fileID: 11400000, guid: 5abf3bf8766dfa04f9f9434c99419c54, type: 2}
   goblins_data:
-  - {fileID: 11400000, guid: 43678f5a5f7debe46baf49f42dabb2bb, type: 2}
-  - {fileID: 11400000, guid: 3354bc6fd1f631c44b7367a26a9d3cc3, type: 2}
-  - {fileID: 11400000, guid: 25ff566eea8650f47b43c2a69552f6e0, type: 2}
-  - {fileID: 11400000, guid: 6a4f1152ffb1eae4d887118301e6d6e4, type: 2}
+  - {fileID: 11400000, guid: 33de137c516eef743b7b73f01b6d7210, type: 2}
+  - {fileID: 11400000, guid: d2141c71775c4174796377725c271e1f, type: 2}
+  - {fileID: 11400000, guid: 049293ec2bb7fe14bb063e3a08a82a02, type: 2}
+  - {fileID: 11400000, guid: b826a5a6a17d6c041b1f26aa3dce3497, type: 2}
 --- !u!4 &1737350056
 Transform:
   m_ObjectHideFlags: 0
