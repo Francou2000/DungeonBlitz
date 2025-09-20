@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: 1758931014776470608}
   - component: {fileID: 4032747607444462544}
   - component: {fileID: 6879335522358683399}
-  - component: {fileID: 3444724853533884848}
+  - component: {fileID: -4462966395927970552}
   m_Layer: 0
   m_Name: Shaman
   m_TagString: Untagged
@@ -121,7 +121,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd448d041b8cbeb40b96b9502b6ca337, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unitData: {fileID: 11400000, guid: 25ff566eea8650f47b43c2a69552f6e0, type: 2}
+  unitData: {fileID: 11400000, guid: 049293ec2bb7fe14bb063e3a08a82a02, type: 2}
+  statusHandler: {fileID: 6879335522358683399}
   MoveDistanceFactor: 10
   MoveTimeBase: 6
 --- !u!114 &4020468755041615607
@@ -266,7 +267,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6852836edc32ea94eaf4bbcb7e4acc0f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &3444724853533884848
+--- !u!114 &-4462966395927970552
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -275,11 +276,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 671761192709153641}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5c9b77150776e114d8b746ef8f8e94b4, type: 3}
+  m_Script: {fileID: 11500000, guid: ce25985688ea0864b9db31b1b7712a0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unit: {fileID: 0}
-  model: {fileID: 0}
+  unit: {fileID: 778253703200391807}
+  model: {fileID: 6965386814850586551}
   isControllable: 1
 --- !u!1 &9073731304434709722
 GameObject:

@@ -5484,10 +5484,10 @@ MonoBehaviour:
   heroe_name: {fileID: 1264491423}
   heroe_stats: {fileID: 2080866400}
   heroes_list:
-  - {fileID: 11400000, guid: 2b0388415e04d4345bc77d0187eade9b, type: 2}
-  - {fileID: 11400000, guid: e8be8a2be05365349970a9e8cf9da96d, type: 2}
-  - {fileID: 11400000, guid: 7b891e1065b92e74f86540f0fe5edd15, type: 2}
-  - {fileID: 11400000, guid: 162afed650d1ede48a7f6d42d4742000, type: 2}
+  - {fileID: 11400000, guid: e908555b489ee984aae154fd64288041, type: 2}
+  - {fileID: 11400000, guid: 0df5dd05f4978a144aad0fb408d62168, type: 2}
+  - {fileID: 11400000, guid: 5abf3bf8766dfa04f9f9434c99419c54, type: 2}
+  - {fileID: 11400000, guid: 0fd3714fdea6f294dbc4df8080bd6353, type: 2}
   actual_heroe: {fileID: 1546151950}
 --- !u!1 &1801662497
 GameObject:

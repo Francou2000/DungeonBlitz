@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: 1758931014776470608}
   - component: {fileID: 4032747607444462544}
   - component: {fileID: 5404710414940058283}
-  - component: {fileID: -6493103806969598163}
+  - component: {fileID: 5676270926509617757}
   m_Layer: 0
   m_Name: Paladin
   m_TagString: Untagged
@@ -121,7 +121,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd448d041b8cbeb40b96b9502b6ca337, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unitData: {fileID: 11400000, guid: 2b0388415e04d4345bc77d0187eade9b, type: 2}
+  unitData: {fileID: 11400000, guid: e908555b489ee984aae154fd64288041, type: 2}
+  statusHandler: {fileID: 5404710414940058283}
   MoveDistanceFactor: 10
   MoveTimeBase: 6
 --- !u!114 &4020468755041615607
@@ -266,7 +267,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6852836edc32ea94eaf4bbcb7e4acc0f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &-6493103806969598163
+--- !u!114 &5676270926509617757
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -275,11 +276,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 671761192709153641}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e493362d5123ade48909382179c7af9f, type: 3}
+  m_Script: {fileID: 11500000, guid: ce25985688ea0864b9db31b1b7712a0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unit: {fileID: 0}
-  model: {fileID: 0}
+  unit: {fileID: 778253703200391807}
+  model: {fileID: 6965386814850586551}
   isControllable: 1
 --- !u!1 &9073731304434709722
 GameObject:

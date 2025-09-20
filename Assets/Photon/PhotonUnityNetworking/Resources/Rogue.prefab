@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: 1758931014776470608}
   - component: {fileID: 4032747607444462544}
   - component: {fileID: 1178517548841248449}
-  - component: {fileID: -5103078348108433876}
+  - component: {fileID: -5844306844043452460}
   m_Layer: 0
   m_Name: Rogue
   m_TagString: Untagged
@@ -121,7 +121,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd448d041b8cbeb40b96b9502b6ca337, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unitData: {fileID: 11400000, guid: e8be8a2be05365349970a9e8cf9da96d, type: 2}
+  unitData: {fileID: 11400000, guid: 0df5dd05f4978a144aad0fb408d62168, type: 2}
+  statusHandler: {fileID: 1178517548841248449}
   MoveDistanceFactor: 10
   MoveTimeBase: 6
 --- !u!114 &4020468755041615607
@@ -266,7 +267,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6852836edc32ea94eaf4bbcb7e4acc0f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &-5103078348108433876
+--- !u!114 &-5844306844043452460
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -275,11 +276,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 671761192709153641}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 345c9eb16e8e37348a0b98f75ede0f7e, type: 3}
+  m_Script: {fileID: 11500000, guid: ce25985688ea0864b9db31b1b7712a0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unit: {fileID: 0}
-  model: {fileID: 0}
+  unit: {fileID: 778253703200391807}
+  model: {fileID: 6965386814850586551}
   isControllable: 1
 --- !u!1 &9073731304434709722
 GameObject:
