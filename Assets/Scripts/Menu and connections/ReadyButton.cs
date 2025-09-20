@@ -30,6 +30,9 @@ public class ReadyButton : MonoBehaviourPunCallbacks
             // SwapReadiness();
             LobbyManager.Instance.photonView.RPC("ReadyPlayer", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber);
         }
+
+        is_ready = !is_ready;
+        my_text.text = is_ready ? "Not yet" : "Ready";
     }
 
 

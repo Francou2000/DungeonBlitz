@@ -43,6 +43,7 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
         Monsters[] spawned_units_name = unitInts.Select(i => (Monsters)i).ToArray();
         Traps[] spawned_traps_name = trapInts.Select(i => (Traps)i).ToArray();
         Debug.Log($"[AddMapDM] Received {spawned_units_name.Length} monster slots from Dungeon Creator");
+        playable_Map.Reset();
         playable_Map.SetMap(map);
         for (int i = 0; i < spawned_units_name.Length; i++)
         {

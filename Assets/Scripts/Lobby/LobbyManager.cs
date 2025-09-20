@@ -12,8 +12,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     //[SerializeField] string heroe_scene;
     [SerializeField] Button ready_button;
 
+    [SerializeField] TextMeshProUGUI lobby_name;
+
     public string[] slots_used = new string[5];
-    public TextMeshProUGUI[] slots_text = new TextMeshProUGUI[5];
+    [SerializeField] GameObject[] slots_portraits = new GameObject[5];
 
     public GameObject start_game_button;
     private void Awake()
@@ -36,35 +38,37 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         slots_used[3] = "P3 name";
         slots_used[4] = "P4 name";
         CheckPlayerName();
+        ChangeLobbyName();
         if (!PhotonNetwork.IsMasterClient) { photonView.RPC("GetReadyState", RpcTarget.MasterClient); }
         else { start_game_button.SetActive(true); }
     }
 
     public void CheckPlayerName()
     {
+        TextMeshProUGUI text_slot = slots_portraits[0].GetComponentInChildren<TextMeshProUGUI>();
         if (PhotonNetwork.IsMasterClient)
         {
             slots_used[0] = PhotonNetwork.NickName;
-            slots_text[0].text = PhotonNetwork.NickName;
+            text_slot.text = PhotonNetwork.NickName;
         }
         else
         {
             slots_used[0] = PhotonNetwork.MasterClient.NickName;
-            slots_text[0].text = PhotonNetwork.MasterClient.NickName;
+            text_slot.text = PhotonNetwork.MasterClient.NickName;
             int playernumber = PhotonNetwork.LocalPlayer.ActorNumber;
             foreach (var player in PhotonNetwork.PlayerList)
             {
                 if (player.ActorNumber > playernumber) continue;
-                string player_name = player.NickName;
-                slots_used[player.ActorNumber - 1] = player_name;
-                slots_text[player.ActorNumber - 1].text = player_name;
+                photonView.RPC("AskForNewCharacter", RpcTarget.MasterClient, player.ActorNumber, player.NickName);
+                //slots_used[player.ActorNumber - 1] = player_name;
+                //slots_portraits[player.ActorNumber - 1].GetComponentInChildren<TextMeshProUGUI>().text = player_name;
             }
             string playername = PhotonNetwork.NickName;
             // slots_used[playernumber - 1] = playername;
             // slots_text[playernumber - 1].text = playername;
             Debug.Log("Player number lobby manager " + playernumber);
             
-            photonView.RPC("AddCharacter", RpcTarget.All, playernumber,playername);
+            photonView.RPC("AskForNewCharacter", RpcTarget.MasterClient, playernumber,playername);
 
         }
         // Debug.Log("player local " + PlayerPrefs.GetString("playerNickname"));
@@ -74,6 +78,12 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         
     }
 
+    void ChangeLobbyName()
+    {
+        string name = PhotonNetwork.CurrentRoom.Name;
+        string psw = PhotonNetwork.CurrentRoom.CustomProperties["pwd"].ToString();
+        lobby_name.text = name + " (" + psw + ")";
+    }
     public void debugButton()
     {
         Debug.Log("player ID  " + PhotonNetwork.LocalPlayer.ActorNumber);
@@ -99,6 +109,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public void ReadyPlayer(int playerID)
     {
         player_ready[playerID - 1] = !player_ready[playerID - 1];
+        slots_portraits[playerID - 1].GetComponent<Image>().color = player_ready[playerID - 1] ? Color.green : Color.red;
         foreach (bool is_ready in player_ready)
         {
             if (!is_ready) return;
@@ -109,16 +120,27 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public void PlayerLeaveRoom(int playerID)
     {
         slots_used[playerID - 1] = "";
-        slots_text[playerID - 1].text = "";
+        slots_portraits[playerID - 1].GetComponentInChildren<TextMeshProUGUI>().text = "-";
+        // slots_portraits[playerID - 1].GetComponentInChildren<Image>().sprite = portrait;
+        slots_portraits[playerID - 1].GetComponent<Image>().color = Color.red;
+
         player_ready[playerID - 1] = false;
     }
     [PunRPC]
-    public void AddCharacter(int playerID,string playerNick)
+    public void AskForNewCharacter(int playerID, string playerNick)
+    {
+        photonView.RPC("AddCharacter", RpcTarget.All, playerID, playerNick, player_ready[playerID - 1]);
+    }
+    [PunRPC]
+    public void AddCharacter(int playerID,string playerNick, bool is_ready)
     {
        
         slots_used[playerID - 1] = playerNick;
-        slots_text[playerID - 1].text = playerNick;
-        
+        slots_portraits[playerID - 1].GetComponentInChildren<TextMeshProUGUI>().text = playerNick;
+        // slots_portraits[playerID - 1].GetComponentInChildren<Image>().sprite = portrait;
+        slots_portraits[playerID - 1].GetComponent<Image>().color = is_ready ? Color.green : Color.red;
+
+
         Debug.Log("RPC SLOT USED " + (playerID-1)+ " new name - 1");
     }
     [PunRPC]
