@@ -81,6 +81,38 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
+    public void DM_SelectMap(Maps map)
+    {
+        playable_Map.Reset();
+        playable_Map.SetMap(map);
+    }
+
+    [PunRPC]
+    public void DM_AddUnitsToMap(Vector3[] units)   //x,y are the positions in the tile. z is the unit id
+    {
+        playable_Map.RemoveAllUnits();
+        foreach (Vector3 unit in units)
+        {
+            DC_Unit new_unit = new DC_Unit(new Vector2(unit.x, unit.y), goblins_data[(int)unit.z - 1]);
+
+            playable_Map.AddUnit(new_unit);
+        }
+    }
+
+    [PunRPC]
+    public void DM_AddTrapsToMap(Vector3[] traps)   //x,y are the positions in the tile. z is the trap id
+    {
+        playable_Map.RemoveAllTraps();
+        foreach (Vector3 trap in traps)
+        {
+            DC_Trap new_trap = new DC_Trap(new Vector2(trap.x, trap.y), (Traps)trap.z);
+
+            playable_Map.AddTrap(new_trap);
+        }
+    }
+
+
+    [PunRPC]
     public void CheckIfStart()
     {
         foreach (bool ready in players_ready)

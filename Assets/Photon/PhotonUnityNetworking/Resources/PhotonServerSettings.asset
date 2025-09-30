@@ -59,6 +59,9 @@ MonoBehaviour:
   - PlayerLeaveRoom
   - CheckIfStart
   - AskForNewCharacter
+  - DM_SelectMap
+  - DM_AddTrapsToMap
+  - DM_AddUnitsToMap
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

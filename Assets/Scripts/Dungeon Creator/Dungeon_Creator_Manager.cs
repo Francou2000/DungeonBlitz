@@ -151,8 +151,8 @@ public class Dungeon_Creator_Manager : MonoBehaviour
 
 
 
-public enum DC_State { NONE, BUTTON, PLACING_UNIT, PLAICING_TRAP}
-public enum Maps { NONE, MAP_NAME1, MAP_NAME2}
+public enum DC_State { NONE, BUTTON, PLACING_UNIT, PLAICING_TRAP, MOVING_UNIT, MOVING_TRAP}
+public enum Maps { NONE, MAP_NAME1, MAP_NAME2, MAP_NAME3, MAP_NAME4}
 [Serializable]
 public enum Monsters { NONE, GOBLIN, HOBGOBLIN, SHAMAN, CHAMPION}
 [Serializable]
@@ -164,7 +164,6 @@ public class Playable_Map
     List<DC_Unit> units = new List<DC_Unit>();
     List<DC_Trap> traps = new List<DC_Trap>();
 
-    public Maps MAP => map;
     public List<DC_Unit> UNITS => units;
     public List<DC_Trap> TRAPS => traps;
     public Maps Actual_map => map;
@@ -185,6 +184,10 @@ public class Playable_Map
     {
         units.Remove(old_unit);
     }
+    public void RemoveAllUnits()
+    {
+        units = new List<DC_Unit>();
+    }
 
     public void SetTraps(List<DC_Trap> new_traps)
     {
@@ -198,6 +201,10 @@ public class Playable_Map
     {
         traps.Remove(old_trap);
     }
+    public void RemoveAllTraps()
+    {
+        traps = new List<DC_Trap>();
+    }
     public void Reset()
     {
         map = Maps.NONE;
@@ -210,9 +217,21 @@ public struct DC_Unit
 {
     public UnitData unit_type;
     public Vector3 pos;
+
+    public DC_Unit(Vector2 pos, UnitData unit_type)
+    {
+        this.pos = pos;
+        this.unit_type = unit_type;
+    }
 }
 public struct DC_Trap
 {
     public Traps trap_type;
     public Vector3 pos;
+
+    public DC_Trap(Vector2 pos, Traps trap_type)
+    {
+        this.trap_type = trap_type;
+        this.pos = pos;
+    }
 }
