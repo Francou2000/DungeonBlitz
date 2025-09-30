@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 13312, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: coast_sand_rocks_02_diff_1k_0
+  m_Name: rock_ground_diff_1k_0
   m_EditorClassIdentifier: 
-  m_Sprite: {fileID: -8114383442136331972, guid: 05fe62965bf80d843904e1aea8dcdace, type: 3}
+  m_Sprite: {fileID: -2146535312872859348, guid: 229b58338f60f464e9ecf5b81c5c249c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Transform:
     e00: 1

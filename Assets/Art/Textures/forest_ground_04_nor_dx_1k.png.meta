@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 9caca370d311afe488d915d423a9ae69
+guid: 2e66dae30ac973843aa02c133faac915
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5060163116046460815
-    second: Goblin 1_normal (2)_0
+      213: -3701825717527820557
+    second: forest_ground_04_nor_dx_1k_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Goblin 1_normal (2)_0
+      name: forest_ground_04_nor_dx_1k_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 31
-        width: 667
-        height: 774
+        y: 0
+        width: 128
+        height: 128
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f87ab7d4b8f493640800000000000000
-      internalID: 5060163116046460815
+      spriteID: 3f6495e7f1970acc0800000000000000
+      internalID: -3701825717527820557
       vertices: []
       indices: 
       edges: []
