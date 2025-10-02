@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using Photon.Pun;
+using DebugTools;
 
 public class UnitController : MonoBehaviourPun
 {
@@ -71,6 +72,11 @@ public class UnitController : MonoBehaviourPun
     // New ability execution system
     public virtual void ExecuteAbility(UnitAbility ability, Unit target, Vector3 targetPosition = default)
     {
+        var traceId = CombatLog.NewTraceId();
+        CombatLog.Cast(traceId, $"Request by {CombatLog.Short(gameObject)} " +
+            $"ability={selectedAbility?.name} turn={TurnManager.Instance?.turnNumber} owner={photonView?.OwnerActorNr}");
+
+
         // This method is called by Unit.UseAbility() and should be overridden by specialized controllers
         if (AbilityResolver.Instance != null)
         {
@@ -185,7 +191,6 @@ public class UnitController : MonoBehaviourPun
             return;
         }
 
-        // Use new ability system
         unit.UseAbility(selectedAbility, targetUnit);
         ActionUsed();
     }

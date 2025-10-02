@@ -1,13 +1,18 @@
 ﻿using System.Collections.Generic;
 using Photon.Pun;
 using UnityEngine;
+using DebugTools;
+using Photon.Pun.Demo.Procedural;
+using static UnityEngine.GraphicsBuffer;
+using System.Diagnostics;
+using UnityEditor.Playables;
 
 public sealed class AbilityResolver : MonoBehaviourPun
 {
     public static AbilityResolver Instance { get; private set; }
     PhotonView _view;
 
-    const float MeleeRangeMeters = 1.5f; // 1 tile (tweak if your grid differs)
+    const float MeleeRangeMeters = 1.5f; // 1 tile (tweak if the grid differs)
 
     void Awake()
     {
@@ -175,6 +180,9 @@ public sealed class AbilityResolver : MonoBehaviourPun
         var targets = UnpackTargets<Unit>(targetViewIds);
         if (!CanCast(casterCtrl.unit, ability, targets, out _)) return;
 
+        var traceId = CombatLog.NewTraceId();
+        CombatLog.Cast(traceId, $"Validate caster={casterCtrl?.name}#{casterViewId} ability={ability?.name} targets={targets?.Length}");
+
         // Build target list according to area type
         var computedTargets = new List<Unit>();
         Unit primaryTarget = (targets != null && targets.Length > 0) ? targets[0] : null;
@@ -201,6 +209,8 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 );
             }
         }
+
+        CombatLog.Resolve(traceId, $"Targets: final={computedTargets.Count} area={ability.areaType}");
 
         // Faction filtering for AoE/Line (Single already validated in CanCast)
         if (computedTargets.Count > 0)
@@ -337,6 +347,8 @@ public sealed class AbilityResolver : MonoBehaviourPun
     {
         var casterCtrl = FindByView<UnitController>(casterViewId);
 
+        var traceId = CombatLog.NewTraceId();
+
         // Spend AP/resources/adrenaline deterministically
         if (casterCtrl != null)
         {
@@ -357,7 +369,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
             }
         }
 
-        // Optional: Summons/Structures/Zones after spending (kept as before – summons example)
+        // Summons/Structures/Zones after spending (kept as before – summons example)
         if (casterCtrl != null)
         {
             var list = casterCtrl.unit.Model.Abilities;
@@ -375,8 +387,6 @@ public sealed class AbilityResolver : MonoBehaviourPun
                     }
                     SummonManager.Instance.SpawnSummons(casterCtrl.unit, ab, center);
                 }
-
-                // (If you also have spawnsZone/Structure fields, trigger them here similarly)
             }
         }
 
