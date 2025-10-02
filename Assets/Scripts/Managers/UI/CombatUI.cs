@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using DebugTools;
+using Photon.Pun.Demo.Procedural;
 
 public class CombatUI : MonoBehaviour
 {
@@ -42,6 +44,20 @@ public class CombatUI : MonoBehaviour
             button.onClick.AddListener(() =>
             {
                 controller.SetSelectedAbility(ability);
+                if (NeedsTargeting(ability))
+                {
+                    var traceId = CombatLog.NewTraceId(); // optional
+                    CombatLog.Targeting(traceId, $"Begin targeting for {ability.name} (range={ability.aoeRadius})", controller);
+
+                    TargeterController2D.Instance.Begin(
+                        controller, ability,
+                        confirm: (aimPos, aimDir) =>
+                        {
+                            controller.CacheAim(aimPos, aimDir);
+                            CombatLog.Targeting(traceId, $"Confirm pos={aimPos} dir={aimDir}", controller);
+                        });
+                }
+
                 Debug.Log($"Selected ability: {ability.abilityName}");
                 abilityPanel.SetActive(false);  // hide once chosen
             });
@@ -62,7 +78,6 @@ public class CombatUI : MonoBehaviour
         if (a == null) return false;
 
         // Ground/positional or directional abilities must open the targeter.
-        // Tweak these conditions to match your flags.
         bool positional =
             a.groundTarget                          // drop on terrain
             || a.areaType == AreaType.Circle        // choose center

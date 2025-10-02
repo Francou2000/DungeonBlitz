@@ -152,7 +152,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
         return true;
     }
 
-    public void RequestCast(UnitController casterCtrl, UnitAbility ability, Unit[] targets)
+    public void RequestCast(UnitController casterCtrl, UnitAbility ability, Unit[] targets, Vector3 aimPos, Vector3 aimDir, string traceId)
     {
         if (casterCtrl == null || ability == null) return;
 

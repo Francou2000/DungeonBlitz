@@ -13,6 +13,15 @@ public class TargeterController2D : MonoBehaviour
     UnitAbility ability;
     System.Action<Vector3, Vector3> onConfirm; // (pos, dir)
 
+    public static TargeterController2D Instance { get; private set; }
+
+    void Awake()
+    {
+        if (Instance && Instance != this) { Destroy(gameObject); return; }
+        Instance = this;
+    }
+
+
     public void Begin(UnitController c, UnitAbility a, System.Action<Vector3, Vector3> confirm)
     {
         caster = c; ability = a; onConfirm = confirm;

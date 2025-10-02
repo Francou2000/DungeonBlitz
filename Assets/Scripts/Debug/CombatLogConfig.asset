@@ -18,11 +18,11 @@ MonoBehaviour:
   resolve: 1
   status: 1
   zones: 1
-  summons: 1
+  summons: 0
   timer: 1
   ui: 1
   targeting: 1
-  movement: 0
+  movement: 1
   richText: 1
   includeTimestamps: 1
   includeActorAndViewIds: 1

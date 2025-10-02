@@ -32,7 +32,10 @@ public class ReactionManager : MonoBehaviour
                 AbilityResolver.Instance.RequestCast(
                     enemy.Controller,
                     reactAbility,
-                    new Unit[] { mover }
+                    new Unit[] { mover },
+                    enemy.transform.position,
+                    enemy.transform.position,
+                    string.Empty
                 );
                 enemy.Model.SpendReaction();
                 continue;

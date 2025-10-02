@@ -12,6 +12,9 @@ public class UnitController : MonoBehaviourPun
     private bool isMoving = false;
     private UnitAbility selectedAbility;
 
+    private Vector3? cachedAimPos;
+    private Vector3? cachedAimDir;
+
     public bool isControllable = true;
 
     private UnitMovement movement;
@@ -76,13 +79,17 @@ public class UnitController : MonoBehaviourPun
         CombatLog.Cast(traceId, $"Request by {CombatLog.Short(gameObject)} " +
             $"ability={selectedAbility?.name} turn={TurnManager.Instance?.turnNumber} owner={photonView?.OwnerActorNr}");
 
+        var aimPos = cachedAimPos ?? Vector3.zero;
+        var aimDir = cachedAimDir ?? Vector3.zero;
 
         // This method is called by Unit.UseAbility() and should be overridden by specialized controllers
         if (AbilityResolver.Instance != null)
         {
-            AbilityResolver.Instance.RequestCast(this, ability, new Unit[] { target });
+            AbilityResolver.Instance.RequestCast(this, ability, new Unit[] { target }, aimPos, aimDir, traceId);
             return;
         }
+
+        ClearAimCache();
     }
 
     protected virtual void OnAbilityExecuted(UnitAbility ability, Unit target)
@@ -278,5 +285,19 @@ public class UnitController : MonoBehaviourPun
             
             wasInAdrenalineState = currentlyInAdrenalineState;
         }
+    }
+
+    // Aiming
+
+    public void CacheAim(Vector3 pos, Vector3 dir)
+    {
+        cachedAimPos = pos;
+        cachedAimDir = dir;
+    }
+
+    private void ClearAimCache()
+    {
+        cachedAimPos = null;
+        cachedAimDir = null;
     }
 }

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Shaman
   m_EditorClassIdentifier: 
   unitName: Shaman
-  full_body_foto: {fileID: 0}
+  full_body_foto: {fileID: 3274347120714742855, guid: b4d02bb73aadab84aa0a06a1e6c9ff23, type: 3}
   portrait_foto: {fileID: 0}
   faction: 1
   heroe_id: 0

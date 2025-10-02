@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Rogue
   m_EditorClassIdentifier: 
   unitName: Rogue
-  full_body_foto: {fileID: 0}
+  full_body_foto: {fileID: 977554369160852235, guid: 2a657db3926e8784b8e558b9f61effa4, type: 3}
   portrait_foto: {fileID: 0}
   faction: 0
   heroe_id: 0
