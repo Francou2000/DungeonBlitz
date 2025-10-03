@@ -4681,7 +4681,7 @@ GameObject:
   m_Component:
   - component: {fileID: 833823496}
   m_Layer: 0
-  m_Name: CaveTilemapModule4
+  m_Name: CaveTilemapModule5
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6607,7 +6607,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1128040011}
   m_Layer: 0
-  m_Name: CaveTilemapModule3
+  m_Name: CaveTilemapModule4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
