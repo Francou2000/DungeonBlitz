@@ -1,25 +1,10 @@
 fileFormatVersion: 2
-guid: 6fa53ced01f1cf24283210dc323ca0b2
+guid: fd60789ae374b1046abd4cc8516ab36d
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1681403913845898144
-    second: elementalist_0
-  - first:
-      213: 5065208792627886288
-    second: elementalist_1
-  - first:
-      213: 75188984961333684
-    second: elementalist_2
-  - first:
-      213: 7337666471552673453
-    second: elementalist_3
-  - first:
-      213: -6332909254776824996
-    second: elementalist_4
-  - first:
-      213: -766095705609161573
-    second: elementalist_5
+      213: 8566978094104127097
+    second: Elementalist in Game_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -61,9 +46,9 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
-  spriteMeshType: 1
+  spriteMeshType: 0
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
@@ -115,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: elementalist_0
+      name: Elementalist in Game_0
       rect:
         serializedVersion: 2
-        x: 2
+        x: 9
         y: 0
-        width: 1022
-        height: 1531
+        width: 533
+        height: 865
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -130,118 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 064834f7c047aa8e0800000000000000
-      internalID: -1681403913845898144
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: elementalist_1
-      rect:
-        serializedVersion: 2
-        x: 638
-        y: 1423
-        width: 37
-        height: 73
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 0d835cd6f8c3b4640800000000000000
-      internalID: 5065208792627886288
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: elementalist_2
-      rect:
-        serializedVersion: 2
-        x: 640
-        y: 1312
-        width: 143
-        height: 224
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 4b974a3cbff1b0100800000000000000
-      internalID: 75188984961333684
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: elementalist_3
-      rect:
-        serializedVersion: 2
-        x: 819
-        y: 920
-        width: 205
-        height: 555
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: da6e03d77c0a4d560800000000000000
-      internalID: 7337666471552673453
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: elementalist_4
-      rect:
-        serializedVersion: 2
-        x: 696
-        y: 1164
-        width: 249
-        height: 130
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: c5b5e32069cfc18a0800000000000000
-      internalID: -6332909254776824996
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: elementalist_5
-      rect:
-        serializedVersion: 2
-        x: 775
-        y: 1167
-        width: 140
-        height: 44
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: b94b633c3084e55f0800000000000000
-      internalID: -766095705609161573
+      spriteID: 97621a1df2504e670800000000000000
+      internalID: 8566978094104127097
       vertices: []
       indices: 
       edges: []
@@ -250,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -260,12 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      elementalist_0: -1681403913845898144
-      elementalist_1: 5065208792627886288
-      elementalist_2: 75188984961333684
-      elementalist_3: 7337666471552673453
-      elementalist_4: -6332909254776824996
-      elementalist_5: -766095705609161573
+      Elementalist in Game_0: 8566978094104127097
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
