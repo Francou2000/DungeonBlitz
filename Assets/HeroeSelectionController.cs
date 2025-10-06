@@ -1,10 +1,11 @@
+using Photon.Pun;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 //using UnityEngine.UIElements;
 
-public class HeroeSelectionController : MonoBehaviour
+public class HeroeSelectionController : MonoBehaviourPunCallbacks
 {
     public static HeroeSelectionController instance;
     private void Awake()
@@ -30,5 +31,6 @@ public class HeroeSelectionController : MonoBehaviour
             else { buttons_border[i].color = Color.red; }
         }
         actual_heroe.actual_unit = heroe_id;
+        UnitLoaderController.Instance.photonView.RPC("AddHeroe", RpcTarget.All, heroe_id, PhotonNetwork.LocalPlayer.ActorNumber);
     }
 }

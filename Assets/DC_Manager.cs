@@ -126,6 +126,7 @@ public class DC_Manager : MonoBehaviour
     public void RemoveAllUnitsFromList()
     {
         unitList.Clear();
+        AddUnitToController();
         resetUnits.Invoke();
     }
 

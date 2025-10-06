@@ -97,6 +97,7 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
 
             playable_Map.AddUnit(new_unit);
         }
+        players_ready[0] = true;
     }
 
     [PunRPC]
@@ -119,6 +120,7 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
         {
             if (!ready) return;
         }
+        Debug.Log(playable_Map.UNITS.Count());
         TimerAndLoadGame.instance.LoadGame();
     }
 }
