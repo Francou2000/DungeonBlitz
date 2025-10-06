@@ -1,16 +1,16 @@
 fileFormatVersion: 2
-guid: a810c64967325e249be926c8adfd275b
+guid: 33f11938e7356db46b93552e6ceddbfc
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5750879706694624173
-    second: BordeCuadradoBlanco_0
+      213: -5840100011528805069
+    second: Goblin 1_normal (1)_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
     mipMapMode: 0
-    enableMipMap: 0
-    sRGBTexture: 1
+    enableMipMap: 1
+    sRGBTexture: 0
     linearTexture: 0
     fadeOut: 0
     borderMipMap: 0
@@ -55,9 +55,9 @@ TextureImporter:
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
-  alphaIsTransparency: 1
+  alphaIsTransparency: 0
   spriteTessellationDetail: -1
-  textureType: 8
+  textureType: 1
   textureShape: 1
   singleChannelComponent: 0
   flipbookRows: 1
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: BordeCuadradoBlanco_0
+      name: Goblin 1_normal (1)_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 0
-        width: 300
-        height: 300
+        y: 31
+        width: 667
+        height: 774
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 35cd6705065c030b0800000000000000
-      internalID: -5750879706694624173
+      spriteID: 33522105bfbc3fea0800000000000000
+      internalID: -5840100011528805069
       vertices: []
       indices: 
       edges: []
@@ -134,8 +134,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      BordeCuadradoBlanco_0: -5750879706694624173
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

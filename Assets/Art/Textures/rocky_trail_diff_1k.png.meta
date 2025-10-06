@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: a810c64967325e249be926c8adfd275b
+guid: 67a4765de9e3ce64b862eba81287e012
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5750879706694624173
-    second: BordeCuadradoBlanco_0
+      213: -2145838830170312301
+    second: rocky_trail_diff_1k_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: BordeCuadradoBlanco_0
+      name: rocky_trail_diff_1k_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 300
-        height: 300
+        width: 128
+        height: 128
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 35cd6705065c030b0800000000000000
-      internalID: -5750879706694624173
+      spriteID: 391757ef3f27832e0800000000000000
+      internalID: -2145838830170312301
       vertices: []
       indices: 
       edges: []
@@ -134,8 +134,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      BordeCuadradoBlanco_0: -5750879706694624173
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

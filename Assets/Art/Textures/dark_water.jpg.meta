@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: a810c64967325e249be926c8adfd275b
+guid: 447bba640f5e9b04f8b221d35d7e24d1
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5750879706694624173
-    second: BordeCuadradoBlanco_0
+      213: 4422055472411549786
+    second: dark_water_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,23 +100,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: BordeCuadradoBlanco_0
+      name: dark_water_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 300
-        height: 300
+        width: 1000
+        height: 1000
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 35cd6705065c030b0800000000000000
-      internalID: -5750879706694624173
+      spriteID: a50a92ae50c4e5d30800000000000000
+      internalID: 4422055472411549786
       vertices: []
       indices: 
       edges: []
@@ -125,17 +125,19 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 108a1557f0571af40bf535e2aa6601d3
     internalID: 0
     vertices: []
     indices: 
     edges: []
     weights: []
-    secondaryTextures: []
+    secondaryTextures:
+    - texture: {fileID: 2800000, guid: 69b8720032017fd44aac6214ebad68fc, type: 3}
+      name: _NormalMap
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      BordeCuadradoBlanco_0: -5750879706694624173
+      dark_water_0: 4422055472411549786
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
