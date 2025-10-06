@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87a2cda1909aa01468970337e13de8dc, type: 3}
+  m_Name: Paladin
+  m_EditorClassIdentifier: 
+  unitName: Paladin
+  full_body_foto: {fileID: -1959529427698422065, guid: d1bb0d3fc86a2924795e3b5070025161, type: 3}
+  portrait_foto: {fileID: 0}
+  faction: 0
+  heroe_id: 0
+  maxHP: 30
+  performance: 100
+  affinity: 0
+  armor: 2
+  magicResistance: 2
+  strength: 3
+  magicPower: 3
+  actionsPerTurn: 2
+  reactionsPerTurn: 1
+  baseAdrenaline: 0
+  adrenalineThreshold: 30
+  maxAdrenaline: 100
+  abilities:
+  - {fileID: 11400000, guid: 0124a52213996af4482b5a5ae7d102e4, type: 2}
+  - {fileID: 11400000, guid: 14e2ced200bbcd64097e9512ba785b5f, type: 2}
+  - {fileID: 11400000, guid: 3dbc28e81e6b81a428fbfe076caa6361, type: 2}
+  - {fileID: 11400000, guid: 0b9022159e9b61f478eed5cede8d4900, type: 2}
+  - {fileID: 11400000, guid: a57c1ec0ffe0eb5479d52cc18a05611b, type: 2}
+  - {fileID: 11400000, guid: 3b140126e8a735843a4b4003286f6730, type: 2}
+  - {fileID: 11400000, guid: 54fbff9d59467f444ae51a7cb9edd0ba, type: 2}
+  startingForm: 
+  startingWeapon: Sword+Shield
+  isTrainingDummy: 0
+  isPromotable: 0
+  promotedForm: {fileID: 0}
+  hasAttackOfOpportunity: 0
+  specialTags: []

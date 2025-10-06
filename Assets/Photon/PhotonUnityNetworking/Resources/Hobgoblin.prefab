@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 1651042191916801156}
   - component: {fileID: 2572878191279461665}
   - component: {fileID: 778253703200391807}
-  - component: {fileID: 2508049781977751128}
   - component: {fileID: 6965386814850586551}
   - component: {fileID: 4020468755041615607}
   - component: {fileID: 3955947690574530163}
@@ -19,7 +18,7 @@ GameObject:
   - component: {fileID: 1758931014776470608}
   - component: {fileID: 4032747607444462544}
   - component: {fileID: -3672377598579711313}
-  - component: {fileID: 8558451266004495480}
+  - component: {fileID: -5752177837411626304}
   m_Layer: 0
   m_Name: Hobgoblin
   m_TagString: Untagged
@@ -40,7 +39,6 @@ Transform:
   m_LocalScale: {x: 0.18, y: 0.18, z: 0.18}
   m_ConstrainProportionsScale: 1
   m_Children:
-  - {fileID: 1308166195503493286}
   - {fileID: 8845583484168802755}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -88,7 +86,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 2139672824468733563, guid: b36ebd7fb6ce9d1438d576f834a64b7b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 8198a80364d2ed84d808c951508b5f26, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -111,21 +109,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2aaf9819352fbb44ab68180c84f905bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &2508049781977751128
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 671761192709153641}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce25985688ea0864b9db31b1b7712a0b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  unit: {fileID: 0}
-  isControllable: 1
-  dmgPopUp: {fileID: 1308166195503493286}
 --- !u!114 &6965386814850586551
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -138,7 +121,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd448d041b8cbeb40b96b9502b6ca337, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unitData: {fileID: 11400000, guid: 3354bc6fd1f631c44b7367a26a9d3cc3, type: 2}
+  unitData: {fileID: 11400000, guid: d2141c71775c4174796377725c271e1f, type: 2}
+  statusHandler: {fileID: -3672377598579711313}
   MoveDistanceFactor: 10
   MoveTimeBase: 6
 --- !u!114 &4020468755041615607
@@ -153,7 +137,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 315a3251f0d77304cbeea1938b9ccd2a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animator: {fileID: 8558451266004495480}
+  animator: {fileID: 0}
   spriteRenderer: {fileID: 2572878191279461665}
   outlineObject: {fileID: 9073731304434709722}
 --- !u!61 &3955947690574530163
@@ -194,7 +178,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 5.66, y: 9.77}
+    oldSize: {x: 4.28, y: 7.44}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -283,59 +267,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6852836edc32ea94eaf4bbcb7e4acc0f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!95 &8558451266004495480
-Animator:
-  serializedVersion: 7
+--- !u!114 &-5752177837411626304
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 671761192709153641}
   m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 6ecb51792c3738745ae59223b809f275, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
---- !u!1 &6623932990812870969
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1308166195503493286}
-  m_Layer: 0
-  m_Name: Dmg PopUp Position
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1308166195503493286
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6623932990812870969}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.0300004, y: 5.24, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1651042191916801156}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce25985688ea0864b9db31b1b7712a0b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  unit: {fileID: 778253703200391807}
+  model: {fileID: 6965386814850586551}
+  isControllable: 1
 --- !u!1 &9073731304434709722
 GameObject:
   m_ObjectHideFlags: 0

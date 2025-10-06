@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87a2cda1909aa01468970337e13de8dc, type: 3}
+  m_Name: Rogue
+  m_EditorClassIdentifier: 
+  unitName: Rogue
+  full_body_foto: {fileID: 977554369160852235, guid: 2a657db3926e8784b8e558b9f61effa4, type: 3}
+  portrait_foto: {fileID: 0}
+  faction: 0
+  heroe_id: 0
+  maxHP: 30
+  performance: 100
+  affinity: 0
+  armor: 2
+  magicResistance: 2
+  strength: 3
+  magicPower: 3
+  actionsPerTurn: 2
+  reactionsPerTurn: 1
+  baseAdrenaline: 0
+  adrenalineThreshold: 30
+  maxAdrenaline: 100
+  abilities:
+  - {fileID: 11400000, guid: 51231c209457ae34d9a49f5a3d1682ba, type: 2}
+  - {fileID: 11400000, guid: 7966dc208f74b0d4ea74fbda1ddcde83, type: 2}
+  - {fileID: 11400000, guid: f0c0a4efb9dd81b499499d3b9c3927f4, type: 2}
+  - {fileID: 11400000, guid: efc2424ef2e0e0646914b3fdf592a98a, type: 2}
+  - {fileID: 11400000, guid: b4ca1e48a1a140a40ba7cc7b479b2d42, type: 2}
+  - {fileID: 11400000, guid: 671f85cca2f745040a83f7cf0950c32b, type: 2}
+  - {fileID: 11400000, guid: d059862c68b96e841931325aa4b9e43a, type: 2}
+  - {fileID: 11400000, guid: 9d2e87610f427654383cc3f3f00611de, type: 2}
+  startingForm: 
+  startingWeapon: Bow+Dagger
+  isTrainingDummy: 0
+  isPromotable: 0
+  promotedForm: {fileID: 0}
+  hasAttackOfOpportunity: 0
+  specialTags: []

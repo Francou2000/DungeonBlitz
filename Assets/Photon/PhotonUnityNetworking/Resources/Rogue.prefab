@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 1651042191916801156}
   - component: {fileID: 2572878191279461665}
   - component: {fileID: 778253703200391807}
-  - component: {fileID: 2508049781977751128}
   - component: {fileID: 6965386814850586551}
   - component: {fileID: 4020468755041615607}
   - component: {fileID: 3955947690574530163}
@@ -19,7 +18,7 @@ GameObject:
   - component: {fileID: 1758931014776470608}
   - component: {fileID: 4032747607444462544}
   - component: {fileID: 1178517548841248449}
-  - component: {fileID: 8270761576960149501}
+  - component: {fileID: -5844306844043452460}
   m_Layer: 0
   m_Name: Rogue
   m_TagString: Untagged
@@ -40,7 +39,6 @@ Transform:
   m_LocalScale: {x: 0.16, y: 0.16, z: 0.16}
   m_ConstrainProportionsScale: 1
   m_Children:
-  - {fileID: 6770661703770868050}
   - {fileID: 8845583484168802755}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -88,7 +86,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 1504909034587979103, guid: 1d04168933e087a469c820683f580cd0, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 2a657db3926e8784b8e558b9f61effa4, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -111,21 +109,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2aaf9819352fbb44ab68180c84f905bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &2508049781977751128
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 671761192709153641}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce25985688ea0864b9db31b1b7712a0b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  unit: {fileID: 0}
-  isControllable: 1
-  dmgPopUp: {fileID: 6770661703770868050}
 --- !u!114 &6965386814850586551
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -138,7 +121,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd448d041b8cbeb40b96b9502b6ca337, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unitData: {fileID: 11400000, guid: e8be8a2be05365349970a9e8cf9da96d, type: 2}
+  unitData: {fileID: 11400000, guid: 0df5dd05f4978a144aad0fb408d62168, type: 2}
+  statusHandler: {fileID: 1178517548841248449}
   MoveDistanceFactor: 10
   MoveTimeBase: 6
 --- !u!114 &4020468755041615607
@@ -153,7 +137,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 315a3251f0d77304cbeea1938b9ccd2a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animator: {fileID: 8270761576960149501}
+  animator: {fileID: 0}
   spriteRenderer: {fileID: 2572878191279461665}
   outlineObject: {fileID: 9073731304434709722}
 --- !u!61 &3955947690574530163
@@ -194,7 +178,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 8.2, y: 11.71}
+    oldSize: {x: 3.99, y: 7.43}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -283,59 +267,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6852836edc32ea94eaf4bbcb7e4acc0f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!95 &8270761576960149501
-Animator:
-  serializedVersion: 7
+--- !u!114 &-5844306844043452460
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 671761192709153641}
   m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 6ecb51792c3738745ae59223b809f275, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
---- !u!1 &1059415775699980931
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 6770661703770868050}
-  m_Layer: 0
-  m_Name: Dmg PopUp Position
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &6770661703770868050
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1059415775699980931}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.79, y: 5.44, z: 0}
-  m_LocalScale: {x: 1.125, y: 1.125, z: 1.125}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1651042191916801156}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce25985688ea0864b9db31b1b7712a0b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  unit: {fileID: 778253703200391807}
+  model: {fileID: 6965386814850586551}
+  isControllable: 1
 --- !u!1 &9073731304434709722
 GameObject:
   m_ObjectHideFlags: 0

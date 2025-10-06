@@ -1,14 +1,19 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using Photon.Pun;
+using DebugTools;
 
 public class UnitController : MonoBehaviourPun
 {
     public Unit unit;
+    public UnitModel model;
     private bool isMoving = false;
     private UnitAbility selectedAbility;
+
+    private Vector3? cachedAimPos;
+    private Vector3? cachedAimDir;
 
     public bool isControllable = true;
 
@@ -17,8 +22,6 @@ public class UnitController : MonoBehaviourPun
     public UnitMovement Movement => movement;
 
     public static UnitController ActiveUnit { get;  set; }
-
-    public Transform dmgPopUp;
 
     void Awake()
     {
@@ -32,9 +35,15 @@ public class UnitController : MonoBehaviourPun
         }
     }
 
-    public void Initialize(Unit unit)
+    protected virtual void Start()
+    {
+
+    }
+
+    public virtual void Initialize(Unit unit)
     {
         this.unit = unit;
+        this.model = unit.Model;
     }
 
     void Update()
@@ -63,6 +72,103 @@ public class UnitController : MonoBehaviourPun
         }
     }
 
+    // New ability execution system
+    public virtual void ExecuteAbility(UnitAbility ability, Unit target, Vector3 targetPosition = default)
+    {
+        var traceId = CombatLog.NewTraceId();
+        CombatLog.Cast(traceId, $"Request by {CombatLog.Short(gameObject)} " +
+            $"ability={selectedAbility?.name} turn={TurnManager.Instance?.turnNumber} owner={photonView?.OwnerActorNr}");
+
+        var aimPos = cachedAimPos ?? Vector3.zero;
+        var aimDir = cachedAimDir ?? Vector3.zero;
+
+        // This method is called by Unit.UseAbility() and should be overridden by specialized controllers
+        if (AbilityResolver.Instance != null)
+        {
+            AbilityResolver.Instance.RequestCast(this, ability, new Unit[] { target }, aimPos, aimDir, traceId);
+            return;
+        }
+
+        ClearAimCache();
+    }
+
+    protected virtual void OnAbilityExecuted(UnitAbility ability, Unit target)
+    {
+        // Base implementation - handle common ability effects
+        if (ability.healsTarget && target != null)
+        {
+            int healAmount = ability.CalculateHealAmount(model);
+            target.Heal(healAmount, unit);
+        }
+
+        // Apply status effects
+        if (target != null && ability.appliedEffects.Count > 0)
+        {
+            var statusHandler = target.GetComponent<StatusEffectHandler>();
+            if (statusHandler != null)
+            {
+                foreach (var effect in ability.appliedEffects)
+                {
+                    if (Random.Range(0f, 100f) <= ability.statusEffectChance)
+                    {
+                        statusHandler.ApplyEffect(effect);
+                    }
+                }
+            }
+        }
+
+        // Grant barriers
+        if (ability.grantsBarrier && target != null)
+        {
+            var barrierEffect = new StatusEffect
+            {
+                effectName = "Barrier",
+                type = StatusEffectType.Buff,
+                barrierHP = ability.barrierAmount,
+                duration = 5,
+                tags = { "Barrier" }
+            };
+            
+            target.GetComponent<StatusEffectHandler>()?.ApplyEffect(barrierEffect);
+        }
+    }
+
+    // Turn management hooks
+    public virtual void OnTurnStart()
+    {
+        // Override in specialized controllers
+    }
+
+    public virtual void OnTurnEnd()
+    {
+        // Override in specialized controllers
+    }
+
+    // Damage handling hooks
+    public virtual void OnDamageTaken(int damage, DamageType damageType, Unit attacker)
+    {
+        // Override in specialized controllers for special reactions
+    }
+
+    public virtual void OnHealed(int amount, Unit healer)
+    {
+        // Override in specialized controllers
+    }
+
+    // Adrenaline state hooks
+    protected virtual void HandleAdrenalineStateEntered()
+    {
+        Debug.Log($"{model.UnitName} enters adrenaline state - applying buffs");
+        // Override in specialized controllers for unit-specific adrenaline effects
+    }
+
+    protected virtual void HandleAdrenalineStateExited()
+    {
+        Debug.Log($"{model.UnitName} exits adrenaline state - removing buffs");
+        // Override in specialized controllers
+    }
+
+    // Legacy attack system (keeping for compatibility)
     public void TryMove()
     {
         if (!unit.Model.CanAct() || !photonView.IsMine) return;
@@ -92,69 +198,20 @@ public class UnitController : MonoBehaviourPun
             return;
         }
 
-        // Calculate hit logic
-        int affinity = unit.Model.Affinity;
-        int flankCount = CombatCalculator.CountFlankingAllies(targetUnit, unit);
-        bool isFlanked = flankCount > 0;
-        bool hasMediumCover, hasHeavyCover;
+        unit.UseAbility(selectedAbility, targetUnit);
+        ActionUsed();
+    }
 
-        CombatCalculator.CheckCover(
-            transform.position,
-            targetUnit.transform.position,
-            out hasMediumCover,
-            out hasHeavyCover
-        );
+    private void ActionUsed()
+    {
+        selectedAbility = null;
+        SetAction(UnitAction.None);
 
-        float hitChance = CombatCalculator.GetHitChance(
-            selectedAbility.baseHitChance,
-            affinity,
-            flankCount,
-            isFlanked,
-            hasMediumCover,
-            hasHeavyCover
-        );
+        if (ActionUI.Instance != null)
+            ActionUI.Instance.ClearAction();
 
-        float roll = Random.Range(0f, 100f);
-        if (roll > hitChance)
-        {
-            Debug.Log($"[Attack] Missed! Rolled {roll:F1} vs {hitChance:F1}");
-            return;
-        }
-
-        Debug.Log($"[Attack] {unit.Model.UnitName} hits {targetUnit.Model.UnitName}!");
-
-        int attackStat = selectedAbility.damageSource == DamageSourceType.Strength
-            ? unit.Model.Strength
-            : unit.Model.MagicPower;
-
-        int defense = selectedAbility.damageSource == DamageSourceType.Strength
-            ? targetUnit.Model.Armor
-            : targetUnit.Model.MagicResistance;
-
-        int totalDamage = 0;
-        DamageType damageType = selectedAbility.damageSource == DamageSourceType.Strength ? DamageType.Physical : DamageType.Magical;
-
-        for (int i = 0; i < selectedAbility.hits; i++)
-        {
-            float damage = CombatCalculator.CalculateDamage(selectedAbility.baseDamage, attackStat, defense);
-            totalDamage += Mathf.RoundToInt(damage);
-        }
-
-        // Apply status effects locally (optional to sync later)
-        var handler = targetUnit.GetComponent<StatusEffectHandler>();
-        if (handler != null && selectedAbility.appliedEffects != null)
-        {
-            foreach (var effect in selectedAbility.appliedEffects)
-                handler.ApplyEffect(effect);
-        }
-
-        // Sync damage
-        int targetID = targetUnit.GetComponent<PhotonView>().ViewID;
-        photonView.RPC(nameof(RPC_ApplyDamage), RpcTarget.All, targetID, totalDamage, (int)damageType);
-
-        unit.Model.SpendAction(selectedAbility.actionCost);
-        unit.Model.AddAdrenaline(5);
-        ActionUI.Instance.ClearAction();
+        if (CombatUI.Instance != null)
+            CombatUI.Instance.HideAbilities();
     }
 
     public void SetSelectedAbility(UnitAbility ability)
@@ -197,21 +254,50 @@ public class UnitController : MonoBehaviourPun
         }
 
         DamageType damageType = (DamageType)damageTypeInt;
-        UnitGotDamaged(damageAmount, damageType);
-
+        targetUnit.Model.ApplyDamageWithBarrier(damageAmount, damageType);
     }
 
-    public void UnitGotDamaged(int dmg_amount, DamageType dmg_type)
+    // Helper method for specialized controllers
+    protected UnitAbility GetAbilityByName(string abilityName)
     {
-        unit.View.PlayOneShotAnimation(AnimationName.Hit);
-        //TODO: Add damage ui feedback
-        unit.Model.TakeDamage(dmg_amount, dmg_type);
-        Vector3 poUP_position = Camera.main.WorldToScreenPoint(dmgPopUp.position);
-        FeedbackDisplayManager.Instance.showDmgFeedback(dmg_amount, poUP_position);
+        var abilities = model.GetAvailableAbilities();
+        return abilities.Find(a => a.abilityName == abilityName);
     }
-    public void UnitDied()
+
+    // Check if unit should monitor adrenaline state changes
+    private bool wasInAdrenalineState = false;
+    
+    protected virtual void LateUpdate()
     {
-        unit.View.DeadAnimation();
-        unit.Model.Die();
+        // Monitor adrenaline state changes
+        if (model != null)
+        {
+            bool currentlyInAdrenalineState = model.IsInAdrenalineState;
+            
+            if (!wasInAdrenalineState && currentlyInAdrenalineState)
+            {
+                HandleAdrenalineStateEntered();
+            }
+            else if (wasInAdrenalineState && !currentlyInAdrenalineState)
+            {
+                HandleAdrenalineStateExited();
+            }
+            
+            wasInAdrenalineState = currentlyInAdrenalineState;
+        }
+    }
+
+    // Aiming
+
+    public void CacheAim(Vector3 pos, Vector3 dir)
+    {
+        cachedAimPos = pos;
+        cachedAimDir = dir;
+    }
+
+    private void ClearAimCache()
+    {
+        cachedAimPos = null;
+        cachedAimDir = null;
     }
 }

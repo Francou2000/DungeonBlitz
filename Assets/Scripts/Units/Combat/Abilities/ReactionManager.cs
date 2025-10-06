@@ -1,51 +1,80 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
-public static class ReactionManager
+public class ReactionManager : MonoBehaviour
 {
-    public static void TryTriggerReactions(Unit movingUnit, Vector3 oldPosition)
+    public static ReactionManager Instance { get; private set; }
+
+    void Awake()
     {
-        Debug.Log($"[Reaction] Checking opportunity attacks on move by {movingUnit.Model.UnitName}");
-
-        var allUnits = Object.FindObjectsByType<Unit>(FindObjectsSortMode.None);
-
-        foreach (var enemy in allUnits)
+        if (Instance != null && Instance != this) 
         {
-            if (enemy == movingUnit) continue;
-            if (enemy.Model.Faction == movingUnit.Model.Faction) continue;
+            Destroy(gameObject); 
+            return; 
+        }
+        Instance = this;
+    }
 
-            //Check if unit has reactions left
-            if (!enemy.Model.CanReact())
+    public void TryTriggerReactions(Unit mover, Vector3 fromPos)
+    {
+        if (mover == null) return;
+
+        foreach (var enemy in FindThreateningEnemies(mover))
+        {
+            if (!enemy.Model.CanReact()) continue;
+
+            // Look for a defined reaction ability
+            var reactAbility = GetReactionAbility(enemy);
+            if (reactAbility != null)
             {
-                Debug.Log($"[Reaction] {enemy.Model.UnitName} has no reactions left.");
+                // Route through resolver, authoritative
+                AbilityResolver.Instance.RequestCast(
+                    enemy.Controller,
+                    reactAbility,
+                    new Unit[] { mover },
+                    enemy.transform.position,
+                    enemy.transform.position,
+                    string.Empty
+                );
+                enemy.Model.SpendReaction();
                 continue;
             }
 
-
-            // Loop enemy reactions
-            foreach (var reaction in enemy.Model.Abilities)
-            {
-                if (!reaction.isReaction || reaction.reactionTrigger != ReactionTrigger.OnEnemyLeavesRange)
-                    continue;
-
-                float oldDistance = Vector2.Distance(enemy.transform.position, oldPosition);
-                float newDistance = Vector2.Distance(enemy.transform.position, movingUnit.transform.position);
-
-                Debug.Log($"[Reaction] {enemy.Model.UnitName} | Old: {oldDistance:F2}, New: {newDistance:F2}, Range: {reaction.range}");
-
-                if (oldDistance <= reaction.range && newDistance > reaction.range)
-                {
-                    Debug.Log($"[Reaction] {enemy.Model.UnitName} triggers opportunity attack on {movingUnit.Model.UnitName}!");
-
-                    float damage = CombatCalculator.CalculateDamage(
-                        reaction.baseDamage,
-                        enemy.Model.Strength,
-                        movingUnit.Model.Armor
-                    );
-
-                    movingUnit.Model.TakeDamage(Mathf.RoundToInt(damage), DamageType.Physical); // You can generalize damage type too
-                    enemy.Model.SpendReaction(); // Optional
-                }
-            }
+            //PerformOpportunityAttack(enemy, mover);
+            enemy.Model.SpendReaction();
         }
     }
+
+    UnitAbility GetReactionAbility(Unit enemy)
+    {
+        foreach (var ab in enemy.Model.Abilities)
+            if (ab.isReaction) return ab;
+        return null;
+    }
+
+    List<Unit> FindThreateningEnemies(Unit mover)
+    {
+        var enemies = new List<Unit>();
+        var fromPos = transform.position;
+        foreach (var u in FindObjectsByType<Unit>(FindObjectsSortMode.None))
+        {
+            if (u == mover) continue;
+            if (u.Model.Faction == mover.Model.Faction) continue;
+
+            float dist = Vector3.Distance(u.transform.position, fromPos); 
+            if (dist < 1.5f) enemies.Add(u);
+        }
+        return enemies;
+    }
+
+    /*
+    void PerformOpportunityAttack(Unit enemy, Unit mover)
+    {
+        var basic = enemy.Model.GetBasicAttackAbility();
+        if (basic != null)
+        {
+            AbilityResolver.Instance.RequestCast(enemy.Controller, basic, new Unit[] { mover });
+        }
+    }*/
 }

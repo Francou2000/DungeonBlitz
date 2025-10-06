@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: CombatLogConfig
+  m_EditorClassIdentifier: Assembly-CSharp:DebugTools:CombatLogConfig
+  enabled: 1
+  level: 2
+  cast: 1
+  resolve: 1
+  status: 1
+  zones: 1
+  summons: 0
+  timer: 1
+  ui: 1
+  targeting: 1
+  movement: 1
+  richText: 1
+  includeTimestamps: 1
+  includeActorAndViewIds: 1

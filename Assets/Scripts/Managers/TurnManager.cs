@@ -20,15 +20,6 @@ public class TurnManager : MonoBehaviourPunCallbacks
     public bool gamePaused = true;
     public bool[] has_been_instanciated = new bool[4];
 
-    public void HeroeGotInstanciated(int idx)
-    {
-        has_been_instanciated[idx] = true;
-        foreach (bool check in has_been_instanciated)
-        {
-            if (!check) return;
-        }
-        gamePaused = false;
-    }
     private float turnTimer = 0f;
     private float syncCooldown = 0f;
 
@@ -41,6 +32,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
             return;
         }
 
+        Debug.Log($"[TurnManager][Awake] Instance set on Actor={PhotonNetwork.LocalPlayer.ActorNumber} IsMaster={PhotonNetwork.IsMasterClient} View={GetComponent<PhotonView>()?.ViewID}");
         Instance = this;
         view = GetComponent<PhotonView>();
     }
@@ -68,8 +60,9 @@ public class TurnManager : MonoBehaviourPunCallbacks
 
     void Update()
     {
-        if (!PhotonNetwork.IsMasterClient || gamePaused) return;
-
+        if (!PhotonNetwork.IsMasterClient || gamePaused)
+            return;
+        
         float delta = Time.deltaTime;
         turnTimer += delta;
         timePool[currentTurn] -= delta;
@@ -79,8 +72,10 @@ public class TurnManager : MonoBehaviourPunCallbacks
         if (syncCooldown <= 0f)
         {
             photonView.RPC(nameof(RPC_UpdateTimer), RpcTarget.Others, turnTimer, timePool[currentTurn]);
-            syncCooldown = 1f;
+            UpdateTurnUI();
+            syncCooldown = 1f;        
         }
+
 
         // === CHECK WIN CONDITION ===
         if (timePool[currentTurn] <= 0f)
@@ -115,6 +110,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
         if (!PhotonNetwork.IsMasterClient)
         {
             photonView.RPC(nameof(RPC_PlayerEndedTurn), RpcTarget.MasterClient, PhotonNetwork.LocalPlayer.ActorNumber);
+            Debug.Log($"[TurnManager] RequestHeroEndTurn sent by {PhotonNetwork.LocalPlayer.ActorNumber}");
         }
     }
 
@@ -149,6 +145,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
         }
     }
 
+    // include sender info to know who invoked the RPC
     [PunRPC]
     private void RPC_SyncTurn(UnitFaction newTurn, int newTurnNumber, float newTime)
     {
@@ -163,17 +160,20 @@ public class TurnManager : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    private void RPC_UpdateTimer(float syncedTurnTime, float syncedTimePool)
+    private void RPC_UpdateTimer(float syncedTurnTime, float syncedTimePool, PhotonMessageInfo info)
     {
-        // If timePool doesn't exist for currentTurn, ignore the update
+        // If the client doesn't have the timePool key for currentTurn, log it
         if (!timePool.ContainsKey(currentTurn))
         {
-            Debug.LogWarning($"[RPC_UpdateTimer] Missing timePool key for: {currentTurn}");
-            return;
+            // Try to create missing keys (defensive)
+            if (!timePool.ContainsKey(UnitFaction.Hero)) timePool[UnitFaction.Hero] = initialTimePool;
+            if (!timePool.ContainsKey(UnitFaction.Monster)) timePool[UnitFaction.Monster] = initialTimePool;
         }
 
         turnTimer = syncedTurnTime;
         timePool[currentTurn] = syncedTimePool;
+
+        Debug.Log($"[RPC_UpdateTimer] On Actor={PhotonNetwork.LocalPlayer.ActorNumber} IsMaster={PhotonNetwork.IsMasterClient} Sender={info.Sender.ActorNumber}");
 
         UpdateTurnUI();
     }
@@ -182,6 +182,23 @@ public class TurnManager : MonoBehaviourPunCallbacks
     private void RPC_LoadEndScene(string sceneName)
     {
         PhotonNetwork.LoadLevel(sceneName);
+    }
+
+    [PunRPC]
+    public void RPC_HeroeGotInstanciated(int idx)
+    {
+        Debug.Log($"[TurnManager] RPC_HeroeGotInstanciated CALLED on Actor={PhotonNetwork.LocalPlayer.ActorNumber} idx={idx}");
+
+        has_been_instanciated[idx] = true;
+
+        foreach (bool check in has_been_instanciated)
+        {
+            if (!check) return; // Still waiting for some heroes
+        }
+
+        // All heroes have been instantiated — unpause the game
+        gamePaused = false;
+        Debug.Log($"[TurnManager] All heroes instantiated — game unpaused on Actor={PhotonNetwork.LocalPlayer.ActorNumber}");
     }
 
     // === TURN FLOW ===
@@ -197,6 +214,15 @@ public class TurnManager : MonoBehaviourPunCallbacks
 
     private void AdvanceTurn()
     {
+        // Notify end-of-turn for ALL units of the faction that is ending now
+        foreach (var unit in UnityEngine.Object.FindObjectsByType<Unit>(FindObjectsSortMode.None))
+        {
+            if (unit.Model.Faction == currentTurn && unit.Model.statusHandler != null)
+            {
+                unit.Model.statusHandler.OnEndTurn(unit);
+            }
+        }
+
         currentTurn = GetOpposingFaction(currentTurn);
         turnNumber++;
         turnTimer = 0f;
