@@ -38,7 +38,7 @@ public class SetUnitDataButton : MonoBehaviour
         {
             my_data.maxHP,
             my_data.performance,
-            my_data.performance,
+            my_data.affinity,
             my_data.baseAdrenaline,
             my_data.strength,
             my_data.magicPower,

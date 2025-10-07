@@ -18,6 +18,7 @@ public class ChangeMenuButton : MonoBehaviour
     }
     void ChangeMenuUI()
     {
+        // Debug.Log("BBBBBBBBBBBBBB");
         menuToActive.SetActive(true);
         menuToDeactive.SetActive(false);
     }

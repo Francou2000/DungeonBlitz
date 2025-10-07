@@ -81,10 +81,10 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    public void DM_SelectMap(Maps map)
+    public void DM_SelectMap(int map)
     {
         playable_Map.Reset();
-        playable_Map.SetMap(map);
+        playable_Map.SetMap((Maps)map);
     }
 
     [PunRPC]

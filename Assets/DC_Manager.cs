@@ -97,7 +97,8 @@ public class DC_Manager : MonoBehaviour
 
     void AddUnitToController()
     {
-        UnitLoaderController.Instance.photonView.RPC("DM_AddUnitsToMap", Photon.Pun.RpcTarget.All, unitList);
+        Vector3[] unitsArray = unitList.ToArray();
+        UnitLoaderController.Instance.photonView.RPC("DM_AddUnitsToMap", Photon.Pun.RpcTarget.All, unitsArray);
     }
     bool AddPosToUsed(Vector2 pos)
     {

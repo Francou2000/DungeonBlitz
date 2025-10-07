@@ -45,7 +45,8 @@ public class SlectedMapController : MonoBehaviour
         grid.SetActive(true);
         tile_highlighter.SetActive(true);
         if (controller.playable_Map.Actual_map == actual_map) return;
-        controller.photonView.RPC("DM_SelectMap", Photon.Pun.RpcTarget.All,actual_map);
+        // Debug.Log("AAAAAAAAAAAAAAAAAAAAA");
+        controller.photonView.RPC("DM_SelectMap", Photon.Pun.RpcTarget.All,(int)actual_map);
 
         //Remove Units instance
         DC_Manager.instance.RemoveAllUnitsFromList();
