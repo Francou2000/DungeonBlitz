@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
-using Photon.Pun;
-using UnityEngine;
 using DebugTools;
+using Photon.Pun;
 using Photon.Pun.Demo.Procedural;
+using SpatialUI;
+using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
-using System.Diagnostics;
-using UnityEditor.Playables;
 
 public sealed class AbilityResolver : MonoBehaviourPun
 {
@@ -26,6 +25,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
         reason = null;
         if (caster == null || ability == null) { reason = "No caster/ability"; return false; }
         if (!caster.Model.CanAct()) { reason = "No actions left"; return false; }
+        Debug.Log($"[Cast] FAIL: {reason}");
 
         // --- Resource costs ---
         if (ability.resourceCosts != null)
@@ -35,6 +35,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 if (caster.Model.GetRes(cost.key) < cost.amount)
                 {
                     reason = $"Need {cost.amount} {cost.key}";
+                    Debug.Log($"[Cast] FAIL: {reason}");
                     return false;
                 }
             }
@@ -44,6 +45,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
         if (ability.minAdrenaline > 0 && caster.Model.Adrenaline < ability.minAdrenaline)
         {
             reason = $"Need ≥ {ability.minAdrenaline} adrenaline";
+            Debug.Log($"[Cast] FAIL: {reason}");
             return false;
         }
 
@@ -59,6 +61,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
                     if (current != parts[1])
                     {
                         reason = $"Requires {parts[0]} = {parts[1]}";
+                        Debug.Log($"[Cast] FAIL: {reason}");
                         return false;
                     }
                 }
@@ -73,6 +76,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 if (!caster.Model.statusHandler.HasTag(tag))
                 {
                     reason = $"Requires {tag}";
+                    Debug.Log($"[Cast] FAIL: {reason}");
                     return false;
                 }
             }
@@ -85,6 +89,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
             if (!caster.Model.statusHandler.IsTauntedTo(tv))
             {
                 reason = "Taunted: must target the taunter";
+                Debug.Log($"[Cast] FAIL: {reason}");
                 return false;
             }
         }
@@ -101,6 +106,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
             if (targets == null || targets.Length == 0 || targets[0] == null)
             {
                 reason = "No target";
+                Debug.Log($"[Cast] FAIL: {reason}");
                 return false;
             }
         }
@@ -111,6 +117,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
             if (targets == null || targets.Length == 0 || targets[0] != caster)
             {
                 reason = "Must target self";
+                Debug.Log($"[Cast] FAIL: {reason}");
                 return false;
             }
         }
@@ -123,6 +130,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
             { reason = "Allies only"; return false; }
             if (enemiesOnly && t.Model.Faction == caster.Model.Faction)
             { reason = "Enemies only"; return false; }
+            Debug.Log($"[Cast] FAIL: {reason}");
         }
 
         // --- Tags on target ---
@@ -133,6 +141,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 if (!targets[0].Model.statusHandler.HasTag(tag))
                 {
                     reason = $"Target must have {tag}";
+                    Debug.Log($"[Cast] FAIL: {reason}");
                     return false;
                 }
             }
@@ -145,6 +154,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
             if (!CombatCalculator.IsInRange(caster.transform.position, t.transform.position, ability.range))
             {
                 reason = "Out of range";
+                Debug.Log($"[Cast] FAIL: {reason}");
                 return false;
             }
         }
@@ -232,7 +242,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
         var outIds = new List<int>(computedTargets.Count);
         var outHits = new List<bool>(computedTargets.Count);
         var outDamages = new List<int>(computedTargets.Count);
-        var outTypes = new List<DamageType>(computedTargets.Count); // true enum for RPC
+        var outTypes = new List<int>(computedTargets.Count); // true enum for RPC
         var outProcs = new List<byte>(computedTargets.Count);       // 0=None,1=Burn,2=Freeze,3=Shock
 
         int idx = 0;
@@ -324,7 +334,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
             outIds.Add(tgt.GetComponent<PhotonView>()?.ViewID ?? -1);
             outHits.Add(hit);
             outDamages.Add(Mathf.Max(0, damage));
-            outTypes.Add(dtype);
+            outTypes.Add((int)dtype);
             outProcs.Add(proc);
             idx++;
         }
@@ -343,8 +353,10 @@ public sealed class AbilityResolver : MonoBehaviourPun
     [PunRPC]
     private void RPC_ResolveAbility_Area(int casterViewId, int abilityIndex,
                                          int[] targetViewIds, bool[] hits, int[] damages,
-                                         DamageType[] damageTypes, byte[] elementalProcs)
+                                         int[] damageTypes, byte[] elementalProcs)
     {
+        Debug.Log($"[RPC_ResolveArea] ENTER isMaster={PhotonNetwork.IsMasterClient} casterViewId={casterViewId} abilityIndex={abilityIndex} targets={(targetViewIds != null ? targetViewIds.Length : 0)}");
+
         var casterCtrl = FindByView<UnitController>(casterViewId);
 
         var traceId = CombatLog.NewTraceId();
@@ -409,12 +421,29 @@ public sealed class AbilityResolver : MonoBehaviourPun
                     damages[i] = 0;
             }
 
-            // Damage application
+            Debug.Log($"[RPC_ResolveArea] pre-damage target={target?.name} hit={(hits != null && i < hits.Length && hits[i])} " +
+          $"dmg={(damages != null && i < damages.Length ? damages[i] : -1)} " +
+          $"dtype={(damageTypes != null && i < damageTypes.Length ? ((DamageType)damageTypes[i]).ToString() : "n/a")}");
+            // Damage application (MASTER applies, then mirror to others)
             if (hits != null && i < hits.Length && hits[i] &&
                 damages != null && i < damages.Length && damages[i] > 0 &&
                 damageTypes != null && i < damageTypes.Length)
             {
-                target.Model.ApplyDamageWithBarrier(damages[i], damageTypes[i]);
+                int dmg = damages[i];
+                int dtype = damageTypes[i];
+                int targetId = target.Controller.photonView.ViewID;
+
+                if (PhotonNetwork.IsMasterClient)
+                {
+                    var dealt = target.Model.ApplyDamageWithBarrier(dmg, (DamageType)dtype);
+                    Debug.Log($"[Resolve] MASTER applied {dealt} HP dmg to {target.name} (type={(DamageType)dtype})");
+
+                    _view.RPC(nameof(RPC_ApplyDamageToClient), RpcTarget.Others, targetId, dmg, dtype);
+                }
+                else
+                {
+                    Debug.Log($"[Resolve] Non-master computed damage locally (ignored). Waiting for MASTER RPC. target={target.name} dmg={dmg}");
+                }
             }
 
             // Elemental proc → status
@@ -457,6 +486,18 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 }
             }
         }
+    }
+
+    [PunRPC]
+    void RPC_ApplyDamageToClient(int targetViewId, int damage, int damageType)
+    {
+        var pv = PhotonView.Find(targetViewId);
+        if (pv == null) return;
+        var target = pv.GetComponent<Unit>();
+        if (target == null || target.Model == null) return;
+
+        var dealt = target.Model.ApplyDamageWithBarrier(damage, (DamageType)damageType);
+        Debug.Log($"[AbilityRPC] Applied {dealt} HP damage to {target.name} (type={(DamageType)damageType})");
     }
 
     // ---- helpers ----

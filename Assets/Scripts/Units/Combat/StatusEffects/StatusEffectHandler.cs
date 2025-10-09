@@ -97,6 +97,7 @@ public class StatusEffectHandler : MonoBehaviour
             absorbed += take;
             amount -= take;
         }
+        Debug.Log($"[Barrier] ConsumeBarrier: requested={amount}, absorbed={absorbed}");
         return absorbed;
     }
 

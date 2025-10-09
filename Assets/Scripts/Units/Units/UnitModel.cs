@@ -342,20 +342,23 @@ public class UnitModel : MonoBehaviour
     public int ApplyDamageWithBarrier(int incoming, DamageType type)
     {
         if (incoming <= 0) return 0;
-        int remaining = incoming;
 
-        // Ask status handler how much barrier is available & consume it first
+        int remaining = incoming;
+        int absorbed = 0;
+
         if (statusHandler != null)
         {
-            int absorbed = statusHandler.ConsumeBarrier(remaining);
+            absorbed = statusHandler.ConsumeBarrier(remaining);
             remaining -= absorbed;
+            if (absorbed > 0)
+                Debug.Log($"[Barrier] {UnitName} absorbed {absorbed}/{incoming}. Remaining to HP: {Mathf.Max(0, remaining)}");
         }
 
-        if (remaining <= 0) return incoming; // fully absorbed
+        if (remaining <= 0)
+            return 0; // fully absorbed ? 0 HP damage
 
-        // Apply the remainder to HP:
         TakeDamage(remaining, type);
-        return incoming;
+        return remaining; // return actual HP damage dealt
     }
 
     private void Die()
