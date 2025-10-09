@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using DebugTools;
+using Mono.Cecil;
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using Photon.Pun;
-using DebugTools;
 
 public class UnitController : MonoBehaviourPun
 {
@@ -75,9 +76,37 @@ public class UnitController : MonoBehaviourPun
     // New ability execution system
     public virtual void ExecuteAbility(UnitAbility ability, Unit target, Vector3 targetPosition = default)
     {
+
+        // --- Area Targeting Preview ---
+        if (ability != null && ability.areaType == (areaType.Area))
+        {
+            // If we don't have a cached aim yet, open the targeter and come back when confirmed
+            if (cachedAimPos == null) // if cachedAimPos is Vector3?  (nullable). If not nullable, use a boolean flag instead.
+            {
+                if (!TargeterController2D.Instance)
+                {
+                    Debug.LogWarning("[Targeter] TargeterController2D not found in scene.");
+                    return;
+                }
+
+                // Begin targeter; when player confirms, we call ExecuteAbility again with the chosen center
+                TargeterController2D.Instance.Begin(
+                    c: this,
+                    a: ability,
+                    confirm: (center, dir) =>
+                    {
+                        cachedAimPos = center;
+                        cachedAimDir = dir;
+                        // Re-enter ExecuteAbility with the chosen center (target can be null for AoE)
+                        ExecuteAbility(ability, null, center);
+                    }
+                );
+                return; // wait until the player confirms/cancels
+            }
+        }
         var traceId = CombatLog.NewTraceId();
         CombatLog.Cast(traceId, $"Request by {CombatLog.Short(gameObject)} " +
-            $"ability={selectedAbility?.name} turn={TurnManager.Instance?.turnNumber} owner={photonView?.OwnerActorNr}");
+                $"ability={selectedAbility?.name} turn={TurnManager.Instance?.turnNumber} owner={photonView?.OwnerActorNr}");
 
         var aimPos = cachedAimPos ?? Vector3.zero;
         var aimDir = cachedAimDir ?? Vector3.zero;
@@ -85,12 +114,17 @@ public class UnitController : MonoBehaviourPun
         // This method is called by Unit.UseAbility() and should be overridden by specialized controllers
         if (AbilityResolver.Instance != null)
         {
-            AbilityResolver.Instance.RequestCast(this, ability, new Unit[] { target }, aimPos, aimDir, traceId);
+            var targetsArg = (ability != null && ability.areaType == TargetShape.Area)
+     ? System.Array.Empty<Unit>()                      // AoE: center comes from aimPos
+     : new Unit[] { target };                          // Single: keep the clicked target
+
+            AbilityResolver.Instance.RequestCast(this, ability, targetsArg, aimPos, aimDir, traceId);
             return;
         }
 
         ClearAimCache();
     }
+
 
     protected virtual void OnAbilityExecuted(UnitAbility ability, Unit target)
     {
