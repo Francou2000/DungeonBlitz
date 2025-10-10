@@ -25,11 +25,13 @@ public class TargeterController2D : MonoBehaviour
     public void Begin(UnitController c, UnitAbility a, System.Action<Vector3, Vector3> confirm)
     {
         caster = c; ability = a; onConfirm = confirm;
-        if (!cam) cam = Camera.main;
-        rangeRing.gameObject.SetActive(true);
-        circle.gameObject.SetActive(a.areaType != AreaType.Line);
-        line.gameObject.SetActive(a.areaType == AreaType.Line);
         enabled = true;
+
+        if (!cam) cam = Camera.main;
+
+        if (rangeRing) rangeRing.gameObject.SetActive(true);
+        if (circle) circle.gameObject.SetActive(true);
+        if (line) line.gameObject.SetActive(true);
     }
 
     void Update()
@@ -81,6 +83,5 @@ public class TargeterController2D : MonoBehaviour
         circle.gameObject.SetActive(false);
         line.gameObject.SetActive(false);
         enabled = false;
-        Destroy(gameObject);
     }
 }

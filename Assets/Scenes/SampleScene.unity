@@ -3226,6 +3226,78 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3966289510827984597, guid: c5ff05a911228f7449e606ca92c7a4aa, type: 3}
+      propertyPath: m_Loop
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3966289510827984597, guid: c5ff05a911228f7449e606ca92c7a4aa, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3966289510827984597, guid: c5ff05a911228f7449e606ca92c7a4aa, type: 3}
+      propertyPath: m_SortingOrder
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 3966289510827984597, guid: c5ff05a911228f7449e606ca92c7a4aa, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 9553eedd85dc633488731fe2de722edd, type: 2}
+    - target: {fileID: 3966289510827984597, guid: c5ff05a911228f7449e606ca92c7a4aa, type: 3}
+      propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[0].time
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3966289510827984597, guid: c5ff05a911228f7449e606ca92c7a4aa, type: 3}
+      propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[0].value
+      value: 0.41216874
+      objectReference: {fileID: 0}
+    - target: {fileID: 4425332711995178673, guid: c5ff05a911228f7449e606ca92c7a4aa, type: 3}
+      propertyPath: m_Loop
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4425332711995178673, guid: c5ff05a911228f7449e606ca92c7a4aa, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4425332711995178673, guid: c5ff05a911228f7449e606ca92c7a4aa, type: 3}
+      propertyPath: m_SortingOrder
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 4425332711995178673, guid: c5ff05a911228f7449e606ca92c7a4aa, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 9553eedd85dc633488731fe2de722edd, type: 2}
+    - target: {fileID: 4425332711995178673, guid: c5ff05a911228f7449e606ca92c7a4aa, type: 3}
+      propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[0].time
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4425332711995178673, guid: c5ff05a911228f7449e606ca92c7a4aa, type: 3}
+      propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[0].value
+      value: 0.4108711
+      objectReference: {fileID: 0}
+    - target: {fileID: 6535844530414072501, guid: c5ff05a911228f7449e606ca92c7a4aa, type: 3}
+      propertyPath: m_Loop
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6535844530414072501, guid: c5ff05a911228f7449e606ca92c7a4aa, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6535844530414072501, guid: c5ff05a911228f7449e606ca92c7a4aa, type: 3}
+      propertyPath: m_SortingOrder
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 6535844530414072501, guid: c5ff05a911228f7449e606ca92c7a4aa, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 9553eedd85dc633488731fe2de722edd, type: 2}
+    - target: {fileID: 6535844530414072501, guid: c5ff05a911228f7449e606ca92c7a4aa, type: 3}
+      propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[0].time
+      value: 0.011246703
+      objectReference: {fileID: 0}
+    - target: {fileID: 6535844530414072501, guid: c5ff05a911228f7449e606ca92c7a4aa, type: 3}
+      propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[0].value
+      value: 0.41769007
+      objectReference: {fileID: 0}
     - target: {fileID: 6689656082810253843, guid: c5ff05a911228f7449e606ca92c7a4aa, type: 3}
       propertyPath: cam
       value: 
@@ -3273,6 +3345,10 @@ PrefabInstance:
     - target: {fileID: 8972810173543079805, guid: c5ff05a911228f7449e606ca92c7a4aa, type: 3}
       propertyPath: m_Name
       value: Targeter2D
+      objectReference: {fileID: 0}
+    - target: {fileID: 8972810173543079805, guid: c5ff05a911228f7449e606ca92c7a4aa, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

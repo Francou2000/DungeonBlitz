@@ -44,22 +44,36 @@ public class CombatUI : MonoBehaviour
             button.onClick.AddListener(() =>
             {
                 controller.SetSelectedAbility(ability);
+
                 if (NeedsTargeting(ability))
                 {
-                    var traceId = CombatLog.NewTraceId(); // optional
-                    CombatLog.Targeting(traceId, $"Begin targeting for {ability.name} (range={ability.aoeRadius})", controller);
+                    // Guard: make sure targeter exists in scene
+                    if (!TargeterController2D.Instance)
+                    {
+                        Debug.LogWarning("[Targeter] TargeterController2D not found in scene. " +
+                                         "Place the Targeter2D prefab and assign cam/groundMask/rangeRing/circle/line.");
+                        return;
+                    }
+
+                    var traceId = CombatLog.NewTraceId();
+                    CombatLog.Targeting(traceId, $"Begin targeting for {ability.name} (range={ability.range}, aoe={ability.aoeRadius})", controller);
 
                     TargeterController2D.Instance.Begin(
-                        controller, ability,
+                        c: controller,
+                        a: ability,
                         confirm: (aimPos, aimDir) =>
                         {
+                            // Cache aim and execute; AoE uses empty target array internally
                             controller.CacheAim(aimPos, aimDir);
-                            CombatLog.Targeting(traceId, $"Confirm pos={aimPos} dir={aimDir}", controller);
-                        });
+                            controller.ExecuteAbility(ability, null, aimPos);
+                        }
+                    );
                 }
-
-                Debug.Log($"Selected ability: {ability.abilityName}");
-                abilityPanel.SetActive(false);  // hide once chosen
+                else
+                {
+                    // Single-target abilities or self buffs that don't need the targeter
+                    controller.ExecuteAbility(ability, null);
+                }
             });
         }
 

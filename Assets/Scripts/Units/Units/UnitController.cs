@@ -76,59 +76,29 @@ public class UnitController : MonoBehaviourPun
     // New ability execution system
     public virtual void ExecuteAbility(UnitAbility ability, Unit target, Vector3 targetPosition = default)
     {
-
-        // --- Area Targeting Preview ---
-        if (ability != null && (ability.areaType == AreaType.Circle || ability.areaType == AreaType.Line))
-        {
-            // If we don't have a picked center yet, open the targeter and re-enter on confirm
-            if (targetPosition == default(Vector3))
-            {
-                if (!TargeterController2D.Instance)
-                {
-                    Debug.LogWarning("[Targeter] TargeterController2D not found in scene. " +
-                                     "Place the Targeter2D object and wire cam/groundMask/rangeRing/circle/line.");
-                    return;
-                }
-
-                TargeterController2D.Instance.Begin(
-                    c: this,
-                    a: ability,
-                    confirm: (center, dir) =>
-                    {
-                        // Cache for resolver (Line needs dir; Circle ignores dir)
-                        cachedAimPos = center;
-                        cachedAimDir = dir;
-
-                        // Re-enter with the chosen center (no single target required for AoE/Line)
-                        ExecuteAbility(ability, null, center);
-                    }
-                );
-                return; // wait until player confirms/cancels
-            }
-        }
-
         var traceId = CombatLog.NewTraceId();
         CombatLog.Cast(traceId, $"Request by {CombatLog.Short(gameObject)} " +
             $"ability={ability?.name} turn={TurnManager.Instance?.turnNumber} owner={photonView?.OwnerActorNr}");
 
-        // Aim data to send
-        // Circle/Line: use confirmed center in 'targetPosition'; Single: fall back to cached aim (if you use it)
-        var aimPos = (ability != null && (ability.areaType == AreaType.Circle || ability.areaType == AreaType.Line))
+        // Aim data:
+        // - For AoE/Line: 'targetPosition' comes from CombatUI targeter, 'cachedAimDir' set by CacheAim().
+        // - For Single/self: we don't need aimPos/aimDir.
+        var isAoE = ability != null && (ability.areaType == AreaType.Circle || ability.areaType == AreaType.Line);
+
+        var aimPos = isAoE
             ? targetPosition
             : (cachedAimPos ?? Vector3.zero);
 
-        // For Line we also pass a direction; for Circle it will be ignored by resolver
         var aimDir = cachedAimDir ?? Vector3.zero;
 
         if (AbilityResolver.Instance != null)
         {
-            var targetsArg =
-                (ability != null && (ability.areaType == AreaType.Circle || ability.areaType == AreaType.Line))
-                ? System.Array.Empty<Unit>()
-                : new Unit[] { target };
+            var targetsArg = isAoE
+                ? System.Array.Empty<Unit>()    // AoE/Line: resolver uses aimPos/aimDir
+                : new Unit[] { target };        // Single: explicit target
 
             AbilityResolver.Instance.RequestCast(this, ability, targetsArg, aimPos, aimDir, traceId);
-            ClearAimCache(); // don’t reuse previous aim
+            ClearAimCache(); // prevent stale aim next time
             return;
         }
 
