@@ -78,47 +78,57 @@ public class UnitController : MonoBehaviourPun
     {
 
         // --- Area Targeting Preview ---
-        if (ability != null && ability.areaType == (areaType.Area))
+        if (ability != null && (ability.areaType == AreaType.Circle || ability.areaType == AreaType.Line))
         {
-            // If we don't have a cached aim yet, open the targeter and come back when confirmed
-            if (cachedAimPos == null) // if cachedAimPos is Vector3?  (nullable). If not nullable, use a boolean flag instead.
+            // If we don't have a picked center yet, open the targeter and re-enter on confirm
+            if (targetPosition == default(Vector3))
             {
                 if (!TargeterController2D.Instance)
                 {
-                    Debug.LogWarning("[Targeter] TargeterController2D not found in scene.");
+                    Debug.LogWarning("[Targeter] TargeterController2D not found in scene. " +
+                                     "Place the Targeter2D object and wire cam/groundMask/rangeRing/circle/line.");
                     return;
                 }
 
-                // Begin targeter; when player confirms, we call ExecuteAbility again with the chosen center
                 TargeterController2D.Instance.Begin(
                     c: this,
                     a: ability,
                     confirm: (center, dir) =>
                     {
+                        // Cache for resolver (Line needs dir; Circle ignores dir)
                         cachedAimPos = center;
                         cachedAimDir = dir;
-                        // Re-enter ExecuteAbility with the chosen center (target can be null for AoE)
+
+                        // Re-enter with the chosen center (no single target required for AoE/Line)
                         ExecuteAbility(ability, null, center);
                     }
                 );
-                return; // wait until the player confirms/cancels
+                return; // wait until player confirms/cancels
             }
         }
+
         var traceId = CombatLog.NewTraceId();
         CombatLog.Cast(traceId, $"Request by {CombatLog.Short(gameObject)} " +
-                $"ability={selectedAbility?.name} turn={TurnManager.Instance?.turnNumber} owner={photonView?.OwnerActorNr}");
+            $"ability={ability?.name} turn={TurnManager.Instance?.turnNumber} owner={photonView?.OwnerActorNr}");
 
-        var aimPos = cachedAimPos ?? Vector3.zero;
+        // Aim data to send
+        // Circle/Line: use confirmed center in 'targetPosition'; Single: fall back to cached aim (if you use it)
+        var aimPos = (ability != null && (ability.areaType == AreaType.Circle || ability.areaType == AreaType.Line))
+            ? targetPosition
+            : (cachedAimPos ?? Vector3.zero);
+
+        // For Line we also pass a direction; for Circle it will be ignored by resolver
         var aimDir = cachedAimDir ?? Vector3.zero;
 
-        // This method is called by Unit.UseAbility() and should be overridden by specialized controllers
         if (AbilityResolver.Instance != null)
         {
-            var targetsArg = (ability != null && ability.areaType == TargetShape.Area)
-     ? System.Array.Empty<Unit>()                      // AoE: center comes from aimPos
-     : new Unit[] { target };                          // Single: keep the clicked target
+            var targetsArg =
+                (ability != null && (ability.areaType == AreaType.Circle || ability.areaType == AreaType.Line))
+                ? System.Array.Empty<Unit>()
+                : new Unit[] { target };
 
             AbilityResolver.Instance.RequestCast(this, ability, targetsArg, aimPos, aimDir, traceId);
+            ClearAimCache(); // don’t reuse previous aim
             return;
         }
 
