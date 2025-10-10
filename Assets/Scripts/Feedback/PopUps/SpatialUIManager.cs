@@ -50,6 +50,7 @@ namespace SpatialUI
 
             var ft = pool.Get();
             ft.transform.position = basePos;
+            ft.baseScale = config ? Mathf.Max(0.0001f, config.worldScale) : 0.02f;       
 
             var fontSize = config.baseFontSize;
             if (crit && config.enableCritStyle) fontSize = Mathf.RoundToInt(config.baseFontSize * config.critScale);

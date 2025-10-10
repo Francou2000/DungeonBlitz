@@ -44,5 +44,8 @@ namespace SpatialUI
 
         [Header("Offsets")]
         public float verticalOffset = 1.6f;
+
+        [Header("World Scale (URP 2D)")]
+        [Min(0.0001f)] public float worldScale = 0.02f;
     }
 }

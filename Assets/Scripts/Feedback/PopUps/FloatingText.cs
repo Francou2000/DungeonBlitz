@@ -17,6 +17,8 @@ namespace SpatialUI
         public AnimationCurve verticalCurve;
         public AnimationCurve scaleCurve;
 
+        [HideInInspector] public float baseScale = 1f;
+
         Camera _cam;
         Transform _follow;
 
@@ -79,7 +81,7 @@ namespace SpatialUI
             float a = alphaCurve.Evaluate(t);
             var c = label.color; c.a = a; label.color = c;
 
-            float s = scaleCurve.Evaluate(t);
+            float s = scaleCurve.Evaluate(t) * baseScale;
             transform.localScale = new Vector3(s, s, s);
 
             if (t >= 1f) SpatialUIManager.Instance.Release(this);

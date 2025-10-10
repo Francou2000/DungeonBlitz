@@ -73,6 +73,7 @@ MonoBehaviour:
   - RPC_RequestCast
   - RPC_ResolveAbility_Area
   - RPC_ApplyDamageToClient
+  - RPC_ShowMissPopup
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

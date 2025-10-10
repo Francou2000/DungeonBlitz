@@ -418,12 +418,14 @@ public sealed class AbilityResolver : MonoBehaviourPun
             {
                 // Keep 'hit' as-is; just nullify damage
                 if (hits != null && i < hits.Length && hits[i] && damages != null && i < damages.Length)
+                    CombatFeedbackUI.ShowMiss(target.GetComponent<Unit>());
                     damages[i] = 0;
             }
 
             Debug.Log($"[RPC_ResolveArea] pre-damage target={target?.name} hit={(hits != null && i < hits.Length && hits[i])} " +
           $"dmg={(damages != null && i < damages.Length ? damages[i] : -1)} " +
           $"dtype={(damageTypes != null && i < damageTypes.Length ? ((DamageType)damageTypes[i]).ToString() : "n/a")}");
+
             // Damage application (MASTER applies, then mirror to others)
             if (hits != null && i < hits.Length && hits[i] &&
                 damages != null && i < damages.Length && damages[i] > 0 &&
@@ -435,13 +437,24 @@ public sealed class AbilityResolver : MonoBehaviourPun
 
                 if (PhotonNetwork.IsMasterClient)
                 {
+                    // Apply on master
                     var dealt = target.Model.ApplyDamageWithBarrier(dmg, (DamageType)dtype);
                     Debug.Log($"[Resolve] MASTER applied {dealt} HP dmg to {target.name} (type={(DamageType)dtype})");
 
+                    // Local popup on master
+                    var u = target.GetComponent<Unit>();
+                    if (u)
+                    {
+                        if (dealt > 0) CombatFeedbackUI.ShowHit(u, dealt, (DamageType)dtype, false);
+                        else CombatFeedbackUI.ShowMiss(u);
+                    }
+
+                    // Mirror to other clients (they'll apply and show popups in RPC_ApplyDamageToClient)
                     _view.RPC(nameof(RPC_ApplyDamageToClient), RpcTarget.Others, targetId, dmg, dtype);
                 }
                 else
                 {
+                    // Non-master does not apply damage locally; it waits for RPC_ApplyDamageToClient
                     Debug.Log($"[Resolve] Non-master computed damage locally (ignored). Waiting for MASTER RPC. target={target.name} dmg={dmg}");
                 }
             }
@@ -493,11 +506,29 @@ public sealed class AbilityResolver : MonoBehaviourPun
     {
         var pv = PhotonView.Find(targetViewId);
         if (pv == null) return;
+
         var target = pv.GetComponent<Unit>();
         if (target == null || target.Model == null) return;
 
         var dealt = target.Model.ApplyDamageWithBarrier(damage, (DamageType)damageType);
         Debug.Log($"[AbilityRPC] Applied {dealt} HP damage to {target.name} (type={(DamageType)damageType})");
+
+        // --- Popup on every client ---
+        var u = target.GetComponent<Unit>();
+        if (u)
+        {
+            if (dealt > 0) CombatFeedbackUI.ShowHit(u, dealt, (DamageType)damageType, false);
+            else CombatFeedbackUI.ShowMiss(u);
+        }
+    }
+
+    [PunRPC]
+    void RPC_ShowMissPopup(int targetViewId)
+    {
+        var pv = PhotonView.Find(targetViewId);
+        if (pv == null) return;
+        var u = pv.GetComponent<Unit>();
+        if (u) CombatFeedbackUI.ShowMiss(u);
     }
 
     // ---- helpers ----

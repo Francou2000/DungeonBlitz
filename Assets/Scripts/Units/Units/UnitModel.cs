@@ -330,7 +330,8 @@ public class UnitModel : MonoBehaviour
     {   
         if (statusHandler != null)
             amount = statusHandler.ModifyIncomingHealing(amount);
-        
+        CombatFeedbackUI.ShowHeal(this.GetComponent<Unit>(), amount);
+
         int oldHP = currentHP;
         currentHP = Mathf.Min(MaxHP, currentHP + amount);
         int actualHealing = currentHP - oldHP;
