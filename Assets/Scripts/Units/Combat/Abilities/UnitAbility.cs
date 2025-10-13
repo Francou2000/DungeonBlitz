@@ -46,6 +46,7 @@ public class UnitAbility : ScriptableObject
     public string abilityName;
     public string description;
     public AbilityType abilityType = AbilityType.BasicAttack;
+    public Sprite icon;
 
     [Header("Costs & Requirements")]
     [Range(0, 100)]

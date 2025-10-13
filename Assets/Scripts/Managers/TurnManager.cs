@@ -23,6 +23,8 @@ public class TurnManager : MonoBehaviourPunCallbacks
     private float turnTimer = 0f;
     private float syncCooldown = 0f;
 
+    public float RemainingTime => GetTimePool(currentTurn);
+
     void Awake()
     {
         if (Instance != null)
@@ -103,6 +105,15 @@ public class TurnManager : MonoBehaviourPunCallbacks
     public float GetTimePool(UnitFaction faction)
     {
         return timePool.TryGetValue(faction, out float time) ? time : 0f;
+    }
+
+    // Single entry point for the UI: routes to the proper request based on role/turn
+    public void RequestEndTurn()
+    {
+        if (currentTurn == UnitFaction.Hero)
+            RequestHeroEndTurn();
+        else if (currentTurn == UnitFaction.Monster)
+            RequestMonsterEndTurn();
     }
 
     public void RequestHeroEndTurn()

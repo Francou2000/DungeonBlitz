@@ -86,10 +86,7 @@ public class ActionUI : MonoBehaviour
     {
         if (!TurnManager.Instance.CanEndTurnNow()) return;
 
-        if (PhotonNetwork.IsMasterClient && TurnManager.Instance.currentTurn == UnitFaction.Monster)
-            TurnManager.Instance.RequestMonsterEndTurn();
-        else
-            TurnManager.Instance.RequestHeroEndTurn();
+        TurnManager.Instance.RequestEndTurn();
     }
 
     public UnitAction GetCurrentAction()

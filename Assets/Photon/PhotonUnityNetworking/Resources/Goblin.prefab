@@ -19,6 +19,7 @@ GameObject:
   - component: {fileID: 4032747607444462544}
   - component: {fileID: -5019983292529743064}
   - component: {fileID: 6129209542103819260}
+  - component: {fileID: 2686605404695109215}
   m_Layer: 0
   m_Name: Goblin
   m_TagString: Untagged
@@ -282,6 +283,19 @@ MonoBehaviour:
   unit: {fileID: 778253703200391807}
   model: {fileID: 6965386814850586551}
   isControllable: 1
+--- !u!114 &2686605404695109215
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 671761192709153641}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51bdb70f2c287a648b00e493015245ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  healthBarPrefab: {fileID: 4416331995502414878, guid: 026cce3f9a3f92c47af7b1e8b47e3a22, type: 3}
 --- !u!1 &9073731304434709722
 GameObject:
   m_ObjectHideFlags: 0
