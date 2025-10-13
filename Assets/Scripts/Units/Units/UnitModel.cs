@@ -53,6 +53,8 @@ public class UnitModel : MonoBehaviour
 
     private Dictionary<string, int> _resources;
 
+    public event System.Action<int, int> OnHealthChanged;
+
     // Initialization
     public void Initialize()
     {
@@ -318,6 +320,8 @@ public class UnitModel : MonoBehaviour
     private void ApplyDamage(int amount)
     {
         currentHP = Mathf.Max(0, currentHP - amount);
+        OnHealthChanged?.Invoke(currentHP, MaxHP);
+
         Debug.Log($"{UnitName} took {amount} damage! HP: {currentHP}/{MaxHP}");
 
         if (currentHP <= 0)
@@ -338,6 +342,8 @@ public class UnitModel : MonoBehaviour
 
         if (actualHealing > 0)
             Debug.Log($"{UnitName} heals {actualHealing} HP. HP: {currentHP}/{MaxHP}");
+
+        OnHealthChanged?.Invoke(currentHP, MaxHP);
     }
 
     public int ApplyDamageWithBarrier(int incoming, DamageType type)

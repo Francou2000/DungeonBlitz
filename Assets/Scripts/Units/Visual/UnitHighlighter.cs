@@ -5,10 +5,6 @@ public class UnitHighlighter : MonoBehaviour
 {
     private Unit hoveredUnit;
 
-    public GameObject tooltipPrefab;
-    private UnitTooltip currentTooltip;
-
-
     void Update()
     {
         Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -20,8 +16,6 @@ public class UnitHighlighter : MonoBehaviour
         if (hoveredUnit != null && hoveredUnit != hitUnit)
         {
             hoveredUnit.View.SetHighlighted(false);
-            Destroy(currentTooltip?.gameObject);
-            currentTooltip = null;
             hoveredUnit = null;
         }
 
@@ -29,10 +23,6 @@ public class UnitHighlighter : MonoBehaviour
         {
             hoveredUnit = hitUnit;
             hoveredUnit.View.SetHighlighted(true);
-
-            GameObject tooltipObj = Instantiate(tooltipPrefab, FindFirstObjectByType<Canvas>().transform);
-            currentTooltip = tooltipObj.GetComponent<UnitTooltip>();
-            currentTooltip.AttachToUnit(hoveredUnit);
         }
     }
 }

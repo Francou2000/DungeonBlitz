@@ -11,6 +11,9 @@ namespace SpatialUI
         public FloatingTextPool pool;
         public FloatingText textPrefab;
 
+        [SerializeField] private Canvas spatialUICanvas;
+        public static Canvas SpatialUICanvas => Instance ? Instance.spatialUICanvas : null;
+
         void Awake()
         {
             if (Instance && Instance != this) { Destroy(gameObject); return; }
