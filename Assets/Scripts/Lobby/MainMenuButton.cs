@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class MainMenuButton : MonoBehaviourPunCallbacks
 {
-    public string mainMenu_sceneName;
+    public Scenes mainMenu_sceneName;
 
     Button my_button;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -20,7 +20,9 @@ public class MainMenuButton : MonoBehaviourPunCallbacks
     {
         LobbyManager.Instance.photonView.RPC("PlayerLeaveRoom", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber);
         PhotonNetwork.LeaveRoom();
-        SceneManager.LoadScene(mainMenu_sceneName);
+        // SceneManager.LoadScene(mainMenu_sceneName);
+
+        SceneLoaderController.Instance.LoadNextLevel(mainMenu_sceneName);
     }
 
     public virtual void OnPlayerLeftRoom(Player otherPlayer)

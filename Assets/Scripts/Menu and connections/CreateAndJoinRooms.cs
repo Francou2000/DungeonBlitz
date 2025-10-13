@@ -12,7 +12,7 @@ public class CreateAndJoinRooms : MonoBehaviourPunCallbacks
     [SerializeField] private TMP_InputField nicknameInput;
     [SerializeField] private Button createButton, JoinButton;
     
-    [SerializeField] string rommScene;
+    [SerializeField] Scenes rommScene;
     private bool roomID;
     private void Start()
     {
@@ -100,7 +100,8 @@ public class CreateAndJoinRooms : MonoBehaviourPunCallbacks
         else
         {
             Debug.Log("Contaseña correcta, entraste a la sala: " + PhotonNetwork.CurrentRoom.Name);
-            PhotonNetwork.LoadLevel(rommScene);
+            // PhotonNetwork.LoadLevel(rommScene);
+            SceneLoaderController.Instance.LoadNextLevel(rommScene);
         }
     }
     

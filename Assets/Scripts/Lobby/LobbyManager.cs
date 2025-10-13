@@ -8,7 +8,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 {
     public static LobbyManager Instance;
 
-    [SerializeField] string selection_scene;
+    [SerializeField] Scenes selection_scene;
     //[SerializeField] string heroe_scene;
     [SerializeField] Button ready_button;
 
@@ -96,12 +96,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         }
         
     }
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     
     public bool[] player_ready = new bool[5];
     
@@ -156,6 +150,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     [PunRPC]
     public void LoadGame()
     {
-        SceneManager.LoadScene(selection_scene);
+        // SceneManager.LoadScene(selection_scene);
+        SceneLoaderController.Instance.LoadNextLevel(selection_scene);
     }
 }
