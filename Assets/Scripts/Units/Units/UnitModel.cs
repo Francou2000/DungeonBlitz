@@ -66,6 +66,10 @@ public class UnitModel : MonoBehaviour
         currentReactions = MaxReactions;
         adrenaline = unitData.baseAdrenaline;
 
+        OnHealthChanged?.Invoke(currentHP, MaxHP);
+        OnAdrenalineChanged?.Invoke(adrenaline, MaxAdrenaline);
+        OnActionPointsChanged?.Invoke(currentActions, MaxActions);
+
         // Copy ability lists from SO to runtime
         Abilities = new List<UnitAbility>(unitData.abilities);
 
@@ -113,7 +117,8 @@ public class UnitModel : MonoBehaviour
     {
         int oldAdrenaline = adrenaline;
         adrenaline = Mathf.Clamp(adrenaline + amount, 0, MaxAdrenaline);
-        
+        OnAdrenalineChanged?.Invoke(adrenaline, MaxAdrenaline);
+
         if (amount > 0 && !string.IsNullOrEmpty(reason))
         {
             Debug.Log($"{UnitName} gains {amount} adrenaline ({reason}). Total: {adrenaline}/{MaxAdrenaline}");
@@ -125,6 +130,7 @@ public class UnitModel : MonoBehaviour
     public void SpendAdrenaline(int amount)
     {
         adrenaline = Mathf.Max(0, adrenaline - amount);
+        OnAdrenalineChanged?.Invoke(adrenaline, MaxAdrenaline);
         CheckAdrenalineState();
     }
 
@@ -165,8 +171,16 @@ public class UnitModel : MonoBehaviour
 
     // Action/Reactions
     public bool CanAct() => currentActions > 0;
-    public void SpendAction(int amount = 1) => currentActions = Mathf.Max(0, currentActions - amount);
-    public void SetCurrentActions(int v) { currentActions = Mathf.Max(0, v); }
+    public void SpendAction(int amount = 1)
+    {
+        currentActions = Mathf.Max(0, currentActions - amount);
+        OnActionPointsChanged?.Invoke(currentActions, MaxActions);
+    }
+    public void SetCurrentActions(int v)
+    {
+        currentActions = Mathf.Max(0, v);
+        OnActionPointsChanged?.Invoke(currentActions, MaxActions);
+    }
     public bool CanReact() => currentReactions > 0;
     public void SpendReaction(int amount = 1) => currentReactions = Mathf.Max(0, currentReactions - amount);
 

@@ -25,6 +25,11 @@ public class TurnManager : MonoBehaviourPunCallbacks
 
     public float RemainingTime => GetTimePool(currentTurn);
 
+    public static System.Action<int, UnitFaction, float> OnTurnUI;
+
+    public static System.Action<UnitController> OnActiveControllerChanged;
+
+
     void Awake()
     {
         if (Instance != null)
@@ -305,9 +310,17 @@ public class TurnManager : MonoBehaviourPunCallbacks
 
     // === UI ===
 
+    void UpdateTurnUI()
+    {
+        float remaining = timePool.ContainsKey(currentTurn) ? timePool[currentTurn] : 0f;
+        OnTurnUI?.Invoke(turnNumber, currentTurn, remaining);
+    }
+
+    /* Old UI System
     private void UpdateTurnUI()
     {
         float remaining = timePool.ContainsKey(currentTurn) ? timePool[currentTurn] : 0f;
         TurnUIController.Instance.UpdateTurnUI(turnNumber, currentTurn, remaining);
     }
+    */
 }

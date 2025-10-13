@@ -22,7 +22,19 @@ public class UnitController : MonoBehaviourPun
 
     public UnitMovement Movement => movement;
 
-    public static UnitController ActiveUnit { get;  set; }
+    private static UnitController _activeUnit;
+    public static UnitController ActiveUnit
+    {
+        get => _activeUnit;
+        set
+        {
+            if (_activeUnit == value) return;
+            _activeUnit = value;
+
+            // Notify the HUD path 
+            TurnManager.OnActiveControllerChanged?.Invoke(_activeUnit);
+        }
+    }
 
     void Awake()
     {
@@ -34,11 +46,6 @@ public class UnitController : MonoBehaviourPun
             if (movement == null)
                 Debug.LogError("[UnitController] No UnitMovement found on this controllable unit!");
         }
-    }
-
-    protected virtual void Start()
-    {
-
     }
 
     public virtual void Initialize(Unit unit)
@@ -104,7 +111,6 @@ public class UnitController : MonoBehaviourPun
 
         ClearAimCache();
     }
-
 
     protected virtual void OnAbilityExecuted(UnitAbility ability, Unit target)
     {
@@ -221,11 +227,13 @@ public class UnitController : MonoBehaviourPun
         selectedAbility = null;
         SetAction(UnitAction.None);
 
+        /*Old UI system
         if (ActionUI.Instance != null)
             ActionUI.Instance.ClearAction();
 
         if (CombatUI.Instance != null)
             CombatUI.Instance.HideAbilities();
+        */
     }
 
     public void SetSelectedAbility(UnitAbility ability)

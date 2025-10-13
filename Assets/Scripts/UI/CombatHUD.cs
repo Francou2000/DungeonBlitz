@@ -47,11 +47,11 @@ public class CombatHUD : MonoBehaviour
         RefreshBars();
     }
 
-    void Update()
+    void OnEnable() { TurnManager.OnTurnUI += OnTurnUi; }
+    void OnDisable() { TurnManager.OnTurnUI -= OnTurnUi; }
+    void OnTurnUi(int turn, UnitFaction side, float remaining)
     {
-        // simple timer binding (replace with event if TurnManager exposes one)
-        if (timerText && TurnManager.Instance != null)
-            timerText.text = Mathf.CeilToInt(TurnManager.Instance.RemainingTime).ToString();
+        if (timerText) timerText.text = Mathf.CeilToInt(remaining).ToString();
     }
 
     // ----- Bars -----
@@ -64,11 +64,19 @@ public class CombatHUD : MonoBehaviour
         apPips?.SetMax(m.MaxActions);
         apPips?.SetCurrent(m.CurrentActions);
 
-        // wire model events (add these events in UnitModel if missing)
-        m.OnHealthChanged += (c, x) => hpBar?.Set(c, x);
-        m.OnAdrenalineChanged += (c, x) => adrBar?.Set(c, x);
-        m.OnActionPointsChanged += (c, x) => { apPips?.SetMax(x); apPips?.SetCurrent(c); };
+        // clear stale subscriptions first (in case Bind() called multiple times)
+        m.OnHealthChanged -= OnHP;
+        m.OnAdrenalineChanged -= OnADR;
+        m.OnActionPointsChanged -= OnAP;
+
+        m.OnHealthChanged += OnHP;
+        m.OnAdrenalineChanged += OnADR;
+        m.OnActionPointsChanged += OnAP;
     }
+
+    void OnHP(int cur, int max) { hpBar?.Set(cur, max); }
+    void OnADR(int cur, int max) { adrBar?.Set(cur, max); }
+    void OnAP(int cur, int max) { apPips?.SetMax(max); apPips?.SetCurrent(cur); }
 
     void RefreshBars()
     {
@@ -99,8 +107,8 @@ public class CombatHUD : MonoBehaviour
             Sprite icon = ab.icon;                  
             view.Bind(ab, icon, apCost);
             view.OnClick = OnActionClicked;
-            view.OnHover = ShowTooltip;
-            view.OnUnhover = HideTooltip;
+            view.OnHover = OnActionHover;
+            view.OnUnhover = OnActionUnhover;
             _active.Add(view);
         }
 
@@ -182,14 +190,14 @@ public class CombatHUD : MonoBehaviour
         return a.areaType == AreaType.Circle || a.areaType == AreaType.Line ;
     }
 
-    void ShowTooltip(ActionButtonView v, UnityEngine.EventSystems.PointerEventData _)
+    void OnActionHover(ActionButtonView v, UnityEngine.EventSystems.PointerEventData e)
     {
-        // TODO
+        AbilityTooltip.Show(v.Ability, e.position); // e.position is already screen-space
     }
 
-    void HideTooltip()
+    void OnActionUnhover()
     {
-        //TODO
+        AbilityTooltip.Hide();
     }
 
     // ----- Footer actions -----
