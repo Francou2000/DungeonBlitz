@@ -54,6 +54,8 @@ public class UnitModel : MonoBehaviour
     private Dictionary<string, int> _resources;
 
     public event System.Action<int, int> OnHealthChanged;
+    public event System.Action<int, int> OnAdrenalineChanged;
+    public event System.Action<int, int> OnActionPointsChanged;
 
     // Initialization
     public void Initialize()
