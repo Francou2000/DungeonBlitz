@@ -17,5 +17,6 @@ public class SelectMapButton : MonoBehaviour
     public void ChangeHeroe()
     {
         SlectedMapController.instance.UpdateMapData(my_map);
+        AudioManager.Instance.PlayButtonSound();
     }
 }

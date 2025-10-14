@@ -14264,6 +14264,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Scene Loader Controller
       objectReference: {fileID: 0}
+    - target: {fileID: 3631581902081145981, guid: 8f6026b4bb6e5f64fa5cf28bf574f612, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -20105,6 +20109,7 @@ MonoBehaviour:
   - {fileID: 1118325861}
   - {fileID: 1324473757}
   - {fileID: 551059867}
+  is_game: 0
 --- !u!1 &1742148070
 GameObject:
   m_ObjectHideFlags: 0
@@ -21370,7 +21375,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1837146002
 Transform:
   m_ObjectHideFlags: 0

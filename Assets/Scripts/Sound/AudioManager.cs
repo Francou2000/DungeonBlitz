@@ -16,9 +16,10 @@ public class AudioManager : MonoBehaviour
 
     //Rename to whatever (this manager was used on other projects)
     [Header("Audio Clips")]
-    [SerializeField] private AudioClip backgroundMusicClip;
-    [SerializeField] private AudioClip catchItemSFX;
-    [SerializeField] private AudioClip dangerousItemSFX;
+    [SerializeField] private AudioClip backgroundMusicMenu;
+    [SerializeField] private AudioClip backgroundMusicCombat;
+    [SerializeField] private AudioClip buttonClickSFX;
+    [SerializeField] private AudioClip startGameSFX;
 
     private void Awake()
     {
@@ -39,26 +40,40 @@ public class AudioManager : MonoBehaviour
 
     public void PlayMusic()
     {
-        if (musicSource && backgroundMusicClip)
+        if (musicSource && backgroundMusicMenu)
         {
-            musicSource.clip = backgroundMusicClip;
+            musicSource.clip = backgroundMusicMenu;
+            musicSource.loop = true;
+            musicSource.Play();
+        }
+    }
+
+    public void PlayCombatMusic()
+    {
+        musicSource.Stop();
+        if (musicSource && backgroundMusicCombat)
+        {
+            musicSource.clip = backgroundMusicCombat;
             musicSource.loop = true;
             musicSource.Play();
         }
     }
 
     //Rename to whatever (this manager was used on other projects)
-    public void PlayCatchItemSound()
+    public void PlayStartGame()
     {
-        if (sfxSource && catchItemSFX)
-            sfxSource.PlayOneShot(catchItemSFX);
+        if (sfxSource && startGameSFX)
+            sfxSource.PlayOneShot(startGameSFX);
+            PlayCombatMusic();
+            Debug.Log("Playing combat music");
+        
     }
 
     //Rename to whatever (this manager was used on other projects)
-    public void PlayDangerousItemSound()
+    public void PlayButtonSound()
     {
-        if (sfxSource && dangerousItemSFX)
-            sfxSource.PlayOneShot(dangerousItemSFX);
+        if (sfxSource && buttonClickSFX)
+            sfxSource.PlayOneShot(buttonClickSFX);
     }
 
     // Volume Controls
