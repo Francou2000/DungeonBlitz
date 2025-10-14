@@ -32,5 +32,6 @@ public class HeroeSelectionController : MonoBehaviourPunCallbacks
         }
         actual_heroe.actual_unit = heroe_id;
         UnitLoaderController.Instance.photonView.RPC("AddHeroe", RpcTarget.All, heroe_id, PhotonNetwork.LocalPlayer.ActorNumber);
+        AudioManager.Instance.PlayButtonSound();
     }
 }

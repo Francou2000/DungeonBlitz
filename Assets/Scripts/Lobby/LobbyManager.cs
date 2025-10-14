@@ -151,6 +151,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public void LoadGame()
     {
         // SceneManager.LoadScene(selection_scene);
+        AudioManager.Instance.PlayStartGame();
         SceneLoaderController.Instance.LoadNextLevel(selection_scene);
     }
 }

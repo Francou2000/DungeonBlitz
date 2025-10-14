@@ -29,6 +29,7 @@ public class ReadyButton : MonoBehaviourPunCallbacks
         else
         {
             // SwapReadiness();
+            AudioManager.Instance.PlayButtonSound();
             LobbyManager.Instance.photonView.RPC("ReadyPlayer", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber);
         }
 

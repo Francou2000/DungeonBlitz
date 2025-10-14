@@ -16,6 +16,7 @@ public class ReadyHeroeSelection : MonoBehaviourPunCallbacks
     public void SelectionReady()
     {
         UnitLoaderController.Instance.photonView.RPC("AddHeroe", RpcTarget.All, actual_unit, PhotonNetwork.LocalPlayer.ActorNumber);
+        AudioManager.Instance.PlayButtonSound();
         //UI Feedback
     }
 }

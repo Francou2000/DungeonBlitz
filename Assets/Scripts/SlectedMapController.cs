@@ -54,6 +54,9 @@ public class SlectedMapController : MonoBehaviour
 
 
         map_activation.ActivateMap(actual_map);
+
+        //sound
+        AudioManager.Instance.PlayButtonSound();
     }
     public void HideMap()
     {
