@@ -254,9 +254,9 @@ public class UnitController : MonoBehaviourPun
 
         movement.MoveTo(target, () =>
         {
-            // Exit move mode + hide any move preview
             UnitController.SetAction(UnitAction.None);
-            MoveRangePreview.HideStatic();
+            if (TargeterController2D.Instance)
+                TargeterController2D.Instance.HideMoveRange();
 
             isMoving = false;
         });

@@ -170,25 +170,26 @@ public class CombatHUD : MonoBehaviour
     {
         if (view.IsMove)
         {
-            _selectedAbility = null;
-            UpdateSelectedHighlight();
             UnitController.SetAction(UnitAction.Move);
 
-            // Choose a radius from your movement system
-            float radius =
-                controller && controller.Movement ? controller.model.GetMovementSpeed() : 3f;
+            float radius = (controller && controller.Movement)
+                ? controller.Movement.GetMaxWorldRadius()
+                : 3f;
 
-            MoveRangePreview.Show(controller.transform, radius);
+            if (TargeterController2D.Instance)
+                TargeterController2D.Instance.ShowMoveRange(controller, radius);
+
             return;
         }
 
         _selectedAbility = view.Ability;
         UpdateSelectedHighlight();
 
-        controller.SetSelectedAbility(_selectedAbility);
-
         UnitController.SetAction(UnitAction.None);
-        MoveRangePreview.HideStatic();
+        if (TargeterController2D.Instance)
+            TargeterController2D.Instance.HideMoveRange();
+
+        controller.SetSelectedAbility(_selectedAbility);
 
         if (NeedsTargeting(_selectedAbility))
         {
@@ -238,9 +239,10 @@ public class CombatHUD : MonoBehaviour
 
     // ----- Footer actions -----
     void EndTurn()
-    {
+    {   
+        if (TargeterController2D.Instance)
+            TargeterController2D.Instance.HideMoveRange();
         TurnManager.Instance?.RequestEndTurn();
-        MoveRangePreview.HideStatic();
     }
 
     void TogglePause()
