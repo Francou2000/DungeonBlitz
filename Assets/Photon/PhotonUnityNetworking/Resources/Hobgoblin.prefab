@@ -199,6 +199,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f26d701a20e0fa7439ca6ebd576bc7a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  fallbackMaxMoveWorld: 3
 --- !u!114 &1758931014776470608
 MonoBehaviour:
   m_ObjectHideFlags: 0
