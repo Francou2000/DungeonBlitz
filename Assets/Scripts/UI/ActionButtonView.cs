@@ -16,11 +16,28 @@ public class ActionButtonView : MonoBehaviour, IPointerEnterHandler, IPointerExi
     public System.Action<ActionButtonView, PointerEventData> OnHover;
     public System.Action OnUnhover;
 
+    public bool IsMove { get; private set; }
+
     public void Bind(UnitAbility ability, Sprite iconSprite, int apCost)
     {
+        IsMove = false;
         Ability = ability;
         if (icon) icon.sprite = iconSprite;
         if (costText) costText.text = apCost > 0 ? apCost.ToString() : "";
+        SetSelected(false);
+        if (button)
+        {
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(() => OnClick?.Invoke(this));
+        }
+    }
+
+    public void BindMove(Sprite iconSprite, int apCost = 0)
+    {
+        IsMove = true;
+        Ability = null;
+        if (icon) icon.sprite = iconSprite;
+        if (costText) costText.text = apCost > 0 ? apCost.ToString() : ""; // show cost if you want
         SetSelected(false);
         if (button)
         {

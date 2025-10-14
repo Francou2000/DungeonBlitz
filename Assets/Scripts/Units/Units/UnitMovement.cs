@@ -4,37 +4,10 @@ using UnityEngine;
 public class UnitMovement : MonoBehaviour
 {
     private Unit unit;
-    private GameObject rangeIndicator;
-
-    [SerializeField] private GameObject rangeIndicatorPrefab;
 
     private void Awake()
     {
         unit = GetComponent<Unit>();
-    }
-
-    //Shows a visual indicator of the movement range
-    public void ShowRange()
-    {
-        if (rangeIndicator == null)
-        {
-            rangeIndicator = Instantiate(
-                rangeIndicatorPrefab,
-                unit.transform.position,
-                Quaternion.identity
-            );
-        }
-
-        float radius = unit.Model.Performance * unit.Model.MoveDistanceFactor;
-        rangeIndicator.transform.position = unit.transform.position;
-        rangeIndicator.transform.localScale = Vector3.one * radius * 2f;
-        rangeIndicator.SetActive(true);
-    }
-
-    public void HideRange()
-    {
-        if (rangeIndicator != null)
-            rangeIndicator.SetActive(false);
     }
 
     //Moves to the given world position, clamped to range. Calls onFinish when done

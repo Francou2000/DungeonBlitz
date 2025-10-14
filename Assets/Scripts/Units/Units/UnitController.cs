@@ -53,7 +53,7 @@ public class UnitController : MonoBehaviourPun
         this.unit = unit;
         this.model = unit.Model;
     }
-
+    
     void Update()
     {
         if (!isControllable || ActiveUnit != this )
@@ -79,7 +79,7 @@ public class UnitController : MonoBehaviourPun
             }
         }
     }
-
+    
     // New ability execution system
     public virtual void ExecuteAbility(UnitAbility ability, Unit target, Vector3 targetPosition = default)
     {
@@ -188,7 +188,7 @@ public class UnitController : MonoBehaviourPun
         // Override in specialized controllers
     }
 
-    // Legacy attack system (keeping for compatibility)
+
     public void TryMove()
     {
         if (!unit.Model.CanAct() || !photonView.IsMine) return;
@@ -199,6 +199,7 @@ public class UnitController : MonoBehaviourPun
         photonView.RPC("RPC_TryMove", RpcTarget.All, mouseWorld.x, mouseWorld.y);
     }
 
+    // Legacy attack system (keeping for compatibility)
     public void TryAttack()
     {
         if (!unit.Model.CanAct() || selectedAbility == null || !photonView.IsMine)
@@ -227,13 +228,13 @@ public class UnitController : MonoBehaviourPun
         selectedAbility = null;
         SetAction(UnitAction.None);
 
-        /*Old UI system
+        //Old UI system
         if (ActionUI.Instance != null)
             ActionUI.Instance.ClearAction();
 
         if (CombatUI.Instance != null)
             CombatUI.Instance.HideAbilities();
-        */
+        
     }
 
     public void SetSelectedAbility(UnitAbility ability)
@@ -253,7 +254,10 @@ public class UnitController : MonoBehaviourPun
 
         movement.MoveTo(target, () =>
         {
-            ActionUI.Instance.ClearAction();
+            // Exit move mode + hide any move preview
+            UnitController.SetAction(UnitAction.None);
+            MoveRangePreview.HideStatic();
+
             isMoving = false;
         });
     }

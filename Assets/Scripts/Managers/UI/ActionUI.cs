@@ -44,42 +44,17 @@ public class ActionUI : MonoBehaviour
         UnitController.SetAction(action);
         Debug.Log("[UI] Selected action: " + action);
         UpdateButtonVisuals();
-
-        // show/hide range indicator on the active unit:
-        var uc = UnitController.ActiveUnit;
-        if (uc != null && uc.Movement != null)
-        {
-            if (action == UnitAction.Move)
-                uc.Movement.ShowRange();
-            else
-                uc.Movement.HideRange();
-        }
-        else
-        {
-            Debug.LogWarning("[ActionUI] Cannot show/hide range: ActiveUnit or Movement is null.");
-        }
-
-        // show ability panel only on Attack:
-        if (action == UnitAction.Attack)
-        {
-            CombatUI.Instance.ShowAbilities(UnitController.ActiveUnit);
-        }
-        else
-        {
-            CombatUI.Instance.HideAbilities();
-        }
     }
 
     public void ClearAction()
     {
         currentAction = UnitAction.None;
         UnitController.SetAction(UnitAction.None);
-        UpdateButtonVisuals();
+        //UpdateButtonVisuals();
 
-        CombatUI.Instance.HideAbilities();
+        //CombatUI.Instance.HideAbilities();
 
         var uc = UnitController.ActiveUnit;
-        if (uc != null) uc.Movement.HideRange();
     }
 
     public void EndTurn()

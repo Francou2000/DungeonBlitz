@@ -25,6 +25,9 @@ public class CombatHUD : MonoBehaviour
     [SerializeField] private Button pauseButton;
     [SerializeField] private TMP_Text timerText;
 
+    [Header("Icons")]
+    [SerializeField] private Sprite moveIcon;
+
     // state
     private readonly List<ActionButtonView> _pool = new();
     private readonly List<ActionButtonView> _active = new();
@@ -94,6 +97,14 @@ public class CombatHUD : MonoBehaviour
         if (!controller) return;
         ClearGrid();
 
+        var moveBtn = GetButton();
+        moveBtn.transform.SetParent(gridContainer, false);
+        moveBtn.BindMove(moveIcon, apCost: 1);              
+        moveBtn.OnClick = OnActionClicked;
+        moveBtn.OnHover = OnActionHover;
+        moveBtn.OnUnhover = OnActionUnhover;
+        _active.Add(moveBtn);
+
         var abilities = controller.model.GetAvailableAbilities();  // adapt if your API differs
         if (abilities == null) return;
 
@@ -148,16 +159,36 @@ public class CombatHUD : MonoBehaviour
 
     void UpdateSelectedHighlight()
     {
-        foreach (var v in _active) v.SetSelected(v.Ability == _selectedAbility);
+        var act = UnitController.GetCurrentAction();  // static
+        foreach (var v in _active)
+            v.SetSelected(v.IsMove ? act == UnitAction.Move
+                                    : v.Ability == _selectedAbility);
     }
 
     // ----- Interactions -----
     void OnActionClicked(ActionButtonView view)
     {
+        if (view.IsMove)
+        {
+            _selectedAbility = null;
+            UpdateSelectedHighlight();
+            UnitController.SetAction(UnitAction.Move);
+
+            // Choose a radius from your movement system
+            float radius =
+                controller && controller.Movement ? controller.model.GetMovementSpeed() : 3f;
+
+            MoveRangePreview.Show(controller.transform, radius);
+            return;
+        }
+
         _selectedAbility = view.Ability;
         UpdateSelectedHighlight();
 
         controller.SetSelectedAbility(_selectedAbility);
+
+        UnitController.SetAction(UnitAction.None);
+        MoveRangePreview.HideStatic();
 
         if (NeedsTargeting(_selectedAbility))
         {
@@ -192,7 +223,12 @@ public class CombatHUD : MonoBehaviour
 
     void OnActionHover(ActionButtonView v, UnityEngine.EventSystems.PointerEventData e)
     {
-        AbilityTooltip.Show(v.Ability, e.position); // e.position is already screen-space
+        if (v.IsMove)
+        {
+            AbilityTooltip.Show(null, e.position);  // will show “Move” text
+            return;
+        }
+        AbilityTooltip.Show(v.Ability, e.position);
     }
 
     void OnActionUnhover()
@@ -204,6 +240,7 @@ public class CombatHUD : MonoBehaviour
     void EndTurn()
     {
         TurnManager.Instance?.RequestEndTurn();
+        MoveRangePreview.HideStatic();
     }
 
     void TogglePause()
