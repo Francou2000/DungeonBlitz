@@ -13,6 +13,10 @@ public class TargeterController2D : MonoBehaviour
     UnitAbility ability;
     System.Action<Vector3, Vector3> onConfirm; // (pos, dir)
 
+    private bool showingMove;
+    private float moveRadius;
+
+
     public static TargeterController2D Instance { get; private set; }
 
     void Awake()
@@ -36,8 +40,16 @@ public class TargeterController2D : MonoBehaviour
 
     void Update()
     {
+        if (showingMove && caster != null && rangeRing != null && rangeRing.gameObject.activeSelf)
+        {
+            var p = caster.transform.position; p.z = 0f;
+            rangeRing.transform.position = p;
+        }
+
         if (EventSystem.current && EventSystem.current.IsPointerOverGameObject()) return;
         if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape)) { Cleanup(); return; }
+
+        if (caster == null || ability == null) return;
 
         Vector3 mouse = cam.ScreenToWorldPoint(Input.mousePosition);
         mouse.z = 0;
@@ -83,5 +95,23 @@ public class TargeterController2D : MonoBehaviour
         circle.gameObject.SetActive(false);
         line.gameObject.SetActive(false);
         enabled = false;
+    }
+
+    public void ShowMoveRange(UnitController caster, float radius)
+    {
+        if (!rangeRing) return;
+        if (!caster) return;
+
+        var from = caster.transform.position;
+        from.z = 0f;
+
+        // Use the same code-path abilities use (ensures geometry+radius are valid)
+        rangeRing.Draw(from, Mathf.Max(0.25f, radius));
+        rangeRing.gameObject.SetActive(true);
+    }
+
+    public void HideMoveRange()
+    {
+        if (rangeRing) rangeRing.gameObject.SetActive(false);
     }
 }

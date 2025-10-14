@@ -18,7 +18,7 @@ MonoBehaviour:
   faction: 1
   heroe_id: 0
   maxHP: 20
-  performance: 100
+  performance: 2
   affinity: 0
   armor: 1
   magicResistance: 2
