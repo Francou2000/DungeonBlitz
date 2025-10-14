@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 
 public class ConnectToServer : MonoBehaviourPunCallbacks
 {
-    [SerializeField] string main_scene;
+    [SerializeField] Scenes main_scene;
 
     void Start()
     {
@@ -19,6 +19,7 @@ public class ConnectToServer : MonoBehaviourPunCallbacks
 
     public override void OnJoinedLobby()
     {
-        SceneManager.LoadScene(main_scene);
+        // SceneManager.LoadScene(main_scene);
+        SceneLoaderController.Instance.LoadNextLevel(main_scene);
     }
 }

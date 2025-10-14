@@ -20,7 +20,7 @@ public class TimerAndLoadGame : MonoBehaviourPunCallbacks
     public GameObject HEROE_selection;
 
 
-    public string game_scene_name;
+    public Scenes game_scene_name;
 
     public float preparation_time_limit;
     public float time;
@@ -53,6 +53,7 @@ public class TimerAndLoadGame : MonoBehaviourPunCallbacks
     [PunRPC]
     public void LoadGame()
     {
-        PhotonNetwork.LoadLevel(game_scene_name);
+        // PhotonNetwork.LoadLevel(game_scene_name);
+        SceneLoaderController.Instance.LoadNextLevel(game_scene_name);
     }
 }

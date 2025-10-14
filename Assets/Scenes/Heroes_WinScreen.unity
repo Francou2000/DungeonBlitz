@@ -253,7 +253,64 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e873d983050fd2e4e98ee86c88114a36, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mainMenu_sceneName: MainMenu
+  mainMenu_sceneName: 2
+--- !u!1001 &388182594
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1963737523277124617, guid: 8f6026b4bb6e5f64fa5cf28bf574f612, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1963737523277124617, guid: 8f6026b4bb6e5f64fa5cf28bf574f612, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1963737523277124617, guid: 8f6026b4bb6e5f64fa5cf28bf574f612, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1963737523277124617, guid: 8f6026b4bb6e5f64fa5cf28bf574f612, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1963737523277124617, guid: 8f6026b4bb6e5f64fa5cf28bf574f612, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1963737523277124617, guid: 8f6026b4bb6e5f64fa5cf28bf574f612, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1963737523277124617, guid: 8f6026b4bb6e5f64fa5cf28bf574f612, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1963737523277124617, guid: 8f6026b4bb6e5f64fa5cf28bf574f612, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1963737523277124617, guid: 8f6026b4bb6e5f64fa5cf28bf574f612, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1963737523277124617, guid: 8f6026b4bb6e5f64fa5cf28bf574f612, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3631581902081145981, guid: 8f6026b4bb6e5f64fa5cf28bf574f612, type: 3}
+      propertyPath: m_Name
+      value: Scene Loader Controller
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 8f6026b4bb6e5f64fa5cf28bf574f612, type: 3}
 --- !u!1 &858279309
 GameObject:
   m_ObjectHideFlags: 0
@@ -1079,3 +1136,4 @@ SceneRoots:
   - {fileID: 2138054080}
   - {fileID: 1592542544}
   - {fileID: 1278396426}
+  - {fileID: 388182594}

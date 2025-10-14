@@ -10,7 +10,7 @@ public class ReadyButton : MonoBehaviourPunCallbacks
     bool is_ready = false;
 
     public bool is_test = false;
-    public string test_level;
+    public Scenes test_level;
     void Start()
     {
         my_button = GetComponent<Button>();
@@ -23,7 +23,8 @@ public class ReadyButton : MonoBehaviourPunCallbacks
     {
         if (is_test)
         {
-            PhotonNetwork.LoadLevel(test_level);
+            // PhotonNetwork.LoadLevel(test_level);
+            SceneLoaderController.Instance.LoadNextLevel(test_level);
         }
         else
         {
