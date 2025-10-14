@@ -66,8 +66,8 @@ public class UnitResource
 public enum HeroesList
 {
     Paladin,
+    Sorcerer,
     Rogue,
     Elementalist,
-    Sorcerer,
     None
 }
