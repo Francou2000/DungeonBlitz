@@ -18,16 +18,16 @@ MonoBehaviour:
   faction: 1
   heroe_id: 0
   maxHP: 20
-  performance: 100
+  performance: 1
   affinity: 0
-  armor: 1
-  magicResistance: 2
-  strength: 3
-  magicPower: 3
+  armor: 60
+  magicResistance: 30
+  strength: 8
+  magicPower: 0
   actionsPerTurn: 2
   reactionsPerTurn: 1
   baseAdrenaline: 0
-  adrenalineThreshold: 30
+  adrenalineThreshold: 65
   maxAdrenaline: 100
   abilities:
   - {fileID: 11400000, guid: 1f1410e8dceacc54b82f8b0451154751, type: 2}

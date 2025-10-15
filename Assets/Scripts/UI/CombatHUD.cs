@@ -34,6 +34,8 @@ public class CombatHUD : MonoBehaviour
     private int _pageStart = 0;
     private UnitAbility _selectedAbility;
 
+    ActionButtonView hoveredView;
+
     void Awake()
     {
         if (pageLeft) pageLeft.onClick.AddListener(() => Page(-buttonsPerPage));
@@ -224,16 +226,20 @@ public class CombatHUD : MonoBehaviour
 
     void OnActionHover(ActionButtonView v, UnityEngine.EventSystems.PointerEventData e)
     {
-        if (v.IsMove)
+        if (hoveredView != v)
         {
-            AbilityTooltip.Show(null, e.position);  // will show “Move” text
-            return;
+            hoveredView = v;
+            AbilityTooltip.Show(v.IsMove ? null : v.Ability, e.position);
         }
-        AbilityTooltip.Show(v.Ability, e.position);
+        else
+        {
+            AbilityTooltip.Move(e.position); // just reposition, no re-show
+        }
     }
 
     void OnActionUnhover()
     {
+        hoveredView = null;
         AbilityTooltip.Hide();
     }
 

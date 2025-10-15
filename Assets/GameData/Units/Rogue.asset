@@ -17,17 +17,17 @@ MonoBehaviour:
   portrait_foto: {fileID: 0}
   faction: 0
   heroe_id: 0
-  maxHP: 30
-  performance: 100
+  maxHP: 25
+  performance: 2
   affinity: 0
-  armor: 2
-  magicResistance: 2
-  strength: 3
-  magicPower: 3
+  armor: 40
+  magicResistance: 20
+  strength: 6
+  magicPower: 0
   actionsPerTurn: 2
   reactionsPerTurn: 1
   baseAdrenaline: 0
-  adrenalineThreshold: 30
+  adrenalineThreshold: 50
   maxAdrenaline: 100
   abilities:
   - {fileID: 11400000, guid: 51231c209457ae34d9a49f5a3d1682ba, type: 2}

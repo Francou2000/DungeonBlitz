@@ -48,6 +48,15 @@ public class ActionButtonView : MonoBehaviour, IPointerEnterHandler, IPointerExi
 
     public void SetSelected(bool v) { if (selectedFrame) selectedFrame.SetActive(v); }
 
-    public void OnPointerEnter(PointerEventData e) => OnHover?.Invoke(this, e);
-    public void OnPointerExit(PointerEventData e) => OnUnhover?.Invoke();
+    public void OnPointerEnter(UnityEngine.EventSystems.PointerEventData e)
+    {
+        Debug.Log($"[Hover ENTER] {(IsMove ? "Move" : Ability?.name)}");
+        OnHover?.Invoke(this, e);
+    }
+
+    public void OnPointerExit(UnityEngine.EventSystems.PointerEventData e)
+    {
+        Debug.Log($"[Hover EXIT]");
+        OnUnhover?.Invoke();
+    }
 }
