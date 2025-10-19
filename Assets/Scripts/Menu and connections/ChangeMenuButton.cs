@@ -13,6 +13,7 @@ public class ChangeMenuButton : MonoBehaviour
     void Start()
     {
         my_button = GetComponent<Button>();
+        // if (my_button == null) Debug.Log("ASDASDADS");
         my_button.onClick.AddListener(ChangeMenuUI);
         if (nickName != null) { nickName.onValueChanged.AddListener(activeButtons); }
     }
@@ -25,6 +26,7 @@ public class ChangeMenuButton : MonoBehaviour
 
     void activeButtons(string value)
     {
+        Debug.Log("sdfasfd");
         my_button.interactable = value != "";
     }
 }
