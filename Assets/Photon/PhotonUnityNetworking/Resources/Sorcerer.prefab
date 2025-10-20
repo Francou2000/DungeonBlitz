@@ -20,7 +20,6 @@ GameObject:
   - component: {fileID: 4031278804507470420}
   - component: {fileID: -3810770136965315468}
   - component: {fileID: 5335049918857360771}
-  - component: {fileID: -6132984348994766549}
   m_Layer: 3
   m_Name: Sorcerer
   m_TagString: Untagged
@@ -297,18 +296,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healthBarPrefab: {fileID: 4416331995502414878, guid: 026cce3f9a3f92c47af7b1e8b47e3a22, type: 3}
---- !u!114 &-6132984348994766549
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 671761192709153641}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 52a36c45d8dc1f34f873fc04112cdf17, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &9073731304434709722
 GameObject:
   m_ObjectHideFlags: 0
