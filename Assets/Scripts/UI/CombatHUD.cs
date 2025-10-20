@@ -31,8 +31,8 @@ public class CombatHUD : MonoBehaviour
     // state
     private readonly List<ActionButtonView> _pool = new();
     private readonly List<ActionButtonView> _active = new();
-    private int _pageStart = 0;
-    private UnitAbility _selectedAbility;
+    private int pageStart = 0;
+    private UnitAbility selectedAbility;
 
     ActionButtonView hoveredView;
 
@@ -110,13 +110,13 @@ public class CombatHUD : MonoBehaviour
         var abilities = controller.model.GetAvailableAbilities();  // adapt if your API differs
         if (abilities == null) return;
 
-        int count = Mathf.Min(buttonsPerPage, Mathf.Max(0, abilities.Count - _pageStart));
+        int count = Mathf.Min(buttonsPerPage, Mathf.Max(0, abilities.Count - pageStart));
         for (int i = 0; i < count; i++)
         {
-            var ab = abilities[_pageStart + i];
+            var ab = abilities[pageStart + i];
             var view = GetButton();
             view.transform.SetParent(gridContainer, false);
-            int apCost = ab.actionCost;                 
+            int apCost = ab.actionCost;
             Sprite icon = ab.icon;                  
             view.Bind(ab, icon, apCost);
             view.OnClick = OnActionClicked;
@@ -149,14 +149,14 @@ public class CombatHUD : MonoBehaviour
     {
         var abilities = controller.model.GetAvailableAbilities();
         if (abilities == null || abilities.Count == 0) return;
-        _pageStart = Mathf.Clamp(_pageStart + delta, 0, Mathf.Max(0, abilities.Count - buttonsPerPage));
+        pageStart = Mathf.Clamp(pageStart + delta, 0, Mathf.Max(0, abilities.Count - buttonsPerPage));
         RebuildGrid();
     }
 
     void UpdatePaging(int total)
     {
-        if (pageLeft) pageLeft.interactable = (_pageStart > 0);
-        if (pageRight) pageRight.interactable = (_pageStart + buttonsPerPage < total);
+        if (pageLeft) pageLeft.interactable = (pageStart > 0);
+        if (pageRight) pageRight.interactable = (pageStart + buttonsPerPage < total);
     }
 
     void UpdateSelectedHighlight()
@@ -164,7 +164,7 @@ public class CombatHUD : MonoBehaviour
         var act = UnitController.GetCurrentAction();  // static
         foreach (var v in _active)
             v.SetSelected(v.IsMove ? act == UnitAction.Move
-                                    : v.Ability == _selectedAbility);
+                                    : v.Ability == selectedAbility);
     }
 
     // ----- Interactions -----
@@ -184,16 +184,16 @@ public class CombatHUD : MonoBehaviour
             return;
         }
 
-        _selectedAbility = view.Ability;
+        selectedAbility = view.Ability;
         UpdateSelectedHighlight();
 
         UnitController.SetAction(UnitAction.None);
         if (TargeterController2D.Instance)
             TargeterController2D.Instance.HideMoveRange();
 
-        controller.SetSelectedAbility(_selectedAbility);
+        controller.SetSelectedAbility(selectedAbility);
 
-        if (NeedsTargeting(_selectedAbility))
+        if (NeedsTargeting(selectedAbility))
         {
             // Use the UI-driven targeter flow we already established
             if (!TargeterController2D.Instance)
@@ -204,17 +204,17 @@ public class CombatHUD : MonoBehaviour
 
             TargeterController2D.Instance.Begin(
                 c: controller,
-                a: _selectedAbility,
+                a: selectedAbility,
                 confirm: (center, dir) =>
                 {
                     controller.CacheAim(center, dir);
-                    controller.ExecuteAbility(_selectedAbility, null, center);
+                    controller.ExecuteAbility(selectedAbility, null, center);
                 }
             );
         }
         else
         {
-            controller.ExecuteAbility(_selectedAbility, null);
+            controller.ExecuteAbility(selectedAbility, null);
         }
     }
 

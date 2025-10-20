@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Sorcerer
   m_EditorClassIdentifier: 
   unitName: Sorcerer
-  full_body_foto: {fileID: 2549316574830113441, guid: df020d1d68b6cbb45bb415015e558eae, type: 3}
-  portrait_foto: {fileID: 0}
+  full_body_foto: {fileID: 21300000, guid: df020d1d68b6cbb45bb415015e558eae, type: 3}
+  portrait_foto: {fileID: -8197495066078434370, guid: 715ba8656e7882d498393070996a7e4f, type: 3}
   faction: 0
   heroe_id: 0
   maxHP: 15

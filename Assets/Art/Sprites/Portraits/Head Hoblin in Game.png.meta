@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 19e0118f55cdc1c4a84d9821f1890e09
+guid: 7d3966e2df6ce5641adbeb7f247ff7ed
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3274347120714742855
-    second: Goblin Shaman_0
+      213: -5270058669579480458
+    second: Head Hoblin in Game_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -96,17 +96,43 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Goblin Shaman_0
+      name: Head Hoblin in Game_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1200
-        height: 1406
+        width: 260
+        height: 171
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 74c7689ab51d07d20800000000000000
-      internalID: 3274347120714742855
+      spriteID: 6725f3edf8dfcd6b0800000000000000
+      internalID: -5270058669579480458
       vertices: []
       indices: 
       edges: []
@@ -135,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Goblin Shaman_0: 3274347120714742855
+      Head Hoblin in Game_0: -5270058669579480458
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

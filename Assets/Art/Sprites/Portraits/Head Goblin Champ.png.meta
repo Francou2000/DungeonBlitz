@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 2c9fdad3dc33b1f4a8d9956e7bf28e0e
+guid: b4bc9d61bea2bb74587a34701c730cc9
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 2290370324126445115
-    second: goblin king_0
+      213: -8680507463708838209
+    second: Head Goblin Champ_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -96,17 +96,43 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: goblin king_0
+      name: Head Goblin Champ_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 360
-        height: 348
+        width: 376
+        height: 250
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b3e27a5cca709cf10800000000000000
-      internalID: 2290370324126445115
+      spriteID: fb6f18bf374a88780800000000000000
+      internalID: -8680507463708838209
       vertices: []
       indices: 
       edges: []
@@ -135,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      goblin king_0: 2290370324126445115
+      Head Goblin Champ_0: -8680507463708838209
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -33,7 +33,7 @@ public class AbilityTooltip : MonoBehaviour
 
     public static void Show(UnitAbility ab, Vector3 screenPos)
     {
-        if (!Instance) Instance = FindObjectOfType<AbilityTooltip>(true);
+        if (!Instance) Instance = FindFirstObjectByType<AbilityTooltip>(UnityEngine.FindObjectsInactive.Include);
         if (!Instance || Instance._rt == null) return;
 
         if (ab == null)

@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 1d04168933e087a469c820683f580cd0
+guid: ca5bf91de9816f94da934a60e32d8d6c
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1504909034587979103
-    second: rogue_0
+      213: 2073479834494625945
+    second: Head Goblin in Game_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -96,17 +96,43 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: rogue_0
+      name: Head Goblin in Game_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 820
-        height: 1171
+        width: 323
+        height: 162
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f5d74e92bc282e410800000000000000
-      internalID: 1504909034587979103
+      spriteID: 998ecf77cea76cc10800000000000000
+      internalID: 2073479834494625945
       vertices: []
       indices: 
       edges: []
@@ -135,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      rogue_0: 1504909034587979103
+      Head Goblin in Game_0: 2073479834494625945
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
