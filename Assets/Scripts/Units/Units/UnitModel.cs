@@ -57,6 +57,8 @@ public class UnitModel : MonoBehaviour
     public event System.Action<int, int> OnAdrenalineChanged;
     public event System.Action<int, int> OnActionPointsChanged;
 
+    public Sprite Portrait => unitData != null ? unitData.portrait_foto : null;
+
     // Initialization
     public void Initialize()
     {

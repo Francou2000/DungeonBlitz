@@ -26,7 +26,8 @@ public class CombatHUD : MonoBehaviour
     [SerializeField] private TMP_Text timerText;
 
     [Header("Icons")]
-    [SerializeField] private Sprite moveIcon;
+    [SerializeField] private Sprite moveIcon; 
+    [SerializeField] private Image portraitImage;
 
     // state
     private readonly List<ActionButtonView> _pool = new();
@@ -47,6 +48,7 @@ public class CombatHUD : MonoBehaviour
     public void Bind(UnitController ctrl)
     {
         controller = ctrl;
+        RefreshPortrait();
         RebuildBars();
         RebuildGrid();
         RefreshBars();
@@ -241,6 +243,20 @@ public class CombatHUD : MonoBehaviour
     {
         hoveredView = null;
         AbilityTooltip.Hide();
+    }
+
+    private Sprite GetPortrait(UnitController c)
+    {
+        return (c != null && c.model != null) ? c.model.Portrait : null;
+    }
+
+    private void RefreshPortrait()
+    {
+        if (!portraitImage) return;
+
+        var spr = GetPortrait(controller);
+        portraitImage.sprite = spr;
+        portraitImage.enabled = spr != null;
     }
 
     // ----- Footer actions -----
