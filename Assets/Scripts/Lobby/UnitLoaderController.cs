@@ -34,7 +34,7 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
     {
         playable_heroes[client_id - 2] = heroes_data[(int)heroe];
         players_ready[client_id - 1] = true;
-        CheckIfStart();
+        CheckIfStart(false);
     }
 
     [PunRPC]
@@ -114,9 +114,9 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
 
 
     [PunRPC]
-    public void CheckIfStart()
+    public void CheckIfStart(bool isMC)
     {
-        if (PhotonNetwork.IsMasterClient) players_ready[0] = true;
+        if (isMC) players_ready[0] = true;
         foreach (bool ready in players_ready)
         {
             if (!ready) return;

@@ -14,6 +14,6 @@ public class MapReadyButton : MonoBehaviour
 
     void MapReady()
     {
-        UnitLoaderController.Instance.photonView.RPC("CheckIfStart", Photon.Pun.RpcTarget.All);
+        UnitLoaderController.Instance.photonView.RPC("CheckIfStart", Photon.Pun.RpcTarget.All, true);
     }
 }

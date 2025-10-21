@@ -293,9 +293,25 @@ public class CombatHUD : MonoBehaviour
 
         controller.SetSelectedAbility(selectedAbility);
 
-        if (NeedsTargeting(selectedAbility))
+        // --- NEW: route by target type ---
+        if (RequiresUnitTarget(selectedAbility))
         {
-            // Use the UI-driven targeter flow we already established
+            // Self-cast goes immediately
+            if (selectedAbility.selfOnly)
+            {
+                // controller.unit is a Unit component on the same object
+                controller.ExecuteAbility(selectedAbility, controller.unit);
+                return;
+            }
+
+            // Ally / Enemy single-target: enter unit targeting mode
+            controller.StartTargeting(selectedAbility);
+            return;
+        }
+
+        if (NeedsAreaTargeting(selectedAbility))
+        {
+            // Keep current area/line flow driven by TargeterController2D
             if (!TargeterController2D.Instance)
             {
                 Debug.LogWarning("[CombatHUD] TargeterController2D not found in scene.");
@@ -311,20 +327,28 @@ public class CombatHUD : MonoBehaviour
                     controller.ExecuteAbility(selectedAbility, null, center);
                 }
             );
+            return;
         }
-        else
-        {
-            controller.ExecuteAbility(selectedAbility, null);
-        }
+
+        // Instant, no-target abilities
+        controller.ExecuteAbility(selectedAbility, null);
     }
 
-    bool NeedsTargeting(UnitAbility a)
+    // NEW: true for single-target unit selection (self/ally/enemy)
+    bool RequiresUnitTarget(UnitAbility a)
     {
         if (a == null) return false;
-        return a.areaType == AreaType.Circle || a.areaType == AreaType.Line ;
+        return a.selfOnly || a.alliesOnly || a.enemiesOnly;
     }
 
-    void OnActionHover(ActionButtonView v, UnityEngine.EventSystems.PointerEventData e)
+    // NEW: true for AoE, line or ground target
+    bool NeedsAreaTargeting(UnitAbility a)
+    {
+        if (a == null) return false;
+        return a.areaType == AreaType.Circle || a.areaType == AreaType.Line || a.groundTarget;
+    }
+
+        void OnActionHover(ActionButtonView v, UnityEngine.EventSystems.PointerEventData e)
     {
         if (hoveredView != v)
         {
