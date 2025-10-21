@@ -44,7 +44,9 @@ public class UnitController : MonoBehaviourPun
     void Awake()
     {
         unit = GetComponent<Unit>();
-        model = GetComponent<UnitModel>();
+
+        if (model == null)
+            model = GetComponent<UnitModel>();
 
         if (isControllable)
         {

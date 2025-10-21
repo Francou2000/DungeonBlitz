@@ -140,7 +140,25 @@ public class CombatHUD : MonoBehaviour
     // ----- Grid -----
     void RebuildGrid()
     {
-        if (!controller || gridContainer == null || actionButtonPrefab == null) return;
+        if (controller == null)
+        {
+            Debug.LogWarning("[CombatHUD] No controller bound.");
+            return;
+        }
+
+        if (controller.model == null)
+        {
+            Debug.LogWarning($"[CombatHUD] UnitController {controller.name} has no model.");
+            return;
+        }
+
+        if (gridContainer == null || actionButtonPrefab == null)
+        {
+            Debug.LogWarning("[CombatHUD] Grid container or prefab not assigned.");
+            return;
+        }
+
+        ClearGrid();
         ClearGrid();
 
         //  Move button (always 1 slot)

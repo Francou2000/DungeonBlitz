@@ -31,8 +31,6 @@ MonoBehaviour:
   maxAdrenaline: 100
   abilities:
   - {fileID: 11400000, guid: 0223feeb152e4ca45ad885b396ebd02b, type: 2}
-  - {fileID: 11400000, guid: b1f3d0db06e1e8b4b893bc2482a1bccc, type: 2}
-  - {fileID: 11400000, guid: 6c16bac0119555f49820194c2b6391b2, type: 2}
   - {fileID: 11400000, guid: 45aa73f2d9d970e4e8f38e8bc0c5928d, type: 2}
   - {fileID: 11400000, guid: 630b13942bc481046823fd11231502ff, type: 2}
   - {fileID: 11400000, guid: 30d95cfb053c3a648b433578284179ab, type: 2}
