@@ -27,7 +27,7 @@ MonoBehaviour:
   requiresAdrenalineThreshold: 0
   adrenalineThreshold: 0
   areaType: 0
-  range: 1
+  range: 3
   aoeRadius: 0
   lineMaxTargets: 0
   lineRange: 0
@@ -40,7 +40,7 @@ MonoBehaviour:
   baseDamage: 1
   damageMultiplier: 1
   bonusDamage: 0
-  hits: 1
+  hits: 3
   useTargetMissingHealth: 0
   missingHealthPercentage: 0
   canChain: 0

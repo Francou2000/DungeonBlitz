@@ -16,7 +16,7 @@ MonoBehaviour:
   description: Line 2 targets; consume 2 Power.
   abilityType: 2
   icon: {fileID: 21300000, guid: 6535e79d75908374a9c78cbdd764c0b3, type: 3}
-  baseHitChance: 70
+  baseHitChance: 80
   actionCost: 2
   adrenalineCost: 50
   resourceCosts:
@@ -38,8 +38,8 @@ MonoBehaviour:
   mixedPhysicalPercent: 50
   lineCollateralPercent: 100
   bonusPerMissingHpPercent: 0
-  damageSource: 4
-  baseDamage: 14
+  damageSource: 1
+  baseDamage: 4
   damageMultiplier: 1
   bonusDamage: 0
   hits: 1

@@ -27,7 +27,7 @@ MonoBehaviour:
   requiresAdrenalineThreshold: 0
   adrenalineThreshold: 0
   areaType: 2
-  range: 0
+  range: 3
   aoeRadius: 1.5
   lineMaxTargets: 0
   lineRange: 0

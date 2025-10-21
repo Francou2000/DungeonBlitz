@@ -55,9 +55,9 @@ MonoBehaviour:
   grantsMovement: 0
   movementRange: 0
   isMovementFree: 0
-  spawnsSummons: 0
+  spawnsSummons: 1
   summonPrefabName: 
-  summonCount: 0
+  summonCount: 2
   summonDuration: 0
   spawnsStructure: 0
   structureKind: 0

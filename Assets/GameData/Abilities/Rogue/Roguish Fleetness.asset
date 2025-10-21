@@ -65,7 +65,7 @@ MonoBehaviour:
     bleedBonusOnMove: 0
     bleedMoveBonus: 0
     targetLockViewId: 0
-    onApply: 0
+    onApply: 1
     onExpire: 0
     onStartTurn: 0
     onEndTurn: 0

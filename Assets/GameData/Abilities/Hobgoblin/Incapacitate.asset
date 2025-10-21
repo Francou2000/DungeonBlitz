@@ -37,7 +37,7 @@ MonoBehaviour:
   lineCollateralPercent: 0
   bonusPerMissingHpPercent: 0
   damageSource: 0
-  baseDamage: 8
+  baseDamage: 3
   damageMultiplier: 1
   bonusDamage: 0
   hits: 1

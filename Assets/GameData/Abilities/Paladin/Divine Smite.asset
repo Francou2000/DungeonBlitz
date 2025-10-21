@@ -27,15 +27,15 @@ MonoBehaviour:
   requiresAdrenalineThreshold: 0
   adrenalineThreshold: 0
   areaType: 0
-  range: 1
+  range: 3
   aoeRadius: 0
   lineMaxTargets: 0
   lineRange: 0
   lineAlignmentTolerance: 0.75
-  isMixedDamage: 0
+  isMixedDamage: 1
   mixedPhysicalPercent: 50
   lineCollateralPercent: 0
-  bonusPerMissingHpPercent: 0
+  bonusPerMissingHpPercent: 15
   damageSource: 5
   baseDamage: 5
   damageMultiplier: 1

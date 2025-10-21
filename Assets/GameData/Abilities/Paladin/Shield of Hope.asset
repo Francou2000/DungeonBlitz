@@ -47,9 +47,9 @@ MonoBehaviour:
   chainRange: 0
   appliedEffects:
   - effectName: ShieldOfHope
-    type: 2
-    modifier: 0
-    amount: 0
+    type: 1
+    modifier: 4
+    amount: 1
     duration: 2
     isStackable: 0
     maxStacks: 0
@@ -65,7 +65,59 @@ MonoBehaviour:
     bleedBonusOnMove: 0
     bleedMoveBonus: 0
     targetLockViewId: 0
-    onApply: 0
+    onApply: 1
+    onExpire: 0
+    onStartTurn: 0
+    onEndTurn: 0
+    onMove: 0
+    onBeforeHit: 0
+    onAfterHit: 0
+  - effectName: Armour buff
+    type: 0
+    modifier: 1
+    amount: 3
+    duration: 2
+    isStackable: 0
+    maxStacks: 0
+    tags:
+    - ShieldOfHope
+    damagePerTurn: 0
+    barrierHP: 0
+    nextTurnActionsDelta: 0
+    actionsBonus: 0
+    moveSpeedBuff: 0
+    moveSpeedDebuff: 0
+    healingMultiplier: 1
+    bleedBonusOnMove: 0
+    bleedMoveBonus: 0
+    targetLockViewId: 0
+    onApply: 1
+    onExpire: 0
+    onStartTurn: 0
+    onEndTurn: 0
+    onMove: 0
+    onBeforeHit: 0
+    onAfterHit: 0
+  - effectName: MR Buff
+    type: 0
+    modifier: 3
+    amount: 3
+    duration: 2
+    isStackable: 0
+    maxStacks: 0
+    tags:
+    - ShieldOfHope
+    damagePerTurn: 0
+    barrierHP: 0
+    nextTurnActionsDelta: 0
+    actionsBonus: 0
+    moveSpeedBuff: 0
+    moveSpeedDebuff: 0
+    healingMultiplier: 1
+    bleedBonusOnMove: 0
+    bleedMoveBonus: 0
+    targetLockViewId: 0
+    onApply: 1
     onExpire: 0
     onStartTurn: 0
     onEndTurn: 0

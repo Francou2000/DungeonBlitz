@@ -27,7 +27,7 @@ MonoBehaviour:
   requiresAdrenalineThreshold: 0
   adrenalineThreshold: 0
   areaType: 0
-  range: 1
+  range: 3
   aoeRadius: 0
   lineMaxTargets: 0
   lineRange: 0
@@ -37,7 +37,7 @@ MonoBehaviour:
   lineCollateralPercent: 0
   bonusPerMissingHpPercent: 0
   damageSource: 0
-  baseDamage: 8
+  baseDamage: 2
   damageMultiplier: 1
   bonusDamage: 0
   hits: 1
@@ -47,9 +47,9 @@ MonoBehaviour:
   chainRange: 0
   appliedEffects:
   - effectName: Bleeding
-    type: 2
-    modifier: 0
-    amount: 0
+    type: 1
+    modifier: 4
+    amount: 2
     duration: 1
     isStackable: 0
     maxStacks: 0
@@ -65,7 +65,7 @@ MonoBehaviour:
     bleedBonusOnMove: 0
     bleedMoveBonus: 0
     targetLockViewId: 0
-    onApply: 0
+    onApply: 1
     onExpire: 0
     onStartTurn: 0
     onEndTurn: 0

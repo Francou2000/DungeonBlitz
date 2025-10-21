@@ -10,18 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 594969d2d10a3344b90d23064033a40b, type: 3}
-  m_Name: Spear Throw
+  m_Name: Elementalist Staff
   m_EditorClassIdentifier: 
-  abilityName: Spear Throw
-  description: Consumes 1 Spear.
-  abilityType: 1
-  icon: {fileID: 21300000, guid: c8f8815e6ca199349be363bb8f686b4f, type: 3}
+  abilityName: Elementalist Staff
+  description: Circle AoE; consume 2 Power.
+  abilityType: 0
+  icon: {fileID: 21300000, guid: abe998d7ef6847840b3d657c9085ec73, type: 3}
   baseHitChance: 60
   actionCost: 1
   adrenalineCost: 0
   resourceCosts:
-  - key: Spears
-    amount: 1
+  - key: Power
+    amount: 2
   minAdrenaline: 0
   requiredStates: []
   requiredTags: []
@@ -29,7 +29,7 @@ MonoBehaviour:
   requiresAdrenalineThreshold: 0
   adrenalineThreshold: 0
   areaType: 0
-  range: 6
+  range: 3
   aoeRadius: 0
   lineMaxTargets: 0
   lineRange: 0
@@ -39,7 +39,7 @@ MonoBehaviour:
   lineCollateralPercent: 0
   bonusPerMissingHpPercent: 0
   damageSource: 0
-  baseDamage: 3
+  baseDamage: 2
   damageMultiplier: 1
   bonusDamage: 0
   hits: 1
