@@ -24,6 +24,8 @@ public class TurnManager : MonoBehaviourPunCallbacks
     private bool[] heroesInstantiated;
     private int expectedHeroes = 0;
 
+    private float postSetupGrace = 1f;  // seconds to wait before elimination checks
+
     private float turnTimer = 0f;
     private float syncCooldown = 0f;
 
@@ -91,6 +93,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
             syncCooldown = 1f;        
         }
 
+        if (postSetupGrace > 0f) { postSetupGrace -= Time.deltaTime; return; }
 
         // === CHECK WIN CONDITION ===
         if (timePool[currentTurn] <= 0f)
@@ -247,11 +250,13 @@ public class TurnManager : MonoBehaviourPunCallbacks
         TryUnpauseIfReady("SetExpectedHeroes");
     }
 
+
     // === TURN FLOW ===
     private void DecideFirstTurn()
     {
         //UnitFaction starting = Random.value < 0.5f ? UnitFaction.Hero : UnitFaction.Monster;
-        UnitFaction starting = UnitFaction.Hero; // For testing purposes, Heroes always start first
+        //UnitFaction starting = UnitFaction.Hero; // For testing purposes, Heroes always start first
+        UnitFaction starting = UnitFaction.Monster; // For testing purposes, Monster always start first
         float timeLeft = timePool[starting];
 
         Debug.Log($"[TurnManager] Coin flip! {starting} will start.");
@@ -426,7 +431,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
 
     private System.Collections.IEnumerator DeferredUnpauseFallback()
     {
-        yield return null; // let other Awake/Start run
+        yield return null;
         TryUnpauseIfReady("Start fallback");
     }
 }
