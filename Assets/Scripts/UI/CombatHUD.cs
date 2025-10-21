@@ -94,8 +94,16 @@ public class CombatHUD : MonoBehaviour
         }
     }
 
-    void OnEnable() { TurnManager.OnTurnUI += OnTurnUi; }
-    void OnDisable() { TurnManager.OnTurnUI -= OnTurnUi; }
+    void OnEnable()
+    {
+        TurnManager.OnTurnUI += OnTurnUi;
+        TurnManager.OnTurnBegan += OnTurnBegan;
+    }
+    void OnDisable()
+    {
+        TurnManager.OnTurnUI -= OnTurnUi;
+        TurnManager.OnTurnBegan -= OnTurnBegan;
+    }
     void OnTurnUi(int turn, UnitFaction side, float remaining)
     {
         if (timerText) timerText.text = Mathf.CeilToInt(remaining).ToString();
@@ -347,6 +355,18 @@ public class CombatHUD : MonoBehaviour
         var spr = GetPortrait(controller);
         portraitImage.sprite = spr;
         portraitImage.enabled = spr != null;
+    }
+
+    private void OnTurnBegan(UnitFaction side)
+    {   
+        if (controller != null && controller.model != null &&
+            controller.model.Faction == side)
+        {
+            // AP gets reset in TurnManager.ResetUnitsForFaction ? reflect it here
+            RefreshBars();
+            // If your buttons display cooldown/charges, just in case later
+            // RebuildGrid();
+        }
     }
 
     // ----- Footer actions -----

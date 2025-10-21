@@ -20,7 +20,7 @@ MonoBehaviour:
   electric: {r: 1, g: 0.95, b: 0.2, a: 1}
   heal: {r: 0.2, g: 1, b: 0.35, a: 1}
   miss: {r: 0.9, g: 0.9, b: 0.9, a: 1}
-  baseFontSize: 24
+  baseFontSize: 12
   outlineWidth: 0.15
   outlineColor: {r: 0, g: 0, b: 0, a: 1}
   useGradient: 0

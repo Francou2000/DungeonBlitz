@@ -80,6 +80,9 @@ MonoBehaviour:
   - RPC_PlayMoveLand
   - RPC_PlayMoveStart
   - RPC_SetExpectedHeroes
+  - RPC_HeroSpawned
+  - RPC_MonsterSpawned
+  - RPC_SetExpectedMonsters
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

@@ -34,6 +34,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
     public static System.Action<int, UnitFaction, float> OnTurnUI;
 
     public static System.Action<UnitController> OnActiveControllerChanged;
+    public static event System.Action<UnitFaction> OnTurnBegan;
 
 
     void Awake()
@@ -185,6 +186,10 @@ public class TurnManager : MonoBehaviourPunCallbacks
         timePool[currentTurn] = newTime;
         turnTimer = 0f;
 
+        ResetUnitsForFaction(currentTurn);
+
+        OnTurnBegan?.Invoke(currentTurn);
+
         UpdateTurnUI();
     }
 
@@ -254,14 +259,15 @@ public class TurnManager : MonoBehaviourPunCallbacks
     // === TURN FLOW ===
     private void DecideFirstTurn()
     {
-        //UnitFaction starting = Random.value < 0.5f ? UnitFaction.Hero : UnitFaction.Monster;
+        UnitFaction starting = Random.value < 0.5f ? UnitFaction.Hero : UnitFaction.Monster;
         //UnitFaction starting = UnitFaction.Hero; // For testing purposes, Heroes always start first
-        UnitFaction starting = UnitFaction.Monster; // For testing purposes, Monster always start first
+        //UnitFaction starting = UnitFaction.Monster; // For testing purposes, Monster always start first
         float timeLeft = timePool[starting];
 
         Debug.Log($"[TurnManager] Coin flip! {starting} will start.");
 
         photonView.RPC(nameof(RPC_SyncTurn), RpcTarget.All, starting, turnNumber, timeLeft);
+        OnTurnBegan?.Invoke(starting);
     }
 
     private void AdvanceTurn()
@@ -289,6 +295,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
         }
 
         ResetUnitsForFaction(currentTurn);
+        OnTurnBegan?.Invoke(currentTurn);
 
         float timeLeft = timePool[currentTurn];
         photonView.RPC(nameof(RPC_SyncTurn), RpcTarget.All, currentTurn, turnNumber, timeLeft);
