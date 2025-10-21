@@ -23,6 +23,7 @@ public class SlectedMapController : MonoBehaviour
     [SerializeField] ActiveMap map_activation;
     [SerializeField] GameObject tile_highlighter;
     [SerializeField] GameObject grid;
+    [SerializeField] GameObject background;
 
     private void Start()
     {
@@ -44,6 +45,7 @@ public class SlectedMapController : MonoBehaviour
         UnitLoaderController controller = UnitLoaderController.Instance;
         grid.SetActive(true);
         tile_highlighter.SetActive(true);
+        background.SetActive(false);
         if (controller.playable_Map.Actual_map == actual_map) return;
         // Debug.Log("AAAAAAAAAAAAAAAAAAAAA");
         controller.photonView.RPC("DM_SelectMap", Photon.Pun.RpcTarget.All,(int)actual_map);
@@ -62,6 +64,7 @@ public class SlectedMapController : MonoBehaviour
     {
         tile_highlighter.SetActive(false);
         grid.SetActive(false);
+        background.SetActive(true);
 
     }
 }

@@ -42842,6 +42842,7 @@ MonoBehaviour:
   map_activation: {fileID: 1738750428}
   tile_highlighter: {fileID: 1229240497}
   grid: {fileID: 1738750425}
+  background: {fileID: 1276483815}
 --- !u!1 &1324473757
 GameObject:
   m_ObjectHideFlags: 0
