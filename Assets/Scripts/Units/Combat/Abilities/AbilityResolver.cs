@@ -2,10 +2,7 @@
 using System.Linq;
 using DebugTools;
 using Photon.Pun;
-using Photon.Pun.Demo.Procedural;
-using SpatialUI;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 public sealed class AbilityResolver : MonoBehaviourPun
 {
@@ -475,6 +472,23 @@ public sealed class AbilityResolver : MonoBehaviourPun
 
         var traceId = CombatLog.NewTraceId();
 
+        // --- JUICE: caster punch toward primary target (runs on ALL clients) ---
+        if (casterCtrl != null)
+        {
+            // infer the primary target (first in list), if any
+            Unit primary = null;
+            if (targetViewIds != null && targetViewIds.Length > 0)
+                primary = FindByView<Unit>(targetViewIds[0]);
+
+            Vector2 face = Vector2.right;
+            if (primary != null)
+                face = (primary.transform.position - casterCtrl.unit.transform.position).normalized;
+
+            // broadcast punch
+            casterCtrl.unit.View.PlayAttackNet(face);
+        }
+
+
         // Spend AP/resources/adrenaline deterministically
         if (casterCtrl != null)
         {
@@ -522,6 +536,17 @@ public sealed class AbilityResolver : MonoBehaviourPun
         {
             var target = FindByView<Unit>(targetViewIds[i]);
             if (target == null) continue;
+
+            // --- JUICE: target feedback on hit/miss (runs on ALL clients) ---
+            bool didHit = (hits != null && i < hits.Length && hits[i]);
+            Vector2 fromAttacker = Vector2.zero;
+            if (casterCtrl != null)
+                fromAttacker = (target.transform.position - casterCtrl.unit.transform.position).normalized;
+
+            if (didHit)
+                target.View.PlayHitNet(fromAttacker);
+            else
+                target.View.PlayMissNet(fromAttacker);
 
             // Negative Zone protection: attacker outside & target inside ⇒ zero damage
             if (ZoneManager.Instance != null &&

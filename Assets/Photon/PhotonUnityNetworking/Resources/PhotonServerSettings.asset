@@ -74,6 +74,11 @@ MonoBehaviour:
   - RPC_ResolveAbility_Area
   - RPC_ApplyDamageToClient
   - RPC_ShowMissPopup
+  - RPC_PlayAttack
+  - RPC_PlayHit
+  - RPC_PlayMiss
+  - RPC_PlayMoveLand
+  - RPC_PlayMoveStart
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1
