@@ -6,7 +6,7 @@ using System.Collections.Generic;
 public class CombatHUD : MonoBehaviour
 {
     [Header("Bind at runtime")]
-    [SerializeField] private UnitController controller;  // active unit’s controller
+    [SerializeField] private UnitController controller;  // active unitï¿½s controller
 
     [Header("Top Bar")]
     [SerializeField] private ResourceBarView hpBar;

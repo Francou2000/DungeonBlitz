@@ -87,10 +87,12 @@ public class TurnManager : MonoBehaviourPunCallbacks
         // === CHECK WIN CONDITION ===
         if (timePool[currentTurn] <= 0f)
         {
+            Debug.Log($"[TurnManager] Time's up! {GetOpposingFaction(currentTurn)} wins by timeout");
             EndGame(GetOpposingFaction(currentTurn));
         }
         else if (IsFactionDefeated(GetOpposingFaction(currentTurn)))
         {
+            Debug.Log($"[TurnManager] Faction defeated! {currentTurn} wins by elimination");
             EndGame(currentTurn); // current faction wins
         }
     }
@@ -212,9 +214,9 @@ public class TurnManager : MonoBehaviourPunCallbacks
             if (!check) return; // Still waiting for some heroes
         }
 
-        // All heroes have been instantiated — unpause the game
+        // All heroes have been instantiated ï¿½ unpause the game
         gamePaused = false;
-        Debug.Log($"[TurnManager] All heroes instantiated — game unpaused on Actor={PhotonNetwork.LocalPlayer.ActorNumber}");
+        Debug.Log($"[TurnManager] All heroes instantiated ï¿½ game unpaused on Actor={PhotonNetwork.LocalPlayer.ActorNumber}");
     }
 
     // === TURN FLOW ===
@@ -283,19 +285,24 @@ public class TurnManager : MonoBehaviourPunCallbacks
 
     private bool IsFactionDefeated(UnitFaction faction)
     {
-        foreach (var unit in UnityEngine.Object.FindObjectsByType<Unit>(FindObjectsSortMode.None))
+        var allUnits = UnityEngine.Object.FindObjectsByType<Unit>(FindObjectsSortMode.None);
+        int aliveUnits = 0;
+        
+        foreach (var unit in allUnits)
         {
             if (unit.Model.Faction == faction && unit.Model.IsAlive())
             {
-                return false;
+                aliveUnits++;
             }
         }
-        return true;
+        
+        Debug.Log($"[TurnManager] Faction {faction} has {aliveUnits} alive units");
+        return aliveUnits == 0;
     }
 
     private void EndGame(UnitFaction winner)
     {
-        if (gamePaused) return;
+        //if (gamePaused) return;
         gamePaused = true;
 
         Debug.Log($"[TurnManager] {winner} wins!");
@@ -323,4 +330,51 @@ public class TurnManager : MonoBehaviourPunCallbacks
         TurnUIController.Instance.UpdateTurnUI(turnNumber, currentTurn, remaining);
     }
     */
+
+    // === PHOTON CALLBACKS ===
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        Debug.Log($"[TurnManager] Player {otherPlayer.ActorNumber} left the room");
+        
+        // Remove from hero ready tracking
+        if (heroPlayerReady.ContainsKey(otherPlayer.ActorNumber))
+        {
+            heroPlayerReady.Remove(otherPlayer.ActorNumber);
+        }
+        
+        // Check if master client left
+        if (otherPlayer.IsMasterClient)
+        {
+            Debug.Log($"[TurnManager] Master client left! Heroes win by default");
+            EndGame(UnitFaction.Hero);
+            return;
+        }
+        
+        // Check if too many heroes left
+        int remainingHeroes = 0;
+        foreach (var player in PhotonNetwork.PlayerList)
+        {
+            if (player.ActorNumber != PhotonNetwork.MasterClient.ActorNumber)
+            {
+                remainingHeroes++;
+            }
+        }
+        
+        if (remainingHeroes < 2)
+        {
+            Debug.Log($"[TurnManager] Only {remainingHeroes} heroes remaining! DM wins by default");
+            EndGame(UnitFaction.Monster);
+        }
+    }
+
+    public override void OnMasterClientSwitched(Player newMasterClient)
+    {
+        Debug.Log($"[TurnManager] Master client switched to {newMasterClient.ActorNumber}");
+        
+        // If we become the new master client, take over the game state
+        if (PhotonNetwork.IsMasterClient)
+        {
+            Debug.Log($"[TurnManager] We are now the master client");
+        }
+    }
 }

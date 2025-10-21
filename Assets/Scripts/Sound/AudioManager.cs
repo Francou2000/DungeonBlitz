@@ -123,6 +123,20 @@ public class AudioManager : MonoBehaviour
             sfxSource.PlayOneShot(stabSFX);
         }
     }
+
+    public void PlayAttackSound(string abilityName)
+    {
+        Debug.LogWarning(abilityName + "FALTA AGREGAR SONIDO - wazel :)");
+        switch (abilityName)
+        {
+            case "stab":
+                PlayStabSound();
+                break;
+            case "":
+                PlayStabSound();
+                break;
+        }
+    }
     
     public void PlayGoblinAttack(){
         if (sfxSource && goblinAttackSFX){

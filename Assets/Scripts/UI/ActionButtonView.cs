@@ -59,4 +59,9 @@ public class ActionButtonView : MonoBehaviour, IPointerEnterHandler, IPointerExi
         Debug.Log($"[Hover EXIT]");
         OnUnhover?.Invoke();
     }
+
+    public void SetInteractable(bool interactable)
+    {
+        if (button) button.interactable = interactable;
+    }
 }

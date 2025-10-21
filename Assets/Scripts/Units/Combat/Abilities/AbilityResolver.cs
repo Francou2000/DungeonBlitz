@@ -102,13 +102,36 @@ public sealed class AbilityResolver : MonoBehaviourPun
         bool alliesOnly = ability.alliesOnly;
         bool enemiesOnly = ability.enemiesOnly;
 
-        // Ground-target: allow no unit target; otherwise we need a unit target
-        // Exception: Single-target abilities with range > 0 can work without specific target (auto-target nearest enemy)
-        if (!groundTarget)
+        // Handle different targeting types
+        if (selfOnly)
         {
+            // Self-only abilities: auto-target the caster
             if (targets == null || targets.Length == 0 || targets[0] == null)
             {
-                // For Single-target abilities, try to auto-target nearest enemy if no target specified
+                Debug.Log($"[CanCast] Self-only ability, will auto-target caster");
+                // We'll handle auto-targeting in the ability resolution phase
+            }
+        }
+        else if (alliesOnly)
+        {
+            // Allies-only abilities: require a valid ally target
+            if (targets == null || targets.Length == 0 || targets[0] == null)
+            {
+                reason = "No ally target selected";
+                Debug.Log($"[Cast] FAIL: {reason}");
+                return false;
+            }
+        }
+        else if (groundTarget)
+        {
+            // Ground-target abilities: can work without unit target (target position)
+            Debug.Log($"[CanCast] Ground-target ability, will use position targeting");
+        }
+        else
+        {
+            // Regular targeting: Single-target abilities with range > 0 can auto-target nearest enemy
+            if (targets == null || targets.Length == 0 || targets[0] == null)
+            {
                 if (ability.areaType == AreaType.Single && ability.range > 0)
                 {
                     Debug.Log($"[CanCast] Single-target ability without target, will auto-target nearest enemy");
@@ -123,16 +146,6 @@ public sealed class AbilityResolver : MonoBehaviourPun
             }
         }
 
-        // Self-only must target the caster
-        if (selfOnly)
-        {
-            if (targets == null || targets.Length == 0 || targets[0] != caster)
-            {
-                reason = "Must target self";
-                Debug.Log($"[Cast] FAIL: {reason}");
-                return false;
-            }
-        }
 
         // Allies/Enemies-only (when a unit target is provided)
         if (targets != null && targets.Length > 0 && targets[0] != null)
@@ -265,20 +278,29 @@ public sealed class AbilityResolver : MonoBehaviourPun
 
         Debug.Log($"[RPC_RequestCast] CanCast passed, proceeding with ability resolution");
 
-        // Auto-targeting for Single-target abilities without specific target
-        if ((targets == null || targets.Length == 0 || targets[0] == null) && 
-            ability.areaType == AreaType.Single && ability.range > 0)
+        // Auto-targeting based on ability type
+        if (targets == null || targets.Length == 0 || targets[0] == null)
         {
-            Debug.Log($"[RPC_RequestCast] Auto-targeting nearest enemy for {ability.abilityName}");
-            targets = FindNearestEnemyTargets(casterCtrl.unit, ability.range, 1);
-            if (targets != null && targets.Length > 0)
+            if (ability.selfOnly)
             {
-                Debug.Log($"[RPC_RequestCast] Auto-targeted: {targets[0].name}");
+                // Self-only abilities: target the caster
+                Debug.Log($"[RPC_RequestCast] Self-only ability, targeting caster");
+                targets = new Unit[] { casterCtrl.unit };
             }
-            else
+            else if (ability.areaType == AreaType.Single && ability.range > 0)
             {
-                Debug.LogError($"[RPC_RequestCast] No enemies found in range for auto-targeting");
-                return;
+                // Single-target abilities: auto-target nearest enemy
+                Debug.Log($"[RPC_RequestCast] Auto-targeting nearest enemy for {ability.abilityName}");
+                targets = FindNearestEnemyTargets(casterCtrl.unit, ability.range, 1);
+                if (targets != null && targets.Length > 0)
+                {
+                    Debug.Log($"[RPC_RequestCast] Auto-targeted: {targets[0].name}");
+                }
+                else
+                {
+                    Debug.LogError($"[RPC_RequestCast] No enemies found in range for auto-targeting");
+                    return;
+                }
             }
         }
 
@@ -547,7 +569,11 @@ public sealed class AbilityResolver : MonoBehaviourPun
                             CombatFeedbackUI.ShowHit(u, dealt, (DamageType)dtype, false);
                             // Play attack sound when hit connects
                             if (AudioManager.Instance != null)
-                                AudioManager.Instance.PlayStabSound();
+                            {
+                                //AudioManager.Instance.PlayStabSound(); 
+                                var list = casterCtrl.unit.Model.Abilities;
+                                AudioManager.Instance.PlayAttackSound(list[abilityIndex].abilityName);
+                            }
                         }
                         else 
                         {
@@ -650,7 +676,11 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 CombatFeedbackUI.ShowHit(u, dealt, (DamageType)damageType, false);
                 // Play attack sound when hit connects
                 if (AudioManager.Instance != null)
+                {
                     AudioManager.Instance.PlayStabSound();
+                    // var list = casterCtrl.unit.Model.Abilities;
+                    // AudioManager.Instance.PlayAttackSound(list[abilityIndex].abilityName);
+                }
             }
             else 
             {

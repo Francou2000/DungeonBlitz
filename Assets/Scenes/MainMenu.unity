@@ -4128,7 +4128,7 @@ PrefabInstance:
     - target: {fileID: 5543826189265283640, guid: ef93971225e0e1a4993b6084d4abdd2e, type: 3}
       propertyPath: evadeMaleSFX
       value: 
-      objectReference: {fileID: 8300000, guid: 6705d0f117530c04089829e9d7fd2db5, type: 3}
+      objectReference: {fileID: 8300000, guid: 4fa5e2d1816f7ba459e5448dae57f643, type: 3}
     - target: {fileID: 5543826189265283640, guid: ef93971225e0e1a4993b6084d4abdd2e, type: 3}
       propertyPath: FemaleHurtSFX
       value: 

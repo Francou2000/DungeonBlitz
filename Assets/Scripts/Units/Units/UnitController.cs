@@ -16,6 +16,11 @@ public class UnitController : MonoBehaviourPun
     private Vector3? cachedAimPos;
     private Vector3? cachedAimDir;
 
+    // Targeting system
+    private bool isWaitingForTarget = false;
+    private UnitAbility pendingAbility = null;
+    private Vector3? pendingTargetPosition = null;
+
     public bool isControllable = true;
 
     private UnitMovement movement;
@@ -96,10 +101,26 @@ public class UnitController : MonoBehaviourPun
         if (Input.GetMouseButtonDown(0))
         {
             Debug.Log($"[UnitController] {name} mouse clicked, current action: {GetCurrentAction()}");
-            switch (GetCurrentAction())
+            
+            if (isWaitingForTarget)
             {
-                case UnitAction.Move: TryMove(); break;
-                case UnitAction.Attack: TryAttack(); break;
+                HandleTargetSelection();
+            }
+            else
+            {
+                switch (GetCurrentAction())
+                {
+                    case UnitAction.Move: TryMove(); break;
+                    case UnitAction.Attack: TryAttack(); break;
+                }
+            }
+        }
+        
+        if (Input.GetMouseButtonDown(1)) // Right click to cancel targeting
+        {
+            if (isWaitingForTarget)
+            {
+                CancelTargeting();
             }
         }
     }
@@ -351,5 +372,120 @@ public class UnitController : MonoBehaviourPun
     {
         cachedAimPos = null;
         cachedAimDir = null;
+    }
+
+    // Targeting system methods
+    public void StartTargeting(UnitAbility ability)
+    {
+        isWaitingForTarget = true;
+        pendingAbility = ability;
+        pendingTargetPosition = null;
+        
+        Debug.Log($"[UnitController] Started targeting for {ability.abilityName}");
+        
+        if (ability.alliesOnly)
+        {
+            LogAlliesInRange(ability.range);
+        }
+    }
+
+    private void HandleTargetSelection()
+    {
+        if (pendingAbility == null) return;
+
+        Vector3 clickPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 clickPos2D = new Vector2(clickPos.x, clickPos.y);
+
+        RaycastHit2D hit = Physics2D.Raycast(clickPos2D, Vector2.zero);
+        
+        if (hit.collider != null)
+        {
+            Unit clickedUnit = hit.collider.GetComponent<Unit>();
+            if (clickedUnit != null)
+            {
+                HandleUnitTarget(clickedUnit);
+                return;
+            }
+        }
+
+        // If no unit clicked, use ground position
+        HandleGroundTarget(clickPos);
+    }
+
+    private void HandleUnitTarget(Unit target)
+    {
+        if (pendingAbility.alliesOnly)
+        {
+            if (target.Model.Faction == unit.Model.Faction)
+            {
+                Debug.Log($"[UnitController] Selected ally target: {target.name}");
+                ExecuteAbility(pendingAbility, target);
+                CancelTargeting();
+            }
+            else
+            {
+                Debug.Log($"[UnitController] Invalid target: {target.name} is not an ally");
+            }
+        }
+        else if (pendingAbility.enemiesOnly)
+        {
+            if (target.Model.Faction != unit.Model.Faction)
+            {
+                Debug.Log($"[UnitController] Selected enemy target: {target.name}");
+                ExecuteAbility(pendingAbility, target);
+                CancelTargeting();
+            }
+            else
+            {
+                Debug.Log($"[UnitController] Invalid target: {target.name} is not an enemy");
+            }
+        }
+    }
+
+    private void HandleGroundTarget(Vector3 position)
+    {
+        if (pendingAbility.groundTarget)
+        {
+            Debug.Log($"[UnitController] Selected ground target at: {position}");
+            ExecuteAbility(pendingAbility, null, position);
+            CancelTargeting();
+        }
+        else
+        {
+            Debug.Log($"[UnitController] Ground targeting not allowed for this ability");
+        }
+    }
+
+    private void CancelTargeting()
+    {
+        isWaitingForTarget = false;
+        pendingAbility = null;
+        pendingTargetPosition = null;
+        Debug.Log($"[UnitController] Targeting cancelled");
+    }
+
+    private void LogAlliesInRange(int range)
+    {
+        var allUnits = Object.FindObjectsByType<Unit>(FindObjectsSortMode.None);
+        var allies = new List<Unit>();
+        
+        foreach (var unit in allUnits)
+        {
+            if (unit != this.unit && unit.Model.Faction == this.unit.Model.Faction && unit.Model.IsAlive())
+            {
+                float distance = Vector3.Distance(this.unit.transform.position, unit.transform.position);
+                if (distance <= range)
+                {
+                    allies.Add(unit);
+                }
+            }
+        }
+        
+        Debug.Log($"[UnitController] Allies in range ({range}): {allies.Count}");
+        foreach (var ally in allies)
+        {
+            float distance = Vector3.Distance(this.unit.transform.position, ally.transform.position);
+            Debug.Log($"  - {ally.name} (HP: {ally.Model.CurrentHP}/{ally.Model.MaxHP}, Distance: {distance:F1})");
+        }
     }
 }

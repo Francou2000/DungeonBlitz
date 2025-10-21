@@ -45,9 +45,20 @@ public class CombatUI : MonoBehaviour
             {
                 controller.SetSelectedAbility(ability);
 
-                if (NeedsTargeting(ability))
+                // Handle different targeting types
+                if (ability.selfOnly)
                 {
-                    // Guard: make sure targeter exists in scene
+                    // Self-only abilities: execute immediately
+                    controller.ExecuteAbility(ability, controller.unit);
+                }
+                else if (ability.alliesOnly || ability.groundTarget)
+                {
+                    // Allies-only or ground-target abilities: start targeting mode
+                    controller.StartTargeting(ability);
+                }
+                else if (NeedsTargeting(ability))
+                {
+                    // Use existing targeter for AoE abilities
                     if (!TargeterController2D.Instance)
                     {
                         Debug.LogWarning("[Targeter] TargeterController2D not found in scene. " +
@@ -71,7 +82,7 @@ public class CombatUI : MonoBehaviour
                 }
                 else
                 {
-                    // Single-target abilities or self buffs that don't need the targeter
+                    // Single-target abilities: execute immediately (auto-target nearest enemy)
                     controller.ExecuteAbility(ability, null);
                 }
             });
