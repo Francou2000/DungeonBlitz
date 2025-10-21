@@ -70,5 +70,4 @@ MonoBehaviour:
   initialTimePool: 300
   currentTurn: 0
   turnNumber: 1
-  gamePaused: 1
-  has_been_instanciated: 00000000
+  startPaused: 1

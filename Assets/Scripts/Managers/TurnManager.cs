@@ -250,7 +250,8 @@ public class TurnManager : MonoBehaviourPunCallbacks
     // === TURN FLOW ===
     private void DecideFirstTurn()
     {
-        UnitFaction starting = Random.value < 0.5f ? UnitFaction.Hero : UnitFaction.Monster;
+        //UnitFaction starting = Random.value < 0.5f ? UnitFaction.Hero : UnitFaction.Monster;
+        UnitFaction starting = UnitFaction.Hero; // For testing purposes, Heroes always start first
         float timeLeft = timePool[starting];
 
         Debug.Log($"[TurnManager] Coin flip! {starting} will start.");

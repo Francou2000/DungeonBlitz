@@ -44,6 +44,7 @@ public class UnitController : MonoBehaviourPun
     void Awake()
     {
         unit = GetComponent<Unit>();
+        model = GetComponent<UnitModel>();
 
         if (isControllable)
         {
@@ -81,7 +82,7 @@ public class UnitController : MonoBehaviourPun
 
         if (TurnManager.Instance != null && !TurnManager.Instance.IsCurrentTurn(unit))
         {
-            Debug.Log($"[UnitController] {name} not current turn (current: {TurnManager.Instance?.currentTurn})");
+            //Debug.Log($"[UnitController] {name} not current turn (current: {TurnManager.Instance?.currentTurn})");
             return;
         }
 

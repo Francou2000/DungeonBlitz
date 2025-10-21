@@ -34,24 +34,64 @@ public class CombatHUD : MonoBehaviour
     private readonly List<ActionButtonView> _active = new();
     private int pageStart = 0;
     private UnitAbility selectedAbility;
+    private UnitModel boundModel;
 
     ActionButtonView hoveredView;
 
     void Awake()
     {
-        if (pageLeft) pageLeft.onClick.AddListener(() => Page(-buttonsPerPage));
-        if (pageRight) pageRight.onClick.AddListener(() => Page(+buttonsPerPage));
+        if (pageLeft) pageLeft.onClick.AddListener(() => Page(-VisibleAbilitySlots()));
+        if (pageRight) pageRight.onClick.AddListener(() => Page(+VisibleAbilitySlots()));
         if (endTurnButton) endTurnButton.onClick.AddListener(EndTurn);
         if (pauseButton) pauseButton.onClick.AddListener(TogglePause);
     }
 
+    private void Start()
+    {
+        TurnManager.OnActiveControllerChanged += HandleActiveUnitChanged;
+    }
+
+    private void HandleActiveUnitChanged(UnitController newUnit)
+    {
+        Bind(newUnit);
+    }
+
+    private void OnDestroy()
+    {
+        TurnManager.OnActiveControllerChanged -= HandleActiveUnitChanged;
+        UnbindCurrentUnit();
+        ClearGrid(); // final cleanup
+    }
+
     public void Bind(UnitController ctrl)
     {
+        if (controller == ctrl) return;
+
+        UnbindCurrentUnit();
+        ClearGrid();
+
         controller = ctrl;
+        pageStart = 0;
         RefreshPortrait();
         RebuildBars();
         RebuildGrid();
         RefreshBars();
+    }
+
+    private void UnbindCurrentUnit()
+    {
+        if (controller != null)
+        {
+            controller = null;
+        }
+
+        if (boundModel != null)
+        {
+            boundModel.OnHealthChanged -= OnHP;
+            boundModel.OnAdrenalineChanged -= OnADR;
+            boundModel.OnActionPointsChanged -= OnAP;
+            boundModel = null;
+        }
     }
 
     void OnEnable() { TurnManager.OnTurnUI += OnTurnUi; }
@@ -66,6 +106,8 @@ public class CombatHUD : MonoBehaviour
     {
         if (controller?.model == null) return;
         var m = controller.model;
+        boundModel = m;
+
         hpBar?.Set(m.CurrentHP, m.MaxHP);
         adrBar?.Set(m.Adrenaline, m.MaxAdrenaline);  
         apPips?.SetMax(m.MaxActions);
@@ -98,9 +140,10 @@ public class CombatHUD : MonoBehaviour
     // ----- Grid -----
     void RebuildGrid()
     {
-        if (!controller) return;
+        if (!controller || gridContainer == null || actionButtonPrefab == null) return;
         ClearGrid();
 
+        //  Move button (always 1 slot)
         var moveBtn = GetButton();
         moveBtn.transform.SetParent(gridContainer, false);
         moveBtn.BindMove(moveIcon, apCost: 1);              
@@ -109,10 +152,14 @@ public class CombatHUD : MonoBehaviour
         moveBtn.OnUnhover = OnActionUnhover;
         _active.Add(moveBtn);
 
-        var abilities = controller.model.GetAvailableAbilities();  // adapt if your API differs
-        if (abilities == null) return;
+        //  Abilities (reserve space for Move)
+        var abilities = controller.model.GetAvailableAbilities();
+        if (abilities == null) { UpdatePaging(0); UpdateSelectedHighlight(); return; }
 
-        int count = Mathf.Min(buttonsPerPage, Mathf.Max(0, abilities.Count - pageStart));
+        int slotsForAbilities = VisibleAbilitySlots(); // page capacity excluding Move
+
+        int remaining = Mathf.Max(0, abilities.Count - pageStart);
+        int count = Mathf.Min(slotsForAbilities, remaining);
         for (int i = 0; i < count; i++)
         {
             var ab = abilities[pageStart + i];
@@ -133,14 +180,31 @@ public class CombatHUD : MonoBehaviour
 
     void ClearGrid()
     {
-        foreach (var v in _active) v.gameObject.SetActive(false);
+        // Hide tooltip if any
+        OnActionUnhover();
+
+        // Deactivate and clear active views
+        foreach (var v in _active)
+        {
+            // Remove button listeners to prevent accidental accumulation (if ActionButtonView uses Button)
+            var btn = v.GetComponent<Button>();
+            if (btn) btn.onClick.RemoveAllListeners();
+
+            v.gameObject.SetActive(false);
+        }
         _active.Clear();
     }
 
     ActionButtonView GetButton()
     {
-        foreach (var v in _pool) if (!v.gameObject.activeSelf) { v.gameObject.SetActive(true); return v; }
-        var go = Instantiate(actionButtonPrefab);
+        foreach (var v in _pool)
+            if (!v.gameObject.activeSelf) { v.gameObject.SetActive(true); return v; }
+
+        // instantiate directly under gridContainer so pooling/layout is stable
+        var go = gridContainer != null
+            ? Instantiate(actionButtonPrefab, gridContainer, false)
+            : Instantiate(actionButtonPrefab);
+
         var view = go.GetComponent<ActionButtonView>();
         _pool.Add(view);
         go.SetActive(true);
@@ -151,14 +215,22 @@ public class CombatHUD : MonoBehaviour
     {
         var abilities = controller.model.GetAvailableAbilities();
         if (abilities == null || abilities.Count == 0) return;
-        pageStart = Mathf.Clamp(pageStart + delta, 0, Mathf.Max(0, abilities.Count - buttonsPerPage));
+
+        int cap = VisibleAbilitySlots();
+        pageStart = Mathf.Clamp(pageStart + delta, 0, Mathf.Max(0, abilities.Count - cap));
         RebuildGrid();
     }
 
     void UpdatePaging(int total)
     {
+        int cap = VisibleAbilitySlots();
         if (pageLeft) pageLeft.interactable = (pageStart > 0);
-        if (pageRight) pageRight.interactable = (pageStart + buttonsPerPage < total);
+        if (pageRight) pageRight.interactable = (pageStart + cap < total);
+    }
+
+    int VisibleAbilitySlots()
+    {
+        return Mathf.Max(0, buttonsPerPage - 1);
     }
 
     void UpdateSelectedHighlight()
