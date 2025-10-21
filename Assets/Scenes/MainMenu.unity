@@ -802,8 +802,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4287532686
+  m_fontColor: {r: 0.5566038, g: 0.5566038, b: 0.5566038, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -2576,7 +2576,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2655,7 +2655,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 446183993}
   m_OnClick:
     m_PersistentCalls:
@@ -4134,6 +4134,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8300000, guid: 850f29f3cec8b2d46b014c44405cb56b, type: 3}
     - target: {fileID: 5543826189265283640, guid: ef93971225e0e1a4993b6084d4abdd2e, type: 3}
+      propertyPath: aa.Array.size
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5543826189265283640, guid: ef93971225e0e1a4993b6084d4abdd2e, type: 3}
       propertyPath: evadeRogueSFX
       value: 
       objectReference: {fileID: 8300000, guid: 7ff3efb4f528cf742ba015c9e6d3fbed, type: 3}
@@ -4165,6 +4169,30 @@ PrefabInstance:
       propertyPath: backgroundMusicCombat
       value: 
       objectReference: {fileID: 8300000, guid: a9ecf66696b763649acb54af9ca5640f, type: 3}
+    - target: {fileID: 5543826189265283640, guid: ef93971225e0e1a4993b6084d4abdd2e, type: 3}
+      propertyPath: aa.Array.data[0]._name
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5543826189265283640, guid: ef93971225e0e1a4993b6084d4abdd2e, type: 3}
+      propertyPath: aa.Array.data[1]._name
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5543826189265283640, guid: ef93971225e0e1a4993b6084d4abdd2e, type: 3}
+      propertyPath: aa.Array.data[2]._name
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5543826189265283640, guid: ef93971225e0e1a4993b6084d4abdd2e, type: 3}
+      propertyPath: aa.Array.data[3]._name
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5543826189265283640, guid: ef93971225e0e1a4993b6084d4abdd2e, type: 3}
+      propertyPath: aa.Array.data[4]._name
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5543826189265283640, guid: ef93971225e0e1a4993b6084d4abdd2e, type: 3}
+      propertyPath: soundDictElements.Array.size
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6921586429025586850, guid: ef93971225e0e1a4993b6084d4abdd2e, type: 3}
       propertyPath: m_LocalPosition.x
       value: -7.75898

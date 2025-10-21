@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -54,6 +55,13 @@ public class AudioManager : MonoBehaviour
     private void Start()
     {
         PlayMusic();
+        foreach (var elem in soundDictElements)
+        {
+            soundDict[elem._key] = elem._value;
+        }
+        if (soundDictElements.Count == soundDict.Count) Debug.Log("Diccionario de sonidos completo");
+        else Debug.Log("Diccionario de sonidos incompleto  ->  Alguna key está repetida");
+
     }
 
     public void PlayMusic()
@@ -222,4 +230,35 @@ public class AudioManager : MonoBehaviour
         }
     }
 
+    public List<DictionaryElement<SoundName, AudioClip>> soundDictElements = new List<DictionaryElement<SoundName, AudioClip>>();
+    Dictionary<SoundName, AudioClip> soundDict = new Dictionary<SoundName, AudioClip>();
+
+    public void PlaySFX(SoundName s_name)
+    {
+        if (sfxSource && soundDict[s_name]) sfxSource.PlayOneShot(soundDict[s_name]);
+    }
+
+}
+
+
+
+//-----------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------
+
+[Serializable]
+public struct DictionaryElement<T, K>
+{
+    public T _key;
+    public K _value;
+}
+
+public enum SoundName
+{
+    NONE,
+    HurtGoblin,
+    HurtHobGoblin,
+    HurtMale,
+    HurtFemale,
+    AttackMale
 }
