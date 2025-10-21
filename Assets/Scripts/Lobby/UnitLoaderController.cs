@@ -97,7 +97,7 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
 
             playable_Map.AddUnit(new_unit);
         }
-        players_ready[0] = true;
+        players_ready[0] = false;
     }
 
     [PunRPC]
@@ -116,6 +116,7 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
     [PunRPC]
     public void CheckIfStart()
     {
+        if (PhotonNetwork.IsMasterClient) players_ready[0] = true;
         foreach (bool ready in players_ready)
         {
             if (!ready) return;
