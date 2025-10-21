@@ -17,8 +17,12 @@ public class TurnManager : MonoBehaviourPunCallbacks
     private Dictionary<int, bool> heroPlayerReady = new();
 
     private PhotonView view;
-    public bool gamePaused = true;
-    public bool[] has_been_instanciated = new bool[4];
+
+    [SerializeField] private bool startPaused = true;
+    private bool gamePaused;
+
+    private bool[] heroesInstantiated;
+    private int expectedHeroes = 0;
 
     private float turnTimer = 0f;
     private float syncCooldown = 0f;
@@ -42,6 +46,8 @@ public class TurnManager : MonoBehaviourPunCallbacks
         Debug.Log($"[TurnManager][Awake] Instance set on Actor={PhotonNetwork.LocalPlayer.ActorNumber} IsMaster={PhotonNetwork.IsMasterClient} View={GetComponent<PhotonView>()?.ViewID}");
         Instance = this;
         view = GetComponent<PhotonView>();
+
+        gamePaused = startPaused;
     }
 
     void Start()
@@ -61,6 +67,8 @@ public class TurnManager : MonoBehaviourPunCallbacks
 
             DecideFirstTurn(); // Only Master Client decides who goes first
         }
+
+        StartCoroutine(DeferredUnpauseFallback());
 
         UpdateTurnUI();
     }
@@ -205,18 +213,38 @@ public class TurnManager : MonoBehaviourPunCallbacks
     [PunRPC]
     public void RPC_HeroeGotInstanciated(int idx)
     {
-        Debug.Log($"[TurnManager] RPC_HeroeGotInstanciated CALLED on Actor={PhotonNetwork.LocalPlayer.ActorNumber} idx={idx}");
+        Debug.Log($"[TurnManager] RPC_HeroeGotInstanciated on Actor={PhotonNetwork.LocalPlayer.ActorNumber} idx={idx}");
 
-        has_been_instanciated[idx] = true;
-
-        foreach (bool check in has_been_instanciated)
+        // Defensive init in case the spawner didn't set expected count yet
+        if (heroesInstantiated == null || heroesInstantiated.Length == 0)
         {
-            if (!check) return; // Still waiting for some heroes
+            int inferred = Mathf.Max(idx + 1, 1);
+            expectedHeroes = inferred;
+            heroesInstantiated = new bool[expectedHeroes];
+            Debug.LogWarning($"[TurnManager] Expected hero count was not set. Inferring {expectedHeroes} from first index.");
         }
 
-        // All heroes have been instantiated � unpause the game
+        if (idx >= 0 && idx < heroesInstantiated.Length)
+            heroesInstantiated[idx] = true;
+
+        // Check if all expected heroes are ready
+        for (int i = 0; i < heroesInstantiated.Length; i++)
+            if (!heroesInstantiated[i]) return;
+
         gamePaused = false;
-        Debug.Log($"[TurnManager] All heroes instantiated � game unpaused on Actor={PhotonNetwork.LocalPlayer.ActorNumber}");
+        syncCooldown = 0f; // force an immediate UI/time sync tick
+        UpdateTurnUI();
+        Debug.Log($"[TurnManager] All heroes instantiated – game unpaused.");
+        TryUnpauseIfReady($"Hero {idx} ready");
+    }
+
+    [PunRPC]
+    public void RPC_SetExpectedHeroes(int count)
+    {
+        expectedHeroes = Mathf.Max(0, count);
+        heroesInstantiated = new bool[expectedHeroes];
+        Debug.Log($"[TurnManager] Expecting {expectedHeroes} heroes.");
+        TryUnpauseIfReady("SetExpectedHeroes");
     }
 
     // === TURN FLOW ===
@@ -376,5 +404,28 @@ public class TurnManager : MonoBehaviourPunCallbacks
         {
             Debug.Log($"[TurnManager] We are now the master client");
         }
+    }
+
+    private void TryUnpauseIfReady(string reason = "")
+    {
+        if (!Photon.Pun.PhotonNetwork.IsMasterClient) return;
+
+        // If there’s no hero gating, or all expected heroes are ready, unpause
+        bool allHeroesReady = (expectedHeroes == 0 && heroesInstantiated == null)
+                              || (heroesInstantiated != null && System.Array.TrueForAll(heroesInstantiated, x => x));
+
+        if (allHeroesReady && gamePaused)
+        {
+            gamePaused = false;
+            syncCooldown = 0f;
+            UpdateTurnUI();
+            Debug.Log($"[TurnManager] Unpaused ({reason}).");
+        }
+    }
+
+    private System.Collections.IEnumerator DeferredUnpauseFallback()
+    {
+        yield return null; // let other Awake/Start run
+        TryUnpauseIfReady("Start fallback");
     }
 }

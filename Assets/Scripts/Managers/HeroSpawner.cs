@@ -91,6 +91,12 @@ public class HeroSpawner : MonoBehaviourPunCallbacks
             yield return null;
 
         PhotonView tmView = TurnManager.Instance.GetComponent<PhotonView>();
+
+        // announce how many heroes to expect 
+        int totalHeroes = spawnPoints != null ? spawnPoints.Length : 0;
+        tmView.RPC(nameof(TurnManager.RPC_SetExpectedHeroes), RpcTarget.All, totalHeroes);
+
+        // mark this particular hero index as ready
         tmView.RPC(nameof(TurnManager.RPC_HeroeGotInstanciated), RpcTarget.All, idx);
     }
 }
