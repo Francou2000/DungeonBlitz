@@ -1,9 +1,13 @@
+using Photon.Pun;
 using UnityEngine;
 
 public class UnitView : MonoBehaviour
 {
     [SerializeField] private Animator animator;
     [SerializeField] private SpriteRenderer spriteRenderer;
+
+    [SerializeField] private UnitJuice juice;
+    private Photon.Pun.PhotonView pv;
 
     private Unit unit;
 
@@ -13,6 +17,8 @@ public class UnitView : MonoBehaviour
     {
         this.unit = unit;
         outlineObject.SetActive(false);
+        if (!juice) juice = GetComponent<UnitJuice>();
+        pv = GetComponent<Photon.Pun.PhotonView>();
     }
 
     public void PlayAnimation(string animationName)
@@ -34,7 +40,51 @@ public class UnitView : MonoBehaviour
     public void SetHighlighted(bool highlighted)
     {
         outlineObject.SetActive(highlighted);
-    }  
+    }
 
-    // Add VFX, UI feedback, etc., as needed
+    // ----- Local Helpers -----
+
+    private void PlayMoveStartLocal(Vector2 dir) { if (animator) animator.Play("Move"); if (juice) juice.MoveStartSquash(dir); }
+    private void PlayMoveLandLocal() { if (animator) animator.Play("Idle"); if (juice) juice.MoveLandRebound(); }
+    private void PlayAttackLocal(Vector2 facing)
+    {
+        if (animator) animator.Play("Attack");// if you have it
+        if (juice) juice.AttackPunch(facing);
+    }
+    private void PlayHitLocal(Vector2 fromAtk) { if (juice) juice.HitNudge(fromAtk); }
+    private void PlayMissLocal(Vector2 fromAtk) { if (juice) juice.MissDodge(fromAtk); }
+
+    // ----- Networked Calls -----
+
+    public void PlayMoveStartNet(Vector2 dir)
+    {
+        if (pv) pv.RPC(nameof(RPC_PlayMoveStart), Photon.Pun.RpcTarget.All, dir.x, dir.y);
+        else RPC_PlayMoveStart(dir.x, dir.y);
+    }
+    public void PlayMoveLandNet()
+    {
+        if (pv) pv.RPC(nameof(RPC_PlayMoveLand), Photon.Pun.RpcTarget.All);
+        else RPC_PlayMoveLand();
+    }
+    public void PlayAttackNet(Vector2 facing)
+    {
+        if (pv) pv.RPC(nameof(RPC_PlayAttack), Photon.Pun.RpcTarget.All, facing.x, facing.y);
+        else RPC_PlayAttack(facing.x, facing.y);
+    }
+    public void PlayHitNet(Vector2 fromAttacker)
+    {
+        if (pv) pv.RPC(nameof(RPC_PlayHit), Photon.Pun.RpcTarget.All, fromAttacker.x, fromAttacker.y);
+        else RPC_PlayHit(fromAttacker.x, fromAttacker.y);
+    }
+    public void PlayMissNet(Vector2 fromAttacker)
+    {
+        if (pv) pv.RPC(nameof(RPC_PlayMiss), Photon.Pun.RpcTarget.All, fromAttacker.x, fromAttacker.y);
+        else RPC_PlayMiss(fromAttacker.x, fromAttacker.y);
+    }
+
+    [PunRPC] void RPC_PlayMoveStart(float x, float y) { PlayMoveStartLocal(new Vector2(x, y)); }
+    [PunRPC] void RPC_PlayMoveLand() { PlayMoveLandLocal(); }
+    [PunRPC] void RPC_PlayAttack(float x, float y) { PlayAttackLocal(new Vector2(x, y)); }
+    [PunRPC] void RPC_PlayHit(float x, float y) { PlayHitLocal(new Vector2(x, y)); }
+    [PunRPC] void RPC_PlayMiss(float x, float y) { PlayMissLocal(new Vector2(x, y)); }
 }

@@ -19,6 +19,10 @@ public class UnitMovement : MonoBehaviour
         Vector3 clampedTarget = ClampToMoveRange(oldPosition, mouseWorld);
         float speed = unit.Model.GetMovementSpeed();
 
+        Vector3 dir = (clampedTarget - oldPosition);
+        unit.View.SetFacingDirection(dir);
+        unit.View.PlayMoveStartNet(dir);
+
         unit.StartCoroutine(MoveCoroutine(clampedTarget, oldPosition, speed, () =>
         {
             //After finishing movement, check for reactions
@@ -39,7 +43,7 @@ public class UnitMovement : MonoBehaviour
     private IEnumerator MoveCoroutine(Vector3 targetPos, Vector3 oldPosition, float speed, System.Action onFinish)
     {
         unit.View.SetFacingDirection((targetPos - transform.position).normalized);
-        unit.View.PlayAnimation("Move");
+
 
         while (Vector3.Distance(transform.position, targetPos) > 0.05f)
         {
@@ -59,7 +63,7 @@ public class UnitMovement : MonoBehaviour
         ReactionManager.Instance?.TryTriggerReactions(unit, from);
 
         unit.Model.SpendAction();
-        unit.View.PlayAnimation("Idle");
+        unit.View.PlayMoveLandNet();
 
         onFinish?.Invoke();
     }
