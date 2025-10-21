@@ -4117,6 +4117,54 @@ PrefabInstance:
       propertyPath: m_Name
       value: AudioManager
       objectReference: {fileID: 0}
+    - target: {fileID: 5543826189265283640, guid: ef93971225e0e1a4993b6084d4abdd2e, type: 3}
+      propertyPath: stabSFX
+      value: 
+      objectReference: {fileID: 8300000, guid: 2560d7798d7c0f6449485305484a3b3b, type: 3}
+    - target: {fileID: 5543826189265283640, guid: ef93971225e0e1a4993b6084d4abdd2e, type: 3}
+      propertyPath: maleHurtSFX
+      value: 
+      objectReference: {fileID: 8300000, guid: 6705d0f117530c04089829e9d7fd2db5, type: 3}
+    - target: {fileID: 5543826189265283640, guid: ef93971225e0e1a4993b6084d4abdd2e, type: 3}
+      propertyPath: evadeMaleSFX
+      value: 
+      objectReference: {fileID: 8300000, guid: 6705d0f117530c04089829e9d7fd2db5, type: 3}
+    - target: {fileID: 5543826189265283640, guid: ef93971225e0e1a4993b6084d4abdd2e, type: 3}
+      propertyPath: FemaleHurtSFX
+      value: 
+      objectReference: {fileID: 8300000, guid: 850f29f3cec8b2d46b014c44405cb56b, type: 3}
+    - target: {fileID: 5543826189265283640, guid: ef93971225e0e1a4993b6084d4abdd2e, type: 3}
+      propertyPath: evadeRogueSFX
+      value: 
+      objectReference: {fileID: 8300000, guid: 7ff3efb4f528cf742ba015c9e6d3fbed, type: 3}
+    - target: {fileID: 5543826189265283640, guid: ef93971225e0e1a4993b6084d4abdd2e, type: 3}
+      propertyPath: goblinHurtSFX
+      value: 
+      objectReference: {fileID: 8300000, guid: bd3168a2f103dad4a96c3cdc30adf9fb, type: 3}
+    - target: {fileID: 5543826189265283640, guid: ef93971225e0e1a4993b6084d4abdd2e, type: 3}
+      propertyPath: evadeGoblinSFX
+      value: 
+      objectReference: {fileID: 8300000, guid: c9e4cd9fea40dae4782bc7f8dca89f1a, type: 3}
+    - target: {fileID: 5543826189265283640, guid: ef93971225e0e1a4993b6084d4abdd2e, type: 3}
+      propertyPath: goblinAttackSFX
+      value: 
+      objectReference: {fileID: 8300000, guid: b920ab91184df87488dd2f476894ee32, type: 3}
+    - target: {fileID: 5543826189265283640, guid: ef93971225e0e1a4993b6084d4abdd2e, type: 3}
+      propertyPath: HobGoblinHurtSFX
+      value: 
+      objectReference: {fileID: 8300000, guid: bd3168a2f103dad4a96c3cdc30adf9fb, type: 3}
+    - target: {fileID: 5543826189265283640, guid: ef93971225e0e1a4993b6084d4abdd2e, type: 3}
+      propertyPath: evadeHobGoblinSFX
+      value: 
+      objectReference: {fileID: 8300000, guid: 64447b898b57c464bbafbde45cceece8, type: 3}
+    - target: {fileID: 5543826189265283640, guid: ef93971225e0e1a4993b6084d4abdd2e, type: 3}
+      propertyPath: backgroundMusicMenu
+      value: 
+      objectReference: {fileID: 8300000, guid: e91664651046a1e4dafcbca5bebf0dd7, type: 3}
+    - target: {fileID: 5543826189265283640, guid: ef93971225e0e1a4993b6084d4abdd2e, type: 3}
+      propertyPath: backgroundMusicCombat
+      value: 
+      objectReference: {fileID: 8300000, guid: a9ecf66696b763649acb54af9ca5640f, type: 3}
     - target: {fileID: 6921586429025586850, guid: ef93971225e0e1a4993b6084d4abdd2e, type: 3}
       propertyPath: m_LocalPosition.x
       value: -7.75898

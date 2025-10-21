@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using DebugTools;
 using Photon.Pun;
 using Photon.Pun.Demo.Procedural;
@@ -23,9 +24,10 @@ public sealed class AbilityResolver : MonoBehaviourPun
     public static bool CanCast(Unit caster, UnitAbility ability, Unit[] targets, out string reason)
     {
         reason = null;
-        if (caster == null || ability == null) { reason = "No caster/ability"; return false; }
-        if (!caster.Model.CanAct()) { reason = "No actions left"; return false; }
-        Debug.Log($"[Cast] FAIL: {reason}");
+        Debug.Log($"[CanCast] Checking caster={caster?.name} ability={ability?.abilityName} actions={caster?.Model?.CurrentActions}/{caster?.Model?.MaxActions}");
+        
+        if (caster == null || ability == null) { reason = "No caster/ability"; Debug.Log($"[Cast] FAIL: {reason}"); return false; }
+        if (!caster.Model.CanAct()) { reason = "No actions left"; Debug.Log($"[Cast] FAIL: {reason}"); return false; }
 
         // --- Resource costs ---
         if (ability.resourceCosts != null)
@@ -101,13 +103,23 @@ public sealed class AbilityResolver : MonoBehaviourPun
         bool enemiesOnly = ability.enemiesOnly;
 
         // Ground-target: allow no unit target; otherwise we need a unit target
+        // Exception: Single-target abilities with range > 0 can work without specific target (auto-target nearest enemy)
         if (!groundTarget)
         {
             if (targets == null || targets.Length == 0 || targets[0] == null)
             {
-                reason = "No target";
-                Debug.Log($"[Cast] FAIL: {reason}");
-                return false;
+                // For Single-target abilities, try to auto-target nearest enemy if no target specified
+                if (ability.areaType == AreaType.Single && ability.range > 0)
+                {
+                    Debug.Log($"[CanCast] Single-target ability without target, will auto-target nearest enemy");
+                    // We'll handle auto-targeting in the ability resolution phase
+                }
+                else
+                {
+                    reason = "No target";
+                    Debug.Log($"[Cast] FAIL: {reason}");
+                    return false;
+                }
             }
         }
 
@@ -164,11 +176,48 @@ public sealed class AbilityResolver : MonoBehaviourPun
 
     public void RequestCast(UnitController casterCtrl, UnitAbility ability, Unit[] targets, Vector3 aimPos, Vector3 aimDir, string traceId)
     {
-        if (casterCtrl == null || ability == null) return;
+        // Log detailed target information
+        string targetInfo = "";
+        if (targets != null && targets.Length > 0)
+        {
+            for (int i = 0; i < targets.Length; i++)
+            {
+                if (targets[i] != null)
+                {
+                    targetInfo += $"Target{i}: {targets[i].name} (HP:{targets[i].Model.CurrentHP}/{targets[i].Model.MaxHP}, Faction:{targets[i].Model.Faction})";
+                    if (i < targets.Length - 1) targetInfo += ", ";
+                }
+                else
+                {
+                    targetInfo += $"Target{i}: NULL";
+                    if (i < targets.Length - 1) targetInfo += ", ";
+                }
+            }
+        }
+        else
+        {
+            targetInfo = "No targets";
+        }
+        
+        Debug.Log($"[RequestCast] ENTER caster={casterCtrl?.name} ability={ability?.abilityName} targets={targets?.Length} traceId={traceId}");
+        Debug.Log($"[RequestCast] TARGET INFO: {targetInfo}");
+        
+        if (casterCtrl == null || ability == null) 
+        {
+            Debug.LogError($"[RequestCast] FAIL: casterCtrl={casterCtrl} ability={ability}");
+            return;
+        }
 
         int abilityIndex = casterCtrl.unit.Model.Abilities.IndexOf(ability);
-        if (abilityIndex < 0) return;
+        if (abilityIndex < 0) 
+        {
+            Debug.LogError($"[RequestCast] FAIL: ability not found in caster's abilities list. ability={ability?.abilityName}");
+            return;
+        }
 
+        Debug.Log($"[RequestCast] Sending RPC to MasterClient. casterViewId={casterCtrl.photonView.ViewID} abilityIndex={abilityIndex}");
+        Debug.Log($"[RequestCast] IsMasterClient={PhotonNetwork.IsMasterClient} LocalPlayer={PhotonNetwork.LocalPlayer.ActorNumber}");
+        
         int[] targetViewIds = PackTargets(targets);
         _view.RPC(nameof(RPC_RequestCast), RpcTarget.MasterClient,
             casterCtrl.photonView.ViewID, abilityIndex, targetViewIds);
@@ -177,18 +226,61 @@ public sealed class AbilityResolver : MonoBehaviourPun
     [PunRPC]
     private void RPC_RequestCast(int casterViewId, int abilityIndex, int[] targetViewIds, PhotonMessageInfo info)
     {
-        if (!PhotonNetwork.IsMasterClient) return;
+        Debug.Log($"[RPC_RequestCast] ENTER casterViewId={casterViewId} abilityIndex={abilityIndex} isMaster={PhotonNetwork.IsMasterClient} sender={info.Sender.ActorNumber}");
+        
+        if (!PhotonNetwork.IsMasterClient) 
+        {
+            Debug.Log($"[RPC_RequestCast] Not master client, ignoring");
+            return;
+        }
 
         var casterCtrl = FindByView<UnitController>(casterViewId);
-        if (casterCtrl == null) return;
+        if (casterCtrl == null) 
+        {
+            Debug.LogError($"[RPC_RequestCast] FAIL: casterCtrl not found for viewId={casterViewId}");
+            return;
+        }
+
+        Debug.Log($"[RPC_RequestCast] Found caster: {casterCtrl.name}");
 
         // Ability lookup from caster's list
         var list = casterCtrl.unit.Model.Abilities;
-        if (abilityIndex < 0 || abilityIndex >= list.Count) return;
+        if (abilityIndex < 0 || abilityIndex >= list.Count) 
+        {
+            Debug.LogError($"[RPC_RequestCast] FAIL: abilityIndex={abilityIndex} out of range (0-{list.Count-1})");
+            return;
+        }
         var ability = list[abilityIndex];
+        
+        Debug.Log($"[RPC_RequestCast] Found ability: {ability.abilityName}");
 
         var targets = UnpackTargets<Unit>(targetViewIds);
-        if (!CanCast(casterCtrl.unit, ability, targets, out _)) return;
+        Debug.Log($"[RPC_RequestCast] Unpacked targets: {targets?.Length}");
+        
+        if (!CanCast(casterCtrl.unit, ability, targets, out string reason)) 
+        {
+            Debug.LogError($"[RPC_RequestCast] FAIL: CanCast failed - {reason}");
+            return;
+        }
+
+        Debug.Log($"[RPC_RequestCast] CanCast passed, proceeding with ability resolution");
+
+        // Auto-targeting for Single-target abilities without specific target
+        if ((targets == null || targets.Length == 0 || targets[0] == null) && 
+            ability.areaType == AreaType.Single && ability.range > 0)
+        {
+            Debug.Log($"[RPC_RequestCast] Auto-targeting nearest enemy for {ability.abilityName}");
+            targets = FindNearestEnemyTargets(casterCtrl.unit, ability.range, 1);
+            if (targets != null && targets.Length > 0)
+            {
+                Debug.Log($"[RPC_RequestCast] Auto-targeted: {targets[0].name}");
+            }
+            else
+            {
+                Debug.LogError($"[RPC_RequestCast] No enemies found in range for auto-targeting");
+                return;
+            }
+        }
 
         var traceId = CombatLog.NewTraceId();
         CombatLog.Cast(traceId, $"Validate caster={casterCtrl?.name}#{casterViewId} ability={ability?.name} targets={targets?.Length}");
@@ -418,8 +510,13 @@ public sealed class AbilityResolver : MonoBehaviourPun
             {
                 // Keep 'hit' as-is; just nullify damage
                 if (hits != null && i < hits.Length && hits[i] && damages != null && i < damages.Length)
+                {
                     CombatFeedbackUI.ShowMiss(target.GetComponent<Unit>());
+                    // Play evade sound when protected by negative zone
+                    if (AudioManager.Instance != null)
+                        AudioManager.Instance.PlayEvadeSoundByUnitType(target.GetComponent<Unit>());
                     damages[i] = 0;
+                }
             }
 
             Debug.Log($"[RPC_ResolveArea] pre-damage target={target?.name} hit={(hits != null && i < hits.Length && hits[i])} " +
@@ -445,8 +542,20 @@ public sealed class AbilityResolver : MonoBehaviourPun
                     var u = target.GetComponent<Unit>();
                     if (u)
                     {
-                        if (dealt > 0) CombatFeedbackUI.ShowHit(u, dealt, (DamageType)dtype, false);
-                        else CombatFeedbackUI.ShowMiss(u);
+                        if (dealt > 0) 
+                        {
+                            CombatFeedbackUI.ShowHit(u, dealt, (DamageType)dtype, false);
+                            // Play attack sound when hit connects
+                            if (AudioManager.Instance != null)
+                                AudioManager.Instance.PlayStabSound();
+                        }
+                        else 
+                        {
+                            CombatFeedbackUI.ShowMiss(u);
+                            // Play evade sound when attack misses
+                            if (AudioManager.Instance != null)
+                                AudioManager.Instance.PlayEvadeSoundByUnitType(u);
+                        }
                     }
 
                     // Mirror to other clients (they'll apply and show popups in RPC_ApplyDamageToClient)
@@ -499,6 +608,25 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 }
             }
         }
+
+        // Handle completely missed attacks (no hit at all)
+        if (hits != null && targetViewIds != null)
+        {
+            for (int i = 0; i < targetViewIds.Length; i++)
+            {
+                if (i < hits.Length && !hits[i]) // Attack completely missed
+                {
+                    var target = FindByView<Unit>(targetViewIds[i]);
+                    if (target != null)
+                    {
+                        CombatFeedbackUI.ShowMiss(target.GetComponent<Unit>());
+                        // Play evade sound when attack completely misses
+                        if (AudioManager.Instance != null)
+                            AudioManager.Instance.PlayEvadeSoundByUnitType(target.GetComponent<Unit>());
+                    }
+                }
+            }
+        }
     }
 
     [PunRPC]
@@ -517,8 +645,20 @@ public sealed class AbilityResolver : MonoBehaviourPun
         var u = target.GetComponent<Unit>();
         if (u)
         {
-            if (dealt > 0) CombatFeedbackUI.ShowHit(u, dealt, (DamageType)damageType, false);
-            else CombatFeedbackUI.ShowMiss(u);
+            if (dealt > 0) 
+            {
+                CombatFeedbackUI.ShowHit(u, dealt, (DamageType)damageType, false);
+                // Play attack sound when hit connects
+                if (AudioManager.Instance != null)
+                    AudioManager.Instance.PlayStabSound();
+            }
+            else 
+            {
+                CombatFeedbackUI.ShowMiss(u);
+                // Play evade sound when attack misses
+                if (AudioManager.Instance != null)
+                    AudioManager.Instance.PlayEvadeSoundByUnitType(u);
+            }
         }
     }
 
@@ -565,5 +705,34 @@ public sealed class AbilityResolver : MonoBehaviourPun
     {
         var v = PhotonView.Find(viewId);
         return v ? v.GetComponent<T>() : null;
+    }
+
+    // Helper function to find nearest enemy targets for auto-targeting
+    private Unit[] FindNearestEnemyTargets(Unit caster, int range, int maxTargets)
+    {
+        var allUnits = Object.FindObjectsByType<Unit>(FindObjectsSortMode.None);
+        var enemies = new List<Unit>();
+        
+        foreach (var unit in allUnits)
+        {
+            if (unit != caster && unit.Model.Faction != caster.Model.Faction && unit.Model.IsAlive())
+            {
+                float distance = Vector3.Distance(caster.transform.position, unit.transform.position);
+                if (distance <= range)
+                {
+                    enemies.Add(unit);
+                }
+            }
+        }
+        
+        // Sort by distance and return up to maxTargets
+        enemies.Sort((a, b) => 
+        {
+            float distA = Vector3.Distance(caster.transform.position, a.transform.position);
+            float distB = Vector3.Distance(caster.transform.position, b.transform.position);
+            return distA.CompareTo(distB);
+        });
+        
+        return enemies.Take(maxTargets).ToArray();
     }
 }

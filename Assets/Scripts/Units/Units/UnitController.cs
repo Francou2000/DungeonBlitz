@@ -56,22 +56,46 @@ public class UnitController : MonoBehaviourPun
     
     void Update()
     {
-        if (!isControllable || ActiveUnit != this )
+        if (!isControllable) 
+        {
+            //Debug.Log($"[UnitController] {name} not controllable");
             return;
+        }
+        
+        if (ActiveUnit != this) 
+        {
+            //Debug.Log($"[UnitController] {name} not active unit (active: {ActiveUnit?.name})");
+            return;
+        }
 
-        if (isMoving) return;
+        if (isMoving) 
+        {
+            Debug.Log($"[UnitController] {name} is moving");
+            return;
+        }
 
         if (TurnManager.Instance != null && !TurnManager.Instance.IsCurrentTurn(unit))
+        {
+            Debug.Log($"[UnitController] {name} not current turn (current: {TurnManager.Instance?.currentTurn})");
             return;
+        }
 
-        if (!photonView.IsMine) return;
+        if (!photonView.IsMine) 
+        {
+            //Debug.Log($"[UnitController] {name} photonView not mine");
+            return;
+        }
 
         // Avoid handling input when clicking on UI
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+        {
+            Debug.Log($"[UnitController] {name} clicking on UI");
             return;
+        }
 
         if (Input.GetMouseButtonDown(0))
         {
+            Debug.Log($"[UnitController] {name} mouse clicked, current action: {GetCurrentAction()}");
             switch (GetCurrentAction())
             {
                 case UnitAction.Move: TryMove(); break;
@@ -202,6 +226,8 @@ public class UnitController : MonoBehaviourPun
     // Legacy attack system (keeping for compatibility)
     public void TryAttack()
     {
+        AudioManager.Instance.PlayButtonSound();
+        Debug.Log("Trying to attack with ability: " + selectedAbility.abilityName);
         if (!unit.Model.CanAct() || selectedAbility == null || !photonView.IsMine)
             return;
 

@@ -21,6 +21,24 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip buttonClickSFX;
     [SerializeField] private AudioClip startGameSFX;
 
+    [Header("Attack SFX")]
+    [SerializeField] private AudioClip stabSFX;
+    [SerializeField] private AudioClip goblinAttackSFX;
+    
+    [Header("Hurt SFX")]
+    [SerializeField] private AudioClip goblinHurtSFX;
+    [SerializeField] private AudioClip maleHurtSFX;
+    [SerializeField] private AudioClip FemaleHurtSFX;
+    [SerializeField] private AudioClip HobGoblinHurtSFX;
+    
+    [Header("Evade SFX")]
+    [SerializeField] private AudioClip evadeMaleSFX;
+    [SerializeField] private AudioClip evadeRogueSFX;
+    [SerializeField] private AudioClip evadeGoblinSFX;
+    [SerializeField] private AudioClip evadeHobGoblinSFX;
+
+
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -97,4 +115,97 @@ public class AudioManager : MonoBehaviour
         float dB = Mathf.Log10(Mathf.Clamp(value, 0.0001f, 1)) * 20f;
         audioMixer.SetFloat(exposedParam, dB);
     }
+
+    //testing this may change later
+    // ATTACK SFX
+    public void PlayStabSound(){
+        if (sfxSource && stabSFX){
+            sfxSource.PlayOneShot(stabSFX);
+        }
+    }
+    
+    public void PlayGoblinAttack(){
+        if (sfxSource && goblinAttackSFX){
+            sfxSource.PlayOneShot(goblinAttackSFX);
+        }
+    }
+
+
+    //EVADE SFX
+    public void PlayEvadeMale(){
+        if (sfxSource && evadeMaleSFX){
+            sfxSource.PlayOneShot(evadeMaleSFX);
+        }
+    }
+
+    public void PlayEvadeRogue(){
+        if (sfxSource && evadeRogueSFX){
+            sfxSource.PlayOneShot(evadeRogueSFX);
+        }
+    }
+
+    public void PlayEvadeGoblin(){
+        if (sfxSource && evadeGoblinSFX){
+            sfxSource.PlayOneShot(evadeGoblinSFX);
+        }
+    }
+
+    public void PlayEvadeHobgoblin(){
+        if (sfxSource && evadeHobGoblinSFX){
+            sfxSource.PlayOneShot(evadeHobGoblinSFX);
+        }
+    }
+
+
+    //HURT SFX
+    public void PlayHurtGoblin(){
+        if (sfxSource && goblinHurtSFX){
+            sfxSource.PlayOneShot(goblinHurtSFX);
+        }
+    }
+
+    public void PlayHurtHobGoblin(){
+         if (sfxSource && HobGoblinHurtSFX){
+            sfxSource.PlayOneShot(HobGoblinHurtSFX);
+        }       
+    }
+
+    public void PlayHurtMale(){
+        if (sfxSource && maleHurtSFX){
+            sfxSource.PlayOneShot(maleHurtSFX);
+        }
+    }
+
+    public void PlayHurtFemale(){
+        if (sfxSource && FemaleHurtSFX){
+            sfxSource.PlayOneShot(FemaleHurtSFX);
+        }
+    }
+
+    // Helper function to play evade sound based on unit type
+    public void PlayEvadeSoundByUnitType(Unit unit)
+    {
+        if (unit == null) return;
+        
+        // Get unit name to determine type
+        string unitName = unit.name.ToLower();
+        
+        if (unitName.Contains("goblin") && !unitName.Contains("hob"))
+        {
+            PlayEvadeGoblin();
+        }
+        else if (unitName.Contains("hobgoblin") || unitName.Contains("hob"))
+        {
+            PlayEvadeHobgoblin();
+        }
+        else if (unitName.Contains("rogue") || unitName.Contains("female"))
+        {
+            PlayEvadeRogue();
+        }
+        else // Default to male for other units
+        {
+            PlayEvadeMale();
+        }
+    }
+
 }
