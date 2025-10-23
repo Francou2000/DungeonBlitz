@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 781965bc64a834d438abb68270da890c, type: 3}
   m_Name: PopupTextConfig
   m_EditorClassIdentifier: 
-  font: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  font: {fileID: 11400000, guid: e7398cfd60a9ab940b056062eec34a89, type: 2}
   physical: {r: 1, g: 0.55, b: 0, a: 1}
   magical: {r: 0.66, g: 0.33, b: 1, a: 1}
   fire: {r: 1, g: 0.25, b: 0.1, a: 1}
@@ -20,8 +20,8 @@ MonoBehaviour:
   electric: {r: 1, g: 0.95, b: 0.2, a: 1}
   heal: {r: 0.2, g: 1, b: 0.35, a: 1}
   miss: {r: 0.9, g: 0.9, b: 0.9, a: 1}
-  baseFontSize: 12
-  outlineWidth: 0.15
+  baseFontSize: 8
+  outlineWidth: 0.1
   outlineColor: {r: 0, g: 0, b: 0, a: 1}
   useGradient: 0
   gradient:
@@ -119,4 +119,4 @@ MonoBehaviour:
   critScale: 1.35
   critColor: {r: 1, g: 0.95, b: 0.6, a: 1}
   verticalOffset: 1.6
-  worldScale: 0.2
+  worldScale: 0.05

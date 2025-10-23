@@ -16,6 +16,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
         _view = GetComponent<PhotonView>() ?? gameObject.AddComponent<PhotonView>();
+        Debug.Log("[AbilityResolver] v2 RPC (aimPos/aimDir) LOADED on " + (PhotonNetwork.IsMasterClient ? "MASTER" : "CLIENT"));
     }
 
     public static bool CanCast(Unit caster, UnitAbility ability, Unit[] targets, out string reason)
@@ -94,24 +95,21 @@ public sealed class AbilityResolver : MonoBehaviourPun
         }
 
         // --- Targeting filters (only enforced if the fields exist on your UnitAbility) ---
-        bool groundTarget = ability.groundTarget;   // if you haven't added these fields yet, add them to UnitAbility
+
+        // Handle different targeting types
+        bool groundTarget = ability.groundTarget;
         bool selfOnly = ability.selfOnly;
         bool alliesOnly = ability.alliesOnly;
         bool enemiesOnly = ability.enemiesOnly;
 
-        // Handle different targeting types
+        // 1) Self-only: ok without an explicit target (we'll auto-target caster later)
         if (selfOnly)
         {
-            // Self-only abilities: auto-target the caster
-            if (targets == null || targets.Length == 0 || targets[0] == null)
-            {
-                Debug.Log($"[CanCast] Self-only ability, will auto-target caster");
-                // We'll handle auto-targeting in the ability resolution phase
-            }
+            Debug.Log("[CanCast] Self-only ability; explicit unit not required.");
         }
-        else if (alliesOnly)
+        // 2) Allies-only: if this is a *single-target* ally spell, we do require a unit
+        else if (alliesOnly && ability.areaType == AreaType.Single)
         {
-            // Allies-only abilities: require a valid ally target
             if (targets == null || targets.Length == 0 || targets[0] == null)
             {
                 reason = "No ally target selected";
@@ -119,20 +117,20 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 return false;
             }
         }
-        else if (groundTarget)
+        // 3) Ground/AoE/Line: can be cast without an explicit unit (position/aim will be used)
+        else if (groundTarget || ability.areaType == AreaType.Circle || ability.areaType == AreaType.Line)
         {
-            // Ground-target abilities: can work without unit target (target position)
-            Debug.Log($"[CanCast] Ground-target ability, will use position targeting");
+            Debug.Log("[CanCast] Area/ground ability; explicit unit not required.");
         }
+        // 4) Everything else (true single-target): must have a unit or we may auto-target
         else
         {
-            // Regular targeting: Single-target abilities with range > 0 can auto-target nearest enemy
             if (targets == null || targets.Length == 0 || targets[0] == null)
             {
                 if (ability.areaType == AreaType.Single && ability.range > 0)
                 {
-                    Debug.Log($"[CanCast] Single-target ability without target, will auto-target nearest enemy");
-                    // We'll handle auto-targeting in the ability resolution phase
+                    Debug.Log("[CanCast] Single-target without target -> will auto-target nearest enemy.");
+                    // Auto-target happens later during resolution
                 }
                 else
                 {
@@ -152,7 +150,6 @@ public sealed class AbilityResolver : MonoBehaviourPun
             { reason = "Allies only"; return false; }
             if (enemiesOnly && t.Model.Faction == caster.Model.Faction)
             { reason = "Enemies only"; return false; }
-            Debug.Log($"[Cast] FAIL: {reason}");
         }
 
         // --- Tags on target ---
@@ -188,6 +185,8 @@ public sealed class AbilityResolver : MonoBehaviourPun
     {
         // Log detailed target information
         string targetInfo = "";
+        Debug.Log($"[RequestCast] SEND aimPos={aimPos} aimDir={aimDir}");
+
         if (targets != null && targets.Length > 0)
         {
             for (int i = 0; i < targets.Length; i++)
@@ -230,14 +229,14 @@ public sealed class AbilityResolver : MonoBehaviourPun
         
         int[] targetViewIds = PackTargets(targets);
         _view.RPC(nameof(RPC_RequestCast), RpcTarget.MasterClient,
-            casterCtrl.photonView.ViewID, abilityIndex, targetViewIds);
+            casterCtrl.photonView.ViewID, abilityIndex, targetViewIds, aimPos, aimDir);
     }
 
     [PunRPC]
-    private void RPC_RequestCast(int casterViewId, int abilityIndex, int[] targetViewIds, PhotonMessageInfo info)
+    private void RPC_RequestCast(int casterViewId, int abilityIndex, int[] targetViewIds, Vector3 aimPos, Vector3 aimDir, PhotonMessageInfo info)
     {
         Debug.Log($"[RPC_RequestCast] ENTER casterViewId={casterViewId} abilityIndex={abilityIndex} isMaster={PhotonNetwork.IsMasterClient} sender={info.Sender.ActorNumber}");
-        
+        Debug.Log($"[RPC_RequestCast] RECV aimPos={aimPos} aimDir={aimDir}");
         if (!PhotonNetwork.IsMasterClient) 
         {
             Debug.Log($"[RPC_RequestCast] Not master client, ignoring");
@@ -308,23 +307,35 @@ public sealed class AbilityResolver : MonoBehaviourPun
         var computedTargets = new List<Unit>();
         Unit primaryTarget = (targets != null && targets.Length > 0) ? targets[0] : null;
 
+        // Clamp Z for 2D
+        aimPos.z = 0f;
+
+        // SINGLE
         if (ability.areaType == AreaType.Single)
         {
             if (primaryTarget != null) computedTargets.Add(primaryTarget);
         }
+
+        // CIRCLE (AoE) — use clicked aimPos if no primary was sent
         else if (ability.areaType == AreaType.Circle)
         {
-            // Center on the first provided target (for now). Ground target can be added later.
-            var center = (primaryTarget != null) ? primaryTarget.transform.position : casterCtrl.unit.transform.position;
+            var center = (primaryTarget != null) ? primaryTarget.transform.position : aimPos;
+            var cols = Physics2D.OverlapCircleAll(center, ability.aoeRadius);
             computedTargets = CombatCalculator.GetUnitsInRadius(center, ability.aoeRadius, casterCtrl.unit);
+            Debug.Log($"[AoE] rawColliders={cols.Length} center={center} r={ability.aoeRadius}");
         }
+
+        // LINE — if no primary, derive one near the click so your existing helper can work
         else if (ability.areaType == AreaType.Line)
         {
+            if (primaryTarget == null)
+                primaryTarget = FindNearestEnemyToPoint(casterCtrl.unit, aimPos, ability.range);
+
             if (primaryTarget != null)
             {
                 computedTargets = CombatCalculator.GetLineTargets(
                     casterCtrl.unit, primaryTarget,
-                    ability.range, // use generic range
+                    ability.range,
                     Mathf.Max(1, ability.lineMaxTargets),
                     Mathf.Clamp01(ability.lineAlignmentTolerance)
                 );
@@ -799,5 +810,24 @@ public sealed class AbilityResolver : MonoBehaviourPun
         });
         
         return enemies.Take(maxTargets).ToArray();
+    }
+
+    private Unit FindNearestEnemyToPoint(Unit caster, Vector3 point, float maxRange)
+    {
+        Unit best = null;
+        float bestDist = float.MaxValue;
+
+        foreach (var u in FindObjectsByType<Unit>(FindObjectsSortMode.None))
+        {
+            if (u == null || u == caster) continue;
+            if (u.Model.Faction == caster.Model.Faction) continue; // enemies only
+            float d = Vector3.Distance(point, u.transform.position);
+            if (d <= maxRange + 0.01f && d < bestDist)
+            {
+                bestDist = d;
+                best = u;
+            }
+        }
+        return best;
     }
 }

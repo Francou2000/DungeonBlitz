@@ -283,7 +283,7 @@ public class UnitModel : MonoBehaviour
     }
 
     // Movement Speed
-    public float MoveDistanceFactor = 10f;
+    public float MoveDistanceFactor = 4f;
     public float MoveTimeBase = 6f;
 
     public float GetMovementSpeed()

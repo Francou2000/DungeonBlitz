@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using DebugTools;
 //using Mono.Cecil;
@@ -131,32 +131,41 @@ public class UnitController : MonoBehaviourPun
     // New ability execution system
     public virtual void ExecuteAbility(UnitAbility ability, Unit target, Vector3 targetPosition = default)
     {
+        if (ability == null) return;
+
+        // Aim from cache (Targeter2D) → else from provided targetPosition → else zero
+        Vector3 aimPos = cachedAimPos.HasValue ? cachedAimPos.Value
+                        : (targetPosition != default ? targetPosition : Vector3.zero);
+        Vector3 aimDir = cachedAimDir.HasValue ? cachedAimDir.Value : Vector3.zero;
+
+        Unit[] targetsArg;
+
+        switch (ability.areaType)
+        {
+            case AreaType.Single:
+                // Send the clicked unit if any (explicit single target)
+                targetsArg = (target != null) ? new Unit[] { target } : System.Array.Empty<Unit>();
+                break;
+
+            case AreaType.Line:
+                // Line needs a primary to define the line; send the clicked unit if we have one
+                targetsArg = (target != null) ? new Unit[] { target } : System.Array.Empty<Unit>();
+                break;
+
+            case AreaType.Circle:
+            default:
+                // AoE/Ground target are center-only; resolver will collect victims from aimPos
+                targetsArg = System.Array.Empty<Unit>();
+                break;
+        }
+
         var traceId = CombatLog.NewTraceId();
         CombatLog.Cast(traceId, $"Request by {CombatLog.Short(gameObject)} " +
             $"ability={ability?.name} turn={TurnManager.Instance?.turnNumber} owner={photonView?.OwnerActorNr}");
 
-        // Aim data:
-        // - For AoE/Line: 'targetPosition' comes from CombatUI targeter, 'cachedAimDir' set by CacheAim().
-        // - For Single/self: we don't need aimPos/aimDir.
-        var isAoE = ability != null && (ability.areaType == AreaType.Circle || ability.areaType == AreaType.Line);
+        AbilityResolver.Instance.RequestCast(this, ability, targetsArg, aimPos, aimDir, traceId);
 
-        var aimPos = isAoE
-            ? targetPosition
-            : (cachedAimPos ?? Vector3.zero);
-
-        var aimDir = cachedAimDir ?? Vector3.zero;
-
-        if (AbilityResolver.Instance != null)
-        {
-            var targetsArg = isAoE
-                ? System.Array.Empty<Unit>()    // AoE/Line: resolver uses aimPos/aimDir
-                : new Unit[] { target };        // Single: explicit target
-
-            AbilityResolver.Instance.RequestCast(this, ability, targetsArg, aimPos, aimDir, traceId);
-            ClearAimCache(); // prevent stale aim next time
-            return;
-        }
-
+        // clear cached aim after firing
         ClearAimCache();
     }
 

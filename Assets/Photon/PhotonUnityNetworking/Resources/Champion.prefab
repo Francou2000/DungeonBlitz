@@ -69,7 +69,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitData: {fileID: 11400000, guid: b826a5a6a17d6c041b1f26aa3dce3497, type: 2}
   statusHandler: {fileID: 6040551919263682150}
-  MoveDistanceFactor: 10
+  MoveDistanceFactor: 4
   MoveTimeBase: 6
 --- !u!114 &4020468755041615607
 MonoBehaviour:

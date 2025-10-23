@@ -138,12 +138,24 @@ public static class CombatCalculator
         var result = new List<Unit>();
         if (radius <= 0f || caster == null) return result;
 
-        var all = Object.FindObjectsByType<Unit>(FindObjectsSortMode.None);
-        foreach (var u in all)
+        // 2D safety
+        center.z = 0f;
+
+        // Grab any colliders, then map up to Unit (handles child colliders too)
+        var cols = Physics2D.OverlapCircleAll(center, radius);
+        if (cols == null || cols.Length == 0) return result;
+
+        var seen = new HashSet<Unit>();
+        foreach (var col in cols)
         {
+            if (col == null) continue;
+
+            // be tolerant: the collider may be on a child
+            var uc = col.GetComponentInParent<UnitController>();
+            var u = uc != null ? uc.unit : null;
             if (u == null || u == caster) continue;
-            if (u.Model.Faction == caster.Model.Faction) continue; // enemies only for now
-            if (Vector3.Distance(center, u.transform.position) <= radius + 0.01f)
+
+            if (seen.Add(u))
                 result.Add(u);
         }
         return result;
@@ -158,32 +170,31 @@ public static class CombatCalculator
 
         var origin = caster.transform.position;
         var dir = (primaryTarget.transform.position - origin).normalized;
-        if (dir.sqrMagnitude < 0.0001f) return result;
+        if (dir.sqrMagnitude < 1e-6f) return result;
 
+        // Scan all units once; direction test keeps it cheap enough for small counts
         var all = Object.FindObjectsByType<Unit>(FindObjectsSortMode.None);
         var candidates = new List<(Unit u, float dist)>();
 
         foreach (var u in all)
         {
             if (u == null || u == caster) continue;
-            if (u.Model.Faction == caster.Model.Faction) continue; // enemies only
+
             var to = u.transform.position - origin;
             var dist = to.magnitude;
             if (dist > range + 0.01f) continue;
 
             var align = Vector3.Dot(dir, to.normalized);
-            if (align >= alignmentTolerance) // close to the ray
+            if (align >= Mathf.Clamp01(alignmentTolerance))
                 candidates.Add((u, dist));
         }
 
-        // sort along the ray from nearest to farthest
         candidates.Sort((a, b) => a.dist.CompareTo(b.dist));
 
-        foreach (var (u, _) in candidates)
-        {
-            result.Add(u);
-            if (result.Count >= Mathf.Max(1, maxTargets)) break;
-        }
+        int cap = Mathf.Max(1, maxTargets);
+        for (int i = 0; i < candidates.Count && result.Count < cap; i++)
+            result.Add(candidates[i].u);
+
         return result;
     }
 

@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
@@ -293,30 +293,10 @@ public class CombatHUD : MonoBehaviour
 
         controller.SetSelectedAbility(selectedAbility);
 
-        // --- NEW: route by target type ---
-        if (RequiresUnitTarget(selectedAbility))
-        {
-            // Self-cast goes immediately
-            if (selectedAbility.selfOnly)
-            {
-                // controller.unit is a Unit component on the same object
-                controller.ExecuteAbility(selectedAbility, controller.unit);
-                return;
-            }
-
-            // Ally / Enemy single-target: enter unit targeting mode
-            controller.StartTargeting(selectedAbility);
-            return;
-        }
-
+        // AREA FIRST (Circle/Line/Ground) → Targeter2D
         if (NeedsAreaTargeting(selectedAbility))
         {
-            // Keep current area/line flow driven by TargeterController2D
-            if (!TargeterController2D.Instance)
-            {
-                Debug.LogWarning("[CombatHUD] TargeterController2D not found in scene.");
-                return;
-            }
+            if (!TargeterController2D.Instance) { Debug.LogWarning("No TargeterController2D"); return; }
 
             TargeterController2D.Instance.Begin(
                 c: controller,
@@ -330,25 +310,34 @@ public class CombatHUD : MonoBehaviour
             return;
         }
 
-        // Instant, no-target abilities
+        // then unit-target (non-area singles)
+        if (RequiresUnitTarget(selectedAbility))
+        {
+            if (selectedAbility.selfOnly) { controller.ExecuteAbility(selectedAbility, controller.unit); return; }
+            controller.StartTargeting(selectedAbility);
+            return;
+        }
+
+        // instant
         controller.ExecuteAbility(selectedAbility, null);
     }
 
-    // NEW: true for single-target unit selection (self/ally/enemy)
+    // true for single-target unit selection (self/ally/enemy)
     bool RequiresUnitTarget(UnitAbility a)
     {
         if (a == null) return false;
+        if (NeedsAreaTargeting(a)) return false;   // prevent AoE from ever taking the unit path
         return a.selfOnly || a.alliesOnly || a.enemiesOnly;
     }
 
-    // NEW: true for AoE, line or ground target
+    // true for AoE, line or ground target
     bool NeedsAreaTargeting(UnitAbility a)
     {
         if (a == null) return false;
         return a.areaType == AreaType.Circle || a.areaType == AreaType.Line || a.groundTarget;
     }
 
-        void OnActionHover(ActionButtonView v, UnityEngine.EventSystems.PointerEventData e)
+    void OnActionHover(ActionButtonView v, UnityEngine.EventSystems.PointerEventData e)
     {
         if (hoveredView != v)
         {

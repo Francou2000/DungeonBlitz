@@ -17,11 +17,9 @@ MonoBehaviour:
   abilityType: 2
   icon: {fileID: 21300000, guid: abe998d7ef6847840b3d657c9085ec73, type: 3}
   baseHitChance: 80
-  actionCost: 2
-  adrenalineCost: 50
-  resourceCosts:
-  - key: Power
-    amount: 2
+  actionCost: 1
+  adrenalineCost: 0
+  resourceCosts: []
   minAdrenaline: 0
   requiredStates: []
   requiredTags: []
