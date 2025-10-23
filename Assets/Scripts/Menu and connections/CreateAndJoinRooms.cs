@@ -45,20 +45,20 @@ public class CreateAndJoinRooms : MonoBehaviourPunCallbacks
 
             // Create room logic
             RoomOptions options = new RoomOptions();
-            options.MaxPlayers = 5;  // máximo de jugadores
+            options.MaxPlayers = 5;  // mï¿½ximo de jugadores
             options.IsVisible = true;
             options.IsOpen = true;
 
-            // Agregamos una propiedad personalizada para la contraseña
+            // Agregamos una propiedad personalizada para la contraseï¿½a
             options.CustomRoomProperties = new ExitGames.Client.Photon.Hashtable()
             {
                 { "pwd", createRoomPsw.text }
             };
 
-            // Indicamos qué propiedades son visibles en el lobby
+            // Indicamos quï¿½ propiedades son visibles en el lobby
             options.CustomRoomPropertiesForLobby = new string[] { "pwd" };
 
-            // Guardamos la contraseña que quiere usar el cliente
+            // Guardamos la contraseï¿½a que quiere usar el cliente
             PlayerPrefs.SetString("AttemptedPwd", createRoomPsw.text);
 
             // Creamos la room
@@ -79,7 +79,7 @@ public class CreateAndJoinRooms : MonoBehaviourPunCallbacks
             // Intentamos unirnos a la sala por nombre
             PhotonNetwork.JoinRoom(joinRoomName.text);
 
-            // Guardamos la contraseña que quiere usar el cliente
+            // Guardamos la contraseï¿½a que quiere usar el cliente
             PlayerPrefs.SetString("AttemptedPwd", joinRoomPsw.text);
         }
     }
@@ -88,18 +88,21 @@ public class CreateAndJoinRooms : MonoBehaviourPunCallbacks
     {
         Debug.Log("Intentando entrar a la sala: " + PhotonNetwork.CurrentRoom.Name);
 
-        // Verificamos si la contraseña coincide
+        // Pausar la cola de mensajes para evitar errores de PhotonView durante la carga
+        PhotonNetwork.IsMessageQueueRunning = false;
+
+        // Verificamos si la contraseï¿½a coincide
         string attemptedPwd = PlayerPrefs.GetString("AttemptedPwd", "");
         string roomPwd = PhotonNetwork.CurrentRoom.CustomProperties["pwd"].ToString();
 
         if (attemptedPwd != roomPwd)
         {
-            Debug.LogWarning("Contraseña incorrecta, te expulsamos.");
+            Debug.LogWarning("Contraseï¿½a incorrecta, te expulsamos.");
             PhotonNetwork.LeaveRoom();
         }
         else
         {
-            Debug.Log("Contaseña correcta, entraste a la sala: " + PhotonNetwork.CurrentRoom.Name);
+            Debug.Log("Contaseï¿½a correcta, entraste a la sala: " + PhotonNetwork.CurrentRoom.Name);
             // PhotonNetwork.LoadLevel(rommScene);
             SceneLoaderController.Instance.LoadNextLevel(rommScene);
         }
