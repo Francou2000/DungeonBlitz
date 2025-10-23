@@ -328,18 +328,31 @@ public sealed class AbilityResolver : MonoBehaviourPun
         // LINE — if no primary, derive one near the click so your existing helper can work
         else if (ability.areaType == AreaType.Line)
         {
-            if (primaryTarget == null)
-                primaryTarget = FindNearestEnemyToPoint(casterCtrl.unit, aimPos, ability.range);
+            Vector3 origin = casterCtrl.transform.position;
 
+            // Pick a direction: primary target first, else aimDir, else aimPos
+            Vector3 dir;
             if (primaryTarget != null)
-            {
-                computedTargets = CombatCalculator.GetLineTargets(
-                    casterCtrl.unit, primaryTarget,
-                    ability.range,
-                    Mathf.Max(1, ability.lineMaxTargets),
-                    Mathf.Clamp01(ability.lineAlignmentTolerance)
-                );
-            }
+                dir = (primaryTarget.transform.position - origin);
+            else if (aimDir.sqrMagnitude > 1e-5f)
+                dir = aimDir;
+            else
+                dir = (aimPos - origin);
+
+            // Choose half-width: prefer ability.lineWidth if you added it, otherwise reuse aoeRadius
+            float halfWidth =
+                (ability.lineAlignmentTolerance > 0f ? ability.lineAlignmentTolerance * 0.5f :
+                 ability.aoeRadius > 0f ? ability.aoeRadius :
+                 0.5f); // sensible default
+
+            computedTargets = CombatCalculator.GetLineTargetsByWidth(
+                casterCtrl.unit,
+                origin,
+                dir,
+                ability.range,
+                halfWidth,
+                Mathf.Max(1, ability.lineMaxTargets)
+            );
         }
 
         CombatLog.Resolve(traceId, $"Targets: final={computedTargets.Count} area={ability.areaType}");
