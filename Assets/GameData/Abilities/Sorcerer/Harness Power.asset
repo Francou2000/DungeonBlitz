@@ -42,7 +42,7 @@ MonoBehaviour:
   baseDamage: 0
   damageMultiplier: 0
   bonusDamage: 0
-  hits: 0
+  hits: 1
   useTargetMissingHealth: 0
   missingHealthPercentage: 0
   canChain: 0
