@@ -591,7 +591,9 @@ public sealed class AbilityResolver : MonoBehaviourPun
                     {
                         if (dealt > 0) 
                         {
-                            CombatFeedbackUI.ShowHit(u, dealt, (DamageType)dtype, false);
+                            // Obtener la habilidad utilizada para el efecto de daño
+                            var ability = casterCtrl.unit.Model.Abilities[abilityIndex];
+                            CombatFeedbackUI.ShowHit(u, dealt, (DamageType)dtype, false, casterCtrl.unit, ability);
                             // Play attack sound when hit connects
                             if (AudioManager.Instance != null)
                             {
@@ -610,7 +612,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
                     }
 
                     // Mirror to other clients (they'll apply and show popups in RPC_ApplyDamageToClient)
-                    _view.RPC(nameof(RPC_ApplyDamageToClient), RpcTarget.Others, targetId, dmg, dtype);
+                    _view.RPC(nameof(RPC_ApplyDamageToClient), RpcTarget.Others, targetId, dmg, dtype, casterCtrl.photonView.ViewID, abilityIndex);
                 }
                 else
                 {
@@ -681,7 +683,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
     }
 
     [PunRPC]
-    void RPC_ApplyDamageToClient(int targetViewId, int damage, int damageType)
+    void RPC_ApplyDamageToClient(int targetViewId, int damage, int damageType, int casterViewId, int abilityIndex)
     {
         var pv = PhotonView.Find(targetViewId);
         if (pv == null) return;
@@ -698,7 +700,15 @@ public sealed class AbilityResolver : MonoBehaviourPun
         {
             if (dealt > 0) 
             {
-                CombatFeedbackUI.ShowHit(u, dealt, (DamageType)damageType, false);
+                // Obtener el atacante y la habilidad para el efecto de daño
+                var casterCtrl = FindByView<UnitController>(casterViewId);
+                UnitAbility ability = null;
+                if (casterCtrl != null && abilityIndex >= 0 && abilityIndex < casterCtrl.unit.Model.Abilities.Count)
+                {
+                    ability = casterCtrl.unit.Model.Abilities[abilityIndex];
+                }
+                
+                CombatFeedbackUI.ShowHit(u, dealt, (DamageType)damageType, false, casterCtrl?.unit, ability);
                 // Play attack sound when hit connects
                 if (AudioManager.Instance != null)
                 {

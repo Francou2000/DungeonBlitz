@@ -33,12 +33,12 @@ MonoBehaviour:
   lineRange: 0
   lineAlignmentTolerance: 0.75
   isMixedDamage: 0
-  mixedPhysicalPercent: 50
+  mixedPhysicalPercent: 0
   lineCollateralPercent: 0
   bonusPerMissingHpPercent: 0
   damageSource: 1
   baseDamage: 0
-  damageMultiplier: 1
+  damageMultiplier: 0
   bonusDamage: 0
   hits: 1
   useTargetMissingHealth: 0

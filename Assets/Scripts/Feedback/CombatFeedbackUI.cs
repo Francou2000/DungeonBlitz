@@ -1,4 +1,5 @@
 using SpatialUI;
+using UnityEngine;
 
 public static class CombatFeedbackUI
 {
@@ -11,6 +12,25 @@ public static class CombatFeedbackUI
             MapDamageType(dmgType),
             isCrit
         );
+    }
+
+    public static void ShowHit(Unit target, float dmg, DamageType dmgType, bool isCrit, Unit attacker, UnitAbility ability)
+    {
+        if (!target) return;
+        
+        // Mostrar el texto de daño
+        SpatialUIManager.Instance.ShowDamage(
+            target.transform,    
+            dmg,
+            MapDamageType(dmgType),
+            isCrit
+        );
+
+        // Mostrar el efecto visual de daño
+        if (DamageEffectManager.Instance != null)
+        {
+            DamageEffectManager.ShowDamageEffectStatic(target, attacker, ability, Mathf.RoundToInt(dmg));
+        }
     }
 
     public static void ShowMiss(Unit target)

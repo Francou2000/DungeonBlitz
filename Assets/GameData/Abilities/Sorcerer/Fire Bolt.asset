@@ -19,9 +19,7 @@ MonoBehaviour:
   baseHitChance: 70
   actionCost: 1
   adrenalineCost: 0
-  resourceCosts:
-  - key: Power
-    amount: 1
+  resourceCosts: []
   minAdrenaline: 0
   requiredStates: []
   requiredTags: []
