@@ -256,9 +256,18 @@ public struct DictionaryElement<T, K>
 public enum SoundName
 {
     NONE,
+    BackgroundMainMenu,
+    BackgroundCombat,
+    ButtonClick,
+    StartGame, 
+    StabSFX,
+    GoblinAttack,
     HurtGoblin,
     HurtHobGoblin,
     HurtMale,
     HurtFemale,
-    AttackMale
+    EvadeMale,
+    EvadeRogue,
+    EvadeGoblin,
+    EvadeHobGoblin,
 }
