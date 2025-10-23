@@ -19,7 +19,9 @@ MonoBehaviour:
   baseHitChance: 100
   actionCost: 1
   adrenalineCost: 0
-  resourceCosts: []
+  resourceCosts:
+  - key: Power
+    amount: -1
   minAdrenaline: 0
   requiredStates: []
   requiredTags: []
@@ -31,22 +33,22 @@ MonoBehaviour:
   aoeRadius: 0
   lineMaxTargets: 0
   lineRange: 0
-  lineAlignmentTolerance: 0.75
+  lineAlignmentTolerance: 0
   isMixedDamage: 0
-  mixedPhysicalPercent: 50
+  mixedPhysicalPercent: 0
   lineCollateralPercent: 0
   bonusPerMissingHpPercent: 0
   damageSource: 1
   baseDamage: 0
-  damageMultiplier: 1
+  damageMultiplier: 0
   bonusDamage: 0
-  hits: 1
+  hits: 0
   useTargetMissingHealth: 0
   missingHealthPercentage: 0
   canChain: 0
   chainRange: 0
   appliedEffects: []
-  statusEffectChance: 100
+  statusEffectChance: 0
   healsTarget: 0
   healAmount: 0
   healPercentage: 0
