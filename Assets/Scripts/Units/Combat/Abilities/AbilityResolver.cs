@@ -383,6 +383,14 @@ public sealed class AbilityResolver : MonoBehaviourPun
         int idx = 0;
         foreach (var tgt in computedTargets)
         {
+            // --- Skip damage branch if this ability doesn't deal any ---
+            bool doDamage = DealsAnyDamage(ability);
+            if (!doDamage)
+            {
+                Debug.Log($"[Resolve] {ability.abilityName} has no damage component; skipping damage phase.");
+                break;   // leave the loop early since nothing to compute
+            }
+
             // Cover check
             bool hasMediumCover, hasHeavyCover;
             CombatCalculator.CheckCover(
@@ -842,5 +850,20 @@ public sealed class AbilityResolver : MonoBehaviourPun
             }
         }
         return best;
+    }
+
+    // -------------------- DAMAGE GUARD --------------------
+    private static bool DealsAnyDamage(UnitAbility ab)
+    {
+        if (ab == null) return false;
+
+        // Treat as "no damage" unless one of these knobs is explicitly non-zero or active
+        return ab.baseDamage > 0
+             || ab.bonusDamage > 0
+             || ab.damageMultiplier > 0f
+             || ab.isMixedDamage
+             || ab.bonusPerMissingHpPercent > 0
+             || ab.useTargetMissingHealth
+             || ab.healsTarget;
     }
 }
