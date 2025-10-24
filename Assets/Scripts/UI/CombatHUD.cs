@@ -37,6 +37,8 @@ public class CombatHUD : MonoBehaviour
     private UnitModel boundModel;
 
     ActionButtonView hoveredView;
+    private UnitController currentController;
+
 
     void Awake()
     {
@@ -66,6 +68,12 @@ public class CombatHUD : MonoBehaviour
     public void Bind(UnitController ctrl)
     {
         if (controller == ctrl) return;
+
+        if (TargeterController2D.Instance)
+            TargeterController2D.Instance.Cancel();        // closes area/line/single targeter (if open)
+
+        if (controller != null)
+            controller.CancelTargeting();     // clears move mode / pending targeting / aim
 
         UnbindCurrentUnit();
         ClearGrid();
@@ -313,8 +321,27 @@ public class CombatHUD : MonoBehaviour
         // then unit-target (non-area singles)
         if (RequiresUnitTarget(selectedAbility))
         {
-            if (selectedAbility.selfOnly) { controller.ExecuteAbility(selectedAbility, controller.unit); return; }
-            controller.StartTargeting(selectedAbility);
+            if (selectedAbility.selfOnly)
+            {
+                controller.ExecuteAbility(selectedAbility, controller.unit);
+                return;
+            }
+
+            if (!TargeterController2D.Instance)
+            {
+                Debug.LogWarning("No TargeterController2D in scene");
+                return;
+            }
+
+            TargeterController2D.Instance.Begin(
+                c: controller,
+                a: selectedAbility,
+                confirm: (center, dir) =>
+                {
+                    controller.CacheAim(center, dir);
+                    controller.ExecuteAbility(selectedAbility, null, center);
+                }
+            );
             return;
         }
 
@@ -327,6 +354,7 @@ public class CombatHUD : MonoBehaviour
     {
         if (a == null) return false;
         if (NeedsAreaTargeting(a)) return false;   // prevent AoE from ever taking the unit path
+        controller.StartTargeting(selectedAbility);
         return a.selfOnly || a.alliesOnly || a.enemiesOnly;
     }
 

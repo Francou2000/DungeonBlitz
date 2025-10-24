@@ -114,4 +114,9 @@ public class TargeterController2D : MonoBehaviour
     {
         if (rangeRing) rangeRing.gameObject.SetActive(false);
     }
+
+    public void Cancel()
+    {
+        Cleanup();
+    }
 }

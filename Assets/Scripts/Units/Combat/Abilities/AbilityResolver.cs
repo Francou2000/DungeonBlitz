@@ -385,10 +385,53 @@ public sealed class AbilityResolver : MonoBehaviourPun
         {
             // --- Skip damage branch if this ability doesn't deal any ---
             bool doDamage = DealsAnyDamage(ability);
+
             if (!doDamage)
             {
                 Debug.Log($"[Resolve] {ability.abilityName} has no damage component; skipping damage phase.");
                 break;   // leave the loop early since nothing to compute
+            }
+
+            // --- HEAL / SHIELD ONLY ---
+            bool doHeal = HasHeal(ability);
+            bool doShield = HasBarrier(ability);
+
+            if (!doDamage && (doHeal || doShield))
+            {
+                foreach (var target in computedTargets)
+                {
+                    var model = target.Model;
+                    if (model == null) continue;
+
+                    if (doHeal)
+                    {
+                        model.Heal(ability.healAmount);  // auto-hit; no damage path
+                    }
+
+                    if (doShield)
+                    {
+                        if (model.statusHandler != null)
+                        {
+                            var barrierEffect = EffectLibrary.Barrier(ability.barrierAmount);
+                            model.statusHandler.ApplyEffect(barrierEffect);
+                            Debug.Log($"[Resolve-Shield] {casterCtrl.unit.name} grants {ability.barrierAmount} barrier to {target.name}");
+                        }
+                    }
+                }
+
+                // Spend resources and broadcast feedback like normal
+                casterCtrl.unit.Model.SpendAction(ability.actionCost);
+                if (ability.resourceCosts != null)
+                {
+                    foreach (var cost in ability.resourceCosts)
+                        casterCtrl.unit.Model.TryConsume(cost.key, cost.amount);
+                }
+                if (ability.adrenalineCost > 0)
+                    casterCtrl.unit.Model.SpendAdrenaline(ability.adrenalineCost);
+
+                // TODO Mirror to clients (visual feedback only)
+                Debug.Log($"[Resolve-Heal/Shield] Completed non-damage ability {ability.abilityName}");
+                return;
             }
 
             // Cover check
@@ -852,6 +895,12 @@ public sealed class AbilityResolver : MonoBehaviourPun
         return best;
     }
 
+    private static bool HasHeal(UnitAbility ab) =>
+    ab != null && (ab.healsTarget && ab.healAmount > 0);
+
+    private static bool HasBarrier(UnitAbility ab) =>
+        ab != null && (ab.grantsBarrier && ab.barrierAmount > 0);
+
     // -------------------- DAMAGE GUARD --------------------
     private static bool DealsAnyDamage(UnitAbility ab)
     {
@@ -863,7 +912,6 @@ public sealed class AbilityResolver : MonoBehaviourPun
              || ab.damageMultiplier > 0f
              || ab.isMixedDamage
              || ab.bonusPerMissingHpPercent > 0
-             || ab.useTargetMissingHealth
-             || ab.healsTarget;
+             || ab.useTargetMissingHealth;
     }
 }

@@ -468,12 +468,22 @@ public class UnitController : MonoBehaviourPun
         }
     }
 
-    private void CancelTargeting()
+    public void CancelTargeting()
     {
+        // kill single-target waiters
         isWaitingForTarget = false;
         pendingAbility = null;
         pendingTargetPosition = null;
-        Debug.Log($"[UnitController] Targeting cancelled");
+
+        // clear aim cached by Targeter2D (AoE/Line)
+        ClearAimCache();
+
+        // exit move mode
+        SetAction(UnitAction.None);
+
+        // hide HUD/targeter visuals if this unit was showing them
+        if (TargeterController2D.Instance)
+            TargeterController2D.Instance.HideMoveRange();
     }
 
     private void LogAlliesInRange(int range)
