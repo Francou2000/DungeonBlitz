@@ -77,6 +77,27 @@ public class StatusEffectHandler : MonoBehaviour
         return false;
     }
 
+    public void AddBarrier(int amount, int duration = 1, bool stackable = true, string name = "Barrier")
+    {
+        if (amount <= 0 || duration <= 0) return;
+
+        var effect = new StatusEffect
+        {
+            effectName = name,
+            type = StatusEffectType.Condition,
+            modifier = StatModifier.None,         // no stat change, only barrier pool
+            amount = 0,
+            duration = duration,
+            isStackable = stackable,
+            barrierHP = amount,
+            damagePerTurn = 0,
+            tags = new List<string> { "Barrier" }   // for UI/filters 
+        };
+
+        ApplyEffect(effect);
+        Debug.Log($"[Status] AddBarrier name={name} amount={amount} duration={duration} stackable={stackable}");
+    }
+
     public int GetBarrierHP() // total barrier pool (sum of effect barriers)
     {
         int total = 0;

@@ -16,7 +16,8 @@ public enum StatModifier
     MagicPower,
     MagicResistance,
     Performance,
-    Affinity
+    Affinity,
+    None
 }
 
 [Serializable]

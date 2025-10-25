@@ -232,6 +232,55 @@ public sealed class AbilityResolver : MonoBehaviourPun
             casterCtrl.photonView.ViewID, abilityIndex, targetViewIds, aimPos, aimDir);
     }
 
+    private void ResolveHealingAndShields(UnitController casterCtrl, UnitAbility ability,
+                                      List<Unit> computedTargets, int abilityIndex)
+    {
+        var outIds = new List<int>(computedTargets.Count);
+        var outHeals = new List<int>(computedTargets.Count);
+        var outBarriers = new List<int>(computedTargets.Count);
+
+        foreach (var t in computedTargets)
+        {
+            if (t == null || t.Model == null) continue;
+
+            // Calculate heal: base + % (target-based) + scriptable scaling (caster-based)
+            int heal = 0;
+            if (ability.healsTarget)
+            {
+                heal = ability.healAmount;
+
+                if (ability.healPercentage > 0)
+                    heal += Mathf.CeilToInt(t.Model.MaxHP * (ability.healPercentage / 100f)); // % of TARGET HP
+
+                // Scriptable scaling (often uses caster stats). Your UnitAbility exposes CalculateHealAmount(casterModel).
+                heal += Mathf.Max(0, ability.CalculateHealAmount(casterCtrl.unit.Model));
+            }
+
+            int barrier = ability.grantsBarrier ? Mathf.Max(0, ability.barrierAmount) : 0;
+
+            heal = Mathf.Max(0, heal);
+
+            outIds.Add(t.Controller.photonView.ViewID);
+            outHeals.Add(heal);
+            outBarriers.Add(barrier);
+
+            Debug.Log($"[Resolve-Heal/Shield] pending -> {t.name}: heal={heal}, barrier={barrier}");
+        }
+
+        // Spend AP/resources/adrenaline on MASTER (authoritative)
+        var ab = casterCtrl.unit.Model.Abilities[abilityIndex];
+        casterCtrl.unit.Model.SpendAction(ab.actionCost);
+        foreach (var cost in ab.resourceCosts) casterCtrl.unit.Model.TryConsume(cost.key, cost.amount);
+        if (ab.adrenalineCost > 0) casterCtrl.unit.Model.SpendAdrenaline(ab.adrenalineCost);
+
+        // Broadcast to ALL clients so each applies once locally
+        _view.RPC(nameof(RPC_ApplyHealingToClient), RpcTarget.All,
+            casterCtrl.photonView.ViewID, abilityIndex,
+            outIds.ToArray(), outHeals.ToArray(), outBarriers.ToArray());
+
+        Debug.Log($"[Resolve-Heal/Shield] Broadcast {outIds.Count} targets for {ability.abilityName}.");
+    }
+
     [PunRPC]
     private void RPC_RequestCast(int casterViewId, int abilityIndex, int[] targetViewIds, Vector3 aimPos, Vector3 aimDir, PhotonMessageInfo info)
     {
@@ -357,6 +406,18 @@ public sealed class AbilityResolver : MonoBehaviourPun
 
         CombatLog.Resolve(traceId, $"Targets: final={computedTargets.Count} area={ability.areaType}");
 
+        // --- Decide resolution branch once (before any per-target loop) ---
+        bool doDamage = DealsAnyDamage(ability);
+        bool doHeal = ability.healsTarget || ability.healAmount > 0 || ability.healPercentage > 0; // permissive
+        bool doShield = ability.grantsBarrier && ability.barrierAmount > 0;
+
+        if (!doDamage && (doHeal || doShield))
+        {
+            // HEAL/SHIELD-ONLY: resolve here and exit. Do NOT fall through to damage area RPC.
+            ResolveHealingAndShields(casterCtrl, ability, computedTargets, abilityIndex);
+            return;
+        }
+
         // Faction filtering for AoE/Line (Single already validated in CanCast)
         if (computedTargets.Count > 0)
         {
@@ -383,43 +444,53 @@ public sealed class AbilityResolver : MonoBehaviourPun
         int idx = 0;
         foreach (var tgt in computedTargets)
         {
-            // --- Skip damage branch if this ability doesn't deal any ---
-            bool doDamage = DealsAnyDamage(ability);
-
-            if (!doDamage)
-            {
-                Debug.Log($"[Resolve] {ability.abilityName} has no damage component; skipping damage phase.");
-                break;   // leave the loop early since nothing to compute
-            }
-
             // --- HEAL / SHIELD ONLY ---
-            bool doHeal = HasHeal(ability);
-            bool doShield = HasBarrier(ability);
-
             if (!doDamage && (doHeal || doShield))
             {
+                // Compute authoritative results on MASTER and broadcast exact numbers to ALL.
+                var outHeals = new List<int>(computedTargets.Count);
+                var outBarriers = new List<int>(computedTargets.Count);
+
                 foreach (var target in computedTargets)
                 {
-                    var model = target.Model;
-                    if (model == null) continue;
+                    if (target == null || target.Model == null) continue;
+
+                    int heal = 0;
+                    int barrier = 0;
 
                     if (doHeal)
                     {
-                        model.Heal(ability.healAmount);  // auto-hit; no damage path
+                        // Use your Scriptable’s scaling (base + % + stat scaling)
+                        heal = ability.healAmount;
+
+                        if (ability.healPercentage > 0)
+                        {
+                            int maxHp = target.Model.MaxHP;
+                            heal += Mathf.CeilToInt(maxHp * (ability.healPercentage / 100f));
+                        }
+
+                        // Your UnitAbility.CalculateHealAmount already scales by stats (e.g., MagicPower)
+                        // Note: CalculateHealAmount expects caster model, not target.
+                        heal += Mathf.Max(0, ability.CalculateHealAmount(casterCtrl.unit.Model));
                     }
 
                     if (doShield)
                     {
-                        if (model.statusHandler != null)
-                        {
-                            var barrierEffect = EffectLibrary.Barrier(ability.barrierAmount);
-                            model.statusHandler.ApplyEffect(barrierEffect);
-                            Debug.Log($"[Resolve-Shield] {casterCtrl.unit.name} grants {ability.barrierAmount} barrier to {target.name}");
-                        }
+                        barrier = Mathf.Max(0, ability.barrierAmount);
                     }
+
+                    // Clamp negatives to zero
+                    heal = Mathf.Max(0, heal);
+                    barrier = Mathf.Max(0, barrier);
+
+                    outIds.Add(target.GetComponent<PhotonView>()?.ViewID ?? -1);
+                    outHeals.Add(heal);
+                    outBarriers.Add(barrier);
+
+                    Debug.Log($"[Resolve-Heal/Shield] pending -> {target.name}: heal={heal}, barrier={barrier}");
                 }
 
-                // Spend resources and broadcast feedback like normal
+                // Spend action/resources/adrenaline on MASTER (authoritative)
                 casterCtrl.unit.Model.SpendAction(ability.actionCost);
                 if (ability.resourceCosts != null)
                 {
@@ -429,8 +500,16 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 if (ability.adrenalineCost > 0)
                     casterCtrl.unit.Model.SpendAdrenaline(ability.adrenalineCost);
 
-                // TODO Mirror to clients (visual feedback only)
-                Debug.Log($"[Resolve-Heal/Shield] Completed non-damage ability {ability.abilityName}");
+                // Broadcast to ALL clients so each applies the same numbers once locally.
+                _view.RPC(nameof(RPC_ApplyHealingToClient), RpcTarget.All,
+                    casterCtrl.photonView.ViewID,
+                    abilityIndex,
+                    outIds.ToArray(),
+                    outHeals.ToArray(),
+                    outBarriers.ToArray()
+                );
+
+                Debug.Log($"[Resolve-Heal/Shield] Completed {ability.abilityName} (broadcast {outIds.Count} targets).");
                 return;
             }
 
@@ -803,6 +882,40 @@ public sealed class AbilityResolver : MonoBehaviourPun
     }
 
     [PunRPC]
+    private void RPC_ApplyHealingToClient(int casterViewId, int abilityIndex,
+                                      int[] targetViewIds, int[] heals, int[] barriers)
+    {
+        Debug.Log($"[RPC_ApplyHealing] ENTER targets={(targetViewIds == null ? 0 : targetViewIds.Length)}");
+
+        int n = (targetViewIds == null) ? 0 : targetViewIds.Length;
+        for (int i = 0; i < n; i++)
+        {
+            var pv = PhotonView.Find(targetViewIds[i]);
+            if (pv == null) continue;
+
+            var unit = pv.GetComponent<Unit>();
+            if (unit == null || unit.Model == null) continue;
+
+            int heal = (heals != null && i < heals.Length) ? heals[i] : 0;
+            int barrier = (barriers != null && i < barriers.Length) ? barriers[i] : 0;
+
+            if (heal > 0)
+            {
+                unit.Model.Heal(heal);                    // Triggers OnHealthChanged → HUD
+                CombatFeedbackUI.ShowHeal(unit, heal);    // Popup (if available)
+                Debug.Log($"[RPC_ApplyHealing] Healed {unit.name} for {heal}");
+            }
+
+            if (barrier > 0 && unit.Model.statusHandler != null)
+            {
+                unit.Model.statusHandler.AddBarrier(barrier);
+                Debug.Log($"[RPC_ApplyHealing] Barrier {barrier} to {unit.name}");
+            }
+        }
+    }
+
+
+    [PunRPC]
     void RPC_ShowMissPopup(int targetViewId)
     {
         var pv = PhotonView.Find(targetViewId);
@@ -895,11 +1008,16 @@ public sealed class AbilityResolver : MonoBehaviourPun
         return best;
     }
 
-    private static bool HasHeal(UnitAbility ab) =>
-    ab != null && (ab.healsTarget && ab.healAmount > 0);
+    private static bool HasHeal(UnitAbility ab)
+    {
+        return ab != null && ab.healsTarget;
+    }
 
-    private static bool HasBarrier(UnitAbility ab) =>
-        ab != null && (ab.grantsBarrier && ab.barrierAmount > 0);
+    private static bool HasBarrier(UnitAbility ab)
+    {
+        return ab != null && ab.grantsBarrier;
+    }
+
 
     // -------------------- DAMAGE GUARD --------------------
     private static bool DealsAnyDamage(UnitAbility ab)

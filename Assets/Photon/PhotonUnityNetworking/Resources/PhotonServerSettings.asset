@@ -83,6 +83,7 @@ MonoBehaviour:
   - RPC_HeroSpawned
   - RPC_MonsterSpawned
   - RPC_SetExpectedMonsters
+  - RPC_ApplyHealingToClient
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

@@ -27,19 +27,22 @@ public class UnitController : MonoBehaviourPun
 
     public UnitMovement Movement => movement;
 
-    private static UnitController _activeUnit;
+    private static UnitController activeUnit;
     public static UnitController ActiveUnit
     {
-        get => _activeUnit;
+        get => activeUnit;
         set
         {
-            if (_activeUnit == value) return;
-            _activeUnit = value;
+            if (activeUnit == value) return;
+            activeUnit = value;
 
             // Notify the HUD path 
-            TurnManager.OnActiveControllerChanged?.Invoke(_activeUnit);
+            TurnManager.OnActiveControllerChanged?.Invoke(activeUnit);
         }
     }
+
+    private bool isCasting;
+    private Coroutine unlockCastCo;
 
     void Awake()
     {
@@ -132,6 +135,8 @@ public class UnitController : MonoBehaviourPun
     public virtual void ExecuteAbility(UnitAbility ability, Unit target, Vector3 targetPosition = default)
     {
         if (ability == null) return;
+        if (isCasting) return;          //  block duplicates
+        BeginCastLock();                //  lock until we finish queuing the RPC
 
         // Aim from cache (Targeter2D) → else from provided targetPosition → else zero
         Vector3 aimPos = cachedAimPos.HasValue ? cachedAimPos.Value
@@ -164,6 +169,7 @@ public class UnitController : MonoBehaviourPun
             $"ability={ability?.name} turn={TurnManager.Instance?.turnNumber} owner={photonView?.OwnerActorNr}");
 
         AbilityResolver.Instance.RequestCast(this, ability, targetsArg, aimPos, aimDir, traceId);
+        EndCastLockSoon();               // release lock next frame
 
         // clear cached aim after firing
         ClearAimCache();
@@ -509,5 +515,22 @@ public class UnitController : MonoBehaviourPun
             float distance = Vector3.Distance(this.unit.transform.position, ally.transform.position);
             Debug.Log($"  - {ally.name} (HP: {ally.Model.CurrentHP}/{ally.Model.MaxHP}, Distance: {distance:F1})");
         }
+    }
+
+    private IEnumerator UnlockCastingNextFrame()
+    {
+        yield return null;      // one-frame debounce
+        isCasting = false;
+        unlockCastCo = null;
+    }
+    private void BeginCastLock()
+    {
+        if (unlockCastCo != null) StopCoroutine(unlockCastCo);
+        isCasting = true;
+    }
+    private void EndCastLockSoon()
+    {
+        if (unlockCastCo != null) StopCoroutine(unlockCastCo);
+        unlockCastCo = StartCoroutine(UnlockCastingNextFrame());
     }
 }
