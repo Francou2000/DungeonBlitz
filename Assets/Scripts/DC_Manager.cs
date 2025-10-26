@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.ComponentModel;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -34,6 +35,7 @@ public class DC_Manager : MonoBehaviour
     void Start()
     {
         actual_pop_limit  = lvl == 0 ? pop_level1 : lvl == 1 ? pop_level2 : pop_level3;
+        UpdatePopUI();
     }
 
     private void Update()
@@ -77,12 +79,16 @@ public class DC_Manager : MonoBehaviour
     public Vector2 Unit_Original_Pos { get { return unit_original_pos; } set { unit_original_pos = value; } }
     public UnitPlaceholderIntection Unit_to_update { set {  unit_to_update = value; } }
 
+    [SerializeField] SpriteRenderer unitPreShow;
+    public Monsters actualUnit;
+
     [Header("Population")]
     [SerializeField] int actual_pop = 0;
     int actual_pop_limit = 0;
     [SerializeField] int pop_level1;
     [SerializeField] int pop_level2;
     [SerializeField] int pop_level3;
+    [SerializeField] TextMeshProUGUI pop_counter;
 
 
     public bool UpdateUnitOnList(Vector2 origin_pos, Vector2 new_pos, Monsters unit_id)
@@ -99,6 +105,7 @@ public class DC_Manager : MonoBehaviour
         Vector3 new_unit = new Vector3(pos.x, pos.y, (int)unit_id);
         unitList.Add(new_unit);
         actual_pop += unitDatas[(int)unit_id - 1].pop_cost;
+        UpdatePopUI();
     }
 
     void AddUnitToController()
@@ -126,6 +133,7 @@ public class DC_Manager : MonoBehaviour
             {
                 Debug.Log("BORRANDO UNIT");
                 actual_pop -= unitDatas[(int)unit_id - 1].pop_cost;
+                UpdatePopUI();
                 unitList.RemoveAt(idx);
                 return;
             }
@@ -151,18 +159,10 @@ public class DC_Manager : MonoBehaviour
 
 
 
-    [SerializeField] SpriteRenderer unitPreShow;
-    public Monsters actualUnit;
     public bool ShowUnit(Monsters unit_id)
     {
         UnitData unit = unitDatas[(int)unit_id - 1];
-        Debug.Log("Actual pop limit: " + actual_pop_limit);
-        Debug.Log("Actual pop: " + actual_pop);
-        if (actual_pop_limit < actual_pop + unit.pop_cost)
-        {
-            Debug.Log("Es muy caro, no se puede poner");
-            return false;
-        }
+        if (actual_pop_limit < actual_pop + unit.pop_cost) return false;
         //Simplemente muestra el sprite de la unidad seleccionada
         Sprite unit_sprite = unit.full_body_foto;
 
@@ -180,6 +180,9 @@ public class DC_Manager : MonoBehaviour
         state = DC_State.NONE;
     }
 
-
+    void UpdatePopUI()
+    {
+        pop_counter.text = "Pop: " + actual_pop + " / " + actual_pop_limit;
+    }
 
 }
