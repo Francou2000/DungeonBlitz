@@ -17,6 +17,7 @@ MonoBehaviour:
   portrait_foto: {fileID: 2721786158489870814, guid: 95d7c3593a347e547928ac457684f555, type: 3}
   faction: 1
   heroe_id: 0
+  pop_cost: 4
   maxHP: 8
   performance: 1
   affinity: 0

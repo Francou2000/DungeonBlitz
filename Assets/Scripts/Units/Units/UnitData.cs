@@ -10,6 +10,7 @@ public class UnitData : ScriptableObject
     public Sprite portrait_foto;
     public UnitFaction faction;
     public HeroesList heroe_id;
+    public int pop_cost = -1;
     
     [Header("Core Stats")]
     public int maxHP;

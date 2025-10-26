@@ -55,12 +55,13 @@ public class SetUnitDataButton : MonoBehaviour
 
     void SetCost()
     {
-        //my_cost = my_data
+        //int pop_cost = my_data.pop_cost;
+        // my_cost.text = my_data.pop_cost + " pop";
     }
 
     void SetPop()
     {
-        //my_pop = my_data
+        my_pop.text = my_data.pop_cost + " pop";
     }
 
     void SetDetails()

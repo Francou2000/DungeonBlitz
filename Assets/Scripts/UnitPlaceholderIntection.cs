@@ -9,10 +9,10 @@ public class UnitPlaceholderIntection : MonoBehaviour
     Monsters my_unit;
     [SerializeField] GameObject editMenu;
     DC_Manager manager = DC_Manager.instance;
-    public Vector2 Tile_pos => tile_position;
+    public Vector2 Tile_pos => tile_position - new Vector2(0.5f, 0.5f);
     public GameObject EditMenu  { get { return editMenu; } set { editMenu = value; }  }
 
-public     bool is_selected = false;
+    public bool is_selected = false;
 
     private void Start()
     {

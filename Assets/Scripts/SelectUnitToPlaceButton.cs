@@ -5,6 +5,7 @@ public class SelectUnitToPlaceButton : MonoBehaviour
 {
     Button my_button;
     [SerializeField] Monsters my_unit;
+    [SerializeField] Animator my_anim;
     void Start()
     {
         my_button = GetComponent<Button>();
@@ -13,6 +14,8 @@ public class SelectUnitToPlaceButton : MonoBehaviour
 
     public void SetUnit()
     {
-        DC_Manager.instance.ShowUnit(my_unit);
+        if (!DC_Manager.instance.ShowUnit(my_unit)){
+            my_anim.SetTrigger("NotPosible");
+        }
     }
 }
