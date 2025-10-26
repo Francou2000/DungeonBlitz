@@ -778,6 +778,7 @@ MonoBehaviour:
   - {fileID: 1407768021}
   - {fileID: 430017745}
   start_game_button: {fileID: 232304340}
+  mainMenuScene: 2
   player_ready: 0000000000
 --- !u!4 &214355493
 Transform:
@@ -938,7 +939,7 @@ MonoBehaviour:
     m_HighlightedSprite: {fileID: -1005055033825240388, guid: 26afc48734f91554d88a28fc96f2ee9f, type: 3}
     m_PressedSprite: {fileID: -7327478636707688060, guid: 539fa4342a9a6db45b7656bc12820eb2, type: 3}
     m_SelectedSprite: {fileID: 0}
-    m_DisabledSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 8641598817319379495, guid: 71a6107505776314c98152494a6dafc7, type: 3}
   m_AnimationTriggers:
     m_NormalTrigger: Normal
     m_HighlightedTrigger: Highlighted
