@@ -233,7 +233,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
     }
 
     private void ResolveHealingAndShields(UnitController casterCtrl, UnitAbility ability,
-                                      List<Unit> computedTargets, int abilityIndex)
+                                          List<Unit> computedTargets, int abilityIndex)
     {
         var outIds = new List<int>(computedTargets.Count);
         var outHeals = new List<int>(computedTargets.Count);
@@ -243,37 +243,34 @@ public sealed class AbilityResolver : MonoBehaviourPun
         {
             if (t == null || t.Model == null) continue;
 
-            // Calculate heal: base + % (target-based) + scriptable scaling (caster-based)
             int heal = 0;
             if (ability.healsTarget)
             {
-                heal = ability.healAmount;
-
-                if (ability.healPercentage > 0)
-                    heal += Mathf.CeilToInt(t.Model.MaxHP * (ability.healPercentage / 100f)); // % of TARGET HP
-
-                // Scriptable scaling (often uses caster stats). Your UnitAbility exposes CalculateHealAmount(casterModel).
-                heal += Mathf.Max(0, ability.CalculateHealAmount(casterCtrl.unit.Model));
+                // NEW: use the target-aware calculator (flat + % of missing, clamped)
+                heal = ability.ComputeHealAmount(casterCtrl.unit.Model, t.Model);
             }
 
             int barrier = ability.grantsBarrier ? Mathf.Max(0, ability.barrierAmount) : 0;
 
-            heal = Mathf.Max(0, heal);
-
-            outIds.Add(t.Controller.photonView.ViewID);
-            outHeals.Add(heal);
-            outBarriers.Add(barrier);
-
-            Debug.Log($"[Resolve-Heal/Shield] pending -> {t.name}: heal={heal}, barrier={barrier}");
+            if (heal > 0 || barrier > 0)
+            {
+                outIds.Add(t.Controller.photonView.ViewID);
+                outHeals.Add(heal);
+                outBarriers.Add(barrier);
+                Debug.Log($"[Resolve-Heal/Shield] pending -> {t.name}: heal={heal}, barrier={barrier}");
+            }
         }
 
         // Spend AP/resources/adrenaline on MASTER (authoritative)
         var ab = casterCtrl.unit.Model.Abilities[abilityIndex];
         casterCtrl.unit.Model.SpendAction(ab.actionCost);
-        foreach (var cost in ab.resourceCosts) casterCtrl.unit.Model.TryConsume(cost.key, cost.amount);
-        if (ab.adrenalineCost > 0) casterCtrl.unit.Model.SpendAdrenaline(ab.adrenalineCost);
+        if (ab.resourceCosts != null)
+            foreach (var cost in ab.resourceCosts)
+                casterCtrl.unit.Model.TryConsume(cost.key, cost.amount);
+        if (ab.adrenalineCost > 0)
+            casterCtrl.unit.Model.SpendAdrenaline(ab.adrenalineCost);
 
-        // Broadcast to ALL clients so each applies once locally
+        // Broadcast to ALL clients so each applies exactly once
         _view.RPC(nameof(RPC_ApplyHealingToClient), RpcTarget.All,
             casterCtrl.photonView.ViewID, abilityIndex,
             outIds.ToArray(), outHeals.ToArray(), outBarriers.ToArray());
@@ -406,213 +403,168 @@ public sealed class AbilityResolver : MonoBehaviourPun
 
         CombatLog.Resolve(traceId, $"Targets: final={computedTargets.Count} area={ability.areaType}");
 
-        // --- Decide resolution branch once (before any per-target loop) ---
-        bool doDamage = DealsAnyDamage(ability);
-        bool doHeal = ability.healsTarget || ability.healAmount > 0 || ability.healPercentage > 0; // permissive
-        bool doShield = ability.grantsBarrier && ability.barrierAmount > 0;
+        // -------- PER-TARGET ROUTING: heal allies, damage enemies --------
 
-        if (!doDamage && (doHeal || doShield))
-        {
-            // HEAL/SHIELD-ONLY: resolve here and exit. Do NOT fall through to damage area RPC.
-            ResolveHealingAndShields(casterCtrl, ability, computedTargets, abilityIndex);
-            return;
-        }
+        // Batches to send
+        var healIds = new List<int>();
+        var healVals = new List<int>();
+        var barriVals = new List<int>();
 
-        // Faction filtering for AoE/Line (Single already validated in CanCast)
-        if (computedTargets.Count > 0)
-        {
-            bool allowAllies = !ability.enemiesOnly;
-            bool allowEnemies = !ability.alliesOnly;
+        var dmgIds = new List<int>();
+        var hitsList = new List<bool>();
+        var dmgList = new List<int>();
+        var dtypeList = new List<int>();
+        var procsList = new List<byte>();
 
-            var filtered = new List<Unit>(computedTargets.Count);
-            foreach (var u in computedTargets)
-            {
-                bool isAlly = (u.Model.Faction == casterCtrl.unit.Model.Faction);
-                if ((isAlly && allowAllies) || (!isAlly && allowEnemies))
-                    filtered.Add(u);
-            }
-            computedTargets = filtered;
-        }
-
-        // Prepare per-target results
-        var outIds = new List<int>(computedTargets.Count);
-        var outHits = new List<bool>(computedTargets.Count);
-        var outDamages = new List<int>(computedTargets.Count);
-        var outTypes = new List<int>(computedTargets.Count); // true enum for RPC
-        var outProcs = new List<byte>(computedTargets.Count);       // 0=None,1=Burn,2=Freeze,3=Shock
+        bool canDealDamage = DealsAnyDamage(ability);
+        bool canHeal = ability.healsTarget;
 
         int idx = 0;
         foreach (var tgt in computedTargets)
         {
-            // --- HEAL / SHIELD ONLY ---
-            if (!doDamage && (doHeal || doShield))
+            if (tgt == null || tgt.Model == null) { idx++; continue; }
+
+            bool isAlly = (tgt.Model.Faction == casterCtrl.unit.Model.Faction);
+
+            // Heal allies if this ability can heal
+            if (isAlly && canHeal)
             {
-                // Compute authoritative results on MASTER and broadcast exact numbers to ALL.
-                var outHeals = new List<int>(computedTargets.Count);
-                var outBarriers = new List<int>(computedTargets.Count);
+                int heal = ability.ComputeHealAmount(casterCtrl.unit.Model, tgt.Model);
+                int barrier = ability.grantsBarrier ? Mathf.Max(0, ability.barrierAmount) : 0;
 
-                foreach (var target in computedTargets)
+                if (heal > 0 || barrier > 0)
                 {
-                    if (target == null || target.Model == null) continue;
-
-                    int heal = 0;
-                    int barrier = 0;
-
-                    if (doHeal)
-                    {
-                        // Use your Scriptable’s scaling (base + % + stat scaling)
-                        heal = ability.healAmount;
-
-                        if (ability.healPercentage > 0)
-                        {
-                            int maxHp = target.Model.MaxHP;
-                            heal += Mathf.CeilToInt(maxHp * (ability.healPercentage / 100f));
-                        }
-
-                        // Your UnitAbility.CalculateHealAmount already scales by stats (e.g., MagicPower)
-                        // Note: CalculateHealAmount expects caster model, not target.
-                        heal += Mathf.Max(0, ability.CalculateHealAmount(casterCtrl.unit.Model));
-                    }
-
-                    if (doShield)
-                    {
-                        barrier = Mathf.Max(0, ability.barrierAmount);
-                    }
-
-                    // Clamp negatives to zero
-                    heal = Mathf.Max(0, heal);
-                    barrier = Mathf.Max(0, barrier);
-
-                    outIds.Add(target.GetComponent<PhotonView>()?.ViewID ?? -1);
-                    outHeals.Add(heal);
-                    outBarriers.Add(barrier);
-
-                    Debug.Log($"[Resolve-Heal/Shield] pending -> {target.name}: heal={heal}, barrier={barrier}");
+                    healIds.Add(tgt.Controller.photonView.ViewID);
+                    healVals.Add(heal);
+                    barriVals.Add(barrier);
+                    Debug.Log($"[Resolve] heal -> {tgt.name}: heal={heal}, barrier={barrier}");
                 }
+                idx++;
+                continue; // never damage allies
+            }
 
-                // Spend action/resources/adrenaline on MASTER (authoritative)
-                casterCtrl.unit.Model.SpendAction(ability.actionCost);
-                if (ability.resourceCosts != null)
-                {
-                    foreach (var cost in ability.resourceCosts)
-                        casterCtrl.unit.Model.TryConsume(cost.key, cost.amount);
-                }
-                if (ability.adrenalineCost > 0)
-                    casterCtrl.unit.Model.SpendAdrenaline(ability.adrenalineCost);
-
-                // Broadcast to ALL clients so each applies the same numbers once locally.
-                _view.RPC(nameof(RPC_ApplyHealingToClient), RpcTarget.All,
-                    casterCtrl.photonView.ViewID,
-                    abilityIndex,
-                    outIds.ToArray(),
-                    outHeals.ToArray(),
-                    outBarriers.ToArray()
+            // Damage enemies if the ability has damage
+            if (!isAlly && canDealDamage)
+            {
+                // ---- Your current damage pipeline (cover, hit chance, damage calc, procs) ----
+                bool hasMediumCover, hasHeavyCover;
+                CombatCalculator.CheckCover(
+                    casterCtrl.unit.transform.position,
+                    tgt.transform.position,
+                    out hasMediumCover,
+                    out hasHeavyCover
                 );
 
-                Debug.Log($"[Resolve-Heal/Shield] Completed {ability.abilityName} (broadcast {outIds.Count} targets).");
-                return;
-            }
+                float dist = Vector3.Distance(casterCtrl.unit.transform.position, tgt.transform.position);
+                bool meleeAttack = (ability.areaType == AreaType.Single) && (dist <= MeleeRangeMeters);
+                if (meleeAttack) { hasMediumCover = false; hasHeavyCover = false; }
 
-            // Cover check
-            bool hasMediumCover, hasHeavyCover;
-            CombatCalculator.CheckCover(
-                casterCtrl.unit.transform.position,
-                tgt.transform.position,
-                out hasMediumCover,
-                out hasHeavyCover
-            );
+                int flankCount = CombatCalculator.CountFlankingAllies(tgt, casterCtrl.unit);
+                bool isFlanked = flankCount > 0;
 
-            // Melee ignores cover (single-target melee distance check)
-            float dist = Vector3.Distance(casterCtrl.unit.transform.position, tgt.transform.position);
-            bool meleeAttack = (ability.areaType == AreaType.Single) && (dist <= MeleeRangeMeters);
-            if (meleeAttack) { hasMediumCover = false; hasHeavyCover = false; }
+                int attackerAffinity = casterCtrl.unit.Model.Affinity;
 
-            // Flanking
-            int flankCount = CombatCalculator.CountFlankingAllies(tgt, casterCtrl.unit);
-            bool isFlanked = flankCount > 0;
+                float hitchance = CombatCalculator.GetHitChance(
+                    ability.baseHitChance,
+                    attackerAffinity,
+                    flankCount,
+                    isFlanked,
+                    hasMediumCover,
+                    hasHeavyCover
+                );
 
-            // Attacker affinity bonus
-            int attackerAffinity = casterCtrl.unit.Model.Affinity;
+                bool hit = (UnityEngine.Random.Range(0f, 100f) <= hitchance);
+                int damage = 0;
+                DamageType dtype = ability.damageSource;
 
-            float hitchance = CombatCalculator.GetHitChance(
-                ability.baseHitChance,
-                attackerAffinity,
-                flankCount,
-                isFlanked,
-                hasMediumCover,
-                hasHeavyCover
-            );
-
-            bool hit = (Random.Range(0f, 100f) <= hitchance);
-            int damage = 0;
-            DamageType dtype = ability.damageSource; // default to ability’s configured source
-
-            if (hit)
-            {
-                if (ability.isMixedDamage)
+                if (hit)
                 {
-                    int strength = casterCtrl.unit.Model.Strength;
-                    int mpower = casterCtrl.unit.Model.MagicPower;
-                    int armor = tgt.Model.Armor;
-                    int mr = tgt.Model.MagicResistance;
+                    if (ability.isMixedDamage)
+                    {
+                        int strength = casterCtrl.unit.Model.Strength;
+                        int mpower = casterCtrl.unit.Model.MagicPower;
+                        int armor = tgt.Model.Armor;
+                        int mr = tgt.Model.MagicResistance;
 
-                    damage = CombatCalculator.CalculateMixedDamage(
-                        ability.baseDamage, strength, armor, mpower, mr, ability.mixedPhysicalPercent
-                    );
-                    dtype = DamageType.Mixed; // cosmetic; mitigation already applied in sum
-                }
-                else
-                {
-                    bool isPhysical = (ability.damageSource == DamageType.Physical);
-                    int attackerStat = isPhysical ? casterCtrl.unit.Model.Strength : casterCtrl.unit.Model.MagicPower;
-                    int defenderStat = isPhysical ? tgt.Model.Armor : tgt.Model.MagicResistance;
+                        damage = CombatCalculator.CalculateMixedDamage(
+                            ability.baseDamage, strength, armor, mpower, mr, ability.mixedPhysicalPercent
+                        );
+                        dtype = DamageType.Mixed;
+                    }
+                    else
+                    {
+                        bool isPhysical = (ability.damageSource == DamageType.Physical);
+                        int attackerStat = isPhysical ? casterCtrl.unit.Model.Strength : casterCtrl.unit.Model.MagicPower;
+                        int defenderStat = isPhysical ? tgt.Model.Armor : tgt.Model.MagicResistance;
 
-                    damage = Mathf.RoundToInt(
-                        CombatCalculator.CalculateDamage(ability.baseDamage, attackerStat, defenderStat)
-                    );
+                        damage = Mathf.RoundToInt(
+                            CombatCalculator.CalculateDamage(ability.baseDamage, attackerStat, defenderStat)
+                        );
 
-                    // Keep elemental type if declared
-                    if (ability.damageSource == DamageType.Fire) dtype = DamageType.Fire;
-                    else if (ability.damageSource == DamageType.Frost) dtype = DamageType.Frost;
-                    else if (ability.damageSource == DamageType.Electric) dtype = DamageType.Electric;
-                    else dtype = isPhysical ? DamageType.Physical : DamageType.Magical;
+                        if (ability.damageSource == DamageType.Fire) dtype = DamageType.Fire;
+                        else if (ability.damageSource == DamageType.Frost) dtype = DamageType.Frost;
+                        else if (ability.damageSource == DamageType.Electric) dtype = DamageType.Electric;
+                        else dtype = isPhysical ? DamageType.Physical : DamageType.Magical;
+                    }
+
+                    if (ability.bonusPerMissingHpPercent > 0)
+                        damage = CombatCalculator.ApplyMissingHpBonus(damage, tgt, ability.bonusPerMissingHpPercent);
+
+                    if (ability.areaType == AreaType.Line && idx > 0 && ability.lineCollateralPercent < 100)
+                        damage = CombatCalculator.ApplyCollateralPercent(damage, ability.lineCollateralPercent);
                 }
 
-                // Missing HP bonus (if configured)
-                if (ability.bonusPerMissingHpPercent > 0)
-                    damage = CombatCalculator.ApplyMissingHpBonus(damage, tgt, ability.bonusPerMissingHpPercent);
+                // Elemental proc chance based on final damage
+                byte proc = 0;
+                if (hit && (dtype == DamageType.Fire || dtype == DamageType.Frost || dtype == DamageType.Electric))
+                {
+                    float procChance = Mathf.Clamp(damage * 2.5f, 0f, 100f);
+                    if (UnityEngine.Random.Range(0f, 100f) < procChance)
+                        proc = (byte)(dtype == DamageType.Fire ? 1 : dtype == DamageType.Frost ? 2 : 3);
+                }
 
-                // Line collateral for non-primary targets
-                if (ability.areaType == AreaType.Line && idx > 0 && ability.lineCollateralPercent < 100)
-                    damage = CombatCalculator.ApplyCollateralPercent(damage, ability.lineCollateralPercent);
+                dmgIds.Add(tgt.GetComponent<PhotonView>()?.ViewID ?? -1);
+                hitsList.Add(hit);
+                dmgList.Add(Mathf.Max(0, damage));
+                dtypeList.Add((int)dtype);
+                procsList.Add(proc);
             }
 
-            // Elemental proc per spec: chance = 2.5 × final damage (clamped 0..100)
-            byte proc = 0;
-            if (hit && (dtype == DamageType.Fire || dtype == DamageType.Frost || dtype == DamageType.Electric))
-            {
-                float procChance = Mathf.Clamp(damage * 2.5f, 0f, 100f);
-                if (Random.Range(0f, 100f) < procChance)
-                    proc = (byte)(dtype == DamageType.Fire ? 1 : dtype == DamageType.Frost ? 2 : 3);
-            }
-
-            outIds.Add(tgt.GetComponent<PhotonView>()?.ViewID ?? -1);
-            outHits.Add(hit);
-            outDamages.Add(Mathf.Max(0, damage));
-            outTypes.Add((int)dtype);
-            outProcs.Add(proc);
             idx++;
         }
 
-        // Broadcast batched result arrays — single authoritative resolve path
-        _view.RPC(nameof(RPC_ResolveAbility_Area), RpcTarget.All,
-            casterViewId, abilityIndex,
-            outIds.ToArray(),
-            outHits.ToArray(),
-            outDamages.ToArray(),
-            outTypes.ToArray(),
-            outProcs.ToArray()
-        );
+        // Spend costs ONCE (server-authoritative)
+        var abilities = casterCtrl.unit.Model.Abilities;
+        var ab = abilities[abilityIndex];
+        casterCtrl.unit.Model.SpendAction(ab.actionCost);
+        if (ab.resourceCosts != null)
+            foreach (var cost in ab.resourceCosts)
+                casterCtrl.unit.Model.TryConsume(cost.key, cost.amount);
+        if (ab.adrenalineCost > 0)
+            casterCtrl.unit.Model.SpendAdrenaline(ab.adrenalineCost);
+
+        // Broadcast heals first
+        if (healIds.Count > 0)
+        {
+            _view.RPC(nameof(RPC_ApplyHealingToClient), RpcTarget.All,
+                casterCtrl.photonView.ViewID, abilityIndex,
+                healIds.ToArray(), healVals.ToArray(), barriVals.ToArray());
+        }
+
+        // Broadcast damage second (your existing damage RPC)
+        if (dmgIds.Count > 0)
+        {
+            _view.RPC(nameof(RPC_ResolveAbility_Area), RpcTarget.All,
+                casterCtrl.photonView.ViewID, abilityIndex,
+                dmgIds.ToArray(),         // targets
+                hitsList.ToArray(),       // hits
+                dmgList.ToArray(),        // damages
+                dtypeList.ToArray(),      // damage types
+                procsList.ToArray()       // elemental procs
+            );
+        }
+
+        return;
     }
 
     [PunRPC]
@@ -640,27 +592,6 @@ public sealed class AbilityResolver : MonoBehaviourPun
 
             // broadcast punch
             casterCtrl.unit.View.PlayAttackNet(face);
-        }
-
-
-        // Spend AP/resources/adrenaline deterministically
-        if (casterCtrl != null)
-        {
-            var list = casterCtrl.unit.Model.Abilities;
-            if (abilityIndex >= 0 && abilityIndex < list.Count)
-            {
-                var ab = list[abilityIndex];
-                casterCtrl.unit.Model.SpendAction(ab.actionCost);
-
-                if (ab.resourceCosts != null)
-                {
-                    foreach (var cost in ab.resourceCosts)
-                        casterCtrl.unit.Model.TryConsume(cost.key, cost.amount);
-                }
-
-                if (ab.adrenalineCost > 0)
-                    casterCtrl.unit.Model.SpendAdrenaline(ab.adrenalineCost);
-            }
         }
 
         // Summons/Structures/Zones after spending (kept as before – summons example)
@@ -901,8 +832,10 @@ public sealed class AbilityResolver : MonoBehaviourPun
 
             if (heal > 0)
             {
-                unit.Model.Heal(heal);                    // Triggers OnHealthChanged → HUD
-                CombatFeedbackUI.ShowHeal(unit, heal);    // Popup (if available)
+                int missing = Mathf.Max(0, unit.Model.MaxHP - unit.Model.CurrentHP);
+                heal = Mathf.Min(heal, missing);   // safety clamp
+                unit.Model.Heal(heal);
+                CombatFeedbackUI.ShowHeal(unit, heal);
                 Debug.Log($"[RPC_ApplyHealing] Healed {unit.name} for {heal}");
             }
 

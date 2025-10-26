@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public enum DamageType
 {
@@ -187,25 +188,35 @@ public class UnitAbility : ScriptableObject
         
         return damage;
     }
-    
-    public int CalculateHealAmount(UnitModel caster)
+
+    public int ComputeHealAmount(UnitModel caster, UnitModel target)
     {
-        int heal = healAmount;
-        
-        if (healPercentage > 0)
-        {
-            heal += Mathf.RoundToInt(caster.MaxHP * healPercentage);
-        }
-        
-        // Some healing abilities scale with magic power
-        if (damageSource == DamageType.Magical)
-        {
-            heal += Mathf.RoundToInt(caster.MagicPower * 0.3f);
-        }
-        
+        if (!healsTarget || target == null) return 0;
+
+        // Missing-HP based healing:
+        // "healPercentage" is interpreted as PERCENT OF MISSING HP (e.g., 25 = 25% of missing).
+        int missing = Mathf.Max(0, target.MaxHP - target.CurrentHP);
+
+        // Base flat heal, if any (keeps your ScriptableObject knobs working)
+        int heal = Mathf.Max(0, healAmount);
+
+        // Percent of MISSING HP (as you described for Healing Prayer)
+        if (healPercentage > 0f)
+            heal += Mathf.CeilToInt(missing * (healPercentage / 100f));
+
+
+        // Never overheal past what's missing
+        heal = Mathf.Min(heal, missing);
+
         return heal;
     }
-    
+
+    // Legacy shim so old calls compile (uses caster as both if target is unknown)
+    public int CalculateHealAmount(UnitModel caster)
+    {
+        return ComputeHealAmount(caster, caster);
+    }
+
     public int GetEffectiveActionCost(UnitModel caster, bool conditionMet = false)
     {
         if (reducesActionCostOnCondition && conditionMet)
