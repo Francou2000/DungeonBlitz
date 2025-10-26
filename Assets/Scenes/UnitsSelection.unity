@@ -39276,7 +39276,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3631581902081145981, guid: 8f6026b4bb6e5f64fa5cf28bf574f612, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -46776,7 +46776,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1869453900}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.8983451
+  m_Size: 0.8983452
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
