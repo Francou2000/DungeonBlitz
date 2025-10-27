@@ -33574,6 +33574,7 @@ MonoBehaviour:
   timerText: {fileID: 1180897601}
   moveIcon: {fileID: 21300000, guid: b66c0483a9e9ef5499247e5818ca884b, type: 3}
   portraitImage: {fileID: 491517337}
+  pauseMenuController: {fileID: 0}
 --- !u!114 &1304639137
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -38563,15 +38564,15 @@ PrefabInstance:
     - target: {fileID: 3966289510827984597, guid: c5ff05a911228f7449e606ca92c7a4aa, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: adbba1d539c03e84eb16afe72fc35eaa, type: 2}
+      objectReference: {fileID: 2100000, guid: d1f772ed257bb094fbb71b93cac9d020, type: 2}
     - target: {fileID: 4425332711995178673, guid: c5ff05a911228f7449e606ca92c7a4aa, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: adbba1d539c03e84eb16afe72fc35eaa, type: 2}
+      objectReference: {fileID: 2100000, guid: d1f772ed257bb094fbb71b93cac9d020, type: 2}
     - target: {fileID: 6535844530414072501, guid: c5ff05a911228f7449e606ca92c7a4aa, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: adbba1d539c03e84eb16afe72fc35eaa, type: 2}
+      objectReference: {fileID: 2100000, guid: d1f772ed257bb094fbb71b93cac9d020, type: 2}
     - target: {fileID: 6689656082810253843, guid: c5ff05a911228f7449e606ca92c7a4aa, type: 3}
       propertyPath: cam
       value: 

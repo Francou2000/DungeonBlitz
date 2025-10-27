@@ -51,7 +51,7 @@ Material:
     m_Floats:
     - _Additive: 0
     - _DashScroll: 0.2
-    - _Distortion: 0.052
+    - _Distortion: 0.01
     - _EdgeThickness: 0.004
     - _EnableExternalAlpha: 0
     - _FillStrength: 0
@@ -59,7 +59,7 @@ Material:
     - _NoiseScroll: 0
     - _Opacity: 1
     - _PulseAmp: 0.065
-    - _PulseSpeed: 3
+    - _PulseSpeed: 3.15
     - _Radius: 0.379
     - _RotationDegrees: 0
     - _RotationSpeed: 0.1
@@ -72,8 +72,8 @@ Material:
     - _ZWrite: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _EdgeColor: {r: 1, g: 1, b: 1, a: 1}
-    - _MainColor: {r: 1, g: 1, b: 1, a: 0}
+    - _EdgeColor: {r: 0.66666657, g: 0.11949676, b: 0.11949676, a: 1}
+    - _MainColor: {r: 1, g: 0, b: 0, a: 0}
     - _NoiseScale: {r: 3, g: 3, b: 0, a: 0}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

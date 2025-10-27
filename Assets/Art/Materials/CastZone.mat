@@ -75,15 +75,15 @@ Material:
     - _BlendOp: 0
     - _Cull: 2
     - _Cutoff: 0.5
-    - _DashScroll: 0.2
+    - _DashScroll: -0.1
     - _Distortion: 0.052
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _EdgeThickness: 0.004
     - _EnableExternalAlpha: 0
-    - _Feather: 0
+    - _Feather: 0.1
     - _FillStrength: 0
-    - _LineWidth: 0.036
+    - _LineWidth: 0.15
     - _NoiseScroll: 0
     - _Opacity: 1
     - _PulseAmp: 0.065
@@ -104,7 +104,7 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0.2986188, g: 0.28034878, b: 0.8490566, a: 1}
     - _EdgeColor: {r: 1, g: 1, b: 1, a: 1}
     - _MainColor: {r: 1, g: 1, b: 1, a: 0}
     - _NoiseScale: {r: 3, g: 3, b: 0, a: 0}
