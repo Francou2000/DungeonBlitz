@@ -27,11 +27,11 @@ MonoBehaviour:
   requiresAdrenalineThreshold: 0
   adrenalineThreshold: 0
   areaType: 0
-  range: 3
+  range: 2
   aoeRadius: 0
   lineMaxTargets: 0
   lineRange: 0
-  lineAlignmentTolerance: 0.75
+  lineAlignmentTolerance: 0
   isMixedDamage: 0
   mixedPhysicalPercent: 50
   lineCollateralPercent: 0
@@ -46,7 +46,7 @@ MonoBehaviour:
   canChain: 0
   chainRange: 0
   appliedEffects: []
-  statusEffectChance: 100
+  statusEffectChance: 0
   healsTarget: 0
   healAmount: 0
   healPercentage: 0

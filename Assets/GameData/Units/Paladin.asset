@@ -17,6 +17,7 @@ MonoBehaviour:
   portrait_foto: {fileID: 7877489745846678396, guid: fc3bf32ac85dec342a2a8a5ff8923c0c, type: 3}
   faction: 0
   heroe_id: 0
+  pop_cost: -1
   maxHP: 35
   performance: 1
   affinity: 0
@@ -33,8 +34,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 0124a52213996af4482b5a5ae7d102e4, type: 2}
   - {fileID: 11400000, guid: 14e2ced200bbcd64097e9512ba785b5f, type: 2}
   - {fileID: 11400000, guid: 3dbc28e81e6b81a428fbfe076caa6361, type: 2}
-  - {fileID: 11400000, guid: 0b9022159e9b61f478eed5cede8d4900, type: 2}
-  - {fileID: 11400000, guid: a57c1ec0ffe0eb5479d52cc18a05611b, type: 2}
   - {fileID: 11400000, guid: 3b140126e8a735843a4b4003286f6730, type: 2}
   - {fileID: 11400000, guid: 54fbff9d59467f444ae51a7cb9edd0ba, type: 2}
   startingForm: 

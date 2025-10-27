@@ -38,9 +38,9 @@ MonoBehaviour:
   bonusPerMissingHpPercent: 0
   damageSource: 1
   baseDamage: 0
-  damageMultiplier: 1
+  damageMultiplier: 0
   bonusDamage: 0
-  hits: 1
+  hits: 0
   useTargetMissingHealth: 0
   missingHealthPercentage: 0
   canChain: 0
@@ -76,8 +76,8 @@ MonoBehaviour:
   healsTarget: 0
   healAmount: 0
   healPercentage: 0
-  grantsBarrier: 0
-  barrierAmount: 0
+  grantsBarrier: 1
+  barrierAmount: 5
   grantsMovement: 0
   movementRange: 0
   isMovementFree: 0

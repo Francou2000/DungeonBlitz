@@ -23,7 +23,7 @@ MonoBehaviour:
   affinity: 0
   armor: 15
   magicResistance: 60
-  strength: 0
+  strength: 1
   magicPower: 8
   actionsPerTurn: 2
   reactionsPerTurn: 1
