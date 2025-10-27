@@ -8,10 +8,11 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: UnitHover
-  m_Shader: {fileID: 4800000, guid: bb266bd53c69fdf4aa3f755d8f6c3cca, type: 3}
+  m_Shader: {fileID: 4800000, guid: 1ccaae573c199464786bf4a756c3dffe, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _SEGMENTS_ON
   - _USE_SPRITE_ALPHA
   m_InvalidKeywords: []
   m_LightmapFlags: 4
@@ -47,12 +48,18 @@ Material:
     m_Ints: []
     m_Floats:
     - _Additive: 0
-    - _Distortion: 0.037
+    - _Distortion: 0
+    - _EdgeThickness: 0.004
     - _EnableExternalAlpha: 0
-    - _Opacity: 0.7
-    - _PulseAmp: 0.02
+    - _FillStrength: 0
+    - _Opacity: 1
+    - _PulseAmp: 0.01
     - _PulseSpeed: 3
-    - _Radius: 0.45
+    - _Radius: 0.445
+    - _RotationSpeed: 0.1
+    - _SegmentCount: 10
+    - _SegmentGap: 0.213
+    - _SegmentsOn: 1
     - _Strength: 1
     - _Thickness: 0.08
     - _UseSpriteAlpha: 1
