@@ -87,6 +87,7 @@ MonoBehaviour:
   - WantToRetry
   - TryRetry
   - ReturnToMainMenu
+  - NextLevel
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

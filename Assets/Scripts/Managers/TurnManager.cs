@@ -36,7 +36,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
     public static System.Action<UnitController> OnActiveControllerChanged;
     public static event System.Action<UnitFaction> OnTurnBegan;
 
-
+    UnitLoaderController _unitControler;
     void Awake()
     {
         if (Instance != null)
@@ -55,6 +55,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
 
     void Start()
     {
+        _unitControler = UnitLoaderController.Instance;
         timePool[UnitFaction.Hero] = initialTimePool;
         timePool[UnitFaction.Monster] = initialTimePool;
 
@@ -100,16 +101,51 @@ public class TurnManager : MonoBehaviourPunCallbacks
         if (timePool[currentTurn] <= 0f)
         {
             Debug.Log($"[TurnManager] Time's up! {GetOpposingFaction(currentTurn)} wins by timeout");
-            EndGame(GetOpposingFaction(currentTurn));
+            if (currentTurn == UnitFaction.Hero)
+            {
+                EndGame(GetOpposingFaction(currentTurn));
+            }
+            else
+            {
+                _unitControler.lvl++;
+                SceneLoaderController.Instance.LoadNextLevel(Scenes.UnitsSelection);
+            }
+            
         }
         else if (IsFactionDefeated(GetOpposingFaction(currentTurn)))
         {
             Debug.Log($"[TurnManager] Faction defeated! {currentTurn} wins by elimination");
-            EndGame(currentTurn); // current faction wins
+            if (_unitControler.lvl == 3)
+            {
+                EndGame(currentTurn); // current faction wins
+            }
+            else
+            {
+                if (currentTurn == UnitFaction.Monster)
+                {
+                    EndGame(GetOpposingFaction(currentTurn));
+                }
+                else
+                {
+                    if (PhotonNetwork.IsMasterClient)
+                    {
+                        _unitControler.lvl++;
+                        photonView.RPC(nameof(NextLevel), RpcTarget.All, _unitControler.lvl);
+                    }
+                }
+            }
+            
         }
     }
 
     // === PUBLIC ===
+
+    [PunRPC]
+    public void NextLevel(int lvl)
+    {
+        _unitControler.lvl = lvl;
+        SceneLoaderController.Instance.LoadNextLevel(Scenes.UnitsSelection);
+    }
 
     public bool CanEndTurnNow()
     {
