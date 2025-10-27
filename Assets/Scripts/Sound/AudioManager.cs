@@ -60,7 +60,7 @@ public class AudioManager : MonoBehaviour
             soundDict[elem._key] = elem._value;
         }
         if (soundDictElements.Count == soundDict.Count) Debug.Log("Diccionario de sonidos completo");
-        else Debug.Log("Diccionario de sonidos incompleto  ->  Alguna key está repetida");
+        else Debug.Log("Diccionario de sonidos incompleto  ->  Alguna key estï¿½ repetida");
 
     }
 
@@ -105,23 +105,23 @@ public class AudioManager : MonoBehaviour
     // Volume Controls
     public void SetMasterVolume(float value)
     {
-        SetVolume("MasterVolume", value);
+        // Set master volume on both sources
+        if (musicSource != null)
+            musicSource.volume = Mathf.Clamp(value, 0f, 1f);
+        if (sfxSource != null)
+            sfxSource.volume = Mathf.Clamp(value, 0f, 1f);
     }
 
     public void SetMusicVolume(float value)
     {
-        SetVolume("MusicVolume", value);
+        if (musicSource != null)
+            musicSource.volume = Mathf.Clamp(value, 0f, 1f);
     }
 
     public void SetSFXVolume(float value)
     {
-        SetVolume("SFXVolume", value);
-    }
-
-    private void SetVolume(string exposedParam, float value)
-    {
-        float dB = Mathf.Log10(Mathf.Clamp(value, 0.0001f, 1)) * 20f;
-        audioMixer.SetFloat(exposedParam, dB);
+        if (sfxSource != null)
+            sfxSource.volume = Mathf.Clamp(value, 0f, 1f);
     }
 
     //testing this may change later
@@ -142,6 +142,29 @@ public class AudioManager : MonoBehaviour
                 break;
             case "":
                 PlayStabSound();
+                break;
+            case "Goblin Slash":
+                PlaySFX(SoundName.GoblinAttack);
+                break;
+            case "Goblin Flurry":
+                PlaySFX(SoundName.GoblinAttack);
+                break;
+            case "Firebolt":
+                PlaySFX(SoundName.Magic1);
+                break;
+            case "Fireball":
+                PlaySFX(SoundName.Magic4);
+                break;
+            case "Lightning Bolt":
+                PlaySFX(SoundName.Electrical);
+                break;
+            case "Focus Shot":
+            case "Shadow Arrows":
+            case "Piercing Shot":
+                PlaySFX(SoundName.Arrow);
+                break;
+            case "Goblin Tactics":
+                PlaySFX(SoundName.WarCry);
                 break;
         }
     }
@@ -165,6 +188,7 @@ public class AudioManager : MonoBehaviour
             sfxSource.PlayOneShot(evadeRogueSFX);
         }
     }
+
 
     public void PlayEvadeGoblin(){
         if (sfxSource && evadeGoblinSFX){
@@ -220,7 +244,7 @@ public class AudioManager : MonoBehaviour
         {
             PlayEvadeHobgoblin();
         }
-        else if (unitName.Contains("rogue") || unitName.Contains("female"))
+        else if (unitName.Contains("rogue") || unitName.Contains("elementalist"))
         {
             PlayEvadeRogue();
         }
@@ -270,4 +294,12 @@ public enum SoundName
     EvadeRogue,
     EvadeGoblin,
     EvadeHobGoblin,
+    Magic1,
+    Magic2,
+    Magic3,
+    Magic4,
+    Magic5,
+    WarCry,
+    Arrow,
+    Electrical
 }

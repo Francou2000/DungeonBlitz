@@ -797,9 +797,11 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 // Play attack sound when hit connects
                 if (AudioManager.Instance != null)
                 {
-                    AudioManager.Instance.PlayStabSound();
-                    // var list = casterCtrl.unit.Model.Abilities;
-                    // AudioManager.Instance.PlayAttackSound(list[abilityIndex].abilityName);
+                    if (casterCtrl != null && abilityIndex >= 0 && abilityIndex < casterCtrl.unit.Model.Abilities.Count)
+                    {
+                        var list = casterCtrl.unit.Model.Abilities;
+                        AudioManager.Instance.PlayAttackSound(list[abilityIndex].abilityName);
+                    }
                 }
             }
             else 

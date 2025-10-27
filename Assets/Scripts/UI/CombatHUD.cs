@@ -29,6 +29,9 @@ public class CombatHUD : MonoBehaviour
     [SerializeField] private Sprite moveIcon; 
     [SerializeField] private Image portraitImage;
 
+    [Header("Pause Menu")]
+    [SerializeField] private PauseMenuController pauseMenuController;
+
     // state
     private readonly List<ActionButtonView> _pool = new();
     private readonly List<ActionButtonView> _active = new();
@@ -420,6 +423,23 @@ public class CombatHUD : MonoBehaviour
 
     void TogglePause()
     {
-        //TODO
+        // Intentar encontrar el PauseMenuController si no está asignado
+        if (pauseMenuController == null)
+        {
+            // Buscar también en GameObjects inactivos
+            var controllers = Resources.FindObjectsOfTypeAll<PauseMenuController>();
+            if (controllers != null && controllers.Length > 0)
+            {
+                pauseMenuController = controllers[0];
+            }
+            
+            if (pauseMenuController == null)
+            {
+                Debug.LogWarning("[CombatHUD] PauseMenuController no encontrado en la escena. Por favor agrega el componente PauseMenuController a un GameObject.");
+                return;
+            }
+        }
+        
+        pauseMenuController.TogglePause();
     }
 }

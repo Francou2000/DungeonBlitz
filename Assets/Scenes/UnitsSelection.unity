@@ -48533,7 +48533,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: d2141c71775c4174796377725c271e1f, type: 2}
   - {fileID: 11400000, guid: 049293ec2bb7fe14bb063e3a08a82a02, type: 2}
   - {fileID: 11400000, guid: b826a5a6a17d6c041b1f26aa3dce3497, type: 2}
-  lvl: 2
+  lvl: 1
 --- !u!4 &1737350056
 Transform:
   m_ObjectHideFlags: 0

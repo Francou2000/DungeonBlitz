@@ -88,8 +88,11 @@ public class DamageEffectManager : MonoBehaviourPunCallbacks
         switch (ability.abilityType)
         {
             case AbilityType.BasicAttack:
-                // Determinar si es melee o ranged basándose en el rango
-                if (ability.range <= 2)
+                // Determinar el efecto basándose en el nombre de la habilidad
+                string basicAbilityName = ability.abilityName.ToLower();
+                if (basicAbilityName.Contains("goblin slash"))
+                    return clawEffectPrefab;
+                else if (ability.range <= 2)
                     return basicMeleeEffectPrefab;
                 else
                     return basicRangedEffectPrefab;
@@ -97,16 +100,24 @@ public class DamageEffectManager : MonoBehaviourPunCallbacks
             case AbilityType.ClassAction:
                 // Para acciones de clase, usar efectos específicos basándose en el nombre
                 string abilityName = ability.abilityName.ToLower();
-                if (abilityName.Contains("bite") || abilityName.Contains("goblin"))
+                if (abilityName.Contains("bite") || abilityName.Contains("incapacitate"))
                     return biteEffectPrefab;
-                else if (abilityName.Contains("claw") || abilityName.Contains("flurry"))
+                else if (abilityName.Contains("claw") || abilityName.Contains("flurry") || abilityName.Contains("goblin slash"))
                     return clawEffectPrefab;
+                else if (ability.range > 2)
+                    return basicRangedEffectPrefab;
                 else
                     return basicMeleeEffectPrefab;
 
             case AbilityType.AdrenalineAction:
                 // Para acciones de adrenalina, usar efectos más dramáticos
-                return basicMeleeEffectPrefab;
+                string adrenalineAbilityName = ability.abilityName.ToLower();
+                if (adrenalineAbilityName.Contains("goblin flurry"))
+                    return clawEffectPrefab;
+                else if (ability.range > 2)
+                    return basicRangedEffectPrefab;
+                else
+                    return basicMeleeEffectPrefab;
 
             default:
                 return basicMeleeEffectPrefab;
