@@ -123,7 +123,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
             {
                 if (currentTurn == UnitFaction.Monster)
                 {
-                    EndGame(GetOpposingFaction(currentTurn));
+                    EndGame(currentTurn);
                 }
                 else
                 {
