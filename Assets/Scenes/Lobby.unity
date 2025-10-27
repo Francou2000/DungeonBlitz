@@ -762,7 +762,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58912cbf85db6044d9dea79c08ee327d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  selection_scene: 5
+  selection_scene: 4
   ready_button: {fileID: 0}
   lobby_name: {fileID: 13223158}
   slots_used:
@@ -780,7 +780,7 @@ MonoBehaviour:
   player_portrait: {fileID: -7832570164775036599, guid: aa63f85661471554b81868fba12b308b, type: 3}
   no_portrait: {fileID: 944498627878409596, guid: 04faf63b5065c2740b88eb7376c7f234, type: 3}
   start_game_button: {fileID: 232304340}
-  mainMenuScene: 2
+  mainMenuScene: 1
   player_ready: 0000000000
 --- !u!4 &214355493
 Transform:

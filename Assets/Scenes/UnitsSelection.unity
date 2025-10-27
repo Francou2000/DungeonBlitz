@@ -39987,7 +39987,7 @@ MonoBehaviour:
   DM_dungeon_creator: {fileID: 1837146001}
   HEROE_selection: {fileID: 436249600}
   waiting_canvas: {fileID: 419664103}
-  game_scene_name: 4
+  game_scene_name: 3
   preparation_time_limit: 60
   time: 0
   slider1: {fileID: 607336068}
