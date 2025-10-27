@@ -29,6 +29,8 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
     [SerializeField] UnitData[] heroes_data;
     [SerializeField] UnitData[] goblins_data;
 
+    public int lvl = 1;
+
     [PunRPC]
     public void AddHeroe(HeroesList heroe, int client_id)
     {

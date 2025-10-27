@@ -1,5 +1,7 @@
 using Photon.Pun;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.UI;
 
 public class TimerAndLoadGame : MonoBehaviourPunCallbacks
 {
@@ -18,12 +20,15 @@ public class TimerAndLoadGame : MonoBehaviourPunCallbacks
 
     public GameObject DM_dungeon_creator;
     public GameObject HEROE_selection;
-
+    public GameObject waiting_canvas;
 
     public Scenes game_scene_name;
 
     public float preparation_time_limit;
     public float time;
+
+    [SerializeField] Slider slider1;
+    [SerializeField] Slider slider2;
 
     void Start()
     {
@@ -34,7 +39,16 @@ public class TimerAndLoadGame : MonoBehaviourPunCallbacks
         }
         else
         {
-            HEROE_selection.SetActive(true);
+            if (UnitLoaderController.Instance.lvl == 1)
+            {
+                HEROE_selection.SetActive(true);
+            }
+            else
+            {
+                //TODO: Tienda
+                waiting_canvas.SetActive(true);
+            }
+            
         }
     }
 
@@ -43,6 +57,9 @@ public class TimerAndLoadGame : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.MasterClient != PhotonNetwork.LocalPlayer) return;
         time += Time.deltaTime;
+        float sliderValue = time / preparation_time_limit;
+        slider1.value = sliderValue;
+        slider2.value = sliderValue;
         if (time > preparation_time_limit)
         {
             // LoadGame();

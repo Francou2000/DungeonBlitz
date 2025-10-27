@@ -31,10 +31,14 @@ public class DC_Manager : MonoBehaviour
 
     List<Vector2> used_pos = new List<Vector2>();
 
+    UnitLoaderController unitLoaderController;
+
     public int lvl = 0; //Chequear con UnitLoaderController
     void Start()
     {
-        actual_pop_limit  = lvl == 0 ? pop_level1 : lvl == 1 ? pop_level2 : pop_level3;
+        unitLoaderController = UnitLoaderController.Instance;
+        lvl = unitLoaderController.lvl;
+        actual_pop_limit  = lvl == 1 ? pop_level1 : lvl == 2 ? pop_level2 : pop_level3;
         UpdatePopUI();
     }
 
@@ -111,7 +115,7 @@ public class DC_Manager : MonoBehaviour
     void AddUnitToController()
     {
         Vector3[] unitsArray = unitList.ToArray();
-        UnitLoaderController.Instance.photonView.RPC("DM_AddUnitsToMap", Photon.Pun.RpcTarget.All, unitsArray);
+        unitLoaderController.photonView.RPC("DM_AddUnitsToMap", Photon.Pun.RpcTarget.All, unitsArray);
     }
     bool AddPosToUsed(Vector2 pos)
     {
