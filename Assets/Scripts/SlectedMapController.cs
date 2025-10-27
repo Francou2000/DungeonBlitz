@@ -16,7 +16,7 @@ public class SlectedMapController : MonoBehaviour
         }
     }
 
-    [SerializeField] Image[] buttons_border;
+    [SerializeField] GameObject[] buttons_border;
     [SerializeField] Maps actual_map;
 
     [SerializeField] Button next_button;
@@ -33,8 +33,8 @@ public class SlectedMapController : MonoBehaviour
     {
         for (int i = 0; i < buttons_border.Length; i++)
         {
-            if (i == (int)map_id -1) { buttons_border[i].color = Color.green; }
-            else { buttons_border[i].color = Color.red; }
+            if (i == (int)map_id -1) { buttons_border[i].SetActive(true); }
+            else { buttons_border[i].SetActive(false); }
         }
         actual_map = map_id;
         next_button.interactable = actual_map != Maps.NONE;
