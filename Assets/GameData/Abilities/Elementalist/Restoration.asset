@@ -48,7 +48,7 @@ MonoBehaviour:
   appliedEffects: []
   statusEffectChance: 100
   healsTarget: 0
-  healAmount: 0
+  healAmount: 5
   healPercentage: 0
   grantsBarrier: 0
   barrierAmount: 0
