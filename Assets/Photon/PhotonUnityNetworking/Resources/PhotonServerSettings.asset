@@ -84,6 +84,9 @@ MonoBehaviour:
   - RPC_MonsterSpawned
   - RPC_SetExpectedMonsters
   - RPC_ApplyHealingToClient
+  - WantToRetry
+  - TryRetry
+  - ReturnToMainMenu
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1
