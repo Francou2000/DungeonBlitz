@@ -12,14 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 594969d2d10a3344b90d23064033a40b, type: 3}
   m_Name: Fire Bolt
   m_EditorClassIdentifier: 
-  abilityName: Fire Bolt
-  description: Fire projectile.
+  abilityName: Fire Bolt+
+  description: Consume 1 Power. Fire projectile.
   abilityType: 1
   icon: {fileID: 21300000, guid: abe998d7ef6847840b3d657c9085ec73, type: 3}
   baseHitChance: 70
   actionCost: 1
   adrenalineCost: 0
-  resourceCosts: []
+  resourceCosts:
+  - key: Power
+    amount: 1
   minAdrenaline: 0
   requiredStates: []
   requiredTags: []

@@ -246,7 +246,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
             int heal = 0;
             if (ability.healsTarget)
             {
-                // use the target-aware calculator (flat + % of missing, clamped)
+                // NEW: use the target-aware calculator (flat + % of missing, clamped)
                 heal = ability.ComputeHealAmount(casterCtrl.unit.Model, t.Model);
             }
 
@@ -254,7 +254,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
 
             if (heal > 0 || barrier > 0)
             {
-                outIds.Add(t.GetComponent<PhotonView>()?.ViewID ?? -1);
+                outIds.Add(t.Controller.photonView.ViewID);
                 outHeals.Add(heal);
                 outBarriers.Add(barrier);
                 Debug.Log($"[Resolve-Heal/Shield] pending -> {t.name}: heal={heal}, barrier={barrier}");
@@ -269,8 +269,6 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 casterCtrl.unit.Model.TryConsume(cost.key, cost.amount);
         if (ab.adrenalineCost > 0)
             casterCtrl.unit.Model.SpendAdrenaline(ab.adrenalineCost);
-
-        BroadcastAPSync(casterCtrl);
 
         // Broadcast to ALL clients so each applies exactly once
         _view.RPC(nameof(RPC_ApplyHealingToClient), RpcTarget.All,
@@ -561,8 +559,6 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 casterCtrl.unit.Model.TryConsume(cost.key, cost.amount);
         if (ab.adrenalineCost > 0)
             casterCtrl.unit.Model.SpendAdrenaline(ab.adrenalineCost);
-
-        BroadcastAPSync(casterCtrl);
 
         // Broadcast heals first
         if (healIds.Count > 0)
@@ -974,28 +970,6 @@ public sealed class AbilityResolver : MonoBehaviourPun
     private static bool HasBarrier(UnitAbility ab)
     {
         return ab != null && ab.grantsBarrier;
-    }
-
-    private void BroadcastAPSync(UnitController casterCtrl)
-    {
-        if (casterCtrl == null || casterCtrl.unit == null || casterCtrl.unit.Model == null) return;
-
-        int unitPvId = casterCtrl.GetComponent<PhotonView>()?.ViewID ?? -1;
-        var m = casterCtrl.unit.Model;
-
-        _view.RPC(nameof(RPC_SyncAP), RpcTarget.All, unitPvId, m.CurrentActions, m.MaxActions);
-    }
-
-    [PunRPC]
-    private void RPC_SyncAP(int unitViewId, int current, int max)
-    {
-        var pv = PhotonView.Find(unitViewId);
-        if (pv == null) { Debug.LogWarning($"[RPC_SyncAP] PV not found id={unitViewId}"); return; }
-
-        var unit = pv.GetComponent<Unit>() ?? pv.GetComponentInChildren<Unit>() ?? pv.GetComponentInParent<Unit>();
-        if (unit == null || unit.Model == null) { Debug.LogWarning($"[RPC_SyncAP] No Unit/Model on PV={unitViewId} ({pv.gameObject.name})"); return; }
-
-        unit.Model.NetSetActions(current, max); // fires OnActionPointsChanged on every client
     }
 
 

@@ -87,11 +87,7 @@ MonoBehaviour:
   - WantToRetry
   - TryRetry
   - ReturnToMainMenu
-<<<<<<< Updated upstream
   - NextLevel
-=======
-  - RPC_SyncAP
->>>>>>> Stashed changes
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

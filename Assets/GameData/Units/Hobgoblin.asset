@@ -34,6 +34,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6145e8f058beb374e9d5fc9fd908ef25, type: 2}
   - {fileID: 11400000, guid: ea6c751540a4f6d45840a33ce2399d6e, type: 2}
   - {fileID: 11400000, guid: 8e11d6d8d1109574bb6b8a93f11ef939, type: 2}
+  - {fileID: 11400000, guid: 005e8278f4135e14894e0b9ad4bf3ee2, type: 2}
+  - {fileID: 11400000, guid: 1726e526a41b15a46822ed5028b3bca6, type: 2}
   startingForm: 
   startingWeapon: Spear
   isTrainingDummy: 0

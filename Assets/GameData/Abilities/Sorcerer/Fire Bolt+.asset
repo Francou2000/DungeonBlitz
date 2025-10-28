@@ -16,7 +16,7 @@ MonoBehaviour:
   description: Consume 1 Power. Fire projectile.
   abilityType: 1
   icon: {fileID: 21300000, guid: abe998d7ef6847840b3d657c9085ec73, type: 3}
-  baseHitChance: 80
+  baseHitChance: 75
   actionCost: 1
   adrenalineCost: 0
   resourceCosts:
@@ -39,7 +39,7 @@ MonoBehaviour:
   lineCollateralPercent: 0
   bonusPerMissingHpPercent: 0
   damageSource: 2
-  baseDamage: 3
+  baseDamage: 12
   damageMultiplier: 1
   bonusDamage: 0
   hits: 1

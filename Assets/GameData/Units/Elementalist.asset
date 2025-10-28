@@ -17,9 +17,8 @@ MonoBehaviour:
   portrait_foto: {fileID: -84520071257581303, guid: 9f0cb94ce784d04478a4b9be7aac0dc4, type: 3}
   faction: 0
   heroe_id: 0
-  pop_cost: -1
   maxHP: 15
-  performance: 1
+  performance: 2
   affinity: 0
   armor: 20
   magicResistance: 40
@@ -31,11 +30,15 @@ MonoBehaviour:
   adrenalineThreshold: 50
   maxAdrenaline: 100
   abilities:
-  - {fileID: 11400000, guid: 313c5a0c79fdfa942abce12ab6e735d2, type: 2}
-  - {fileID: 11400000, guid: 56ca1833d69558d4b93535c02f08529d, type: 2}
-  - {fileID: 11400000, guid: 6540f72fee89c5349be11786b576c098, type: 2}
-  - {fileID: 11400000, guid: 7a0e7757103d94b40b90b8887631906c, type: 2}
+  - {fileID: 11400000, guid: aee407997cf191e4cbbca5a97e94c1a6, type: 2}
+  - {fileID: 11400000, guid: 4d613408443f5004397d744bcc4e65bf, type: 2}
+  - {fileID: 11400000, guid: 9fc83d37ad353f548b25a0c1aba2413d, type: 2}
+  - {fileID: 11400000, guid: 2f518e92cb270f542bb2f3b508554543, type: 2}
+  - {fileID: 11400000, guid: 97d213a0f817e5640853658c2b73fdc1, type: 2}
   - {fileID: 11400000, guid: 62b01ce7864378943bed2426aa5188d6, type: 2}
+  - {fileID: 11400000, guid: b28dd743d701f454aac69b5482f43d16, type: 2}
+  - {fileID: 11400000, guid: 90953e9d8e4f64243a1c7f1148b488d7, type: 2}
+  - {fileID: 11400000, guid: c47d1f72220c22949a7dd53842641f5b, type: 2}
   startingForm: Frost
   startingWeapon: Staff
   isTrainingDummy: 0

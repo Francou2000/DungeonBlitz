@@ -77,4 +77,4 @@ MonoBehaviour:
   selfOnly: 0
   alliesOnly: 0
   enemiesOnly: 0
-  groundTarget: 1
+  groundTarget: 0

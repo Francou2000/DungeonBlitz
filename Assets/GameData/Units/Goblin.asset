@@ -32,6 +32,7 @@ MonoBehaviour:
   maxAdrenaline: 100
   abilities:
   - {fileID: 11400000, guid: 309c8c2f230433c469d50a1db7c85803, type: 2}
+  - {fileID: 11400000, guid: 93f8873c0f89bd44bb1eb0af1f4a4e58, type: 2}
   - {fileID: 11400000, guid: f5430369dd336dc4a887ee5d806a8380, type: 2}
   startingForm: 
   startingWeapon: Dagger

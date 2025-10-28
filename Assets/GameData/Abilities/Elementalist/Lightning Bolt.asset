@@ -12,14 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 594969d2d10a3344b90d23064033a40b, type: 3}
   m_Name: Lightning Bolt
   m_EditorClassIdentifier: 
-  abilityName: Lightning Bolt
-  description: Electric projectile.
+  abilityName: Lightning Bolt+
+  description: Consume 1 Power. Electric projectile.
   abilityType: 1
   icon: {fileID: 21300000, guid: 6535e79d75908374a9c78cbdd764c0b3, type: 3}
   baseHitChance: 70
   actionCost: 1
   adrenalineCost: 0
-  resourceCosts: []
+  resourceCosts:
+  - key: Power
+    amount: 1
   minAdrenaline: 0
   requiredStates: []
   requiredTags: []
@@ -36,7 +38,7 @@ MonoBehaviour:
   mixedPhysicalPercent: 50
   lineCollateralPercent: 0
   bonusPerMissingHpPercent: 0
-  damageSource: 4
+  damageSource: 1
   baseDamage: 2
   damageMultiplier: 1
   bonusDamage: 0

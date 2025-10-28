@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Piercing Shot
   m_EditorClassIdentifier: 
   abilityName: Piercing Shot
-  description: Line up to 9m.
+  description: Line up to 9m, collateral 50%.
   abilityType: 1
   icon: {fileID: 21300000, guid: c8f8815e6ca199349be363bb8f686b4f, type: 3}
   baseHitChance: 65
@@ -29,7 +29,7 @@ MonoBehaviour:
   areaType: 1
   range: 9
   aoeRadius: 0
-  lineMaxTargets: 2
+  lineMaxTargets: 4
   lineRange: 9
   lineAlignmentTolerance: 0.75
   isMixedDamage: 0
