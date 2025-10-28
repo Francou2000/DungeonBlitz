@@ -104,6 +104,8 @@ public class TurnManager : MonoBehaviourPunCallbacks
         if (postSetupGrace > 0f) { postSetupGrace -= Time.deltaTime; return; }
 
         // === CHECK WIN CONDITION ===
+        if (!ChangeLevel) return;
+
         if (timePool[currentTurn] <= 0f)
         {
             Debug.Log($"[TurnManager] Time's up! {GetOpposingFaction(currentTurn)} wins by timeout");
@@ -113,8 +115,13 @@ public class TurnManager : MonoBehaviourPunCallbacks
             }
             else
             {
-                _unitControler.lvl++;
-                SceneLoaderController.Instance.LoadNextLevel(Scenes.UnitsSelection);
+                if (PhotonNetwork.IsMasterClient)
+                {
+                    ChangeLevel = false;
+                    _unitControler.lvl += 1;
+                    photonView.RPC(nameof(NextLevel), RpcTarget.All, _unitControler.lvl);
+                    Debug.Log($"[TurnManager] Time is up! Advancing levels.");
+                }
             }
             
         }
@@ -136,7 +143,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
                 }
                 else
                 {
-                    if (PhotonNetwork.IsMasterClient && ChangeLevel)
+                    if (PhotonNetwork.IsMasterClient)
                     {
                         ChangeLevel = false;
                         _unitControler.lvl+=1;

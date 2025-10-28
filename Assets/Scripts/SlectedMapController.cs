@@ -44,6 +44,7 @@ public class SlectedMapController : MonoBehaviour
     {
         UnitLoaderController controller = UnitLoaderController.Instance;
         grid.SetActive(true);
+        grid.GetComponent<ActiveMap>().ActivateMap(actual_map);
         tile_highlighter.SetActive(true);
         background.SetActive(false);
         if (controller.playable_Map.Actual_map == actual_map) return;

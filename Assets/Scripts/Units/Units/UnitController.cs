@@ -143,6 +143,15 @@ public class UnitController : MonoBehaviourPun
         if (!photonView.IsMine) return;
         if (!unit.Model.CanAct()) return;
 
+        if (!PhotonNetwork.IsMasterClient && ability.resourceCosts != null)
+        {
+            foreach (var cost in ability.resourceCosts)
+            {
+                // This triggers UnitModel.OnResourceChanged, which your CombatHUD listens to.
+                unit.Model.TryConsume(cost.key, cost.amount);
+            }
+        }
+
         BeginCastLock();                //  lock until we finish queuing the RPC
 
         // Aim from cache (Targeter2D) → else from provided targetPosition → else zero
