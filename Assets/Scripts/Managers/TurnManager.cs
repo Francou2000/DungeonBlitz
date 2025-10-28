@@ -136,16 +136,16 @@ public class TurnManager : MonoBehaviourPunCallbacks
                 }
                 else
                 {
-                    if (PhotonNetwork.IsMasterClient)
+                    if (PhotonNetwork.IsMasterClient && ChangeLevel)
                     {
-                        _unitControler.lvl++;
+                        ChangeLevel = false;
+                        _unitControler.lvl+=1;
                         photonView.RPC(nameof(NextLevel), RpcTarget.All, _unitControler.lvl);
                         Debug.Log($"[TurnManager] Faction defeated! Advancing levels.");
-
                     }
                 }
             }
-            
+
         }
     }
 
@@ -157,6 +157,8 @@ public class TurnManager : MonoBehaviourPunCallbacks
         _unitControler.lvl = lvl;
         SceneLoaderController.Instance.LoadNextLevel(Scenes.UnitsSelection);
     }
+
+    bool ChangeLevel = true;
 
     public bool CanEndTurnNow()
     {
@@ -322,6 +324,9 @@ public class TurnManager : MonoBehaviourPunCallbacks
 
         photonView.RPC(nameof(RPC_SyncTurn), RpcTarget.All, starting, turnNumber, timeLeft);
         OnTurnBegan?.Invoke(starting);
+
+        AudioManager.Instance.PlaySFX(SoundName.NextTurn);
+
     }
 
     private void AdvanceTurn()
