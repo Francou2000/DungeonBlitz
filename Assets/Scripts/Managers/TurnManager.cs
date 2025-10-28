@@ -348,11 +348,59 @@ public class TurnManager : MonoBehaviourPunCallbacks
 
     private bool AllHeroesReady()
     {
+        // Primero, marcar automáticamente como listos a los jugadores con unidades muertas
+        MarkDeadPlayersAsReady();
+        
+        // Verificar que todos los jugadores estén listos
         foreach (var ready in heroPlayerReady.Values)
         {
             if (!ready) return false;
         }
         return true;
+    }
+
+    private void MarkDeadPlayersAsReady()
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+        
+        // Obtener todas las unidades hero vivas en la escena
+        var allUnits = UnityEngine.Object.FindObjectsByType<Unit>(FindObjectsSortMode.None);
+        
+        // Crear un conjunto con los actor numbers de jugadores que tienen unidades vivas
+        HashSet<int> playersWithAliveUnits = new HashSet<int>();
+        
+        foreach (var unit in allUnits)
+        {
+            if (unit.Faction != UnitFaction.Hero)
+                continue;
+            
+            // Obtener el PhotonView de la unidad
+            PhotonView pv = unit.GetComponent<PhotonView>();
+            if (pv == null) continue;
+            
+            // Obtener el actor number del dueño de esta unidad
+            int ownerActorNumber = pv.OwnerActorNr != 0 ? pv.OwnerActorNr : pv.ControllerActorNr;
+            
+            // Marcar que este jugador tiene una unidad viva
+            playersWithAliveUnits.Add(ownerActorNumber);
+        }
+        
+        // Marcar como listos automáticamente a los jugadores hero que no tienen unidades vivas
+        foreach (var player in PhotonNetwork.PlayerList)
+        {
+            if (player.ActorNumber == PhotonNetwork.MasterClient.ActorNumber)
+                continue;
+            
+            // Si el jugador no tiene unidad viva y está en el diccionario
+            if (!playersWithAliveUnits.Contains(player.ActorNumber) && heroPlayerReady.ContainsKey(player.ActorNumber))
+            {
+                if (!heroPlayerReady[player.ActorNumber])
+                {
+                    Debug.Log($"[TurnManager] Marcando player {player.ActorNumber} como listo automáticamente (unidad muerta).");
+                    heroPlayerReady[player.ActorNumber] = true;
+                }
+            }
+        }
     }
 
     private UnitFaction GetOpposingFaction(UnitFaction faction)

@@ -55,7 +55,7 @@ public class PauseMenuController : MonoBehaviourPunCallbacks
         }
         
         // Pausar/despausar el juego
-        Time.timeScale = isPaused ? 0f : 1f;
+        //Time.timeScale = isPaused ? 0f : 1f;
     }
     
     public void ShowPauseMenu()
@@ -137,7 +137,7 @@ public class PauseMenuController : MonoBehaviourPunCallbacks
     private void ReturnToMainMenu()
     {
         // Reanudar el juego antes de cambiar de escena
-        Time.timeScale = 1f;
+        //Time.timeScale = 1f;
         
         if (SceneLoaderController.Instance != null)
         {
@@ -148,7 +148,7 @@ public class PauseMenuController : MonoBehaviourPunCallbacks
     private void OnDestroy()
     {
         // Asegurar que el tiempo vuelva a la normalidad
-        Time.timeScale = 1f;
+        //Time.timeScale = 1f;
     }
 }
 
