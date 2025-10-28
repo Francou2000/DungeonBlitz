@@ -35,8 +35,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 769bc80e0572ab84188d419ba4542a21, type: 2}
   - {fileID: 11400000, guid: de802dd45f0ab0c4b85c909cbff54516, type: 2}
   - {fileID: 11400000, guid: 47376c18d6f32224ca9fbe031c0dd5d0, type: 2}
-  - {fileID: 11400000, guid: a7ad3d8cbad67764e9fd9f11fc396259, type: 2}
-  - {fileID: 11400000, guid: ed0a3e6ea7101de4cbc3fc70906b28e8, type: 2}
   startingForm: 
   startingWeapon: Greatsword
   isTrainingDummy: 0

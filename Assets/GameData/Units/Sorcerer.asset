@@ -17,6 +17,7 @@ MonoBehaviour:
   portrait_foto: {fileID: -8197495066078434370, guid: 715ba8656e7882d498393070996a7e4f, type: 3}
   faction: 0
   heroe_id: 0
+  pop_cost: -1
   maxHP: 15
   performance: 1
   affinity: 0
@@ -30,15 +31,17 @@ MonoBehaviour:
   adrenalineThreshold: 50
   maxAdrenaline: 100
   abilities:
+  - {fileID: 11400000, guid: 1254b97eba951d14994c3c9d4cc4d538, type: 2}
+  - {fileID: 11400000, guid: d356063b78d054944bc11d290abc431f, type: 2}
+  - {fileID: 11400000, guid: 499a4fccf6465df4ca16c36033b5404a, type: 2}
+  - {fileID: 11400000, guid: 25372af14e4da014fa2c80e78867b452, type: 2}
   - {fileID: 11400000, guid: b53cf53af4d17a34696a8f601a0b5a64, type: 2}
   - {fileID: 11400000, guid: 4fc5727363743dd4b81c9605422255aa, type: 2}
   - {fileID: 11400000, guid: 981a93e013533134c9e1dcdaf23c7427, type: 2}
   - {fileID: 11400000, guid: 0cb776139d8cf744099bb4a69822ec15, type: 2}
-  - {fileID: 11400000, guid: ea3aca9fcc444104e886794eb4663bbe, type: 2}
-  - {fileID: 11400000, guid: e1db80bd3673b834395cd3edf3adc1bb, type: 2}
-  - {fileID: 11400000, guid: aac112f0ec13bf343b748780999fca37, type: 2}
   - {fileID: 11400000, guid: e33ccfbd84e6d4a468e8e465ba15326f, type: 2}
-  - {fileID: 11400000, guid: d356063b78d054944bc11d290abc431f, type: 2}
+  - {fileID: 11400000, guid: aac112f0ec13bf343b748780999fca37, type: 2}
+  - {fileID: 11400000, guid: e1db80bd3673b834395cd3edf3adc1bb, type: 2}
   startingForm: 
   startingWeapon: Staff
   isTrainingDummy: 0

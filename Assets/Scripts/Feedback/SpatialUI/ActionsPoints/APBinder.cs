@@ -30,11 +30,15 @@ public class APBinder : MonoBehaviour
         // In case Unit/Model aren’t ready this frame (spawn order), retry next frame once
         if (model == null) StartCoroutine(DelayedResolveAndWire());
         else Rewire();
+
+        TurnManager.OnTurnBegan += OnTurnBeganRepaint;
     }
 
     private void OnDisable()
     {
         Unwire();
+
+        TurnManager.OnTurnBegan -= OnTurnBeganRepaint;
     }
 
 
@@ -101,4 +105,17 @@ public class APBinder : MonoBehaviour
     {
         apPips?.Set(cur, max);
     }
+
+    // Force a repaint when a new turn begins (AP was reset in TurnManager)
+    private void OnTurnBeganRepaint(UnitFaction side)
+    {
+        if (model == null) return;
+
+        // Only repaint when it's this unit's faction turn (same logic as CombatHUD)
+        if (model.Faction == side)
+        {
+            apPips?.Set(model.CurrentActions, model.MaxActions);
+        }
+    }
+
 }
