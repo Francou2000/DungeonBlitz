@@ -136,6 +136,13 @@ public class UnitController : MonoBehaviourPun
     {
         if (ability == null) return;
         if (isCasting) return;          //  block duplicates
+        if (TurnManager.Instance != null)
+        {
+            if (!TurnManager.Instance.IsCurrentTurn(unit)) return;
+        }
+        if (!photonView.IsMine) return;
+        if (!unit.Model.CanAct()) return;
+
         BeginCastLock();                //  lock until we finish queuing the RPC
 
         // Aim from cache (Targeter2D) → else from provided targetPosition → else zero
@@ -254,6 +261,9 @@ public class UnitController : MonoBehaviourPun
 
     public void TryMove()
     {
+        if (TurnManager.Instance != null && !TurnManager.Instance.IsCurrentTurn(unit))
+            return;
+
         if (!unit.Model.CanAct() || !photonView.IsMine) return;
 
         Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -395,6 +405,9 @@ public class UnitController : MonoBehaviourPun
     // Targeting system methods
     public void StartTargeting(UnitAbility ability)
     {
+        if (TurnManager.Instance != null && !TurnManager.Instance.IsCurrentTurn(unit))
+            return;
+
         isWaitingForTarget = true;
         pendingAbility = ability;
         pendingTargetPosition = null;
