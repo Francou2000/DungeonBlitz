@@ -42,6 +42,9 @@ public class FinalScreenManager : MonoBehaviourPunCallbacks
     {
         Debug.Log("[WinLoseMenuButton] Returning to main menu...");
 
+        var loader1 = UnitLoaderController.Instance;
+        if (loader1 != null) Destroy(loader1.gameObject);
+
         // Salir de la sala de Photon
         PhotonNetwork.LeaveRoom();
 
