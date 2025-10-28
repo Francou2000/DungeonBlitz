@@ -20,8 +20,8 @@ MonoBehaviour:
   actionCost: 2
   adrenalineCost: 0
   resourceCosts:
-  - key: 
-    amount: 0
+  - key: Spears
+    amount: -3
   minAdrenaline: 0
   requiredStates: []
   requiredTags: []
@@ -40,7 +40,7 @@ MonoBehaviour:
   bonusPerMissingHpPercent: 0
   damageSource: 1
   baseDamage: 0
-  damageMultiplier: 1
+  damageMultiplier: 0
   bonusDamage: 0
   hits: 1
   useTargetMissingHealth: 0

@@ -13,13 +13,15 @@ MonoBehaviour:
   m_Name: Fireball
   m_EditorClassIdentifier: 
   abilityName: Fireball
-  description: Circle AoE; consume 2 Power.
+  description: Circle AoE; consume 3 Power.
   abilityType: 2
   icon: {fileID: 21300000, guid: abe998d7ef6847840b3d657c9085ec73, type: 3}
   baseHitChance: 80
-  actionCost: 1
-  adrenalineCost: 0
-  resourceCosts: []
+  actionCost: 2
+  adrenalineCost: 50
+  resourceCosts:
+  - key: Power
+    amount: 3
   minAdrenaline: 0
   requiredStates: []
   requiredTags: []
@@ -27,7 +29,7 @@ MonoBehaviour:
   requiresAdrenalineThreshold: 0
   adrenalineThreshold: 0
   areaType: 2
-  range: 6
+  range: 12
   aoeRadius: 3
   lineMaxTargets: 0
   lineRange: 0
@@ -37,7 +39,7 @@ MonoBehaviour:
   lineCollateralPercent: 0
   bonusPerMissingHpPercent: 0
   damageSource: 2
-  baseDamage: 10
+  baseDamage: 4
   damageMultiplier: 1
   bonusDamage: 0
   hits: 1

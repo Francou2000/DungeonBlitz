@@ -386,6 +386,18 @@ public class UnitModel : MonoBehaviour
         return remaining; // return actual HP damage dealt
     }
 
+    // Apply AP from network (called by RPC on all clients).
+    public void NetSetActions(int current, int max)
+    {
+        int clamped = Mathf.Clamp(current, 0, this.MaxActions);
+        if (clamped != this.CurrentActions || max != this.MaxActions)
+        {
+            currentActions = clamped;
+            OnActionPointsChanged?.Invoke(this.CurrentActions, this.MaxActions);
+        }
+    }
+
+
     private void Die()
     {
         Debug.Log($"{UnitName} has died.");

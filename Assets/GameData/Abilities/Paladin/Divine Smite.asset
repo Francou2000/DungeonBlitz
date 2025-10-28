@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Divine Smite
   m_EditorClassIdentifier: 
   abilityName: Divine Smite
-  description: 'Adrenaline: heavier mixed damage.'
+  description: Heavier mixed damage.
   abilityType: 2
   icon: {fileID: 21300000, guid: b9859d230f721304691e531c9b82df1c, type: 3}
   baseHitChance: 70
@@ -27,7 +27,7 @@ MonoBehaviour:
   requiresAdrenalineThreshold: 0
   adrenalineThreshold: 0
   areaType: 0
-  range: 3
+  range: 2
   aoeRadius: 0
   lineMaxTargets: 0
   lineRange: 0

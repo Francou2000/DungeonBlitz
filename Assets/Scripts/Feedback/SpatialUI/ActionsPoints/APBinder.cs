@@ -4,29 +4,30 @@ using System.Collections;
 public class APBinder : MonoBehaviour
 {
     [Header("Target (auto if not set)")]
-    [SerializeField] private Unit unit;        // if you drag Unit here, we’ll use it
-    [SerializeField] private UnitModel model;  // will be derived from Unit if left empty
+    [SerializeField] private Unit unit;         // will auto-find if null
+    [SerializeField] private UnitModel model;   // derived from Unit if null
 
     [Header("UI")]
-    [SerializeField] private APPipsSpatialView apPips;       
+    [SerializeField] private APPipsSpatialView apPips;
 
-    // --- Public explicit binding (if you want to call this from spawner/Unit) ---
+    private bool _wired;
+
+    // Public explicit binding (called by HealthBarWorld.Bind)
     public void Bind(Unit u)
     {
         unit = u;
         model = (u != null) ? u.Model : null;
-        if (isActiveAndEnabled) Rewire();
+        if (isActiveAndEnabled) Rewire(); // subscribe + paint now
     }
 
     private void Awake()
     {
-        // Try to resolve immediately
-        TryResolveTarget();
+        TryResolveTarget();  // be proactive
     }
 
     private void OnEnable()
     {
-        // If still not found (spawn order / world bar spawned before Unit), retry next frame
+        // In case Unit/Model aren’t ready this frame (spawn order), retry next frame once
         if (model == null) StartCoroutine(DelayedResolveAndWire());
         else Rewire();
     }
@@ -36,69 +37,68 @@ public class APBinder : MonoBehaviour
         Unwire();
     }
 
+
     private IEnumerator DelayedResolveAndWire()
     {
-        // One-frame delay to allow Unit/Model to exist
-        yield return null;
+        yield return null; // one frame
         TryResolveTarget();
         Rewire();
     }
 
     private void TryResolveTarget()
     {
-        // 1) If Unit already assigned, derive model from it
-        if (unit != null)
+        // 1) From assigned Unit
+        if (unit != null && model == null)
             model = unit.Model;
 
-        // 2) Try to find Unit in parents first (typical case: world bar under Unit)
+        // 2) Find Unit upward (typical: world bar under Unit)
         if (unit == null)
             unit = GetComponentInParent<Unit>(true);
 
-        if (model == null && unit != null)
+        if (unit != null && model == null)
             model = unit.Model;
 
-        // 3) Fallbacks — different project layouts:
+        // 3) Fallbacks
         if (model == null) model = GetComponentInParent<UnitModel>(true);
         if (model == null) model = GetComponentInChildren<UnitModel>(true);
 
-        // 4) Photon-based fallback (if the bar sits under a PV but not the Unit):
+        // 4) PhotonView proximity fallback
         if (model == null)
         {
             var pv = GetComponentInParent<Photon.Pun.PhotonView>(true);
-            if (pv != null)
+            if (pv)
             {
-                // Look for a Unit attached to the same PV object or its relatives
-                unit = pv.GetComponent<Unit>() ?? pv.GetComponentInChildren<Unit>(true) ?? pv.GetComponentInParent<Unit>(true);
-                if (unit != null) model = unit.Model;
+                var u = pv.GetComponent<Unit>() ?? pv.GetComponentInChildren<Unit>(true) ?? pv.GetComponentInParent<Unit>(true);
+                if (u) { unit = u; model = u.Model; }
             }
-        }
-
-        // 5) Last resort: search up the root for a Unit nearest in transform hierarchy
-        if (model == null)
-        {
-            var root = transform.root;
-            unit = root.GetComponentInChildren<Unit>(true);
-            if (unit != null) model = unit.Model;
         }
     }
 
     private void Rewire()
     {
-        Unwire();
-        if (model == null) { Debug.LogWarning($"[UnitWorldBarBinder] No UnitModel found for {name}. Assign Unit or Model explicitly."); return; }
+        if (_wired) Unwire();
+        if (model == null)
+        {
+            Debug.LogWarning($"[APBinder] No UnitModel found for {name}. Assign Unit/Model or place under a Unit.");
+            return;
+        }
 
-        // Initial paint
+        // Immediate paint so we’re correct even if we missed the first event
         apPips?.Set(model.CurrentActions, model.MaxActions);
 
-        // Subscribe
         model.OnActionPointsChanged += OnAP;
+        _wired = true;
     }
 
     private void Unwire()
     {
-        if (model == null) return;
-        model.OnActionPointsChanged -= OnAP;
+        if (!_wired) return;
+        if (model != null) model.OnActionPointsChanged -= OnAP;
+        _wired = false;
     }
 
-    private void OnAP(int cur, int max) => apPips?.Set(cur, max);
+    private void OnAP(int cur, int max)
+    {
+        apPips?.Set(cur, max);
+    }
 }
