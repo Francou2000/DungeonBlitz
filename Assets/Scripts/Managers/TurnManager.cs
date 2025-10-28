@@ -201,7 +201,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
 
     public bool IsCurrentTurn(Unit unit)
     {
-        return unit.Model.Faction == currentTurn;
+        return unit != null && unit.Model != null && unit.Model.Faction == currentTurn;
     }
 
     // === RPCs ===
@@ -592,5 +592,19 @@ public class TurnManager : MonoBehaviourPunCallbacks
                 heroPlayerReady[actors[i]] = states[i];
         }
         OnHeroReadySnapshot?.Invoke(actors, states);
+    }
+
+    // Is it the local player's side turn to perform actions?
+    public bool IsLocalPlayersTurnForActions()
+    {
+        // Heroes' turn → any non-master hero can act
+        if (currentTurn == UnitFaction.Hero)
+            return !PhotonNetwork.IsMasterClient;
+
+        // Monster's turn → only the master/DM acts
+        if (currentTurn == UnitFaction.Monster)
+            return PhotonNetwork.IsMasterClient;
+
+        return false;
     }
 }
