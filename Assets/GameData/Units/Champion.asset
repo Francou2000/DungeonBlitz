@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Champion
   m_EditorClassIdentifier: 
   unitName: Champion
-  full_body_foto: {fileID: 21300000, guid: 2885a7cbf12a2f047a1e864dc39967a7, type: 3}
+  full_body_foto: {fileID: 6504433520214898271, guid: 07b8384554f0d1a44a2fdc1b752a70b1, type: 3}
   portrait_foto: {fileID: -8680507463708838209, guid: b4bc9d61bea2bb74587a34701c730cc9, type: 3}
   faction: 1
   heroe_id: 0
