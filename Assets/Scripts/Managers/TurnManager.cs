@@ -120,16 +120,19 @@ public class TurnManager : MonoBehaviourPunCallbacks
         }
         else if (IsFactionDefeated(GetOpposingFaction(currentTurn)))
         {
-            Debug.Log($"[TurnManager] Faction defeated! {currentTurn} wins by elimination");
+            Debug.Log($"[TurnManager] Faction defeated!");
             if (_unitControler.lvl == 3)
             {
                 EndGame(currentTurn); // current faction wins
+                Debug.Log($"[TurnManager] Faction defeated! {currentTurn} wins by elimination");
+
             }
             else
             {
                 if (currentTurn == UnitFaction.Monster)
                 {
                     EndGame(currentTurn);
+                    Debug.Log($"[TurnManager] Faction defeated! DM wins by elimination");
                 }
                 else
                 {
@@ -137,6 +140,8 @@ public class TurnManager : MonoBehaviourPunCallbacks
                     {
                         _unitControler.lvl++;
                         photonView.RPC(nameof(NextLevel), RpcTarget.All, _unitControler.lvl);
+                        Debug.Log($"[TurnManager] Faction defeated! Advancing levels.");
+
                     }
                 }
             }
@@ -346,9 +351,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
             BroadcastHeroReady();
         }
 
-        // --------------------------------------------------
-        // AudioManager.Instance.PlaySFX(SoundName.NextTurn);
-        // --------------------------------------------------
+        AudioManager.Instance.PlaySFX(SoundName.NextTurn);
 
         ResetUnitsForFaction(currentTurn);
         OnTurnBegan?.Invoke(currentTurn);
