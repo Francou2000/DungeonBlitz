@@ -20944,7 +20944,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 539411989}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 89f04770848303740af72de2bfecab3b, type: 3}
   m_Name: 
@@ -40344,6 +40344,7 @@ GameObject:
   - component: {fileID: 954046893}
   - component: {fileID: 954046892}
   - component: {fileID: 954046894}
+  - component: {fileID: 954046895}
   m_Layer: 0
   m_Name: Timer-ChangeScene
   m_TagString: Untagged
@@ -40408,6 +40409,23 @@ MonoBehaviour:
   sceneViewId: 2
   InstantiationId: 0
   isRuntimeInstantiated: 0
+--- !u!114 &954046895
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 954046891}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89f04770848303740af72de2bfecab3b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  background: {fileID: 1276483815}
+  MapSelector: {fileID: 990282294}
+  TileP: {fileID: 1229240497}
+  Shop: {fileID: 791773816}
+  activeMap: {fileID: 1738750428}
 --- !u!1 &960132763
 GameObject:
   m_ObjectHideFlags: 0
