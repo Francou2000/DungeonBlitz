@@ -37,6 +37,9 @@ public class TurnManager : MonoBehaviourPunCallbacks
     public static event System.Action<UnitFaction> OnTurnBegan;
 
     UnitLoaderController _unitControler;
+
+    public static System.Action<int[], bool[]> OnHeroReadySnapshot;
+
     void Awake()
     {
         if (Instance != null)
@@ -68,6 +71,9 @@ public class TurnManager : MonoBehaviourPunCallbacks
                     heroPlayerReady[player.ActorNumber] = false;
                 }
             }
+
+            // push initial snapshot so lights paint correctly on all clients
+            BroadcastHeroReady();
 
             DecideFirstTurn(); // Only Master Client decides who goes first
         }
@@ -205,6 +211,9 @@ public class TurnManager : MonoBehaviourPunCallbacks
         heroPlayerReady[actorNumber] = true;
         Debug.Log($"[TurnManager] Player {actorNumber} is ready.");
 
+        // update everyone’s lights right away
+        BroadcastHeroReady();
+
         if (AllHeroesReady())
         {
             AdvanceTurn();
@@ -225,6 +234,10 @@ public class TurnManager : MonoBehaviourPunCallbacks
         ResetUnitsForFaction(currentTurn);
 
         OnTurnBegan?.Invoke(currentTurn);
+
+        // (Master only): ensure a clean snapshot at turn start
+        if (PhotonNetwork.IsMasterClient)
+            BroadcastHeroReady();
 
         UpdateTurnUI();
     }
@@ -328,6 +341,9 @@ public class TurnManager : MonoBehaviourPunCallbacks
             var keys = new List<int>(heroPlayerReady.Keys);
             foreach (var key in keys)
                 heroPlayerReady[key] = false;
+
+            // broadcast fresh snapshot (all false) at the start of Heroes' turn
+            BroadcastHeroReady();
         }
 
         ResetUnitsForFaction(currentTurn);
@@ -465,6 +481,10 @@ public class TurnManager : MonoBehaviourPunCallbacks
         if (heroPlayerReady.ContainsKey(otherPlayer.ActorNumber))
         {
             heroPlayerReady.Remove(otherPlayer.ActorNumber);
+
+            // rebroadcast to drop the light for the departed player
+            if (PhotonNetwork.IsMasterClient)
+                BroadcastHeroReady();
         }
         
         // Check if master client left
@@ -500,6 +520,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
         if (PhotonNetwork.IsMasterClient)
         {
             Debug.Log($"[TurnManager] We are now the master client");
+            EndGame(UnitFaction.Hero);
         }
     }
 
@@ -524,5 +545,45 @@ public class TurnManager : MonoBehaviourPunCallbacks
     {
         yield return null;
         TryUnpauseIfReady("Start fallback");
+    }
+
+    private void BroadcastHeroReady()
+    {
+        // Build a stable, sorted list of hero actors (exclude master/DM)
+        var heroes = new System.Collections.Generic.List<int>();
+        foreach (var p in PhotonNetwork.PlayerList)
+        {
+            if (p.ActorNumber != PhotonNetwork.MasterClient.ActorNumber)
+                heroes.Add(p.ActorNumber);
+        }
+        heroes.Sort();
+
+        int n = heroes.Count;
+        var actors = new int[n];
+        var states = new bool[n];
+        for (int i = 0; i < n; i++)
+        {
+            int actor = heroes[i];
+            actors[i] = actor;
+            states[i] = heroPlayerReady.TryGetValue(actor, out bool rdy) && rdy;
+        }
+
+        // Local event for this client’s UI
+        OnHeroReadySnapshot?.Invoke(actors, states);
+
+        // Network broadcast so everyone updates
+        photonView.RPC(nameof(RPC_SyncHeroReady), RpcTarget.Others, actors, states);
+    }
+
+    [PunRPC]
+    private void RPC_SyncHeroReady(int[] actors, bool[] states)
+    {
+        // Defensive mirror (keeps local dict in sync even on non-master)
+        if (actors != null && states != null && actors.Length == states.Length)
+        {
+            for (int i = 0; i < actors.Length; i++)
+                heroPlayerReady[actors[i]] = states[i];
+        }
+        OnHeroReadySnapshot?.Invoke(actors, states);
     }
 }
