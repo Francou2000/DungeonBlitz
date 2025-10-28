@@ -346,6 +346,10 @@ public class TurnManager : MonoBehaviourPunCallbacks
             BroadcastHeroReady();
         }
 
+        // --------------------------------------------------
+        // AudioManager.Instance.PlaySFX(SoundName.NextTurn);
+        // --------------------------------------------------
+
         ResetUnitsForFaction(currentTurn);
         OnTurnBegan?.Invoke(currentTurn);
 

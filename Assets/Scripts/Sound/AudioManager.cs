@@ -356,9 +356,12 @@ public class AudioManager : MonoBehaviour
         if (sfxSource && soundDict[s_name]) sfxSource.PlayOneShot(soundDict[s_name]);
     }
 
+    public void PlayBGM(SoundName s_name)
+    {
+        if (musicSource && soundDict[s_name]) musicSource.PlayOneShot(soundDict[s_name]);
+    }
+
 }
-
-
 
 //-----------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------
@@ -396,5 +399,6 @@ public enum SoundName
     WarCry,
     Arrow,
     Electrical,
-    MetalImpact
+    MetalImpact,
+    NextTurn
 }
