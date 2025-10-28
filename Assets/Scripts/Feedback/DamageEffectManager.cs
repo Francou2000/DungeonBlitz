@@ -84,43 +84,104 @@ public class DamageEffectManager : MonoBehaviourPunCallbacks
     {
         if (ability == null) return basicMeleeEffectPrefab;
 
-        // Mapear tipos de habilidad a efectos
-        switch (ability.abilityType)
+        string abilityName = ability.abilityName.ToLower();
+
+        // Mapear habilidades específicas por nombre
+        switch (abilityName)
         {
-            case AbilityType.BasicAttack:
-                // Determinar el efecto basándose en el nombre de la habilidad
-                string basicAbilityName = ability.abilityName.ToLower();
-                if (basicAbilityName.Contains("goblin slash"))
-                    return clawEffectPrefab;
-                else if (ability.range <= 2)
-                    return basicMeleeEffectPrefab;
-                else
-                    return basicRangedEffectPrefab;
+            // Goblin abilities
+            case "goblin slash":
+                return basicMeleeEffectPrefab;
+            case "goblin flurry":
+                return clawEffectPrefab;
+            case "goblin staff":
+                return basicMeleeEffectPrefab;
 
-            case AbilityType.ClassAction:
-                // Para acciones de clase, usar efectos específicos basándose en el nombre
-                string abilityName = ability.abilityName.ToLower();
-                if (abilityName.Contains("bite") || abilityName.Contains("incapacitate"))
-                    return biteEffectPrefab;
-                else if (abilityName.Contains("claw") || abilityName.Contains("flurry") || abilityName.Contains("goblin slash"))
-                    return clawEffectPrefab;
-                else if (ability.range > 2)
-                    return basicRangedEffectPrefab;
-                else
-                    return basicMeleeEffectPrefab;
+            // Hobgoblin abilities
+            case "spear throw":
+                return basicRangedEffectPrefab;
+            case "replenish spears":
+                // No effect for replenish spears
+                return null;
 
-            case AbilityType.AdrenalineAction:
-                // Para acciones de adrenalina, usar efectos más dramáticos
-                string adrenalineAbilityName = ability.abilityName.ToLower();
-                if (adrenalineAbilityName.Contains("goblin flurry"))
-                    return clawEffectPrefab;
-                else if (ability.range > 2)
-                    return basicRangedEffectPrefab;
-                else
-                    return basicMeleeEffectPrefab;
+            // Paladin abilities
+            case "smite":
+                return basicMeleeEffectPrefab;
+            case "justice strike":
+                return basicMeleeEffectPrefab;
+            case "shield bash":
+                return basicMeleeEffectPrefab;
+            case "divine smite":
+                return basicMeleeEffectPrefab;
+            case "healing prayer":
+                // No effect for healing prayer
+                return null;
+
+            // Rogue abilities
+            case "focus shot":
+            case "piercing shot":
+            case "shadow arrows":
+                return basicRangedEffectPrefab;
+            case "swift dagger":
+            case "shadow blade":
+            case "blade barrage":
+                return basicMeleeEffectPrefab;
+
+            // Shaman abilities
+            case "fire bolt":
+                return basicRangedEffectPrefab;
+            case "lightning bolt":
+                return basicRangedEffectPrefab;
+
+            // Sorcerer abilities
+            case "fire bolt+":
+                return basicRangedEffectPrefab;
+            case "lightning bolt+":
+                return basicRangedEffectPrefab;
+            case "ice shard +":
+                return basicRangedEffectPrefab;
+            case "thunder strike":
+                return basicRangedEffectPrefab;
+            case "fireball":
+                return basicRangedEffectPrefab;
+            case "harness power":
+                // No effect for harness power
+                return null;
+            case "restoration bonfire":
+                // No effect for restoration bonfire
+                return null;
+
+            // Champion abilities
+            case "champion slash":
+                return clawEffectPrefab;
+            case "apprehend":
+                return basicMeleeEffectPrefab;
+            case "decimate":
+                return clawEffectPrefab;
+            case "bite":
+                return biteEffectPrefab;
+            case "champion rage":
+            case "face me!":
+                // No effect for these
+                return null;
+
+            // Elementalist abilities
+            case "elementalist staff":
+                return basicMeleeEffectPrefab;
+            case "ice shard":
+                return basicRangedEffectPrefab;
+            case "restoration":
+                // No effect for restoration
+                return null;
+            case "storm crossing":
+                return basicRangedEffectPrefab;
 
             default:
-                return basicMeleeEffectPrefab;
+                // Default fallback based on range
+                if (ability.range <= 2)
+                    return basicMeleeEffectPrefab;
+                else
+                    return basicRangedEffectPrefab;
         }
     }
 

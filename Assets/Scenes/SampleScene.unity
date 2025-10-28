@@ -24262,7 +24262,7 @@ MonoBehaviour:
   basicRangedEffectPrefab: {fileID: 0}
   biteEffectPrefab: {fileID: 0}
   clawEffectPrefab: {fileID: 0}
-  effectOffset: 1.5
+  effectOffset: 1
   effectDuration: 1
   effectScale: 1
 --- !u!1 &584282240

@@ -134,37 +134,131 @@ public class AudioManager : MonoBehaviour
 
     public void PlayAttackSound(string abilityName)
     {
-        Debug.LogWarning(abilityName + "FALTA AGREGAR SONIDO - wazel :)");
+        if (abilityName == null)
+        {
+            Debug.LogWarning("PlayAttackSound called with null abilityName");
+            return;
+        }
+
         switch (abilityName)
         {
-            case "stab":
-                PlayStabSound();
-                break;
-            case "":
-                PlayStabSound();
-                break;
+            // Goblin attacks
             case "Goblin Slash":
-                PlaySFX(SoundName.GoblinAttack);
+                PlaySFX(SoundName.StabSFX);
                 break;
             case "Goblin Flurry":
+                PlaySFX(SoundName.StabSFX);
+                break;
+            case "Goblin Staff":
                 PlaySFX(SoundName.GoblinAttack);
                 break;
-            case "Firebolt":
-                PlaySFX(SoundName.Magic1);
+
+            // Hobgoblin attacks
+            case "Spear Throw":
+                PlaySFX(SoundName.Arrow);
                 break;
-            case "Fireball":
-                PlaySFX(SoundName.Magic4);
+
+            // Paladin attacks
+            case "Justice Strike":
+                PlaySFX(SoundName.StabSFX);
+                break;
+            case "Shield Bash":
+                PlaySFX(SoundName.MetalImpact);
+                break;
+            case "Divine Smite":
+                PlaySFX(SoundName.Electrical);
+                break;
+            case "Healing Prayer":
+                PlaySFX(SoundName.EvadeMale);
+                break;
+
+            // Rogue attacks
+            case "Focus Shot":
+            case "Piercing Shot":
+            case "Shadow Arrows":
+                PlaySFX(SoundName.Arrow);
+                break;
+            case "Swift Dagger":
+            case "Shadow Blade":
+            case "Blade Barrage":
+                PlaySFX(SoundName.StabSFX);
+                break;
+
+            // Shaman attacks
+            case "Fire Bolt":
+                PlaySFX(SoundName.Magic1);
                 break;
             case "Lightning Bolt":
                 PlaySFX(SoundName.Electrical);
                 break;
-            case "Focus Shot":
-            case "Shadow Arrows":
-            case "Piercing Shot":
-                PlaySFX(SoundName.Arrow);
+
+            // Sorcerer attacks
+            case "Fire Bolt+":
+                PlaySFX(SoundName.Magic1);
                 break;
-            case "Goblin Tactics":
+            case "Lightning Bolt+":
+                PlaySFX(SoundName.Electrical);
+                break;
+            case "Ice Shard +":
+                PlaySFX(SoundName.Magic4);
+                break;
+            case "Thunder Strike":
+                PlaySFX(SoundName.Electrical);
+                break;
+
+            // Champion attacks
+            case "Champion Slash":
+                PlaySFX(SoundName.GoblinAttack);
+                break;
+            case "Apprehend":
+                PlaySFX(SoundName.GoblinAttack);
+                break;
+            case "Decimate":
+                PlaySFX(SoundName.StabSFX);
+                break;
+            case "Bite":
+                PlaySFX(SoundName.StabSFX);
+                break;
+            case "Champion Rage":
+            case "Face Me!":
                 PlaySFX(SoundName.WarCry);
+                break;
+
+            // Elementalist attacks
+            case "Elementalist Staff":
+                PlaySFX(SoundName.GoblinAttack);
+                break;
+            case "Ice Shard":
+                PlaySFX(SoundName.Magic4);
+                break;
+            case "Storm Crossing":
+                PlaySFX(SoundName.Electrical);
+                break;
+
+            // Hobgoblin abilities
+            case "Replenish Spears":
+                PlaySFX(SoundName.WarCry);
+                break;
+
+            // Paladin abilities
+            case "Smite":
+                PlaySFX(SoundName.StabSFX);
+                break;
+
+            // Sorcerer abilities
+            case "Fireball":
+                PlaySFX(SoundName.Magic5);
+                break;
+
+            // No sound abilities
+            case "Harness Power":
+            case "Restoration Bonfire":
+            case "Restoration":
+                // No sound for these
+                break;
+
+            default:
+                Debug.LogWarning($"[AudioManager] No sound configured for ability: {abilityName}");
                 break;
         }
     }
@@ -301,5 +395,6 @@ public enum SoundName
     Magic5,
     WarCry,
     Arrow,
-    Electrical
+    Electrical,
+    MetalImpact
 }
