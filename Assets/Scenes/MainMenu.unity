@@ -4975,7 +4975,7 @@ MonoBehaviour:
   nicknameInput: {fileID: 1910976358}
   createButton: {fileID: 23696211}
   JoinButton: {fileID: 1700143411}
-  rommScene: 3
+  rommScene: 2
 --- !u!4 &886012699
 Transform:
   m_ObjectHideFlags: 0

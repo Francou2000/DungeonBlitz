@@ -246,7 +246,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
             int heal = 0;
             if (ability.healsTarget)
             {
-                // NEW: use the target-aware calculator (flat + % of missing, clamped)
+                // use the target-aware calculator (flat + % of missing, clamped)
                 heal = ability.ComputeHealAmount(casterCtrl.unit.Model, t.Model);
             }
 
@@ -254,7 +254,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
 
             if (heal > 0 || barrier > 0)
             {
-                outIds.Add(t.Controller.photonView.ViewID);
+                outIds.Add(t.GetComponent<PhotonView>()?.ViewID ?? -1);
                 outHeals.Add(heal);
                 outBarriers.Add(barrier);
                 Debug.Log($"[Resolve-Heal/Shield] pending -> {t.name}: heal={heal}, barrier={barrier}");
@@ -269,6 +269,8 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 casterCtrl.unit.Model.TryConsume(cost.key, cost.amount);
         if (ab.adrenalineCost > 0)
             casterCtrl.unit.Model.SpendAdrenaline(ab.adrenalineCost);
+
+        BroadcastAPSync(casterCtrl);
 
         // Broadcast to ALL clients so each applies exactly once
         _view.RPC(nameof(RPC_ApplyHealingToClient), RpcTarget.All,
@@ -429,18 +431,35 @@ public sealed class AbilityResolver : MonoBehaviourPun
             // Heal allies if this ability can heal
             if (isAlly && canHeal)
             {
+                // LOG ability flags + target relation
+                Debug.Log($"[HealBranch] ability={ability.abilityName} healsTarget={ability.healsTarget} " +
+                          $"ally={isAlly} healAmtField={ability.healAmount} healPctField={ability.healPercentage} " +
+                          $"grantsBarrier={ability.grantsBarrier} barrierAmt={ability.barrierAmount}");
+
+                // Compute heal using TARGET'S missing HP
+                int missing = Mathf.Max(0, tgt.Model.MaxHP - tgt.Model.CurrentHP);
                 int heal = ability.ComputeHealAmount(casterCtrl.unit.Model, tgt.Model);
                 int barrier = ability.grantsBarrier ? Mathf.Max(0, ability.barrierAmount) : 0;
 
+                Debug.Log($"[HealMath] target={tgt.name} HP={tgt.Model.CurrentHP}/{tgt.Model.MaxHP} " +
+                          $"missing={missing} -> heal={heal} barrier={barrier}");
+
                 if (heal > 0 || barrier > 0)
                 {
-                    healIds.Add(tgt.Controller.photonView.ViewID);
+                    // Use the Unit's PhotonView (not the controller PV)
+                    int unitPv = tgt.GetComponent<PhotonView>()?.ViewID ?? -1;
+                    healIds.Add(unitPv);
                     healVals.Add(heal);
                     barriVals.Add(barrier);
-                    Debug.Log($"[Resolve] heal -> {tgt.name}: heal={heal}, barrier={barrier}");
+                    Debug.Log($"[Resolve] enqueue heal -> {tgt.name}: pv={unitPv} heal={heal} barrier={barrier}");
                 }
+                else
+                {
+                    Debug.LogWarning($"[HealBranch] SKIP: heal==0 && barrier==0 (ability probably has no heal values set)");
+                }
+
                 idx++;
-                continue; // never damage allies
+                continue; // do not attempt to damage allies
             }
 
             // Damage enemies if the ability has damage
@@ -543,9 +562,13 @@ public sealed class AbilityResolver : MonoBehaviourPun
         if (ab.adrenalineCost > 0)
             casterCtrl.unit.Model.SpendAdrenaline(ab.adrenalineCost);
 
+        BroadcastAPSync(casterCtrl);
+
         // Broadcast heals first
         if (healIds.Count > 0)
         {
+            Debug.Log($"[HealBroadcast] OUT count={healIds.Count} ids=[{string.Join(",", healIds)}] " +
+                      $"vals=[{string.Join(",", healVals)}] barriers=[{string.Join(",", barriVals)}]");
             _view.RPC(nameof(RPC_ApplyHealingToClient), RpcTarget.All,
                 casterCtrl.photonView.ViewID, abilityIndex,
                 healIds.ToArray(), healVals.ToArray(), barriVals.ToArray());
@@ -824,10 +847,10 @@ public sealed class AbilityResolver : MonoBehaviourPun
         for (int i = 0; i < n; i++)
         {
             var pv = PhotonView.Find(targetViewIds[i]);
-            if (pv == null) continue;
+            if (pv == null) { Debug.LogWarning($"[RPC_ApplyHealing] PV NOT FOUND id={targetViewIds[i]}"); continue; }
 
-            var unit = pv.GetComponent<Unit>();
-            if (unit == null || unit.Model == null) continue;
+            var unit = pv.GetComponent<Unit>() ?? pv.GetComponentInChildren<Unit>() ?? pv.GetComponentInParent<Unit>();
+            if (unit == null || unit.Model == null) { Debug.LogWarning($"[RPC_ApplyHealing] NO Unit on PV id={targetViewIds[i]} go={pv.gameObject.name}"); continue; }
 
             int heal = (heals != null && i < heals.Length) ? heals[i] : 0;
             int barrier = (barriers != null && i < barriers.Length) ? barriers[i] : 0;
@@ -951,6 +974,28 @@ public sealed class AbilityResolver : MonoBehaviourPun
     private static bool HasBarrier(UnitAbility ab)
     {
         return ab != null && ab.grantsBarrier;
+    }
+
+    private void BroadcastAPSync(UnitController casterCtrl)
+    {
+        if (casterCtrl == null || casterCtrl.unit == null || casterCtrl.unit.Model == null) return;
+
+        int unitPvId = casterCtrl.GetComponent<PhotonView>()?.ViewID ?? -1;
+        var m = casterCtrl.unit.Model;
+
+        _view.RPC(nameof(RPC_SyncAP), RpcTarget.All, unitPvId, m.CurrentActions, m.MaxActions);
+    }
+
+    [PunRPC]
+    private void RPC_SyncAP(int unitViewId, int current, int max)
+    {
+        var pv = PhotonView.Find(unitViewId);
+        if (pv == null) { Debug.LogWarning($"[RPC_SyncAP] PV not found id={unitViewId}"); return; }
+
+        var unit = pv.GetComponent<Unit>() ?? pv.GetComponentInChildren<Unit>() ?? pv.GetComponentInParent<Unit>();
+        if (unit == null || unit.Model == null) { Debug.LogWarning($"[RPC_SyncAP] No Unit/Model on PV={unitViewId} ({pv.gameObject.name})"); return; }
+
+        unit.Model.NetSetActions(current, max); // fires OnActionPointsChanged on every client
     }
 
 

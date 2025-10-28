@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Focus Shot
   m_EditorClassIdentifier: 
   abilityName: Focus Shot
-  description: Bow shot; unlocks 0-cost Swift/Switch this turn on hit.
+  description: Bow shot.
   abilityType: 1
   icon: {fileID: 21300000, guid: c8f8815e6ca199349be363bb8f686b4f, type: 3}
   baseHitChance: 65

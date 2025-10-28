@@ -43,6 +43,11 @@ public class HealthBarWorld : MonoBehaviour
         if (u.Model != null)
             u.Model.OnHealthChanged += OnHealthChanged;
 
+        foreach (var ap in GetComponentsInChildren<APBinder>(true))
+        {
+            ap.Bind(u);
+        }
+
         ForceRefresh();
     }
 

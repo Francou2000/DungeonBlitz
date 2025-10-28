@@ -17,6 +17,8 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     public string[] slots_used = new string[5];
     [SerializeField] GameObject[] slots_portraits = new GameObject[5];
+    [SerializeField] Sprite player_portrait;
+    [SerializeField] Sprite no_portrait;
     
     // Mapear ActorNumber a índice de slot (0-4)
     private Dictionary<int, int> playerSlotMap = new Dictionary<int, int>();
@@ -245,11 +247,20 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             {
                 textComponent.text = "-";
             }
-            
+
             var imageComponent = slots_portraits[slotIndex].GetComponent<Image>();
             if (imageComponent != null)
             {
                 imageComponent.color = Color.red;
+            }
+
+            if (slotIndex != 0)
+            {
+                var portraitComponent = slots_portraits[slotIndex].GetComponentsInChildren<Image>();
+                if (portraitComponent != null)
+                {
+                    portraitComponent[1].sprite = no_portrait;
+                }
             }
         }
 
@@ -315,12 +326,23 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             {
                 textComponent.text = playerNick;
             }
-            
+
+
             var imageComponent = slots_portraits[slotIndex].GetComponent<Image>();
             if (imageComponent != null)
             {
                 imageComponent.color = is_ready ? Color.green : Color.red;
             }
+
+            if (slotIndex != 0)
+            {
+                var portraitComponent = slots_portraits[slotIndex].GetComponentsInChildren<Image>();
+                if (portraitComponent != null)
+                {
+                    portraitComponent[1].sprite = player_portrait;
+                }
+            }
+
         }
 
         Debug.Log($"[LobbyManager] Added character to slot {slotIndex}: {playerNick}");
@@ -388,6 +410,15 @@ public class LobbyManager : MonoBehaviourPunCallbacks
                     if (imageComponent != null)
                     {
                         imageComponent.color = Color.red;
+                    }
+
+                    if (slotIndex != 0)
+                    {
+                        var portraitComponent = slots_portraits[slotIndex].GetComponentsInChildren<Image>();
+                        if (portraitComponent != null)
+                        {
+                            portraitComponent[1].sprite = no_portrait;
+                        }
                     }
                 }
                 

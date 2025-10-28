@@ -35,7 +35,7 @@ public class SceneLoaderController : MonoBehaviour
         
         yield return new WaitForSeconds(transition_time);
 
-        PhotonNetwork.LoadLevel((int)scene_to_load - 1);
+        PhotonNetwork.LoadLevel((int)scene_to_load);
         // SceneManager.LoadScene((int)scene_to_load - 1);
     }
 
@@ -43,12 +43,12 @@ public class SceneLoaderController : MonoBehaviour
 
 public enum Scenes
 {
-    NONE,
-    Loading_Connection,
-    MainMenu,
-    Lobby,
-    SampleScene,
-    UnitsSelection,
-    Heroes_WinScreen,
-    DM_WinScreen,
+    NONE                = 15,
+    Loading_Connection  = 0,
+    MainMenu            = 1,
+    Lobby               = 2,
+    SampleScene         = 3,
+    UnitsSelection      = 4,
+    Heroes_WinScreen    = 5,
+    DM_WinScreen        = 6,
 }
