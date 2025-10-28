@@ -96,7 +96,7 @@ public class UnitTooltip : MonoBehaviour
 
         // Armor / MagicRes (adapt names to your model)
         int armor = TryStat(m, "Armor");
-        int mr = TryStat(m, "MagicRes");     // or "MagicResistance", etc.
+        int mr = TryStat(m, "MagicResistance");     // or "MagicResistance", etc.
 
         if (Instance.armorText) Instance.armorText.text = $"Ar: {armor}";
         if (Instance.mrText) Instance.mrText.text = $"MR: {mr}";
