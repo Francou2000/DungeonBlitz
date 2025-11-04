@@ -45,6 +45,15 @@ public static class CombatFeedbackUI
         SpatialUIManager.Instance.ShowHeal(target.transform, amount);
     }
 
+    public static void ShowAbilityName(Unit caster, string abilityName)
+    {
+        if (!caster) return;
+        if (SpatialUIManager.Instance != null)
+        {
+            SpatialUIManager.Instance.ShowAbilityName(caster.transform, abilityName);
+        }
+    }
+
     private static DamageUiType MapDamageType(DamageType t)
     {
         switch (t)

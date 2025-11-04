@@ -46,6 +46,44 @@ namespace SpatialUI
             Spawn(target, text, config.heal, false);
         }
 
+        public void ShowAbilityName(Transform caster, string abilityName)
+        {
+            // Color más suave para el nombre de habilidad (amarillo claro/dorado)
+            Color abilityColor = new Color(1f, 0.9f, 0.5f); // Amarillo/dorado claro
+            var text = "<b>" + abilityName + "</b>";
+            SpawnAbilityText(caster, text, abilityColor);
+        }
+
+        void SpawnAbilityText(Transform target, string text, Color color)
+        {
+            Vector3 basePos = GetAnchor(target) + Vector3.up * (config.verticalOffset + 0.8f); // Más arriba que el daño
+            Vector3 endPos = basePos + new Vector3(0f, config.riseDistance * 0.6f, 0f); // Menos movimiento horizontal
+
+            var ft = pool.Get();
+            ft.transform.position = basePos;
+            ft.baseScale = config ? Mathf.Max(0.0001f, config.worldScale * 0.85f) : 0.017f; // Un poco más pequeño
+
+            var fontSize = Mathf.RoundToInt(config.baseFontSize * 0.75f); // 75% del tamaño base
+
+            ft.Setup(
+                follow: target,
+                startWorld: basePos,
+                endWorld: endPos,
+                life: config.lifetime * 1.2f, // Dura un poco más
+                font: config.font,
+                fontSize: fontSize,
+                color: color,
+                outlineWidth: config.outlineWidth,
+                outlineColor: config.outlineColor,
+                alpha: config.alphaCurve,
+                vertical: config.verticalCurve,
+                scale: config.scaleCurve,
+                useGradient: config.useGradient,
+                gradient: config.gradient
+            );
+            ft.SetText(text);
+        }
+
         void Spawn(Transform target, string text, Color color, bool crit)
         {
             Vector3 basePos = GetAnchor(target) + Vector3.up * config.verticalOffset;
