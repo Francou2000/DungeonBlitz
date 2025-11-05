@@ -236,12 +236,23 @@ public class UnitModel : MonoBehaviour
     {
         EnsureResources();
         _resources[key] = Mathf.Max(0, value);
+        OnResourceChanged?.Invoke(key, _resources[key]);
     }
 
     public void AddRes(string key, int delta)
     {
         EnsureResources();
         _resources[key] = Mathf.Max(0, GetRes(key) + delta);
+        OnResourceChanged?.Invoke(key, _resources[key]);
+    }
+
+    public event System.Action<string, int> OnResourceChanged;
+
+    public IReadOnlyDictionary<string, int> GetAllResources()
+    {
+        EnsureResources();
+        // return a safe copy/snapshot
+        return new Dictionary<string, int>(_resources);
     }
 
     public bool TryConsume(string key, int amount)
@@ -250,6 +261,7 @@ public class UnitModel : MonoBehaviour
         var cur = GetRes(key);
         if (cur < amount) return false;
         _resources[key] = cur - amount;
+        OnResourceChanged?.Invoke(key, _resources[key]);
         return true;
     }
 

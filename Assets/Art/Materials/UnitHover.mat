@@ -67,7 +67,7 @@ Material:
     - _SegmentGap: 0.052
     - _SegmentsOn: 1
     - _Strength: 1
-    - _Thickness: 0.035
+    - _Thickness: 0.1
     - _UseSpriteAlpha: 1
     - _ZWrite: 0
     m_Colors:

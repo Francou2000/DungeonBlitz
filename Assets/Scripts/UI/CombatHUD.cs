@@ -42,6 +42,9 @@ public class CombatHUD : MonoBehaviour
     ActionButtonView hoveredView;
     private UnitController currentController;
 
+    [Header("Resources Text")]
+    [SerializeField] private TextMeshProUGUI resourcesText;
+
 
     void Awake()
     {
@@ -101,6 +104,7 @@ public class CombatHUD : MonoBehaviour
             boundModel.OnHealthChanged -= OnHP;
             boundModel.OnAdrenalineChanged -= OnADR;
             boundModel.OnActionPointsChanged -= OnAP;
+            boundModel.OnResourceChanged -= OnResChanged;
             boundModel = null;
         }
     }
@@ -131,15 +135,19 @@ public class CombatHUD : MonoBehaviour
         adrBar?.Set(m.Adrenaline, m.MaxAdrenaline);  
         apPips?.SetMax(m.MaxActions);
         apPips?.SetCurrent(m.CurrentActions);
+        RebuildResources(m);
 
         // clear stale subscriptions first (in case Bind() called multiple times)
         m.OnHealthChanged -= OnHP;
         m.OnAdrenalineChanged -= OnADR;
         m.OnActionPointsChanged -= OnAP;
+        m.OnResourceChanged -= OnResChanged;
+
 
         m.OnHealthChanged += OnHP;
         m.OnAdrenalineChanged += OnADR;
         m.OnActionPointsChanged += OnAP;
+        m.OnResourceChanged += OnResChanged;
     }
 
     void OnHP(int cur, int max) { hpBar?.Set(cur, max); }
@@ -441,5 +449,33 @@ public class CombatHUD : MonoBehaviour
         }
         
         pauseMenuController.TogglePause();
+    }
+
+    private void RebuildResources(UnitModel model)
+    {
+        if (resourcesText == null) return;
+        if (model == null)
+        {
+            resourcesText.text = string.Empty;
+            return;
+        }
+
+        var res = model.GetAllResources();
+        if (res == null || res.Count == 0)
+        {
+            resourcesText.text = string.Empty;
+            return;
+        }
+
+        var sb = new System.Text.StringBuilder();
+        foreach (var kv in res)
+            sb.AppendLine($"{kv.Key}: {kv.Value}");
+        resourcesText.text = sb.ToString();
+    }
+
+    private void OnResChanged(string key, int cur)
+    {
+        if (boundModel != null)
+            RebuildResources(boundModel);
     }
 }

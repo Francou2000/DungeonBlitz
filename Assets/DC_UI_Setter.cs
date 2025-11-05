@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class DC_UI_Setter : MonoBehaviour
 {
-    int lvl;
     UnitLoaderController unitController;
 
 
@@ -20,9 +19,8 @@ public class DC_UI_Setter : MonoBehaviour
     void Start()
     {
         unitController = UnitLoaderController.Instance;
-        lvl = unitController.lvl;
 
-        if ( lvl == 1)
+        if (unitController.lvl == 1)
         {
             background.SetActive(true);
             MapSelector.SetActive(true);

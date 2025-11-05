@@ -37,6 +37,9 @@ public class TurnManager : MonoBehaviourPunCallbacks
     public static event System.Action<UnitFaction> OnTurnBegan;
 
     UnitLoaderController _unitControler;
+
+    public static System.Action<int[], bool[]> OnHeroReadySnapshot;
+
     void Awake()
     {
         if (Instance != null)
@@ -69,6 +72,9 @@ public class TurnManager : MonoBehaviourPunCallbacks
                 }
             }
 
+            // push initial snapshot so lights paint correctly on all clients
+            BroadcastHeroReady();
+
             DecideFirstTurn(); // Only Master Client decides who goes first
         }
 
@@ -98,6 +104,8 @@ public class TurnManager : MonoBehaviourPunCallbacks
         if (postSetupGrace > 0f) { postSetupGrace -= Time.deltaTime; return; }
 
         // === CHECK WIN CONDITION ===
+        if (!ChangeLevel) return;
+
         if (timePool[currentTurn] <= 0f)
         {
             Debug.Log($"[TurnManager] Time's up! {GetOpposingFaction(currentTurn)} wins by timeout");
@@ -107,34 +115,44 @@ public class TurnManager : MonoBehaviourPunCallbacks
             }
             else
             {
-                _unitControler.lvl++;
-                SceneLoaderController.Instance.LoadNextLevel(Scenes.UnitsSelection);
+                if (PhotonNetwork.IsMasterClient)
+                {
+                    ChangeLevel = false;
+                    _unitControler.lvl += 1;
+                    photonView.RPC(nameof(NextLevel), RpcTarget.All, _unitControler.lvl);
+                    Debug.Log($"[TurnManager] Time is up! Advancing levels.");
+                }
             }
             
         }
         else if (IsFactionDefeated(GetOpposingFaction(currentTurn)))
         {
-            Debug.Log($"[TurnManager] Faction defeated! {currentTurn} wins by elimination");
+            Debug.Log($"[TurnManager] Faction defeated!");
             if (_unitControler.lvl == 3)
             {
                 EndGame(currentTurn); // current faction wins
+                Debug.Log($"[TurnManager] Faction defeated! {currentTurn} wins by elimination");
+
             }
             else
             {
                 if (currentTurn == UnitFaction.Monster)
                 {
                     EndGame(currentTurn);
+                    Debug.Log($"[TurnManager] Faction defeated! DM wins by elimination");
                 }
                 else
                 {
                     if (PhotonNetwork.IsMasterClient)
                     {
-                        _unitControler.lvl++;
+                        ChangeLevel = false;
+                        _unitControler.lvl+=1;
                         photonView.RPC(nameof(NextLevel), RpcTarget.All, _unitControler.lvl);
+                        Debug.Log($"[TurnManager] Faction defeated! Advancing levels.");
                     }
                 }
             }
-            
+
         }
     }
 
@@ -146,6 +164,8 @@ public class TurnManager : MonoBehaviourPunCallbacks
         _unitControler.lvl = lvl;
         SceneLoaderController.Instance.LoadNextLevel(Scenes.UnitsSelection);
     }
+
+    bool ChangeLevel = true;
 
     public bool CanEndTurnNow()
     {
@@ -190,7 +210,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
 
     public bool IsCurrentTurn(Unit unit)
     {
-        return unit.Model.Faction == currentTurn;
+        return unit != null && unit.Model != null && unit.Model.Faction == currentTurn;
     }
 
     // === RPCs ===
@@ -204,6 +224,9 @@ public class TurnManager : MonoBehaviourPunCallbacks
 
         heroPlayerReady[actorNumber] = true;
         Debug.Log($"[TurnManager] Player {actorNumber} is ready.");
+
+        // update everyone’s lights right away
+        BroadcastHeroReady();
 
         if (AllHeroesReady())
         {
@@ -225,6 +248,10 @@ public class TurnManager : MonoBehaviourPunCallbacks
         ResetUnitsForFaction(currentTurn);
 
         OnTurnBegan?.Invoke(currentTurn);
+
+        // (Master only): ensure a clean snapshot at turn start
+        if (PhotonNetwork.IsMasterClient)
+            BroadcastHeroReady();
 
         UpdateTurnUI();
     }
@@ -304,6 +331,9 @@ public class TurnManager : MonoBehaviourPunCallbacks
 
         photonView.RPC(nameof(RPC_SyncTurn), RpcTarget.All, starting, turnNumber, timeLeft);
         OnTurnBegan?.Invoke(starting);
+
+        AudioManager.Instance.PlaySFX(SoundName.NextTurn);
+
     }
 
     private void AdvanceTurn()
@@ -328,7 +358,12 @@ public class TurnManager : MonoBehaviourPunCallbacks
             var keys = new List<int>(heroPlayerReady.Keys);
             foreach (var key in keys)
                 heroPlayerReady[key] = false;
+
+            // broadcast fresh snapshot (all false) at the start of Heroes' turn
+            BroadcastHeroReady();
         }
+
+        AudioManager.Instance.PlaySFX(SoundName.NextTurn);
 
         ResetUnitsForFaction(currentTurn);
         OnTurnBegan?.Invoke(currentTurn);
@@ -465,6 +500,10 @@ public class TurnManager : MonoBehaviourPunCallbacks
         if (heroPlayerReady.ContainsKey(otherPlayer.ActorNumber))
         {
             heroPlayerReady.Remove(otherPlayer.ActorNumber);
+
+            // rebroadcast to drop the light for the departed player
+            if (PhotonNetwork.IsMasterClient)
+                BroadcastHeroReady();
         }
         
         // Check if master client left
@@ -500,6 +539,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
         if (PhotonNetwork.IsMasterClient)
         {
             Debug.Log($"[TurnManager] We are now the master client");
+            EndGame(UnitFaction.Hero);
         }
     }
 
@@ -524,5 +564,59 @@ public class TurnManager : MonoBehaviourPunCallbacks
     {
         yield return null;
         TryUnpauseIfReady("Start fallback");
+    }
+
+    private void BroadcastHeroReady()
+    {
+        // Build a stable, sorted list of hero actors (exclude master/DM)
+        var heroes = new System.Collections.Generic.List<int>();
+        foreach (var p in PhotonNetwork.PlayerList)
+        {
+            if (p.ActorNumber != PhotonNetwork.MasterClient.ActorNumber)
+                heroes.Add(p.ActorNumber);
+        }
+        heroes.Sort();
+
+        int n = heroes.Count;
+        var actors = new int[n];
+        var states = new bool[n];
+        for (int i = 0; i < n; i++)
+        {
+            int actor = heroes[i];
+            actors[i] = actor;
+            states[i] = heroPlayerReady.TryGetValue(actor, out bool rdy) && rdy;
+        }
+
+        // Local event for this client’s UI
+        OnHeroReadySnapshot?.Invoke(actors, states);
+
+        // Network broadcast so everyone updates
+        photonView.RPC(nameof(RPC_SyncHeroReady), RpcTarget.Others, actors, states);
+    }
+
+    [PunRPC]
+    private void RPC_SyncHeroReady(int[] actors, bool[] states)
+    {
+        // Defensive mirror (keeps local dict in sync even on non-master)
+        if (actors != null && states != null && actors.Length == states.Length)
+        {
+            for (int i = 0; i < actors.Length; i++)
+                heroPlayerReady[actors[i]] = states[i];
+        }
+        OnHeroReadySnapshot?.Invoke(actors, states);
+    }
+
+    // Is it the local player's side turn to perform actions?
+    public bool IsLocalPlayersTurnForActions()
+    {
+        // Heroes' turn → any non-master hero can act
+        if (currentTurn == UnitFaction.Hero)
+            return !PhotonNetwork.IsMasterClient;
+
+        // Monster's turn → only the master/DM acts
+        if (currentTurn == UnitFaction.Monster)
+            return PhotonNetwork.IsMasterClient;
+
+        return false;
     }
 }

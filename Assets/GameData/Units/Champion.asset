@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: Champion
   m_EditorClassIdentifier: 
   unitName: Champion
-  full_body_foto: {fileID: 21300000, guid: 2885a7cbf12a2f047a1e864dc39967a7, type: 3}
+  full_body_foto: {fileID: 6504433520214898271, guid: 07b8384554f0d1a44a2fdc1b752a70b1, type: 3}
   portrait_foto: {fileID: -8680507463708838209, guid: b4bc9d61bea2bb74587a34701c730cc9, type: 3}
   faction: 1
   heroe_id: 0
-  pop_cost: 3
+  pop_cost: 4
   maxHP: 20
   performance: 1
   affinity: 0
@@ -35,8 +35,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 769bc80e0572ab84188d419ba4542a21, type: 2}
   - {fileID: 11400000, guid: de802dd45f0ab0c4b85c909cbff54516, type: 2}
   - {fileID: 11400000, guid: 47376c18d6f32224ca9fbe031c0dd5d0, type: 2}
-  - {fileID: 11400000, guid: a7ad3d8cbad67764e9fd9f11fc396259, type: 2}
-  - {fileID: 11400000, guid: ed0a3e6ea7101de4cbc3fc70906b28e8, type: 2}
   startingForm: 
   startingWeapon: Greatsword
   isTrainingDummy: 0

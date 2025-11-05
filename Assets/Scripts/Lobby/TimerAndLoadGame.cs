@@ -14,7 +14,8 @@ public class TimerAndLoadGame : MonoBehaviourPunCallbacks
         }
         else
         {
-            Destroy(this.gameObject);
+            Destroy(instance);
+            instance = this;
         }
     }
 

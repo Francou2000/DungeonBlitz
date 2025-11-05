@@ -1,0 +1,366 @@
+fileFormatVersion: 2
+guid: 13210f0c3eec7b64dbba1a4cd72ed22c
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -9071288124534621007
+    second: Healing_Spell_0
+  - first:
+      213: 7723288918668511785
+    second: Healing_Spell_1
+  - first:
+      213: 5463537636465993301
+    second: Healing_Spell_2
+  - first:
+      213: -4636106567692974631
+    second: Healing_Spell_3
+  - first:
+      213: -2957318498636690523
+    second: Healing_Spell_4
+  - first:
+      213: -6196550206955821577
+    second: Healing_Spell_5
+  - first:
+      213: 4067959101091853318
+    second: Healing_Spell_6
+  - first:
+      213: 602456186975513724
+    second: Healing_Spell_7
+  - first:
+      213: 7631925315645673825
+    second: Healing_Spell_8
+  - first:
+      213: 246815669559490572
+    second: Healing_Spell_9
+  - first:
+      213: 3261861089521953343
+    second: Healing_Spell_10
+  - first:
+      213: -7931494111817015488
+    second: Healing_Spell_11
+  - first:
+      213: 933582486253896909
+    second: Healing_Spell_12
+  - first:
+      213: 6494752939537427316
+    second: Healing_Spell_13
+  - first:
+      213: -1353772690537322476
+    second: Healing_Spell_14
+  - first:
+      213: 8448992222392917213
+    second: Healing_Spell_15
+  - first:
+      213: -559073894967952767
+    second: Healing_Spell_16
+  - first:
+      213: -2136308613870788491
+    second: Healing_Spell_17
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Healing_Spell_18
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 95
+        width: 425
+        height: 800
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 91d53b7a8bd1f0e4f87253212cdbf919
+      internalID: 594554012
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Healing_Spell_19
+      rect:
+        serializedVersion: 2
+        x: 494
+        y: 95
+        width: 400
+        height: 800
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6bf3e8a3e496eac4582a83d8e80380bc
+      internalID: -1657394753
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Healing_Spell_20
+      rect:
+        serializedVersion: 2
+        x: 919
+        y: 95
+        width: 370
+        height: 800
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6ea9548a32f4c3548b252f6365f0df32
+      internalID: 1791880203
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Healing_Spell_21
+      rect:
+        serializedVersion: 2
+        x: 1321
+        y: 95
+        width: 350
+        height: 800
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d989da28f41a13e4bb78d51fc003ad87
+      internalID: -1445002803
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Healing_Spell_22
+      rect:
+        serializedVersion: 2
+        x: 1680
+        y: 95
+        width: 375
+        height: 800
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cc4dd89424d2fc14890db807987bcc6e
+      internalID: -1300095473
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Healing_Spell_23
+      rect:
+        serializedVersion: 2
+        x: 2072
+        y: 95
+        width: 350
+        height: 798
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 23564d5a0f0256c468036ab605c03269
+      internalID: 958640756
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 0fb688506e4207d48ac998c5c70c4b5d
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Healing_Spell_0: -9071288124534621007
+      Healing_Spell_1: 7723288918668511785
+      Healing_Spell_10: 3261861089521953343
+      Healing_Spell_11: -7931494111817015488
+      Healing_Spell_12: 933582486253896909
+      Healing_Spell_13: 6494752939537427316
+      Healing_Spell_14: -1353772690537322476
+      Healing_Spell_15: 8448992222392917213
+      Healing_Spell_16: -559073894967952767
+      Healing_Spell_17: -2136308613870788491
+      Healing_Spell_18: 594554012
+      Healing_Spell_19: -1657394753
+      Healing_Spell_2: 5463537636465993301
+      Healing_Spell_20: 1791880203
+      Healing_Spell_21: -1445002803
+      Healing_Spell_22: -1300095473
+      Healing_Spell_23: 958640756
+      Healing_Spell_3: -4636106567692974631
+      Healing_Spell_4: -2957318498636690523
+      Healing_Spell_5: -6196550206955821577
+      Healing_Spell_6: 4067959101091853318
+      Healing_Spell_7: 602456186975513724
+      Healing_Spell_8: 7631925315645673825
+      Healing_Spell_9: 246815669559490572
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
