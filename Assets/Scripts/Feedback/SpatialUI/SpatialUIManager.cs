@@ -56,7 +56,11 @@ namespace SpatialUI
 
         void SpawnAbilityText(Transform target, string text, Color color)
         {
-            Vector3 basePos = GetAnchor(target) + Vector3.up * (config.verticalOffset + 0.8f); // Más arriba que el daño
+            // Obtener el punto de anclaje centrado sobre la unidad
+            Vector3 anchorPos = GetAnchor(target);
+            
+            // Calcular posición inicial más arriba y centrada (offset de 1f para estar más arriba pero no tanto)
+            Vector3 basePos = anchorPos + Vector3.up * (config.verticalOffset + 1f);
             Vector3 endPos = basePos + new Vector3(0f, config.riseDistance * 0.6f, 0f); // Menos movimiento horizontal
 
             var ft = pool.Get();
@@ -132,7 +136,7 @@ namespace SpatialUI
             }
         }
 
-        Vector3 GetAnchor(Transform t)
+        public static Vector3 GetAnchor(Transform t)
         {
             var rend = t.GetComponentInChildren<Renderer>();
             if (rend) return rend.bounds.center + Vector3.up * (rend.bounds.extents.y * 0.8f);

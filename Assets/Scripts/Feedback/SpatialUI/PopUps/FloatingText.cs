@@ -21,6 +21,7 @@ namespace SpatialUI
 
         Camera _cam;
         Transform _follow;
+        Vector3 _initialAnchor; // Guardar el anclaje inicial para calcular el offset correctamente
 
         void Awake()
         {
@@ -38,6 +39,9 @@ namespace SpatialUI
             worldEnd = endWorld;
             lifetime = life;
             bornTime = Time.time;
+            
+            // Guardar el anclaje inicial para calcular el offset correctamente cuando el objeto se mueva
+            _initialAnchor = follow ? SpatialUIManager.GetAnchor(follow) : startWorld;
 
             if (_cam == null) _cam = Camera.main;
             canvas.renderMode = RenderMode.WorldSpace;
@@ -74,8 +78,17 @@ namespace SpatialUI
             transform.forward = (_cam.transform.position - transform.position) * -1f;
 
             float t = Mathf.Clamp01((Time.time - bornTime) / lifetime);
-            var pos = Vector3.Lerp(worldStart, worldEnd, verticalCurve.Evaluate(t));
-            if (_follow) pos += (_follow.position - worldStart);
+            
+            // Calcular posición base usando el punto de anclaje actualizado para mantener el texto centrado
+            Vector3 currentAnchor = _follow ? SpatialUIManager.GetAnchor(_follow) : worldStart;
+            // Calcular el offset vertical desde el anclaje inicial
+            Vector3 offsetFromAnchor = worldStart - _initialAnchor;
+            
+            // Si el objeto seguido se movió, ajustar la posición manteniendo el offset relativo
+            Vector3 basePos = currentAnchor + offsetFromAnchor;
+            Vector3 endPos = currentAnchor + (worldEnd - _initialAnchor);
+            var pos = Vector3.Lerp(basePos, endPos, verticalCurve.Evaluate(t));
+            
             transform.position = pos;
 
             float a = alphaCurve.Evaluate(t);

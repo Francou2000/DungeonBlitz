@@ -31,6 +31,12 @@ public static class CombatFeedbackUI
         {
             DamageEffectManager.ShowDamageEffectStatic(target, attacker, ability, Mathf.RoundToInt(dmg));
         }
+        
+        // Reproducir sonido de hurt cuando se recibe daño
+        if (dmg > 0 && AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayHurtSoundByUnitType(target);
+        }
     }
 
     public static void ShowMiss(Unit target)
