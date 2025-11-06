@@ -405,6 +405,12 @@ public sealed class AbilityResolver : MonoBehaviourPun
 
         CombatLog.Resolve(traceId, $"Targets: final={computedTargets.Count} area={ability.areaType}");
 
+        // Mostrar el nombre de la habilidad sobre el caster
+        if (casterCtrl != null && casterCtrl.unit != null)
+        {
+            CombatFeedbackUI.ShowAbilityName(casterCtrl.unit, ability.abilityName);
+        }
+
         // -------- PER-TARGET ROUTING: heal allies, damage enemies --------
 
         // Batches to send
@@ -600,6 +606,16 @@ public sealed class AbilityResolver : MonoBehaviourPun
         var casterCtrl = FindByView<UnitController>(casterViewId);
 
         var traceId = CombatLog.NewTraceId();
+
+        // Mostrar el nombre de la habilidad sobre el caster
+        if (casterCtrl != null && casterCtrl.unit != null)
+        {
+            var list = casterCtrl.unit.Model.Abilities;
+            if (abilityIndex >= 0 && abilityIndex < list.Count)
+            {
+                CombatFeedbackUI.ShowAbilityName(casterCtrl.unit, list[abilityIndex].abilityName);
+            }
+        }
 
         // --- JUICE: caster punch toward primary target (runs on ALL clients) ---
         if (casterCtrl != null)
@@ -842,6 +858,17 @@ public sealed class AbilityResolver : MonoBehaviourPun
                                       int[] targetViewIds, int[] heals, int[] barriers)
     {
         Debug.Log($"[RPC_ApplyHealing] ENTER targets={(targetViewIds == null ? 0 : targetViewIds.Length)}");
+
+        // Mostrar el nombre de la habilidad sobre el caster
+        var casterCtrl = FindByView<UnitController>(casterViewId);
+        if (casterCtrl != null && casterCtrl.unit != null)
+        {
+            var list = casterCtrl.unit.Model.Abilities;
+            if (abilityIndex >= 0 && abilityIndex < list.Count)
+            {
+                CombatFeedbackUI.ShowAbilityName(casterCtrl.unit, list[abilityIndex].abilityName);
+            }
+        }
 
         int n = (targetViewIds == null) ? 0 : targetViewIds.Length;
         for (int i = 0; i < n; i++)

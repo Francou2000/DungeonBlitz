@@ -13,7 +13,14 @@ public class AudioManager : MonoBehaviour
 
     [Header("Audio Sources")]
     [SerializeField] private AudioSource musicSource;
-    [SerializeField] private AudioSource sfxSource;
+    [SerializeField] private AudioSource sfxSource; // Mantener para compatibilidad, pero usar pool para nuevos sonidos
+    
+    [Header("SFX Pool Settings")]
+    [SerializeField] private int sfxPoolSize = 8; // Número de AudioSources en el pool
+    
+    private Queue<AudioSource> sfxPool = new Queue<AudioSource>();
+    private List<AudioSource> activeSfxSources = new List<AudioSource>();
+    private float currentSFXVolume = 1f; // Guardar el volumen actual de SFX para aplicarlo a nuevos AudioSources
 
     //Rename to whatever (this manager was used on other projects)
     [Header("Audio Clips")]
@@ -62,6 +69,135 @@ public class AudioManager : MonoBehaviour
         if (soundDictElements.Count == soundDict.Count) Debug.Log("Diccionario de sonidos completo");
         else Debug.Log("Diccionario de sonidos incompleto  ->  Alguna key est� repetida");
 
+        // Inicializar pool de AudioSources para SFX simultáneos
+        InitializeSFXPool();
+    }
+
+    private void InitializeSFXPool()
+    {
+        // Crear un objeto padre para organizar los AudioSources del pool
+        GameObject poolParent = new GameObject("SFX Pool");
+        poolParent.transform.SetParent(transform);
+        
+        // Obtener el volumen inicial del sfxSource si existe
+        if (sfxSource != null)
+        {
+            currentSFXVolume = sfxSource.volume;
+        }
+        
+        // Crear AudioSources en el pool
+        for (int i = 0; i < sfxPoolSize; i++)
+        {
+            GameObject sourceObj = new GameObject($"SFX Source {i}");
+            sourceObj.transform.SetParent(poolParent.transform);
+            AudioSource source = sourceObj.AddComponent<AudioSource>();
+            
+            // Copiar configuración del sfxSource original si existe
+            if (sfxSource != null)
+            {
+                source.outputAudioMixerGroup = sfxSource.outputAudioMixerGroup;
+                source.volume = currentSFXVolume;
+                source.pitch = sfxSource.pitch;
+                source.playOnAwake = false;
+            }
+            
+            sfxPool.Enqueue(source);
+        }
+    }
+
+    // Obtener un AudioSource disponible del pool
+    private AudioSource GetAvailableSFXSource()
+    {
+        // Limpiar AudioSources que ya terminaron de reproducir
+        CleanupFinishedSFXSources();
+        
+        // Si hay AudioSources disponibles en el pool, usarlos
+        if (sfxPool.Count > 0)
+        {
+            AudioSource source = sfxPool.Dequeue();
+            activeSfxSources.Add(source);
+            return source;
+        }
+        
+        // Si no hay disponibles, crear uno nuevo temporalmente
+        GameObject tempObj = new GameObject("Temp SFX Source");
+        tempObj.transform.SetParent(transform);
+        AudioSource tempSource = tempObj.AddComponent<AudioSource>();
+        if (sfxSource != null)
+        {
+            tempSource.outputAudioMixerGroup = sfxSource.outputAudioMixerGroup;
+            tempSource.volume = currentSFXVolume; // Usar el volumen actual guardado
+            tempSource.pitch = sfxSource.pitch;
+            tempSource.playOnAwake = false;
+        }
+        activeSfxSources.Add(tempSource);
+        return tempSource;
+    }
+
+    // Devolver AudioSource al pool cuando termine de reproducir
+    private void ReturnSFXSourceToPool(AudioSource source)
+    {
+        if (source == null) return;
+        
+        if (activeSfxSources.Contains(source))
+        {
+            activeSfxSources.Remove(source);
+        }
+        
+        // Si es un objeto temporal, destruirlo; si no, devolverlo al pool
+        if (source.gameObject.name.Contains("Temp"))
+        {
+            Destroy(source.gameObject);
+        }
+        else
+        {
+            source.Stop();
+            sfxPool.Enqueue(source);
+        }
+    }
+
+    // Limpiar AudioSources que ya terminaron de reproducir
+    private void CleanupFinishedSFXSources()
+    {
+        for (int i = activeSfxSources.Count - 1; i >= 0; i--)
+        {
+            AudioSource source = activeSfxSources[i];
+            if (source == null || !source.isPlaying)
+            {
+                ReturnSFXSourceToPool(source);
+            }
+        }
+    }
+
+    // Reproducir sonido usando el pool (reemplaza las llamadas a sfxSource.PlayOneShot)
+    private void PlaySFXFromPool(AudioClip clip)
+    {
+        if (clip == null) return;
+        
+        AudioSource source = GetAvailableSFXSource();
+        if (source != null)
+        {
+            source.PlayOneShot(clip);
+            // Usar coroutine para devolver el source al pool cuando termine
+            // Agregar un pequeño buffer para asegurar que el sonido termine completamente
+            StartCoroutine(ReturnSourceWhenFinished(source, clip.length + 0.1f));
+        }
+    }
+
+    private System.Collections.IEnumerator ReturnSourceWhenFinished(AudioSource source, float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        // Verificar que realmente terminó antes de devolverlo
+        if (source != null && !source.isPlaying)
+        {
+            ReturnSFXSourceToPool(source);
+        }
+        else if (source != null)
+        {
+            // Si aún está reproduciendo, esperar un poco más
+            yield return new WaitForSeconds(0.1f);
+            ReturnSFXSourceToPool(source);
+        }
     }
 
     public void PlayMusic()
@@ -88,28 +224,33 @@ public class AudioManager : MonoBehaviour
     //Rename to whatever (this manager was used on other projects)
     public void PlayStartGame()
     {
-        if (sfxSource && startGameSFX)
-            sfxSource.PlayOneShot(startGameSFX);
-            PlayCombatMusic();
-            Debug.Log("Playing combat music");
-        
+        if (startGameSFX) PlaySFXFromPool(startGameSFX);
+        PlayCombatMusic();
+        Debug.Log("Playing combat music");
     }
 
     //Rename to whatever (this manager was used on other projects)
     public void PlayButtonSound()
     {
-        if (sfxSource && buttonClickSFX)
-            sfxSource.PlayOneShot(buttonClickSFX);
+        if (buttonClickSFX) PlaySFXFromPool(buttonClickSFX);
     }
 
     // Volume Controls
     public void SetMasterVolume(float value)
     {
-        // Set master volume on both sources
+        float clampedValue = Mathf.Clamp(value, 0f, 1f);
+        
+        // Actualizar música
         if (musicSource != null)
-            musicSource.volume = Mathf.Clamp(value, 0f, 1f);
+            musicSource.volume = clampedValue;
+        
+        // Actualizar SFX original
         if (sfxSource != null)
-            sfxSource.volume = Mathf.Clamp(value, 0f, 1f);
+            sfxSource.volume = clampedValue;
+        
+        // Actualizar volumen de todos los AudioSources del pool de SFX
+        currentSFXVolume = clampedValue;
+        UpdateAllSFXSourcesVolume(clampedValue);
     }
 
     public void SetMusicVolume(float value)
@@ -120,16 +261,37 @@ public class AudioManager : MonoBehaviour
 
     public void SetSFXVolume(float value)
     {
+        float clampedVolume = Mathf.Clamp(value, 0f, 1f);
+        currentSFXVolume = clampedVolume; // Guardar el volumen actual
+        
+        // Actualizar volumen del sfxSource original
         if (sfxSource != null)
-            sfxSource.volume = Mathf.Clamp(value, 0f, 1f);
+            sfxSource.volume = clampedVolume;
+        
+        // Actualizar volumen de todos los AudioSources del pool
+        UpdateAllSFXSourcesVolume(clampedVolume);
+    }
+
+    // Helper para actualizar el volumen de todos los AudioSources de SFX
+    private void UpdateAllSFXSourcesVolume(float volume)
+    {
+        // Actualizar AudioSources en el pool
+        foreach (AudioSource source in sfxPool)
+        {
+            if (source != null) source.volume = volume;
+        }
+        
+        // Actualizar AudioSources activos
+        foreach (AudioSource source in activeSfxSources)
+        {
+            if (source != null) source.volume = volume;
+        }
     }
 
     //testing this may change later
     // ATTACK SFX
     public void PlayStabSound(){
-        if (sfxSource && stabSFX){
-            sfxSource.PlayOneShot(stabSFX);
-        }
+        if (stabSFX) PlaySFXFromPool(stabSFX);
     }
 
     public void PlayAttackSound(string abilityName)
@@ -264,62 +426,43 @@ public class AudioManager : MonoBehaviour
     }
     
     public void PlayGoblinAttack(){
-        if (sfxSource && goblinAttackSFX){
-            sfxSource.PlayOneShot(goblinAttackSFX);
-        }
+        if (goblinAttackSFX) PlaySFXFromPool(goblinAttackSFX);
     }
 
 
     //EVADE SFX
     public void PlayEvadeMale(){
-        if (sfxSource && evadeMaleSFX){
-            sfxSource.PlayOneShot(evadeMaleSFX);
-        }
+        if (evadeMaleSFX) PlaySFXFromPool(evadeMaleSFX);
     }
 
     public void PlayEvadeRogue(){
-        if (sfxSource && evadeRogueSFX){
-            sfxSource.PlayOneShot(evadeRogueSFX);
-        }
+        if (evadeRogueSFX) PlaySFXFromPool(evadeRogueSFX);
     }
 
-
     public void PlayEvadeGoblin(){
-        if (sfxSource && evadeGoblinSFX){
-            sfxSource.PlayOneShot(evadeGoblinSFX);
-        }
+        if (evadeGoblinSFX) PlaySFXFromPool(evadeGoblinSFX);
     }
 
     public void PlayEvadeHobgoblin(){
-        if (sfxSource && evadeHobGoblinSFX){
-            sfxSource.PlayOneShot(evadeHobGoblinSFX);
-        }
+        if (evadeHobGoblinSFX) PlaySFXFromPool(evadeHobGoblinSFX);
     }
 
 
     //HURT SFX
     public void PlayHurtGoblin(){
-        if (sfxSource && goblinHurtSFX){
-            sfxSource.PlayOneShot(goblinHurtSFX);
-        }
+        if (goblinHurtSFX) PlaySFXFromPool(goblinHurtSFX);
     }
 
     public void PlayHurtHobGoblin(){
-         if (sfxSource && HobGoblinHurtSFX){
-            sfxSource.PlayOneShot(HobGoblinHurtSFX);
-        }       
+        if (HobGoblinHurtSFX) PlaySFXFromPool(HobGoblinHurtSFX);
     }
 
     public void PlayHurtMale(){
-        if (sfxSource && maleHurtSFX){
-            sfxSource.PlayOneShot(maleHurtSFX);
-        }
+        if (maleHurtSFX) PlaySFXFromPool(maleHurtSFX);
     }
 
     public void PlayHurtFemale(){
-        if (sfxSource && FemaleHurtSFX){
-            sfxSource.PlayOneShot(FemaleHurtSFX);
-        }
+        if (FemaleHurtSFX) PlaySFXFromPool(FemaleHurtSFX);
     }
 
     // Helper function to play evade sound based on unit type
@@ -348,12 +491,42 @@ public class AudioManager : MonoBehaviour
         }
     }
 
+    // Helper function to play hurt sound based on unit type
+    public void PlayHurtSoundByUnitType(Unit unit)
+    {
+        if (unit == null) return;
+        
+        // Get unit name to determine type
+        string unitName = unit.name.ToLower();
+        
+        if (unitName.Contains("goblin") && !unitName.Contains("hob"))
+        {
+            PlayHurtGoblin();
+        }
+        else if (unitName.Contains("hobgoblin") || unitName.Contains("hob"))
+        {
+            PlayHurtHobGoblin();
+        }
+        else if (unitName.Contains("shaman") || unitName.Contains("elementalist") || unitName.Contains("sorcerer"))
+        {
+            PlayHurtFemale();
+        }
+        else // Default to male for other units (paladin, rogue, etc.)
+        {
+            PlayHurtMale();
+        }
+    }
+
     public List<DictionaryElement<SoundName, AudioClip>> soundDictElements = new List<DictionaryElement<SoundName, AudioClip>>();
     Dictionary<SoundName, AudioClip> soundDict = new Dictionary<SoundName, AudioClip>();
 
     public void PlaySFX(SoundName s_name)
     {
-        if (sfxSource && soundDict[s_name]) sfxSource.PlayOneShot(soundDict[s_name]);
+        if (soundDict.ContainsKey(s_name) && soundDict[s_name] != null)
+        {
+            // Usar pool para reproducir múltiples sonidos simultáneamente
+            PlaySFXFromPool(soundDict[s_name]);
+        }
     }
 
     public void PlayBGM(SoundName s_name)
