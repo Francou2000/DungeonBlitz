@@ -16,6 +16,10 @@ public class TargeterController2D : MonoBehaviour
     private bool showingMove;
     private float moveRadius;
 
+    bool _singlePreviewActive;
+    UnitController _singlePrevCaster;
+    UnitAbility _singlePrevAbility;
+
 
     public static TargeterController2D Instance { get; private set; }
 
@@ -95,6 +99,10 @@ public class TargeterController2D : MonoBehaviour
         circle.gameObject.SetActive(false);
         line.gameObject.SetActive(false);
         enabled = false;
+
+        _singlePreviewActive = false;
+        _singlePrevCaster = null;
+        _singlePrevAbility = null;
     }
 
     public void ShowMoveRange(UnitController caster, float radius)
@@ -118,5 +126,55 @@ public class TargeterController2D : MonoBehaviour
     public void Cancel()
     {
         Cleanup();
+    }
+
+    // Begin showing a preview ring on caster (range) and a circle where the pointer/hover is.
+    public void BeginSinglePreview(UnitController c, UnitAbility a)
+    {
+        _singlePreviewActive = true;
+        _singlePrevCaster = c;
+        _singlePrevAbility = a;
+
+        if (c == null || a == null) return;
+
+        // Range ring around caster
+        if (rangeRing)
+        {
+            var from = c.transform.position; from.z = 0f;
+            float r = a.areaType == AreaType.Line ? a.lineRange : a.range; // same rule you use in Update()
+            rangeRing.Draw(from, r);
+            rangeRing.gameObject.SetActive(true);
+        }
+
+        if (circle) circle.gameObject.SetActive(false);
+    }
+
+    // Move the preview circle (call from HUD/hover)
+    public void UpdateSinglePreview(Vector3 worldPos)
+    {
+        // No inner impact circle for single-target preview
+        // Keep this empty on purpose
+    }
+
+    // Stop preview without touching “move range” mode
+    public void EndSinglePreview()
+    {
+        _singlePreviewActive = false;
+        _singlePrevCaster = null;
+        _singlePrevAbility = null;
+
+        if (circle) circle.gameObject.SetActive(false);
+
+        // Only hide the range ring if we're not showing move range
+        if (rangeRing && !showingMove)
+            rangeRing.gameObject.SetActive(false);
+    }
+
+    // Helper radius for single-target impact visualization
+    float GetSinglePreviewRadius(UnitAbility a)
+    {
+        if (a == null) return 0.25f;
+        // Prefer aoeRadius if your single-target abilities have splash; otherwise a small dot
+        return a.aoeRadius > 0f ? a.aoeRadius : 0.25f;
     }
 }

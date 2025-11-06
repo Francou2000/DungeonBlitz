@@ -314,11 +314,7 @@ public class UnitController : MonoBehaviourPun
 
         //Old UI system
         if (ActionUI.Instance != null)
-            ActionUI.Instance.ClearAction();
-
-        if (CombatUI.Instance != null)
-            CombatUI.Instance.HideAbilities();
-        
+            ActionUI.Instance.ClearAction();       
     }
 
     public void SetSelectedAbility(UnitAbility ability)

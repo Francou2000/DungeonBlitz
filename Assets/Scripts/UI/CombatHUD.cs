@@ -38,12 +38,19 @@ public class CombatHUD : MonoBehaviour
     private int pageStart = 0;
     private UnitAbility selectedAbility;
     private UnitModel boundModel;
+    private bool _boundOnce;
 
     ActionButtonView hoveredView;
     private UnitController currentController;
 
+    private bool _singlePreviewActive;
+    private UnitAbility _singlePreviewAbility;
+
     [Header("Resources Text")]
     [SerializeField] private TextMeshProUGUI resourcesText;
+
+    [Header("Interactivity")]
+    [SerializeField] private CanvasGroup rootCg;
 
 
     void Awake()
@@ -57,6 +64,8 @@ public class CombatHUD : MonoBehaviour
     private void Start()
     {
         TurnManager.OnActiveControllerChanged += HandleActiveUnitChanged;
+        TurnManager.OnTurnUI += OnTurnUi;
+        TurnManager.OnTurnBegan += OnTurnBegan;
     }
 
     private void HandleActiveUnitChanged(UnitController newUnit)
@@ -67,6 +76,9 @@ public class CombatHUD : MonoBehaviour
     private void OnDestroy()
     {
         TurnManager.OnActiveControllerChanged -= HandleActiveUnitChanged;
+        TurnManager.OnTurnUI -= OnTurnUi;
+        TurnManager.OnTurnBegan -= OnTurnBegan;
+
         UnbindCurrentUnit();
         ClearGrid(); // final cleanup
     }
@@ -75,30 +87,25 @@ public class CombatHUD : MonoBehaviour
     {
         if (controller == ctrl) return;
 
-        if (TargeterController2D.Instance)
-            TargeterController2D.Instance.Cancel();        // closes area/line/single targeter (if open)
-
-        if (controller != null)
-            controller.CancelTargeting();     // clears move mode / pending targeting / aim
+        // Close any open targeting UI and pending modes
+        if (TargeterController2D.Instance) TargeterController2D.Instance.Cancel();
+        if (controller != null) controller.CancelTargeting();
 
         UnbindCurrentUnit();
         ClearGrid();
 
         controller = ctrl;
         pageStart = 0;
+
         RefreshPortrait();
         RebuildBars();
         RebuildGrid();
         RefreshBars();
+        RefreshInteractivity();
     }
 
     private void UnbindCurrentUnit()
     {
-        if (controller != null)
-        {
-            controller = null;
-        }
-
         if (boundModel != null)
         {
             boundModel.OnHealthChanged -= OnHP;
@@ -107,12 +114,21 @@ public class CombatHUD : MonoBehaviour
             boundModel.OnResourceChanged -= OnResChanged;
             boundModel = null;
         }
+        controller = null;
     }
 
     void OnEnable()
     {
-        TurnManager.OnTurnUI += OnTurnUi;
-        TurnManager.OnTurnBegan += OnTurnBegan;
+        // If this HUD is dropped in-scene with a prebound controller, bind once
+        if (!_boundOnce && controller != null)
+        {
+            _boundOnce = true;
+            Bind(controller);
+        }
+        else
+        {
+            RefreshInteractivity();
+        }
     }
     void OnDisable()
     {
@@ -186,7 +202,6 @@ public class CombatHUD : MonoBehaviour
         }
 
         ClearGrid();
-        ClearGrid();
 
         //  Move button (always 1 slot)
         var moveBtn = GetButton();
@@ -205,6 +220,7 @@ public class CombatHUD : MonoBehaviour
 
         int remaining = Mathf.Max(0, abilities.Count - pageStart);
         int count = Mathf.Min(slotsForAbilities, remaining);
+
         for (int i = 0; i < count; i++)
         {
             var ab = abilities[pageStart + i];
@@ -289,6 +305,8 @@ public class CombatHUD : MonoBehaviour
     // ----- Interactions -----
     void OnActionClicked(ActionButtonView view)
     {
+        if (!IsUsableNow()) return;
+
         if (view.IsMove)
         {
             UnitController.SetAction(UnitAction.Move);
@@ -300,6 +318,7 @@ public class CombatHUD : MonoBehaviour
             if (TargeterController2D.Instance)
                 TargeterController2D.Instance.ShowMoveRange(controller, radius);
 
+            UpdateSelectedHighlight();
             return;
         }
 
@@ -312,10 +331,14 @@ public class CombatHUD : MonoBehaviour
 
         controller.SetSelectedAbility(selectedAbility);
 
-        // AREA FIRST (Circle/Line/Ground) → Targeter2D
+        // 1) AOE/Line/Ground → Targeter2D for aim confirm (center/dir)
         if (NeedsAreaTargeting(selectedAbility))
         {
-            if (!TargeterController2D.Instance) { Debug.LogWarning("No TargeterController2D"); return; }
+            if (!TargeterController2D.Instance)
+            {
+                Debug.LogWarning("[CombatHUD] No TargeterController2D in scene");
+                return;
+            }
 
             TargeterController2D.Instance.Begin(
                 c: controller,
@@ -324,40 +347,37 @@ public class CombatHUD : MonoBehaviour
                 {
                     controller.CacheAim(center, dir);
                     controller.ExecuteAbility(selectedAbility, null, center);
+                    RefreshInteractivity();
                 }
             );
             return;
         }
 
-        // then unit-target (non-area singles)
+        // 2) Single-target unit (self/ally/enemy) → StartTargeting and let UnitSelector call HandleUnitTarget()
         if (RequiresUnitTarget(selectedAbility))
         {
             if (selectedAbility.selfOnly)
             {
                 controller.ExecuteAbility(selectedAbility, controller.unit);
+                RefreshInteractivity();
                 return;
             }
 
-            if (!TargeterController2D.Instance)
+            controller.StartTargeting(selectedAbility); // world click will call HandleUnitTarget
+
+            // begin single-target preview (range ring + impact circle)
+            if (TargeterController2D.Instance)
             {
-                Debug.LogWarning("No TargeterController2D in scene");
-                return;
+                TargeterController2D.Instance.BeginSinglePreview(controller, selectedAbility);
+                _singlePreviewActive = true;
+                _singlePreviewAbility = selectedAbility;
             }
-
-            TargeterController2D.Instance.Begin(
-                c: controller,
-                a: selectedAbility,
-                confirm: (center, dir) =>
-                {
-                    controller.CacheAim(center, dir);
-                    controller.ExecuteAbility(selectedAbility, null, center);
-                }
-            );
             return;
         }
 
-        // instant
+        // 3) Instant / no-target
         controller.ExecuteAbility(selectedAbility, null);
+        RefreshInteractivity();
     }
 
     // true for single-target unit selection (self/ally/enemy)
@@ -418,6 +438,36 @@ public class CombatHUD : MonoBehaviour
             RefreshBars();
             // If your buttons display cooldown/charges, just in case later
             // RebuildGrid();
+        }
+        RefreshInteractivity();
+    }
+
+    private bool IsUsableNow()
+    {
+        if (controller == null || controller.model == null) return false;
+        if (TurnManager.Instance == null) return false;
+        if (!TurnManager.Instance.IsCurrentTurn(controller.unit)) return false;
+        if (controller.photonView == null || !controller.photonView.IsMine) return false;
+        if (!controller.model.CanAct()) return false;
+        return true;
+    }
+
+
+    private void RefreshInteractivity()
+    {
+        bool canUse = IsUsableNow();
+
+        if (rootCg != null)
+        {
+            rootCg.interactable = canUse;
+            rootCg.blocksRaycasts = canUse;
+            rootCg.alpha = canUse ? 1f : 0.6f;
+        }
+
+        foreach (var v in _active)
+        {
+            var btn = v.GetComponent<Button>();
+            if (btn) btn.interactable = canUse;
         }
     }
 
