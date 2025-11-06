@@ -46,32 +46,22 @@ MonoBehaviour:
   canChain: 0
   chainRange: 0
   appliedEffects:
-  - effectName: Barrier
-    type: 2
-    modifier: 0
-    amount: 0
-    duration: 2
-    isStackable: 0
-    maxStacks: 0
-    tags:
-    - Barrier
-    damagePerTurn: 0
+  - type: 2
+    name: 
+    sourceViewId: 0
+    remainingTurns: 0
+    aux: 0
     barrierHP: 0
+    stat: 0
+    amount: 0
+    isDebuff: 0
     nextTurnActionsDelta: 0
-    actionsBonus: 0
-    moveSpeedBuff: 0
-    moveSpeedDebuff: 0
-    healingMultiplier: 1
-    bleedBonusOnMove: 0
-    bleedMoveBonus: 0
+    root: 0
+    moveSpeedDeltaPct: 0
+    healMultiplier: 1
+    bleedDamageOnMove: 0
     targetLockViewId: 0
-    onApply: 0
-    onExpire: 0
-    onStartTurn: 0
-    onEndTurn: 0
-    onMove: 0
-    onBeforeHit: 0
-    onAfterHit: 0
+    incandescent: 0
   statusEffectChance: 100
   healsTarget: 0
   healAmount: 0

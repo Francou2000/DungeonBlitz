@@ -200,35 +200,25 @@ public class UnitController : MonoBehaviourPun
             target.Heal(healAmount, unit);
         }
 
-        // Apply status effects
-        if (target != null && ability.appliedEffects.Count > 0)
+        /* LEGACY
+        var sc = target.GetComponent<StatusComponent>();
+        if (sc != null && ability.appliedEffects != null && ability.appliedEffects.Count > 0)
         {
-            var statusHandler = target.GetComponent<StatusEffectHandler>();
-            if (statusHandler != null)
+            foreach (var eff in ability.appliedEffects)
             {
-                foreach (var effect in ability.appliedEffects)
+                if (Random.Range(0f, 100f) <= ability.statusEffectChance)
                 {
-                    if (Random.Range(0f, 100f) <= ability.statusEffectChance)
-                    {
-                        statusHandler.ApplyEffect(effect);
-                    }
+                    var v2 = ConvertLegacyEffectToV2(eff, this, target); // helper below
+                    if (v2 != null) sc.Apply(v2);
                 }
             }
-        }
+        }*/
 
-        // Grant barriers
+        // barriers via EffectLibrary
         if (ability.grantsBarrier && target != null)
         {
-            var barrierEffect = new StatusEffect
-            {
-                effectName = "Barrier",
-                type = StatusEffectType.Buff,
-                barrierHP = ability.barrierAmount,
-                duration = 5,
-                tags = { "Barrier" }
-            };
-            
-            target.GetComponent<StatusEffectHandler>()?.ApplyEffect(barrierEffect);
+            var sc2 = target.GetComponent<StatusComponent>();
+            if (sc2 != null) sc2.Apply(EffectLibrary.Barrier(ability.barrierAmount, 5));
         }
     }
 

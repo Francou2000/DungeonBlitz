@@ -34,7 +34,7 @@ public class SetUnitDataButton : MonoBehaviour
 
     void SetStats()
     {
-        int[] stats = new int[8]
+        float[] stats = new float[8]
         {
             my_data.maxHP,
             my_data.performance,

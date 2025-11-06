@@ -477,6 +477,7 @@ public class CombatHUD : MonoBehaviour
         if (TargeterController2D.Instance)
             TargeterController2D.Instance.HideMoveRange();
         TurnManager.Instance?.RequestEndTurn();
+        controller.GetComponent<StatusComponent>()?.OnTurnEnded();
     }
 
     void TogglePause()

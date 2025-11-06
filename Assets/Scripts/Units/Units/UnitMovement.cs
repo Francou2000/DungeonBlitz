@@ -23,6 +23,9 @@ public class UnitMovement : MonoBehaviour
         unit.View.SetFacingDirection(dir);
         unit.View.PlayMoveStartNet(dir);
 
+        var sc = GetComponent<StatusComponent>();
+        if (sc != null && sc.IsRooted()) { Debug.Log("[Move] Blocked by Root"); return; }
+
         unit.StartCoroutine(MoveCoroutine(clampedTarget, oldPosition, speed, () =>
         {
             //After finishing movement, check for reactions
@@ -52,12 +55,9 @@ public class UnitMovement : MonoBehaviour
         }
         
         var from = oldPosition;   
-        var to = transform.position; 
+        var to = transform.position;
 
-        if (unit != null && unit.Model?.statusHandler != null)
-        {
-            unit.Model.statusHandler.OnMove(unit, from, to);
-        }
+        GetComponent<StatusComponent>()?.OnMoved();
 
         // (re)enable reactions call here as well, immediately after move:
         ReactionManager.Instance?.TryTriggerReactions(unit, from);

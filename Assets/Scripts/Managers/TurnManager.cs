@@ -338,15 +338,6 @@ public class TurnManager : MonoBehaviourPunCallbacks
 
     private void AdvanceTurn()
     {
-        // Notify end-of-turn for ALL units of the faction that is ending now
-        foreach (var unit in UnityEngine.Object.FindObjectsByType<Unit>(FindObjectsSortMode.None))
-        {
-            if (unit.Model.Faction == currentTurn && unit.Model.statusHandler != null)
-            {
-                unit.Model.statusHandler.OnEndTurn(unit);
-            }
-        }
-
         currentTurn = GetOpposingFaction(currentTurn);
         turnNumber++;
         turnTimer = 0f;

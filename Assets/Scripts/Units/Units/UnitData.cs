@@ -14,7 +14,7 @@ public class UnitData : ScriptableObject
     
     [Header("Core Stats")]
     public int maxHP;
-    public int performance;
+    public float performance;
     public int affinity;
     public int armor;
     public int magicResistance;

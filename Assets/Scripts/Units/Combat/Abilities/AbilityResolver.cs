@@ -68,32 +68,6 @@ public sealed class AbilityResolver : MonoBehaviourPun
             }
         }
 
-        // --- Tags on caster ---
-        if (ability.requiredTags != null)
-        {
-            foreach (var tag in ability.requiredTags)
-            {
-                if (!caster.Model.statusHandler.HasTag(tag))
-                {
-                    reason = $"Requires {tag}";
-                    Debug.Log($"[Cast] FAIL: {reason}");
-                    return false;
-                }
-            }
-        }
-
-        if (caster.Model.statusHandler.HasTag("Taunted")
-            && targets != null && targets.Length > 0 && targets[0] != null)
-        {
-            int tv = targets[0].GetComponent<PhotonView>()?.ViewID ?? -1;
-            if (!caster.Model.statusHandler.IsTauntedTo(tv))
-            {
-                reason = "Taunted: must target the taunter";
-                Debug.Log($"[Cast] FAIL: {reason}");
-                return false;
-            }
-        }
-
         // --- Targeting filters (only enforced if the fields exist on your UnitAbility) ---
 
         // Handle different targeting types
@@ -157,14 +131,39 @@ public sealed class AbilityResolver : MonoBehaviourPun
         {
             foreach (var tag in ability.requiredTargetTags)
             {
-                if (!targets[0].Model.statusHandler.HasTag(tag))
+                if (!HasTag(targets[0], tag))
                 {
                     reason = $"Target must have {tag}";
-                    Debug.Log($"[Cast] FAIL: {reason}");
                     return false;
                 }
             }
         }
+
+        // --- Tags on caster ---
+        if (ability.requiredTags != null)
+        {
+            foreach (var tag in ability.requiredTags)
+            {
+                if (!HasTag(caster, tag))
+                {
+                    reason = $"Requires {tag}";
+                    return false;
+                }
+            }
+        }
+
+        // --- Taunt gate ---
+        if (HasTag(caster, "Taunted") && targets != null && targets.Length > 0 && targets[0] != null)
+        {
+            int tv = targets[0].GetComponent<PhotonView>()?.ViewID ?? -1;
+            var scCaster = caster.GetComponent<StatusComponent>();
+            if (scCaster != null && !scCaster.IsTauntedTo(tv))
+            {
+                reason = "Taunted: must target the taunter";
+                return false;
+            }
+        }
+
 
         // --- Range ---
         if (!groundTarget && targets != null && targets.Length > 0 && targets[0] != null)
@@ -746,19 +745,23 @@ public sealed class AbilityResolver : MonoBehaviourPun
             }
 
             // Elemental proc → status
-            if (elementalProcs != null && i < elementalProcs.Length)
+            if (PhotonNetwork.IsMasterClient && elementalProcs != null && i < elementalProcs.Length)
             {
-                switch (elementalProcs[i])
+                var sc = target.GetComponent<StatusComponent>();
+                if (sc != null)
                 {
-                    case 1: target.Model.statusHandler?.ApplyEffect(EffectLibrary.Burning(1)); break;
-                    case 2: target.Model.statusHandler?.ApplyEffect(EffectLibrary.Frozen(1)); break;
-                    case 3: target.Model.statusHandler?.ApplyEffect(EffectLibrary.Shocked(1)); break;
+                    switch (elementalProcs[i])
+                    {
+                        case 1: sc.Apply(EffectLibrary.Burn(casterCtrl.photonView.ViewID, 2)); break; // Fire
+                        case 2: sc.Apply(EffectLibrary.Freeze(1)); break;                              // Frost
+                        case 3: sc.Apply(EffectLibrary.Shock(1)); break;                               // Electric
+                    }
                 }
             }
         }
 
-        // Apply attached effects from the ability — ONLY on hit
-        if (casterCtrl != null && targetViewIds != null && targetViewIds.Length > 0)
+        // Apply attached effects from the ability — ONLY on hit LEGACY
+        /*if (PhotonNetwork.IsMasterClient && casterCtrl != null && targetViewIds != null && targetViewIds.Length > 0)
         {
             var list = casterCtrl.unit.Model.Abilities;
             if (abilityIndex >= 0 && abilityIndex < list.Count)
@@ -766,25 +769,27 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 var ab = list[abilityIndex];
                 if (ab.appliedEffects != null && ab.appliedEffects.Count > 0)
                 {
-                    for (int i = 0; i < targetViewIds.Length; i++)
+                    for (int i2 = 0; i2 < targetViewIds.Length; i2++)
                     {
-                        if (hits == null || i >= hits.Length || !hits[i]) continue;
+                        if (hits == null || i2 >= hits.Length || !hits[i2]) continue;
 
-                        var target = FindByView<Unit>(targetViewIds[i]);
-                        if (target == null) continue;
+                        var tgtUC = FindByView<UnitController>(targetViewIds[i2]);
+                        if (tgtUC == null) continue;
 
-                        var handler = target.GetComponent<StatusEffectHandler>();
-                        if (handler == null) continue;
+                        var sc = tgtUC.GetComponent<StatusComponent>();
+                        if (sc == null) continue;
 
                         foreach (var eff in ab.appliedEffects)
                         {
                             if (Random.Range(0f, 100f) <= ab.statusEffectChance)
-                                handler.ApplyEffect(eff);
+                            {
+                                var v2 = ConvertLegacyEffectToV2(eff, casterCtrl, tgtUC); 
+                            }
                         }
                     }
                 }
             }
-        }
+        }*/
 
         // Handle completely missed attacks (no hit at all)
         if (hits != null && targetViewIds != null)
@@ -891,9 +896,10 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 Debug.Log($"[RPC_ApplyHealing] Healed {unit.name} for {heal}");
             }
 
-            if (barrier > 0 && unit.Model.statusHandler != null)
+            if (barrier > 0)
             {
-                unit.Model.statusHandler.AddBarrier(barrier);
+                var sc = unit.GetComponent<StatusComponent>();
+                if (sc != null) sc.Apply(EffectLibrary.Barrier(barrier, 2));
                 Debug.Log($"[RPC_ApplyHealing] Barrier {barrier} to {unit.name}");
             }
         }
@@ -1038,5 +1044,62 @@ public sealed class AbilityResolver : MonoBehaviourPun
              || ab.isMixedDamage
              || ab.bonusPerMissingHpPercent > 0
              || ab.useTargetMissingHealth;
+    }
+
+    public void ResolveDamageServerOnly(UnitController target, int amount, DamageType type, int casterViewId = -1, int abilityIndex = -1)
+    {
+        if (!Photon.Pun.PhotonNetwork.IsMasterClient) return;
+        if (target == null || target.model == null) return;
+
+        // Apply on master using your existing barrier path
+        int dealt = target.model.ApplyDamageWithBarrier(amount, type);
+        Debug.Log($"[V2] MASTER dealt {dealt} ({type}) to {target.name} (server-only helper)");
+
+        // Mirror to other clients (use -1 when there is no specific ability; RPC handles it)
+        photonView.RPC(nameof(RPC_ApplyDamageToClient), RpcTarget.Others,
+                       target.photonView.ViewID, amount, (int)type, casterViewId, abilityIndex);
+    }
+
+    public int ResolveHealingServerOnly(UnitController target, int amount, int casterViewId = -1, int abilityIndex = -1)
+    {
+        if (!Photon.Pun.PhotonNetwork.IsMasterClient) return 0;
+        if (target == null || target.model == null) return 0;
+
+        // Use your existing heal path
+        int before = target.model.CurrentHP;
+        target.model.Heal(amount);
+        int applied = target.model.CurrentHP - before;
+        Debug.Log($"[V2] MASTER healed {applied} on {target.name} (server-only helper)");
+
+        // Mirror to other clients using your array-based RPC
+        photonView.RPC(nameof(RPC_ApplyHealingToClient), RpcTarget.Others,
+                       casterViewId, abilityIndex,
+                       new int[] { target.photonView.ViewID },   // targets
+                       new int[] { applied },                    // heals
+                       new int[] { 0 }                           // barriers
+                       );
+        return applied;
+    }
+
+    private static bool HasTag(Unit u, string tag)
+    {
+        if (u == null) return false;
+        var sc = u.GetComponent<StatusComponent>();
+        if (sc == null || string.IsNullOrEmpty(tag)) return false;
+
+        switch (tag)
+        {
+            case "Taunt":
+            case "Taunted": return sc.Has(StatusType.Taunt);
+            case "Frozen": return sc.Has(StatusType.Freeze);
+            case "Rooted": return sc.Has(StatusType.Root);
+            case "Barrier": return sc.Has(StatusType.Barrier);
+            case "Incandescent": return sc.Has(StatusType.Incandescent);
+            case "Enraged": return sc.Has(StatusType.Enraged);
+            case "Bleeding": return sc.Has(StatusType.Bleed);
+            case "Haste": return sc.Has(StatusType.Haste);
+            case "Shocked": return sc.Has(StatusType.Shock);
+            default: return false;
+        }
     }
 }

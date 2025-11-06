@@ -120,7 +120,7 @@ public class ZoneManager : MonoBehaviour
         var u = PhotonView.Find(unitViewId)?.GetComponent<Unit>();
         if (u == null) return;
 
-        u.Model.statusHandler?.ApplyEffect(EffectLibrary.Haste(hasteDuration));
+       // u.Model.statusHandler?.ApplyEffect(EffectLibrary.Haste(hasteDuration));
     }
 
     [PunRPC]
@@ -131,8 +131,8 @@ public class ZoneManager : MonoBehaviour
 
         if (damage > 0) u.Model.ApplyDamageWithBarrier(damage, DamageType.Magical); // lightning ? magical
 
-        if (shockChance > 0 && Random.Range(0f, 100f) <= shockChance)
-            u.Model.statusHandler?.ApplyEffect(EffectLibrary.Shocked(1));
+        if (shockChance > 0 && Random.Range(0f, 100f) <= shockChance) return;
+     //       u.Model.statusHandler?.ApplyEffect(EffectLibrary.Shock(1));
     }
 
     // === Queries ===

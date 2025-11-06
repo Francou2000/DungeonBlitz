@@ -1,57 +1,38 @@
-using System;
-using System.Collections.Generic;
-using UnityEngine;
-
-public enum StatusEffectType
+/// Runtime instance applied to a unit (authoritative on master).
+[System.Serializable]
+public sealed class StatusEffect
 {
-    Buff,
-    Debuff,
-    Condition
-}
+    public StatusType type;
+    public string name;              // display/debug
+    public int sourceViewId;         // who applied it (for Burn tick calc / taunt lock)
+    public int remainingTurns;       // decremented at end or start as specified (see handler)
+    public int aux;                  // general counter (e.g., Burn ticks)
+    public int barrierHP;            // barrier pool for this instance
 
-public enum StatModifier
-{
-    Strength,
-    Armor,
-    MagicPower,
-    MagicResistance,
-    Performance,
-    Affinity,
-    None
-}
+    // Buff/Debuff specifics
+    public Stat stat;
+    public int amount;               // integer delta (e.g., +2 STR, -2 Armor). For Performance, treat as %
+    public bool isDebuff;            // for UI tagging
 
-[Serializable]
-public class StatusEffect
-{
-    public string effectName;
-    public StatusEffectType type;
-    public StatModifier modifier;  // which stat it changes
-    public int amount;             // positive or negative
-    public int duration;           // in turns
+    // Action/AP deltas (Haste/Shock)
+    public int nextTurnActionsDelta; // applied at start of *owner’s* turn, lasts that turn
 
-    //whether multiple stacks are allowed and how many
-    public bool isStackable = false;
-    public int maxStacks = 0;   
+    // Movement control
+    public bool root;                // Root prevents Move
+    public int moveSpeedDeltaPct;    // +/-
 
-    // Simple tag system (e.g., "Bleeding", "Frozen", "Taunt", "Apprehended", "Incandescent")
-    public List<string> tags = new List<string>();
+    // Healing modifier (Poison-like, if you add it later)
+    public float healMultiplier = 1f;
 
-    // knobs interpreted by the handler
-    public int damagePerTurn = 0;         // damage per tick (start of turn)
-    public int barrierHP = 0;             // flat absorb pool added on apply
-    public int nextTurnActionsDelta;      // e.g., -1 for Shocked/Frozen
-    public int actionsBonus;              // e.g., +1 for Haste (immediate)
-    public float moveSpeedBuff;           // +% movement speed (0.25 = +25%)
-    public float moveSpeedDebuff;         // -% movement speed (0.5 = -50%)
-    public float healingMultiplier = 1f;  // e.g., Poison -> 0.5f (50% healing)
+    // Bleed on move
+    public int bleedDamageOnMove;
 
-    // Bleed special
-    public bool bleedBonusOnMove;
-    public int bleedMoveBonus;
+    // Taunt lock target
+    public int targetLockViewId;
 
-    // Taunt special
-    public int targetLockViewId;          // PV id of the taunter
+    // Incandescent tag (adds fire rider in your damage resolver)
+    public bool incandescent;
 
-    // Hook flags: the effect can respond to lifecycle/combat events
-    public bool onApply, onExpire, onStartTurn, onEndTurn, onMove, onBeforeHit, onAfterHit;
+    // Convenience factories clone “templates”; do not share instances.
+    public StatusEffect Clone() => (StatusEffect)this.MemberwiseClone();
 }

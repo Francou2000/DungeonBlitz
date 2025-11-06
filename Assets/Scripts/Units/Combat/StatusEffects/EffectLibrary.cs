@@ -1,130 +1,108 @@
-using System.Collections.Generic;
 using UnityEngine;
 
+/// Static constructors that return *new* runtime effects (cloneable if needed).
 public static class EffectLibrary
 {
-    // --- Stateless builders (clone per apply) ---
-
-    public static StatusEffect Bleeding(int duration = 2, int perHitBonus = 0)
+    public static StatusEffect Enraged(int duration = 2) => new()
     {
-        return new StatusEffect
-        {
-            duration = duration,
-            isStackable = true,
-            maxStacks = 5,
-            tags = new List<string> { "Bleeding" },
-            //tiny stat tweak; most of bleeding is "on end turn" damage 
-            onEndTurn = false, // we keep no-op for now (damage later)
-        };
-    }
+        type = StatusType.Enraged,
+        name = "Enraged",
+        remainingTurns = duration,
+        nextTurnActionsDelta = +1
+    };
 
-    public static StatusEffect Frozen(int duration = 1)
+    public static StatusEffect Bleed(int heavyOnMove) => new()
     {
-        return new StatusEffect
-        {
-            duration = duration,
-            isStackable = false,
-            tags = new List<string> { "Frozen" },
-            // Could gate movement/attacks via tags; hook behaviors later
-        };
-    }
+        type = StatusType.Bleed,
+        name = "Bleeding",
+        remainingTurns = 99,         // ends by rule if no move
+        bleedDamageOnMove = heavyOnMove
+    };
 
-    public static StatusEffect Burning(int duration = 1)
+    public static StatusEffect Taunt(int casterViewId, int duration = 2) => new()
     {
-        return new StatusEffect
-        {
-            duration = duration,
-            isStackable = false,
-            tags = new List<string> { "Burning" },
-            // Could gate movement/attacks via tags; hook behaviors later
-        };
-    }
+        type = StatusType.Taunt,
+        name = "Taunted",
+        remainingTurns = duration,
+        targetLockViewId = casterViewId
+    };
 
-    public static StatusEffect Shocked(int duration = 1)
+    public static StatusEffect Buff(Stat stat, int amount, int duration) => new()
     {
-        return new StatusEffect
-        {
-            duration = duration,
-            isStackable = true,
-            maxStacks = 3,
-            tags = new List<string> { "Shocked" },
-            // Use OnBeforeHit later to reduce hit or add chance to be stunned, etc.
-            onBeforeHit = false
-        };
-    }
+        type = StatusType.Buff,
+        name = $"Buff {stat}+{amount}",
+        remainingTurns = duration,
+        stat = stat,
+        amount = amount,
+        isDebuff = false
+    };
 
-    public static StatusEffect Slow(int duration = 1)
+    public static StatusEffect Debuff(Stat stat, int amount, int duration) => new()
     {
-        return new StatusEffect
-        {
-            duration = duration,
-            isStackable = false,
-            tags = new List<string> { "Slow" },
-            // Hook later to reduce move allowance
-        };
-    }
+        type = StatusType.Debuff,
+        name = $"Debuff {stat}{amount}",
+        remainingTurns = duration,
+        stat = stat,
+        amount = Mathf.Abs(amount),
+        isDebuff = true
+    };
 
-    public static StatusEffect Haste(int duration = 1)
+    public static StatusEffect Barrier(int hp, int duration = 2) => new()
     {
-        return new StatusEffect
-        {
-            duration = duration,
-            isStackable = false,
-            tags = new List<string> { "Haste" },
-            // Hook later to boost move/initiative
-        };
-    }
+        type = StatusType.Barrier,
+        name = "Barrier",
+        remainingTurns = duration,
+        barrierHP = Mathf.Max(1, hp)
+    };
 
-    public static StatusEffect Barrier(int hp, int duration = 2)
+    public static StatusEffect Incandescent(int duration = 2) => new()
     {
-        return new StatusEffect
-        {
-            duration = duration,
-            isStackable = true,
-            maxStacks = 99,
-            barrierHP = Mathf.Max(0, hp),
-            tags = new List<string> { "Barrier" }
-        };
-    }
+        type = StatusType.Incandescent,
+        name = "Incandescent",
+        remainingTurns = duration,
+        incandescent = true
+    };
 
-    public static StatusEffect Enraged(int duration = 1)
+    public static StatusEffect Root(int duration = 1) => new()
     {
-        return new StatusEffect
-        {
-            duration = duration,
-            isStackable = false,
-            tags = new List<string> { "Enraged" },
-            // Later: OnBeforeHit += dmg%, OnMove maybe force target, etc.
-        };
-    }
+        type = StatusType.Root,
+        name = "Rooted",
+        remainingTurns = duration,
+        root = true,
+        moveSpeedDeltaPct = -100
+    };
 
-    public static StatusEffect Taunt(int duration = 1)
+    public static StatusEffect Haste(int duration = 1) => new()
     {
-        return new StatusEffect
-        {
-            duration = duration,
-            isStackable = false,
-            tags = new List<string> { "Taunt" }
-        };
-    }
+        type = StatusType.Haste,
+        name = "Haste",
+        remainingTurns = duration,
+        nextTurnActionsDelta = +1,
+        moveSpeedDeltaPct = +20
+    };
 
-    public static StatusEffect Incandescent(int duration = 2)
+    public static StatusEffect Shock(int duration = 1) => new()
     {
-        return new StatusEffect
-        {
-            duration = duration,
-            isStackable = false,
-            tags = new List<string> { "Incandescent" }
-        };
-    }
+        type = StatusType.Shock,
+        name = "Shocked",
+        remainingTurns = duration,
+        nextTurnActionsDelta = -1
+    };
 
-    public static StatusEffect Apprehended(int duration = 1)
+    public static StatusEffect Burn(int sourceViewId, int ticks = 2) => new()
     {
-        return new StatusEffect
-        {
-            duration = duration,
-            isStackable = false,
-            tags = new List<string> { "Apprehended" }
-        };
-    }
+        type = StatusType.Burn,
+        name = "Burning",
+        sourceViewId = sourceViewId,
+        remainingTurns = ticks,
+        aux = ticks // ticks left
+    };
+
+    public static StatusEffect Freeze(int duration = 1) => new()
+    {
+        type = StatusType.Freeze,
+        name = "Frozen",
+        remainingTurns = duration
+        // Performance halving is implemented in your getters (see UnitModel patch)
+    };
 }

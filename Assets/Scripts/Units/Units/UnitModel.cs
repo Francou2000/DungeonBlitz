@@ -21,8 +21,6 @@ public class UnitModel : MonoBehaviour
     public List<UnitAbility> Abilities { get; private set; } = new();
     public List<UnitAbility> AdrenalineAbilities { get; private set; } = new();
 
-    public StatusEffectHandler statusHandler;
-
     [Header("Public Getters")]
     public string UnitName => unitData.unitName;
     public UnitFaction Faction => unitData.faction;
@@ -36,12 +34,12 @@ public class UnitModel : MonoBehaviour
     public int MaxReactions => unitData.reactionsPerTurn;
     public int CurrentReactions => currentReactions;
 
-    public int Performance => unitData.performance + statusHandler.GetStatBonus(StatModifier.Performance);
-    public int Affinity => unitData.affinity + statusHandler.GetStatBonus(StatModifier.Affinity);
-    public int Armor => unitData.armor + statusHandler.GetStatBonus(StatModifier.Armor);
-    public int MagicResistance => unitData.magicResistance + statusHandler.GetStatBonus(StatModifier.MagicResistance);
-    public int Strength => unitData.strength + statusHandler.GetStatBonus(StatModifier.Strength);
-    public int MagicPower => unitData.magicPower + statusHandler.GetStatBonus(StatModifier.MagicPower);
+    public float Performance => unitData.performance;
+    public int Affinity => unitData.affinity;
+    public int Armor => unitData.armor;
+    public int MagicResistance => unitData.magicResistance;
+    public int Strength => unitData.strength;
+    public int MagicPower => unitData.magicPower;
 
     public int Adrenaline => adrenaline;
     public int AdrenalineThreshold => unitData.adrenalineThreshold;
@@ -75,10 +73,6 @@ public class UnitModel : MonoBehaviour
         // Copy ability lists from SO to runtime
         Abilities = new List<UnitAbility>(unitData.abilities);
 
-        statusHandler = GetComponent<StatusEffectHandler>();
-        if (statusHandler == null)
-            Debug.LogWarning("[UnitModel] No StatusEffectHandler found on this unit.");
-
         EnsureResources();
         InitializeStartingResources();
         
@@ -103,13 +97,7 @@ public class UnitModel : MonoBehaviour
         currentReactions = MaxReactions;
 
         thisUnit = GetComponent<Unit>();
-        if (statusHandler != null)
-        {
-            // Fires per-unit when a faction’s turn begins
-            statusHandler.OnStartTurn(thisUnit);
-            StructureManager.Instance?.ApplyStartTurnAuras(thisUnit);
-            // statusHandler.TickEffectsAtTurnStart(); 
-        }
+        GetComponent<StatusComponent>()?.OnTurnBegan();
 
         CheckAdrenalineState();
     }
@@ -361,13 +349,14 @@ public class UnitModel : MonoBehaviour
     }
 
     public void Heal(int amount)
-    {   
-        if (statusHandler != null)
-            amount = statusHandler.ModifyIncomingHealing(amount);
+    {
+        var sc = GetComponent<StatusComponent>();
+        if (sc != null) amount = Mathf.FloorToInt(amount * sc.GetHealingMultiplierThisTurn());
+
         CombatFeedbackUI.ShowHeal(this.GetComponent<Unit>(), amount);
 
         int oldHP = currentHP;
-        currentHP = Mathf.Min(MaxHP, currentHP + amount);
+        currentHP = Mathf.Min(MaxHP, currentHP + Mathf.Max(0, amount));
         int actualHealing = currentHP - oldHP;
 
         if (actualHealing > 0)
@@ -381,21 +370,15 @@ public class UnitModel : MonoBehaviour
         if (incoming <= 0) return 0;
 
         int remaining = incoming;
-        int absorbed = 0;
 
-        if (statusHandler != null)
-        {
-            absorbed = statusHandler.ConsumeBarrier(remaining);
-            remaining -= absorbed;
-            if (absorbed > 0)
-                Debug.Log($"[Barrier] {UnitName} absorbed {absorbed}/{incoming}. Remaining to HP: {Mathf.Max(0, remaining)}");
-        }
+        // NEW V2: consume barrier from StatusComponent
+        var sc = GetComponent<StatusComponent>();
+        if (sc != null) remaining = sc.AbsorbWithBarrier(remaining, type);
 
-        if (remaining <= 0)
-            return 0; // fully absorbed ? 0 HP damage
+        if (remaining <= 0) return 0;
 
         TakeDamage(remaining, type);
-        return remaining; // return actual HP damage dealt
+        return remaining;
     }
 
     // Apply AP from network (called by RPC on all clients).
@@ -460,5 +443,20 @@ public class UnitModel : MonoBehaviour
         
         // Add promotion bonuses
         AddAdrenaline(MaxAdrenaline, "promotion");
+    }
+
+    public int GetMaxActionsThisTurn() //  helper for HUD/turn calc
+    {
+        var sc = GetComponent<StatusComponent>();
+        int delta = sc ? sc.GetAPDeltaForThisTurn() : 0;
+        return Mathf.Max(0, MaxActions + delta);
+    }
+
+    public float GetPerformanceForMove() //  freeze penalty hook
+    {
+        var sc = GetComponent<StatusComponent>();
+        float perf = unitData.performance;
+        if (sc && sc.Has(StatusType.Freeze)) perf *= 0.5f;
+        return perf;
     }
 }
