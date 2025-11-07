@@ -17,6 +17,11 @@ public class StatusComponent : MonoBehaviourPun
     private float _healingMultThisTurn = 1f;
     private bool _movedThisTurn;
 
+    public event System.Action<StatusEffect> OnEffectApplied;
+    public event System.Action<StatusEffect> OnEffectRemoved;
+
+    public IEnumerable<StatusEffect> ActiveEffects => _active;
+
     void Awake()
     {
         if (!controller) controller = GetComponent<UnitController>();
@@ -46,13 +51,27 @@ public class StatusComponent : MonoBehaviourPun
         }
 
         _active.Add(e);
+        OnEffectApplied?.Invoke(e);
+        Debug.Log($"[Barrier][Apply] {controller.name} barrierHP={e.barrierHP} dur={e.remainingTurns} stacks={_active.Count(x => x.type == StatusType.Barrier)}");
+
         Mirror();
     }
 
     public void Remove(StatusType t)
     {
         if (!PhotonNetwork.IsMasterClient) return;
-        _active.RemoveAll(x => x.type == t);
+
+        // walk backwards so we can RemoveAt safely
+        for (int i = _active.Count - 1; i >= 0; i--)
+        {
+            if (_active[i].type == t)
+            {
+                var removed = _active[i];          // keep the instance
+                _active.RemoveAt(i);
+                OnEffectRemoved?.Invoke(removed);  // notify with the effect, not the enum
+            }
+        }
+
         Mirror();
     }
 
@@ -147,6 +166,7 @@ public class StatusComponent : MonoBehaviourPun
     {
         if (incoming <= 0) return 0;
         if (!PhotonNetwork.IsMasterClient) return incoming;
+        Debug.Log($"[Barrier][Absorb] {controller.name} incoming={incoming} pools={_active.Count(x => x.type == StatusType.Barrier)}");
 
         foreach (var e in _active)
         {
@@ -154,11 +174,13 @@ public class StatusComponent : MonoBehaviourPun
             int used = Mathf.Min(incoming, e.barrierHP);
             e.barrierHP -= used;
             incoming -= used;
+            Debug.Log($"[Barrier][Use] used={used} leftPool={e.barrierHP} incomingLeft={incoming}");
             if (incoming <= 0) break;
         }
 
         // Remove exhausted barrier effects
         _active.RemoveAll(x => x.type == StatusType.Barrier && x.barrierHP <= 0);
+        Debug.Log($"[Barrier][After] {controller.name} remaining={incoming}");
         Mirror();
         return incoming;
     }

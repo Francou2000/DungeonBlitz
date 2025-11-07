@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class UnitModel : MonoBehaviour
@@ -369,16 +369,14 @@ public class UnitModel : MonoBehaviour
     {
         if (incoming <= 0) return 0;
 
-        int remaining = incoming;
-
-        // NEW V2: consume barrier from StatusComponent
+        Debug.Log($"[Damage] {UnitName} incoming={incoming} type={type}");
         var sc = GetComponent<StatusComponent>();
-        if (sc != null) remaining = sc.AbsorbWithBarrier(remaining, type);
+        if (sc != null) incoming = sc.AbsorbWithBarrier(incoming, type);
+        Debug.Log($"[Damage] {UnitName} post-barrier={incoming}");
 
-        if (remaining <= 0) return 0;
-
-        TakeDamage(remaining, type);
-        return remaining;
+        if (incoming <= 0) return 0;          // check the updated amount
+        TakeDamage(incoming, type);            // deal the updated amount
+        return incoming;                       // return the updated amount
     }
 
     // Apply AP from network (called by RPC on all clients).

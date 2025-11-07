@@ -20,6 +20,13 @@ MonoBehaviour:
   actionCost: 1
   adrenalineCost: 0
   resourceCosts: []
+  effects:
+  - effect: 3
+    target: 1
+    chancePct: 100
+    duration: 2
+    amount: 15
+    stat: 0
   minAdrenaline: 0
   requiredStates: []
   requiredTags: []
@@ -38,31 +45,13 @@ MonoBehaviour:
   bonusPerMissingHpPercent: 0
   damageSource: 1
   baseDamage: 0
-  damageMultiplier: 1
+  damageMultiplier: 0
   bonusDamage: 0
   hits: 1
   useTargetMissingHealth: 0
   missingHealthPercentage: 0
   canChain: 0
   chainRange: 0
-  appliedEffects:
-  - type: 2
-    name: 
-    sourceViewId: 0
-    remainingTurns: 0
-    aux: 0
-    barrierHP: 0
-    stat: 0
-    amount: 0
-    isDebuff: 0
-    nextTurnActionsDelta: 0
-    root: 0
-    moveSpeedDeltaPct: 0
-    healMultiplier: 1
-    bleedDamageOnMove: 0
-    targetLockViewId: 0
-    incandescent: 0
-  statusEffectChance: 100
   healsTarget: 0
   healAmount: 0
   healPercentage: 0

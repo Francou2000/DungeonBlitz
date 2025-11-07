@@ -37,6 +37,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 7a0e7757103d94b40b90b8887631906c, type: 2}
   - {fileID: 11400000, guid: 90953e9d8e4f64243a1c7f1148b488d7, type: 2}
   - {fileID: 11400000, guid: 62b01ce7864378943bed2426aa5188d6, type: 2}
+  - {fileID: 11400000, guid: 2f518e92cb270f542bb2f3b508554543, type: 2}
   startingForm: Frost
   startingWeapon: Staff
   isTrainingDummy: 0

@@ -760,36 +760,30 @@ public sealed class AbilityResolver : MonoBehaviourPun
             }
         }
 
-        // Apply attached effects from the ability — ONLY on hit LEGACY
-        /*if (PhotonNetwork.IsMasterClient && casterCtrl != null && targetViewIds != null && targetViewIds.Length > 0)
+        // ---  route ability-driven status effects (self + on-hit) ---
+        if (casterCtrl != null)
         {
+            // get the UnitAbility this cast used
+            UnitAbility ability = null;
             var list = casterCtrl.unit.Model.Abilities;
-            if (abilityIndex >= 0 && abilityIndex < list.Count)
+            if (abilityIndex >= 0 && abilityIndex < list.Count) ability = list[abilityIndex];
+
+            if (ability != null)
             {
-                var ab = list[abilityIndex];
-                if (ab.appliedEffects != null && ab.appliedEffects.Count > 0)
+                // build UnitController list from target ids
+                var targetsUC = new List<UnitController>(targetViewIds?.Length ?? 0);
+                if (targetViewIds != null)
                 {
-                    for (int i2 = 0; i2 < targetViewIds.Length; i2++)
+                    for (int t = 0; t < targetViewIds.Length; t++)
                     {
-                        if (hits == null || i2 >= hits.Length || !hits[i2]) continue;
-
-                        var tgtUC = FindByView<UnitController>(targetViewIds[i2]);
-                        if (tgtUC == null) continue;
-
-                        var sc = tgtUC.GetComponent<StatusComponent>();
-                        if (sc == null) continue;
-
-                        foreach (var eff in ab.appliedEffects)
-                        {
-                            if (Random.Range(0f, 100f) <= ab.statusEffectChance)
-                            {
-                                var v2 = ConvertLegacyEffectToV2(eff, casterCtrl, tgtUC); 
-                            }
-                        }
+                        var uc = FindByView<UnitController>(targetViewIds[t]);
+                        if (uc != null) targetsUC.Add(uc);
                     }
                 }
+
+                RouteAbilityEffects(casterCtrl, targetsUC, ability, hits);
             }
-        }*/
+        }
 
         // Handle completely missed attacks (no hit at all)
         if (hits != null && targetViewIds != null)
@@ -1101,5 +1095,71 @@ public sealed class AbilityResolver : MonoBehaviourPun
             case "Shocked": return sc.Has(StatusType.Shock);
             default: return false;
         }
+    }
+
+    // Apply to one unit (MASTER only)
+    void ApplyEffect(UnitController target, StatusEffect e)
+    {
+        if (!PhotonNetwork.IsMasterClient || target == null || e == null) return;
+        var sc = target.GetComponent<StatusComponent>() ?? target.gameObject.AddComponent<StatusComponent>();
+        Debug.Log($"[Apply] to={target.name} type={e.type} barrierHP={e.barrierHP} dur={e.remainingTurns}");
+        sc.Apply(e);
+    }
+
+    // Turn one directive row into a concrete runtime effect
+    StatusEffect MapDirectiveToEffect(AbilityEffectDirective d, UnitController caster)
+    {
+        Debug.Log($"[Map] {d.effect} target={d.target} dur={d.duration} amt={d.amount} chance={d.chancePct}");
+        switch (d.effect)
+        {
+            case EffectId.Enraged: return EffectLibrary.Enraged(d.duration);
+            case EffectId.Bleed: return EffectLibrary.Bleed(d.amount > 0 ? d.amount : 6);
+            case EffectId.Taunt: return EffectLibrary.Taunt(caster.photonView.ViewID, d.duration);
+            case EffectId.Barrier: return EffectLibrary.Barrier(Mathf.Max(1, d.amount), d.duration);
+            case EffectId.Incandescent: return EffectLibrary.Incandescent(d.duration);
+            case EffectId.Root: return EffectLibrary.Root(d.duration);
+            case EffectId.Shock: return EffectLibrary.Shock(d.duration);
+            case EffectId.Burn: return EffectLibrary.Burn(caster.photonView.ViewID, Mathf.Max(1, d.duration));
+            case EffectId.Freeze: return EffectLibrary.Freeze(d.duration);
+            case EffectId.Buff: return EffectLibrary.Buff(d.stat, d.amount, d.duration);
+            case EffectId.Debuff: return EffectLibrary.Debuff(d.stat, d.amount, d.duration);
+            default: return null;
+        }
+    }
+
+    // Route all directives for this ability: do self first, then per-hit targets
+    void RouteAbilityEffects(UnitController caster, List<UnitController> targets, UnitAbility ability, bool[] hitFlags)
+    {
+        if (!PhotonNetwork.IsMasterClient || ability == null) return;
+        int n = ability.effects != null ? ability.effects.Count : 0;
+        Debug.Log($"[Router] ability={ability.abilityName} directives={n}");
+        if (n == 0) return;
+
+        // Self once
+        foreach (var row in ability.effects)
+        {
+            if (row == null || row.target != EffectTarget.Self) continue;
+            if (UnityEngine.Random.Range(1, 101) > row.chancePct) continue;
+            var eff = MapDirectiveToEffect(row, caster);
+            ApplyEffect(caster, eff);
+        }
+
+        // Per-hit
+        if (targets == null || targets.Count == 0) return;
+        for (int i = 0; i < targets.Count; i++)
+        {
+            bool wasHit = (hitFlags == null || hitFlags.Length == 0) || (i < hitFlags.Length && hitFlags[i]);
+            if (!wasHit) continue;
+
+            var t = targets[i];
+            foreach (var row in ability.effects)
+            {
+                if (row == null || row.target != EffectTarget.HitTarget) continue;
+                if (UnityEngine.Random.Range(1, 101) > row.chancePct) continue;
+                var eff = MapDirectiveToEffect(row, caster);
+                ApplyEffect(t, eff);
+            }
+        }
+
     }
 }

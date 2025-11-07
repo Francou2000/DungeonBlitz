@@ -37,8 +37,23 @@ public enum AreaType
     Circle 
 }
 
-    [System.Serializable]
-    public struct ResourceCost { public string key; public int amount; }
+public enum EffectTarget { Self, HitTarget }
+
+public enum EffectId { Enraged, Bleed, Taunt, Barrier, Incandescent, Root, Shock, Burn, Freeze, Buff, Debuff }
+
+[System.Serializable]
+public struct ResourceCost { public string key; public int amount; }
+
+[System.Serializable]
+public class AbilityEffectDirective
+{
+    public EffectId effect = EffectId.Bleed;      // what to apply
+    public EffectTarget target = EffectTarget.HitTarget; // self or per-hit target
+    [Range(0, 100)] public int chancePct = 100;    // roll per application
+    public int duration = 1;                      // general duration
+    public int amount = 0;                        // barrierHP, bleedOnMove, buff amount, etc.
+    public Stat stat = Stat.None;                 // used for Buff/Debuff
+}
 
 [System.Serializable]
 public class UnitAbility : ScriptableObject
@@ -57,6 +72,8 @@ public class UnitAbility : ScriptableObject
 
 
     public List<ResourceCost> resourceCosts = new List<ResourceCost>();
+
+    public List<AbilityEffectDirective> effects = new List<AbilityEffectDirective>();
 
     // Require the caster to have this adrenaline threshold
     public int minAdrenaline;
@@ -100,10 +117,10 @@ public class UnitAbility : ScriptableObject
     public float missingHealthPercentage = 0f;
     public bool canChain = false;
     public float chainRange = 0f;
-
+    /*
     [Header("Status Effects")]
     public List<StatusEffect> appliedEffects = new List<StatusEffect>();
-    public float statusEffectChance = 100f;
+    public float statusEffectChance = 100f;*/
 
     [Header("Healing & Support")]
     public bool healsTarget = false;
