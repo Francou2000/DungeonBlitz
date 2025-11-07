@@ -20,8 +20,15 @@ public class StatusIconsWorld : MonoBehaviour
     Renderer _rend;
     readonly Dictionary<StatusType, Image> _active = new();
 
+    float _refreshTimer;
+
     void Awake() { _cam = Camera.main; }
-    public void Bind(Unit u) { targetUnit = u; Hook(); }
+    public void Bind(Unit u)
+    {
+        targetUnit = u;
+        Debug.Log($"[StatusIconsWorld] Bind -> {u.name}");
+        Hook();
+    }
 
     void OnEnable() { Hook(); }
     void OnDisable() { Unhook(); }
@@ -62,15 +69,19 @@ public class StatusIconsWorld : MonoBehaviour
         if (useRendererBounds && _rend) { var b = _rend.bounds; p = new Vector3(b.center.x, b.max.y, 0f); }
         p.y += worldOffset.y + extraHeight; p.z = 0f;
         transform.position = p;
+
+        _refreshTimer += Time.deltaTime;
+        if (_refreshTimer > 0.25f) { _refreshTimer = 0f; RefreshFromList(); }
     }
 
     void OnApplied(StatusEffect e)
     {
+        Debug.Log($"[StatusIconsWorld] OnApplied {e.type} -> {targetUnit?.name}");
         var t = e.type;
         if (_active.ContainsKey(t)) { Bump(_active[t]); return; }
 
         var sprite = library ? library.Get(t) : null;
-        if (!sprite) return; // no icon configured → silent skip
+        if (!sprite) { Debug.Log($"[StatusIconsWorld] No sprite for {t}"); return; }
 
         var img = Instantiate(iconPrefab, container);
         img.sprite = sprite;
@@ -80,9 +91,9 @@ public class StatusIconsWorld : MonoBehaviour
 
     void OnRemoved(StatusEffect e)
     {
-        var t = e.type;
-        if (_active.TryGetValue(t, out var img) && img) Destroy(img.gameObject);
-        _active.Remove(t);
+        Debug.Log($"[StatusIconsWorld] OnRemoved {e.type} -> {targetUnit?.name}");
+        if (_active.TryGetValue(e.type, out var img) && img) Destroy(img.gameObject);
+        _active.Remove(e.type);
     }
 
     void Bump(Image img)
@@ -108,5 +119,34 @@ public class StatusIconsWorld : MonoBehaviour
             yield return null;
         }
         rt.localScale = b;
+    }
+
+    public void RefreshFromList()
+    {
+        if (!targetUnit) return;
+        var sc = targetUnit.GetComponent<StatusComponent>();
+        if (sc == null) return;
+
+        // build current set
+        var wanted = new HashSet<StatusType>();
+        foreach (var e in sc.ActiveEffects) wanted.Add(e.type);
+
+        // remove stale
+        var toRemove = new List<StatusType>();
+        foreach (var kv in _active) if (!wanted.Contains(kv.Key)) toRemove.Add(kv.Key);
+        foreach (var t in toRemove) { if (_active.TryGetValue(t, out var img) && img) Destroy(img.gameObject); _active.Remove(t); }
+
+        // add missing
+        foreach (var e in sc.ActiveEffects)
+        {
+            if (_active.ContainsKey(e.type)) continue;
+            var sprite = library ? library.Get(e.type) : null;
+            if (!sprite) { Debug.Log($"[Icons] No sprite mapped for {e.type}"); continue; }
+            var img = Instantiate(iconPrefab, container);
+            img.sprite = sprite;
+            img.gameObject.SetActive(true);
+            _active[e.type] = img;
+            Debug.Log($"[Icons] Refresh add {e.type} -> {targetUnit.name}");
+        }
     }
 }

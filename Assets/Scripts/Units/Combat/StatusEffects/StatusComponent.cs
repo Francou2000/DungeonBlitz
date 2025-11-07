@@ -209,7 +209,6 @@ public class StatusComponent : MonoBehaviourPun
     byte[] Serialize()
     {
         // Compact payload (type, name, remaining, aux, barrierHP, stat, amount, flags).
-        // Keep simple: JSON is fine for now; optimize later if needed.
         var dto = _active.Select(e => new EffectDTO(e)).ToList();
         return System.Text.Encoding.UTF8.GetBytes(JsonUtility.ToJson(new EffectList { list = dto }));
     }
@@ -217,13 +216,31 @@ public class StatusComponent : MonoBehaviourPun
     [PunRPC]
     void RPC_Mirror(byte[] data)
     {
-        if (PhotonNetwork.IsMasterClient) return; // master is source
+        if (PhotonNetwork.IsMasterClient) return; // master already knows
+
+        // keep old list to raise removals
+        var old = new List<StatusEffect>(_active);
+
         var json = System.Text.Encoding.UTF8.GetString(data);
-        var dtoList = JsonUtility.FromJson<EffectList>(json);
+        var parsed = JsonUtility.FromJson<EffectList>(json);
+
         _active.Clear();
-        if (dtoList?.list != null)
-            foreach (var dto in dtoList.list) _active.Add(dto.ToRuntime());
-        // No gameplay on clients; UI can read _active for icons.
+
+        // notify removals
+        if (old != null)
+            foreach (var was in old)
+                OnEffectRemoved?.Invoke(was);
+
+        // fill new list + notify applies
+        if (parsed?.list != null)
+        {
+            foreach (var dto in parsed.list)
+            {
+                var e = dto.ToRuntime();
+                _active.Add(e);
+                OnEffectApplied?.Invoke(e);    // now UI hears about it on clients
+            }
+        }
     }
 
     [System.Serializable] class EffectList { public List<EffectDTO> list; }
