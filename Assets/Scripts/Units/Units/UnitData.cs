@@ -14,6 +14,7 @@ public class UnitData : ScriptableObject
     
     [Header("Core Stats")]
     public int maxHP;
+    [Range(0, 2)]
     public int performance;
     public int affinity;
     public int armor;
