@@ -1,7 +1,8 @@
 using Photon.Pun;
+using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class HeroesShopManager : MonoBehaviourPunCallbacks
 {
@@ -21,8 +22,11 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
     [Header("Shop time (seconds)")]
     [SerializeField] float time_limit;
     float time = 0;
+    public int volatile_seconds;
 
     [Header("Items")]
+    [SerializeField] ItemRarityWeigt[] rarity_weigts;
+    Dictionary<Rarity, int> rarity_weigt;
     [SerializeField] GameObject item_prefab;
     [SerializeField] ItemData[] items_paladin;
     [SerializeField] ItemData[] items_sorcerer;
@@ -50,10 +54,23 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
     [SerializeField] GameObject purchase_button;
     [SerializeField] GameObject try_purchase_button;
 
-    public int sec;
 
     void Start()
     {
+        if (UnitLoaderController.Instance.lvl == 2)
+        {
+            foreach (ItemRarityWeigt rar in rarity_weigts)
+            {
+                rarity_weigt[rar.rarity] = rar.weigt_shop_1;
+            }
+        }
+        if (UnitLoaderController.Instance.lvl == 3)
+        {
+            foreach (ItemRarityWeigt rar in rarity_weigts)
+            {
+                rarity_weigt[rar.rarity] = rar.weigt_shop_2;
+            }
+        }
         if (!PhotonNetwork.IsMasterClient) return;
         SpawnHeroesItems();
         SpawnRandomItems();
@@ -86,7 +103,7 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
     {
         for (int i = 0; i < r_item_pedestals.Length; i++)
         {
-            if (Random.Range(0, 100) < r_empty_chance) continue;
+            if (UnityEngine.Random.Range(0, 100) < r_empty_chance) continue;
             ItemData item = GetRandomItem();
             SpawnItem(r_item_pedestals[i], item);
 
@@ -102,8 +119,8 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
     {
         for (int i = 0; i < c_item_pedestals.Length; i++)
         {
-            if (Random.Range(0, 10) < c_empty_chance) continue;
-            ItemData item = items_consumable[Random.Range(0, items_consumable.Length)];
+            if (UnityEngine.Random.Range(0, 10) < c_empty_chance) continue;
+            ItemData item = items_consumable[UnityEngine.Random.Range(0, items_consumable.Length)];
             SpawnItem(c_item_pedestals[i], item);
 
 
@@ -120,19 +137,19 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
         switch (item_pool)
         {
             case HeroesList.Paladin:
-                id =  Random.Range(0, items_paladin.Length);
+                id =  UnityEngine.Random.Range(0, items_paladin.Length);
                 return items_paladin[id];
             case HeroesList.Elementalist:
-                id = Random.Range(0, items_elementalist.Length);
+                id = UnityEngine.Random.Range(0, items_elementalist.Length);
                 return items_elementalist[id];
             case HeroesList.Sorcerer:
-                id = Random.Range(0, items_sorcerer.Length);
+                id = UnityEngine.Random.Range(0, items_sorcerer.Length);
                 return items_sorcerer[id];
             case HeroesList.Rogue:
-                id = Random.Range(0, items_rogue.Length);
+                id = UnityEngine.Random.Range(0, items_rogue.Length);
                 return items_rogue[id];
             case HeroesList.None:
-                return GetRandomItem((HeroesList)Random.Range(1, 5));
+                return GetRandomItem((HeroesList)UnityEngine.Random.Range(1, 5));
         }
         Debug.LogError("Error al generar item random");
         return null;
@@ -159,8 +176,8 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
         item_to_buy_ui.SetActive(true);
         item_name.text = item.name;
 
-        item_cost.text = "Cost: " + item.cost.ToString() + "s - " + sec + "vs available";
-        if (item.cost <= sec)
+        item_cost.text = "Cost: " + item.cost.ToString() + "s - " + volatile_seconds + "vs available";
+        if (item.cost <= volatile_seconds)
         {
             purchase_button.SetActive(true);
             try_purchase_button.SetActive(false);
@@ -171,7 +188,7 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
             purchase_button.SetActive(false);
         }
 
-            string hp = item.maxHP > 0 ? " +" + item.maxHP.ToString() + " HP" : item.maxHP < 0 ? " -" + item.maxHP.ToString() + " HP" : "";
+        string hp = item.maxHP > 0 ? " +" + item.maxHP.ToString() + " HP" : item.maxHP < 0 ? " -" + item.maxHP.ToString() + " HP" : "";
         string performance     = item.performance     > 0 ? " +" + item.performance.ToString()     + " performance"     : item.performance     < 0 ? " -" + item.performance.ToString()     + " performance"     : "";
         string affinity        = item.maxHP           > 0 ? " +" + item.affinity.ToString()        + " affinity"        : item.affinity        < 0 ? " -" + item.affinity.ToString()        + " affinity"        : "";
         string armor           = item.armor           > 0 ? " +" + item.armor.ToString()           + " armor"           : item.armor           < 0 ? " -" + item.armor.ToString()           + " armor"           : "";
@@ -189,4 +206,17 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
     {
         item_to_buy_ui.SetActive(false);
     }
+
+    public void UseVolatileSeconds(int seconds) { volatile_seconds -= seconds; }
+    public void AddVolatileSeconds(int seconds) { volatile_seconds += seconds; }
+}
+
+[Serializable]
+public struct ItemRarityWeigt
+{
+    public Rarity rarity;
+    [Range(0, 100)]
+    public int weigt_shop_1;
+    [Range(0, 100)]
+    public int weigt_shop_2;
 }

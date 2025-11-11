@@ -52683,7 +52683,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2136047808}
   - {fileID: 1572387119}
   - {fileID: 1756068857}
   - {fileID: 833726947}
@@ -79615,7 +79614,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1258144796}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2136047809
 MonoBehaviour:
@@ -79630,7 +79629,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   time_limit: 0
-  item_prefab: {fileID: 0}
+  volatile_seconds: 0
+  rarity_weigts:
+  - rarity: 0
+    weigt_shop_1: 50
+    weigt_shop_2: 0
+  - rarity: 1
+    weigt_shop_1: 35
+    weigt_shop_2: 15
+  - rarity: 2
+    weigt_shop_1: 15
+    weigt_shop_2: 50
+  - rarity: 3
+    weigt_shop_1: 0
+    weigt_shop_2: 25
+  - rarity: 4
+    weigt_shop_1: 0
+    weigt_shop_2: 10
+  item_prefab: {fileID: 6531368973619448579, guid: 7860b63546cc29d4d90a5f06a4cf47b7, type: 3}
   items_paladin: []
   items_sorcerer: []
   items_rogue: []
@@ -79660,7 +79676,6 @@ MonoBehaviour:
   item_effect_description: {fileID: 1696646378}
   purchase_button: {fileID: 1205485425}
   try_purchase_button: {fileID: 628903297}
-  sec: 0
 --- !u!1 &2140007101
 GameObject:
   m_ObjectHideFlags: 0
@@ -80128,6 +80143,7 @@ SceneRoots:
   - {fileID: 1837146002}
   - {fileID: 436249601}
   - {fileID: 1258144796}
+  - {fileID: 2136047808}
   - {fileID: 419664107}
   - {fileID: 1737350056}
   - {fileID: 954046893}
