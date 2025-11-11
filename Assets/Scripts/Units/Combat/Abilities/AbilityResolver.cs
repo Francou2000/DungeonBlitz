@@ -50,20 +50,25 @@ public sealed class AbilityResolver : MonoBehaviourPun
         }
 
         // --- State requirements (Form, Weapon, etc.) ---
-        if (ability.requiredStates != null)
+        if (ability.requiredStates != null && ability.requiredStates.Count > 0)
         {
-            foreach (var state in ability.requiredStates)
+            var model = caster.GetComponent<UnitModel>();
+            foreach (var req in ability.requiredStates)
             {
-                var parts = state.Split(':'); // e.g., "Form:Fire"
-                if (parts.Length == 2)
+                if (string.IsNullOrWhiteSpace(req)) continue;
+
+                // Expect "Key:Value" (e.g., "Form:Fire", "Weapon:Bow")
+                var parts = req.Split(':');
+                if (parts.Length != 2) { Debug.LogWarning($"[CanCast] Bad requiredStates entry '{req}' in {ability.abilityName}"); return false; }
+
+                string key = parts[0].Trim();
+                string val = parts[1].Trim();
+
+                string cur = model.GetState(key);  // uses UnitModel states API
+                if (!string.Equals(cur, val, System.StringComparison.OrdinalIgnoreCase))
                 {
-                    var current = caster.Model.GetState(parts[0]);
-                    if (current != parts[1])
-                    {
-                        reason = $"Requires {parts[0]} = {parts[1]}";
-                        Debug.Log($"[Cast] FAIL: {reason}");
-                        return false;
-                    }
+                    Debug.Log($"[CanCast] Fails state gate for {ability.abilityName}: need {key}={val}, has {key}={cur}");
+                    return false; // gate fails
                 }
             }
         }
@@ -134,6 +139,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 if (!HasTag(targets[0], tag))
                 {
                     reason = $"Target must have {tag}";
+                    Debug.Log($"[Cast] FAIL: {reason}");
                     return false;
                 }
             }
@@ -147,12 +153,13 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 if (!HasTag(caster, tag))
                 {
                     reason = $"Requires {tag}";
+                    Debug.Log($"[Cast] FAIL: {reason}");
                     return false;
                 }
             }
         }
 
-        // --- Taunt gate ---
+        // --- Taunt gate --- 
         if (HasTag(caster, "Taunted") && targets != null && targets.Length > 0 && targets[0] != null)
         {
             int tv = targets[0].GetComponent<PhotonView>()?.ViewID ?? -1;
@@ -160,6 +167,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
             if (scCaster != null && !scCaster.IsTauntedTo(tv))
             {
                 reason = "Taunted: must target the taunter";
+                Debug.Log($"[Cast] FAIL: {reason}");
                 return false;
             }
         }
@@ -270,6 +278,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
             casterCtrl.unit.Model.SpendAdrenaline(ab.adrenalineCost);
 
         BroadcastAPSync(casterCtrl);
+
 
         // Broadcast to ALL clients so each applies exactly once
         _view.RPC(nameof(RPC_ApplyHealingToClient), RpcTarget.All,
@@ -567,7 +576,37 @@ public sealed class AbilityResolver : MonoBehaviourPun
         if (ab.adrenalineCost > 0)
             casterCtrl.unit.Model.SpendAdrenaline(ab.adrenalineCost);
 
+        if (PhotonNetwork.IsMasterClient && ab != null && ab.changesState && !string.IsNullOrEmpty(ab.stateKey))
+        {
+            var model = casterCtrl.unit.Model;
+            model.SetState(ab.stateKey, ab.stateValue);  // fires OnStateChanged locally (HUD refresh)
+
+            // Mirror to all other clients so their models match and HUD updates
+            _view.RPC(nameof(RPC_SetUnitState), RpcTarget.Others,
+                casterCtrl.photonView.ViewID, ab.stateKey, ab.stateValue);
+
+            Debug.Log($"[Resolver] Stance set on cast: {ab.stateKey} = {ab.stateValue}");
+        }
+
         BroadcastAPSync(casterCtrl);
+
+        if (IsStructureAbility(ab, out var skind))
+        {
+            // Decide world center: for ground AoE use aimPos; if you prefer, use primary target pos when present
+            Vector3 center = aimPos;
+            if (ab.areaType == AreaType.Circle && (primaryTarget != null))
+                center = primaryTarget.transform.position;
+            center.z = 0f;
+
+            var spec = BuildSpec(casterCtrl.unit, ab, skind);
+
+            // Preferred: Master calls manager (it RPCs to all)
+            SpawnStructure_Master(spec, center);
+
+            Debug.Log($"[Structure] {skind} spawned by {casterCtrl.name} at {center}");
+            // Structures don’t need the heal/damage pipeline; skip sending those RPCs if they’re empty.
+            return;
+        }
 
         // Broadcast heals first
         if (healIds.Count > 0)
@@ -744,7 +783,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 }
             }
 
-            // Elemental proc → status
+            // Elemental proc -> status (MASTER only)
             if (PhotonNetwork.IsMasterClient && elementalProcs != null && i < elementalProcs.Length)
             {
                 var sc = target.GetComponent<StatusComponent>();
@@ -760,17 +799,16 @@ public sealed class AbilityResolver : MonoBehaviourPun
             }
         }
 
-        // ---  route ability-driven status effects (self + on-hit) ---
+        // --- route ability-driven status effects (self + on-hit) ---
         if (casterCtrl != null)
         {
-            // get the UnitAbility this cast used
             UnitAbility ability = null;
             var list = casterCtrl.unit.Model.Abilities;
             if (abilityIndex >= 0 && abilityIndex < list.Count) ability = list[abilityIndex];
 
             if (ability != null)
             {
-                // build UnitController list from target ids
+                // build UnitController list from target ids (keep order aligned with hit flags)
                 var targetsUC = new List<UnitController>(targetViewIds?.Length ?? 0);
                 if (targetViewIds != null)
                 {
@@ -1144,7 +1182,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
             ApplyEffect(caster, eff);
         }
 
-        // Per-hit
+        // Per-hit targets
         if (targets == null || targets.Count == 0) return;
         for (int i = 0; i < targets.Count; i++)
         {
@@ -1160,6 +1198,81 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 ApplyEffect(t, eff);
             }
         }
+    }
 
+    // --- receivers set the model state, which triggers HUD via OnStateChanged ---
+    [PunRPC]
+    void RPC_SetUnitState(int unitViewId, string key, string value)
+    {
+        var uc = FindByView<UnitController>(unitViewId);
+        if (uc != null && uc.unit != null)
+        {
+            uc.unit.Model.SetState(key, value); // UnitModel should invoke OnStateChanged internally
+            Debug.Log($"[RPC_SetUnitState] {uc.name}: {key}={value}");
+        }
+    }
+
+    void SpawnStructure_Master(StructureSpec s, Vector3 center)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+        if (StructureManager.Instance == null) return;
+
+        switch (s.kind)
+        {
+            case StructureKind.IcePillar:
+                StructureManager.Instance.SpawnIcePillar(center, s.faction, s.ownerViewId, s.hp, s.radius, s.durationTurns);
+                break;
+
+            case StructureKind.Bonfire:
+                StructureManager.Instance.SpawnBonfire(center, s.faction, s.ownerViewId, s.healPerTick, s.radius, s.durationTurns);
+                break;
+        }
+    }
+
+    bool IsStructureAbility(UnitAbility ab, out StructureKind kind)
+    {
+        kind = StructureKind.None;
+        if (ab == null) return false;
+
+        // Preferred: from SO flags
+        if (ab.spawnsStructure && ab.structureKind != StructureKind.None)
+        {
+            kind = ab.structureKind;
+            return true;
+        }
+
+        // Fallback: quick name sniff until SOs are updated
+        var n = (ab.abilityName ?? "").ToLowerInvariant();
+        if (n.Contains("ice") && n.Contains("pillar")) { kind = StructureKind.IcePillar; return true; }
+        if (n.Contains("bonfire")) { kind = StructureKind.Bonfire; return true; }
+        return false;
+    }
+
+    struct StructureSpec
+    {
+        public StructureKind kind;
+        public float hp, durationTurns;
+        public int healPerTick;
+        public float radius;
+        public int ownerViewId;
+        public UnitFaction faction;
+    }
+
+    StructureSpec BuildSpec(Unit caster, UnitAbility ab, StructureKind kind)
+    {
+        var pv = caster?.GetComponent<PhotonView>();
+        var m = caster?.GetComponent<UnitModel>();
+
+        var spec = new StructureSpec
+        {
+            kind = kind,
+            ownerViewId = pv ? pv.ViewID : -1,
+            faction = m ? m.Faction : UnitFaction.Hero,
+            hp = ab.structureHP,
+            healPerTick = (int)ab.structureHeal,
+            radius = ab.structureRadius,
+            durationTurns = ab.structureDuration,
+        };
+        return spec;
     }
 }

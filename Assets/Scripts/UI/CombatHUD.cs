@@ -102,6 +102,7 @@ public class CombatHUD : MonoBehaviour
         RebuildGrid();
         RefreshBars();
         RefreshInteractivity();
+        RefreshButtons();
     }
 
     private void UnbindCurrentUnit()
@@ -112,6 +113,7 @@ public class CombatHUD : MonoBehaviour
             boundModel.OnAdrenalineChanged -= OnADR;
             boundModel.OnActionPointsChanged -= OnAP;
             boundModel.OnResourceChanged -= OnResChanged;
+            boundModel.OnStateChanged -= OnUnitStateChanged;
             boundModel = null;
         }
         controller = null;
@@ -158,12 +160,14 @@ public class CombatHUD : MonoBehaviour
         m.OnAdrenalineChanged -= OnADR;
         m.OnActionPointsChanged -= OnAP;
         m.OnResourceChanged -= OnResChanged;
+        m.OnStateChanged -= OnUnitStateChanged;
 
 
         m.OnHealthChanged += OnHP;
         m.OnAdrenalineChanged += OnADR;
         m.OnActionPointsChanged += OnAP;
         m.OnResourceChanged += OnResChanged;
+        m.OnStateChanged += OnUnitStateChanged;
     }
 
     void OnHP(int cur, int max) { hpBar?.Set(cur, max); }
@@ -237,6 +241,7 @@ public class CombatHUD : MonoBehaviour
 
         UpdateSelectedHighlight();
         UpdatePaging(abilities.Count);
+        RefreshButtons();
     }
 
     void ClearGrid()
@@ -254,6 +259,32 @@ public class CombatHUD : MonoBehaviour
             v.gameObject.SetActive(false);
         }
         _active.Clear();
+    }
+
+    void OnUnitStateChanged(string key, string value)
+    {
+        RefreshButtons(); // instant re-gating
+    }
+
+    void RefreshButtons()
+    {
+        if (controller == null || controller.model == null) return;
+        var list = controller.model.GetAvailableAbilities();
+        if (list == null) return;
+
+        for (int i = 0; i < _active.Count && i < list.Count; i++)
+        {
+            var view = _active[i];
+            if (view == null) continue;
+
+            // Move button stays enabled according to global interactivity
+            if (view.IsMove) continue;
+
+            var ab = view.Ability;
+            bool can = (ab != null) && AbilityResolver.CanCast(controller.unit, ab, null, out _);
+            var btn = view.GetComponent<Button>();
+            if (btn) btn.interactable = can && IsUsableNow();
+        }
     }
 
     ActionButtonView GetButton()

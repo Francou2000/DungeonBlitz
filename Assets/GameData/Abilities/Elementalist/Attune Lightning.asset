@@ -1,0 +1,82 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 594969d2d10a3344b90d23064033a40b, type: 3}
+  m_Name: Attune Lightning
+  m_EditorClassIdentifier: 
+  abilityName: 'Attune: Lightning'
+  description: 'Set Form: Lightning.'
+  abilityType: 3
+  icon: {fileID: 21300000, guid: 6535e79d75908374a9c78cbdd764c0b3, type: 3}
+  baseHitChance: 100
+  actionCost: 1
+  adrenalineCost: 0
+  resourceCosts: []
+  effects: []
+  minAdrenaline: 0
+  requiredStates: []
+  changesState: 1
+  stateKey: Form
+  stateValue: Lighting
+  requiredTags: []
+  requiredTargetTags: []
+  requiresAdrenalineThreshold: 0
+  adrenalineThreshold: 0
+  areaType: 0
+  range: 0
+  aoeRadius: 0
+  lineMaxTargets: 0
+  lineRange: 0
+  lineAlignmentTolerance: 0.75
+  isMixedDamage: 0
+  mixedPhysicalPercent: 50
+  lineCollateralPercent: 0
+  bonusPerMissingHpPercent: 0
+  damageSource: 1
+  baseDamage: 0
+  damageMultiplier: 1
+  bonusDamage: 0
+  hits: 1
+  useTargetMissingHealth: 0
+  missingHealthPercentage: 0
+  canChain: 0
+  chainRange: 0
+  healsTarget: 0
+  healAmount: 0
+  healPercentage: 0
+  grantsBarrier: 0
+  barrierAmount: 0
+  grantsMovement: 0
+  movementRange: 0
+  isMovementFree: 0
+  spawnsSummons: 0
+  summonPrefabName: 
+  summonCount: 0
+  summonDuration: 0
+  spawnsStructure: 0
+  structureKind: 0
+  structureHP: 0
+  structureDuration: 0
+  structureRadius: 0
+  spawnsZone: 0
+  zoneKind: 0
+  zoneRadius: 0
+  zoneDuration: 0
+  isReaction: 0
+  reactionTrigger: 0
+  hasConditionalEffect: 0
+  conditionTag: 
+  reducesActionCostOnCondition: 0
+  reducedActionCost: 0
+  selfOnly: 1
+  alliesOnly: 0
+  enemiesOnly: 0
+  groundTarget: 0

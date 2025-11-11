@@ -114,15 +114,17 @@ public static class CombatCalculator
             }
         }
 
-        Vector3 to = new Vector3(3f, 3f, 0f);
-
         if (StructureManager.Instance != null)
         {
             bool sMed, sHeavy;
-            if (StructureManager.Instance.HasStructureCoverBetween(direction, to, out sMed, out sHeavy))
+
+            // use attacker & target world positions
+            if (StructureManager.Instance.HasStructureCoverBetween(attackerPos, targetPos, out sMed, out sHeavy))
             {
                 hasHeavyCover = hasHeavyCover || sHeavy;
                 hasMediumCover = hasMediumCover || sMed;
+                if (sHeavy) Debug.Log("[Cover] Structure: heavy");
+                else if (sMed) Debug.Log("[Cover] Structure: medium");
             }
         }
 

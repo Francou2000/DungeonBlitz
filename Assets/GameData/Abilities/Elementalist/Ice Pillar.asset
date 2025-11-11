@@ -20,8 +20,13 @@ MonoBehaviour:
   actionCost: 1
   adrenalineCost: 0
   resourceCosts: []
+  effects: []
   minAdrenaline: 0
-  requiredStates: []
+  requiredStates:
+  - Form:Frost
+  changesState: 0
+  stateKey: 
+  stateValue: 
   requiredTags: []
   requiredTargetTags: []
   requiresAdrenalineThreshold: 0
@@ -38,15 +43,13 @@ MonoBehaviour:
   bonusPerMissingHpPercent: 0
   damageSource: 1
   baseDamage: 0
-  damageMultiplier: 1
+  damageMultiplier: 0
   bonusDamage: 0
   hits: 1
   useTargetMissingHealth: 0
   missingHealthPercentage: 0
   canChain: 0
   chainRange: 0
-  appliedEffects: []
-  statusEffectChance: 100
   healsTarget: 0
   healAmount: 0
   healPercentage: 0
@@ -59,11 +62,12 @@ MonoBehaviour:
   summonPrefabName: 
   summonCount: 0
   summonDuration: 0
-  spawnsStructure: 0
-  structureKind: 0
-  structureHP: 0
-  structureDuration: 0
-  structureRadius: 0
+  spawnsStructure: 1
+  structureKind: 1
+  structureHP: 5
+  structureHeal: 0
+  structureDuration: 5
+  structureRadius: 1
   spawnsZone: 0
   zoneKind: 0
   zoneRadius: 0

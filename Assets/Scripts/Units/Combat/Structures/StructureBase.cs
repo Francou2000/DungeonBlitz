@@ -1,5 +1,5 @@
 using UnityEngine;
-public enum StructureKind { IcePillar = 0, Bonfire = 1 }
+public enum StructureKind { None, IcePillar, Bonfire }
 public enum CoverType { None = 0, Medium = 1, Heavy = 2 }
 
 public class StructureBase : MonoBehaviour
@@ -8,13 +8,13 @@ public class StructureBase : MonoBehaviour
     [HideInInspector] public UnitFaction Faction;   // who owns it
     [HideInInspector] public int OwnerViewId;       // owner Unit (for limits)
     [HideInInspector] public double ExpiresAt;      // PhotonNetwork.Time
-    [HideInInspector] public int MaxHP;
-    [HideInInspector] public int HP;
+    [HideInInspector] public float MaxHP;
+    [HideInInspector] public float HP;
     [HideInInspector] public float Radius;          // for auras/size
     [HideInInspector] public CoverType Cover = CoverType.None;
 
     public virtual void Init(StructureKind kind, UnitFaction faction, int ownerViewId,
-                             Vector3 pos, int hp, float radius, CoverType cover,
+                             Vector3 pos, float hp, float radius, CoverType cover,
                              double expiresAt)
     {
         Kind = kind; Faction = faction; OwnerViewId = ownerViewId;
@@ -35,4 +35,9 @@ public class StructureBase : MonoBehaviour
         if (HP == 0) Destroy(gameObject);
     }
 
+    public bool IsInRange(Unit u)
+    {
+        if (u == null) return false;
+        return Vector3.Distance(u.transform.position, this.transform.position) <= Radius;
+    }
 }

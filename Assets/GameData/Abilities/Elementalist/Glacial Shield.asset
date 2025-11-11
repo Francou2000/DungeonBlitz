@@ -28,7 +28,11 @@ MonoBehaviour:
     amount: 15
     stat: 0
   minAdrenaline: 0
-  requiredStates: []
+  requiredStates:
+  - Form:Frost
+  changesState: 0
+  stateKey: 
+  stateValue: 
   requiredTags: []
   requiredTargetTags: []
   requiresAdrenalineThreshold: 0

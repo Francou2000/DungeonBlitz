@@ -78,8 +78,14 @@ public class UnitAbility : ScriptableObject
     // Require the caster to have this adrenaline threshold
     public int minAdrenaline;
 
+    [Header("State Change (optional)")]
     // Require a specific state (e.g., "Form:Fire", "Weapon:Bow")
     public List<string> requiredStates = new List<string>();
+    // If true, casting this ability will set a stance/state on the caster.
+    public bool changesState = false;
+    // Example: key="Weapon", value="Bow"  OR  key="Form", value="Fire"
+    public string stateKey;
+    public string stateValue;
 
     // Tags that the *caster* must have active (from StatusEffectHandler)
     public List<string> requiredTags = new List<string>();
@@ -141,8 +147,9 @@ public class UnitAbility : ScriptableObject
     public float summonDuration = 0f;
 
     public bool spawnsStructure = false; // if you added structures earlier
-    public StructureKind structureKind;
+    public StructureKind structureKind = StructureKind.None;
     public int structureHP;
+    public float structureHeal;
     public float structureDuration;
     public float structureRadius;
 

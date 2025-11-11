@@ -54,7 +54,7 @@ public class UnitModel : MonoBehaviour
     public event System.Action<int, int> OnHealthChanged;
     public event System.Action<int, int> OnAdrenalineChanged;
     public event System.Action<int, int> OnActionPointsChanged;
-
+    public event System.Action<string, string> OnStateChanged;
     public Sprite Portrait => unitData != null ? unitData.portrait_foto : null;
 
     // Initialization
@@ -270,7 +270,12 @@ public class UnitModel : MonoBehaviour
     public void SetState(string key, string value)
     {
         EnsureStates();
+        if (_states.TryGetValue(key, out var old) && old == value)
+            return;
+
         _states[key] = value;
+        OnStateChanged?.Invoke(key, value);
+        Debug.Log($"[State] {UnitName} -> {key} = {value}");
     }
 
     // Summons

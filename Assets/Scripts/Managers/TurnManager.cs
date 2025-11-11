@@ -87,7 +87,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
     {
         if (!PhotonNetwork.IsMasterClient || gamePaused)
             return;
-        
+
         float delta = Time.deltaTime;
         turnTimer += delta;
         timePool[currentTurn] -= delta;
@@ -98,7 +98,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
         {
             photonView.RPC(nameof(RPC_UpdateTimer), RpcTarget.Others, turnTimer, timePool[currentTurn]);
             UpdateTurnUI();
-            syncCooldown = 1f;        
+            syncCooldown = 1f;
         }
 
         if (postSetupGrace > 0f) { postSetupGrace -= Time.deltaTime; return; }
@@ -123,7 +123,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
                     Debug.Log($"[TurnManager] Time is up! Advancing levels.");
                 }
             }
-            
+
         }
         else if (IsFactionDefeated(GetOpposingFaction(currentTurn)))
         {
@@ -146,7 +146,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
                     if (PhotonNetwork.IsMasterClient)
                     {
                         ChangeLevel = false;
-                        _unitControler.lvl+=1;
+                        _unitControler.lvl += 1;
                         photonView.RPC(nameof(NextLevel), RpcTarget.All, _unitControler.lvl);
                         Debug.Log($"[TurnManager] Faction defeated! Advancing levels.");
                     }
@@ -376,7 +376,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
     {
         // Primero, marcar automáticamente como listos a los jugadores con unidades muertas
         MarkDeadPlayersAsReady();
-        
+
         // Verificar que todos los jugadores estén listos
         foreach (var ready in heroPlayerReady.Values)
         {
@@ -388,35 +388,35 @@ public class TurnManager : MonoBehaviourPunCallbacks
     private void MarkDeadPlayersAsReady()
     {
         if (!PhotonNetwork.IsMasterClient) return;
-        
+
         // Obtener todas las unidades hero vivas en la escena
         var allUnits = UnityEngine.Object.FindObjectsByType<Unit>(FindObjectsSortMode.None);
-        
+
         // Crear un conjunto con los actor numbers de jugadores que tienen unidades vivas
         HashSet<int> playersWithAliveUnits = new HashSet<int>();
-        
+
         foreach (var unit in allUnits)
         {
             if (unit.Faction != UnitFaction.Hero)
                 continue;
-            
+
             // Obtener el PhotonView de la unidad
             PhotonView pv = unit.GetComponent<PhotonView>();
             if (pv == null) continue;
-            
+
             // Obtener el actor number del dueño de esta unidad
             int ownerActorNumber = pv.OwnerActorNr != 0 ? pv.OwnerActorNr : pv.ControllerActorNr;
-            
+
             // Marcar que este jugador tiene una unidad viva
             playersWithAliveUnits.Add(ownerActorNumber);
         }
-        
+
         // Marcar como listos automáticamente a los jugadores hero que no tienen unidades vivas
         foreach (var player in PhotonNetwork.PlayerList)
         {
             if (player.ActorNumber == PhotonNetwork.MasterClient.ActorNumber)
                 continue;
-            
+
             // Si el jugador no tiene unidad viva y está en el diccionario
             if (!playersWithAliveUnits.Contains(player.ActorNumber) && heroPlayerReady.ContainsKey(player.ActorNumber))
             {
@@ -438,7 +438,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
     {
         var allUnits = UnityEngine.Object.FindObjectsByType<Unit>(FindObjectsSortMode.None);
         int aliveUnits = 0;
-        
+
         foreach (var unit in allUnits)
         {
             if (unit.Model.Faction == faction && unit.Model.IsAlive())
@@ -446,7 +446,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
                 aliveUnits++;
             }
         }
-        
+
         Debug.Log($"[TurnManager] Faction {faction} has {aliveUnits} alive units");
         return aliveUnits == 0;
     }
@@ -474,19 +474,11 @@ public class TurnManager : MonoBehaviourPunCallbacks
         OnTurnUI?.Invoke(turnNumber, currentTurn, remaining);
     }
 
-    /* Old UI System
-    private void UpdateTurnUI()
-    {
-        float remaining = timePool.ContainsKey(currentTurn) ? timePool[currentTurn] : 0f;
-        TurnUIController.Instance.UpdateTurnUI(turnNumber, currentTurn, remaining);
-    }
-    */
-
     // === PHOTON CALLBACKS ===
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
         Debug.Log($"[TurnManager] Player {otherPlayer.ActorNumber} left the room");
-        
+
         // Remove from hero ready tracking
         if (heroPlayerReady.ContainsKey(otherPlayer.ActorNumber))
         {
@@ -496,7 +488,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
             if (PhotonNetwork.IsMasterClient)
                 BroadcastHeroReady();
         }
-        
+
         // Check if master client left
         if (otherPlayer.IsMasterClient)
         {
@@ -504,7 +496,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
             EndGame(UnitFaction.Hero);
             return;
         }
-        
+
         // Check if too many heroes left
         int remainingHeroes = 0;
         foreach (var player in PhotonNetwork.PlayerList)
@@ -514,7 +506,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
                 remainingHeroes++;
             }
         }
-        
+
         if (remainingHeroes < 2)
         {
             Debug.Log($"[TurnManager] Only {remainingHeroes} heroes remaining! DM wins by default");
@@ -525,7 +517,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
     public override void OnMasterClientSwitched(Player newMasterClient)
     {
         Debug.Log($"[TurnManager] Master client switched to {newMasterClient.ActorNumber}");
-        
+
         // If we become the new master client, take over the game state
         if (PhotonNetwork.IsMasterClient)
         {

@@ -31,14 +31,16 @@ MonoBehaviour:
   adrenalineThreshold: 50
   maxAdrenaline: 100
   abilities:
+  - {fileID: 11400000, guid: b4ca1e48a1a140a40ba7cc7b479b2d42, type: 2}
   - {fileID: 11400000, guid: 51231c209457ae34d9a49f5a3d1682ba, type: 2}
-  - {fileID: 11400000, guid: 7966dc208f74b0d4ea74fbda1ddcde83, type: 2}
   - {fileID: 11400000, guid: f0c0a4efb9dd81b499499d3b9c3927f4, type: 2}
-  - {fileID: 11400000, guid: efc2424ef2e0e0646914b3fdf592a98a, type: 2}
   - {fileID: 11400000, guid: d059862c68b96e841931325aa4b9e43a, type: 2}
+  - {fileID: 11400000, guid: 0181d53053ef86940bb451bd4e3ac1a6, type: 2}
+  - {fileID: 11400000, guid: 7966dc208f74b0d4ea74fbda1ddcde83, type: 2}
+  - {fileID: 11400000, guid: efc2424ef2e0e0646914b3fdf592a98a, type: 2}
   - {fileID: 11400000, guid: 9d2e87610f427654383cc3f3f00611de, type: 2}
   startingForm: 
-  startingWeapon: Bow+Dagger
+  startingWeapon: Bow
   isTrainingDummy: 0
   isPromotable: 0
   promotedForm: {fileID: 0}

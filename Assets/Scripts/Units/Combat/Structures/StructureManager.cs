@@ -8,11 +8,22 @@ public sealed class StructureManager : MonoBehaviourPun
     PhotonView _view;
     readonly List<StructureBase> _all = new List<StructureBase>();
 
+    public GameObject icePillarPrefab;
+    public GameObject bonfirePrefab;
+
     void Awake()
     {
         if (Instance && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
         _view = GetComponent<PhotonView>() ?? gameObject.AddComponent<PhotonView>();
+
+        TurnManager.OnTurnBegan += HandleTurnBegan;
+    }
+
+    void OnDestroy()
+    {
+        if (TurnManager.Instance != null)
+            TurnManager.OnTurnBegan -= HandleTurnBegan;
     }
 
     void Update()
@@ -26,7 +37,7 @@ public sealed class StructureManager : MonoBehaviourPun
     }
 
     // ---- SPAWN (Master) ----
-    public void SpawnIcePillar(Vector3 pos, UnitFaction faction, int ownerViewId, int hp, float duration)
+    public void SpawnIcePillar(Vector3 pos, UnitFaction faction, int ownerViewId, float hp, float radius, float durationSec)
     {
         if (!PhotonNetwork.IsMasterClient) return;
 
@@ -46,30 +57,62 @@ public sealed class StructureManager : MonoBehaviourPun
             var old = _all[oldestIdx]; if (old) Destroy(old.gameObject); _all.RemoveAt(oldestIdx);
         }
 
-        _view.RPC(nameof(RPC_CreateIcePillar), RpcTarget.All, pos, (int)faction, ownerViewId, hp,
-                  PhotonNetwork.Time + Mathf.Max(0.1f, duration));
+        double expiresAt = PhotonNetwork.Time + Mathf.Max(0.1f, durationSec);
+        _view.RPC(nameof(RPC_CreateIcePillar), RpcTarget.All,
+                  pos, (int)faction, ownerViewId, hp, radius, expiresAt);
     }
 
-    public void SpawnBonfire(Vector3 pos, UnitFaction faction, int ownerViewId, int healPerTick, float radius, float duration)
+    public void SpawnBonfire(Vector3 pos, UnitFaction faction, int ownerViewId, int healPerTick, float radius, float durationSec)
     {
         if (!PhotonNetwork.IsMasterClient) return;
 
-        _view.RPC(nameof(RPC_CreateBonfire), RpcTarget.All, pos, (int)faction, ownerViewId,
-                  healPerTick, radius, PhotonNetwork.Time + Mathf.Max(0.1f, duration));
+        double expiresAt = PhotonNetwork.Time + Mathf.Max(0.1f, durationSec);
+        _view.RPC(nameof(RPC_CreateBonfire), RpcTarget.All, pos, (int)faction, ownerViewId, healPerTick, radius, expiresAt);
     }
 
     [PunRPC]
-    void RPC_CreateIcePillar(Vector3 pos, int factionInt, int ownerViewId, int hp, double expiresAt)
+    void RPC_CreateIcePillar(Vector3 pos, int factionInt, int ownerViewId, float hp, float radius, double expiresAt)
     {
-        var s = IcePillar.Create(pos, (UnitFaction)factionInt, ownerViewId, hp, expiresAt);
+        var s = IcePillar.Create(
+            pos,
+            (UnitFaction)factionInt,
+            ownerViewId,
+            hp,
+            radius,
+            expiresAt
+        );
         _all.Add(s);
+
+        if (icePillarPrefab && s)
+        {
+            var vis = Instantiate(icePillarPrefab, s.transform);
+            vis.transform.localPosition = Vector3.zero;
+
+            if (!s.GetComponent<HealthBarSpawner>())
+                s.gameObject.AddComponent<HealthBarSpawner>();
+        }
     }
+
 
     [PunRPC]
     void RPC_CreateBonfire(Vector3 pos, int factionInt, int ownerViewId, int healPerTick, float radius, double expiresAt)
     {
         var s = Bonfire.Create(pos, (UnitFaction)factionInt, ownerViewId, healPerTick, radius, expiresAt);
         _all.Add(s);
+
+        if (bonfirePrefab && s)
+        {
+            var vis = Instantiate(bonfirePrefab, s.transform);
+            vis.transform.localPosition = Vector3.zero;
+
+            var drv = vis.GetComponentInChildren<BonfireVisual>() ?? vis.AddComponent<BonfireVisual>();
+            drv.bound = s;
+            var aura = vis.transform.Find("Aura");
+            if (aura) drv.aura = aura;
+
+            if (!s.GetComponent<HealthBarSpawner>())
+                s.gameObject.AddComponent<HealthBarSpawner>();
+        }
     }
 
     // ---- QUERIES ----
@@ -110,20 +153,74 @@ public sealed class StructureManager : MonoBehaviourPun
         }
     }
 
-    // Start-of-turn aura tick (Bonfire)
-    public void ApplyStartTurnAuras(Unit unit)
+    private void HandleTurnBegan(UnitFaction factionStartingTurn)
     {
-        if (!unit) return;
-        var pos = unit.transform.position;
+        // Only the master authoritatively computes the tick and mirrors it to everyone.
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        // Gather all active bonfires of THIS faction
+        // (_all is already tracking every StructureBase we spawn)
+        var bonfires = new List<Bonfire>();
         for (int i = 0; i < _all.Count; i++)
         {
-            var b = _all[i] as Bonfire;
-            if (!b) continue;
-            if (b.Faction != unit.Model.Faction) continue;
-            if (Vector3.Distance(b.transform.position, pos) <= b.Radius + 0.01f)
+            var s = _all[i];
+            if (!s || s.Kind != StructureKind.Bonfire) continue;
+            if (s.Faction != factionStartingTurn) continue;
+
+            var b = s as Bonfire;
+            if (b != null && !b.IsExpired(Photon.Pun.PhotonNetwork.Time))
+                bonfires.Add(b);
+        }
+
+        if (bonfires.Count == 0) return;
+
+        // Find all alive units of the same faction
+        var units = UnityEngine.Object.FindObjectsByType<Unit>(FindObjectsSortMode.None);
+        if (units == null || units.Length == 0) return;
+
+        // Compute total heal per unit (avoid double-healing if standing in overlap)
+        // !!! bonfire heals STACK additively if overlapping. !!!
+        // If you prefer "no stacking", replace the += with Mathf.Max(...)
+        var healByUnitViewId = new Dictionary<int, int>(32);
+
+        foreach (var u in units)
+        {
+            if (u == null || u.Model == null) continue;
+            if (u.Model.Faction != factionStartingTurn) continue;  // heal only allies at their own turn
+            if (!u.Model.IsAlive()) continue;
+
+            int totalHeal = 0;
+            for (int i = 0; i < bonfires.Count; i++)
             {
-                unit.Model.Heal(b.HealPerTick); // use your actual heal method
+                var bf = bonfires[i];
+                if (!bf) continue;
+                if (bf.IsInRange(u)) totalHeal += Mathf.Max(0, bf.HealPerTick);
+            }
+
+            if (totalHeal > 0)
+            {
+                var pv = u.GetComponent<Photon.Pun.PhotonView>() ??
+                         u.GetComponentInParent<Photon.Pun.PhotonView>() ??
+                         u.GetComponentInChildren<Photon.Pun.PhotonView>();
+                if (pv != null) healByUnitViewId[pv.ViewID] = totalHeal;
             }
         }
+
+        // Broadcast heals (each client applies locally in RPC_HealUnit)
+        foreach (var kvp in healByUnitViewId)
+        {
+            _view.RPC(nameof(RPC_HealUnit), Photon.Pun.RpcTarget.All, kvp.Key, kvp.Value);
+        }
+    }
+
+    [PunRPC] 
+    void RPC_HealUnit(int targetViewId, int amount)
+    {
+        var pv = PhotonView.Find(targetViewId);
+        if (pv == null) return;
+        var unit = pv.GetComponent<Unit>();
+        if (unit == null || unit.Model == null) return;
+
+        unit.Model.Heal(amount); // local HP update + UI on every client
     }
 }

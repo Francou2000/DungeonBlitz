@@ -23507,6 +23507,7 @@ GameObject:
   - component: {fileID: 568910065}
   - component: {fileID: 568910064}
   - component: {fileID: 568910068}
+  - component: {fileID: 568910069}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -23697,6 +23698,20 @@ MonoBehaviour:
   effectOffset: 1
   effectDuration: 1
   effectScale: 1
+--- !u!114 &568910069
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 568910055}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1b0f489638367341842a0e314b4665a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  icePillarPrefab: {fileID: 4312442124743627816, guid: ead433a9a55ab644c9accb15726eaced, type: 3}
+  bonfirePrefab: {fileID: 4312442124743627816, guid: c0ebd3ecdd3e7e642811535c36cbbff2, type: 3}
 --- !u!1 &592077692
 GameObject:
   m_ObjectHideFlags: 0

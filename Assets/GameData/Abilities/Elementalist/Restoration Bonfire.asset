@@ -13,16 +13,20 @@ MonoBehaviour:
   m_Name: Restoration Bonfire
   m_EditorClassIdentifier: 
   abilityName: Restoration Bonfire
-  description: Place a 1HP bonfire that heals on cast and each hero turn (5 + 50%
-    MP).
+  description: Place a 1HP bonfire that heals on cast and each hero turn.
   abilityType: 3
   icon: {fileID: 21300000, guid: abe998d7ef6847840b3d657c9085ec73, type: 3}
   baseHitChance: 0
   actionCost: 2
-  adrenalineCost: 25
+  adrenalineCost: 0
   resourceCosts: []
+  effects: []
   minAdrenaline: 0
-  requiredStates: []
+  requiredStates:
+  - Form:Fire
+  changesState: 0
+  stateKey: 
+  stateValue: 
   requiredTags: []
   requiredTargetTags: []
   requiresAdrenalineThreshold: 0
@@ -39,15 +43,13 @@ MonoBehaviour:
   bonusPerMissingHpPercent: 0
   damageSource: 1
   baseDamage: 0
-  damageMultiplier: 1
+  damageMultiplier: 0
   bonusDamage: 0
   hits: 1
   useTargetMissingHealth: 0
   missingHealthPercentage: 0
   canChain: 0
   chainRange: 0
-  appliedEffects: []
-  statusEffectChance: 100
   healsTarget: 0
   healAmount: 0
   healPercentage: 0
@@ -60,11 +62,12 @@ MonoBehaviour:
   summonPrefabName: 
   summonCount: 0
   summonDuration: 0
-  spawnsStructure: 0
-  structureKind: 0
-  structureHP: 0
-  structureDuration: 0
-  structureRadius: 0
+  spawnsStructure: 1
+  structureKind: 2
+  structureHP: 1
+  structureHeal: 5
+  structureDuration: 100
+  structureRadius: 5
   spawnsZone: 0
   zoneKind: 0
   zoneRadius: 0
