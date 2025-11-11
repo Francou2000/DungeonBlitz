@@ -90,9 +90,7 @@ MonoBehaviour:
   - NextLevel
   - RPC_SyncAP
   - RPC_SyncHeroReady
-  - RPC_Mirror
-  - RPC_SetUnitState
-  - RPC_HealUnit
+  - SpawnItem
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1
