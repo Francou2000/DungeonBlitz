@@ -37,6 +37,8 @@ MonoBehaviour:
   lineMaxTargets: 8
   lineRange: 9
   lineAlignmentTolerance: 0.75
+  allowTargetStructures: 1
+  structureTargets: 1
   isMixedDamage: 0
   mixedPhysicalPercent: 50
   lineCollateralPercent: 100
@@ -65,6 +67,7 @@ MonoBehaviour:
   spawnsStructure: 0
   structureKind: 0
   structureHP: 0
+  structureHeal: 0
   structureDuration: 0
   structureRadius: 0
   spawnsZone: 0

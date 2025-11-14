@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using DebugTools;
+﻿using DebugTools;
 using Photon.Pun;
+using Photon.Pun.Demo.Procedural;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEditor.Playables;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public sealed class AbilityResolver : MonoBehaviourPun
 {
@@ -411,6 +414,48 @@ public sealed class AbilityResolver : MonoBehaviourPun
             );
         }
 
+        // --- collect structures (optional per ability) ---
+        var structTargets = new List<StructureBase>();
+        if (ability.allowTargetStructures && StructureManager.Instance)
+        {
+            var casterFaction = casterCtrl.unit.Model.Faction;
+
+            if (ability.areaType == AreaType.Single)
+            {
+                // try picking the nearest structure around the aim position if no unit primary
+                if (primaryTarget == null)
+                {
+                    var s = StructureManager.Instance.RaycastStructureSingle(
+                        aimPos, 4f, ability.structureTargets, casterFaction);
+                    if (s != null) structTargets.Add(s);
+                }
+            }
+            else if (ability.areaType == AreaType.Circle)
+            {
+                var center = (primaryTarget != null) ? primaryTarget.transform.position : aimPos;
+                center.z = 0f;
+                structTargets.AddRange(
+                    StructureManager.Instance.GetStructuresInCircle(
+                        center, ability.aoeRadius, null, ability.structureTargets, casterFaction));
+            }
+            else if (ability.areaType == AreaType.Line)
+            {
+                var origin = casterCtrl.transform.position;
+                Vector3 dir =
+                    (primaryTarget != null) ? (primaryTarget.transform.position - origin) :
+                    (aimDir.sqrMagnitude > 1e-5f) ? aimDir :
+                    (aimPos - origin);
+
+                var a = origin;
+                var b = origin + dir.normalized * ability.lineRange;
+                float halfWidth = (ability.aoeRadius > 0f ? ability.aoeRadius : 0.5f);
+
+                structTargets.AddRange(
+                    StructureManager.Instance.GetStructuresNearSegment(
+                        a, b, halfWidth, ability.structureTargets, casterFaction));
+            }
+        }
+
         CombatLog.Resolve(traceId, $"Targets: final={computedTargets.Count} area={ability.areaType}");
 
         // Mostrar el nombre de la habilidad sobre el caster
@@ -575,6 +620,8 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 casterCtrl.unit.Model.TryConsume(cost.key, cost.amount);
         if (ab.adrenalineCost > 0)
             casterCtrl.unit.Model.SpendAdrenaline(ab.adrenalineCost);
+        foreach (var s in structTargets)
+            HitStructureAuth(ability, casterCtrl, s);
 
         if (PhotonNetwork.IsMasterClient && ab != null && ab.changesState && !string.IsNullOrEmpty(ab.stateKey))
         {
@@ -681,13 +728,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
 
                 if (ab.spawnsSummons && SummonManager.Instance != null)
                 {
-                    Vector3 center = casterCtrl.unit.transform.position;
-                    if (targetViewIds != null && targetViewIds.Length > 0)
-                    {
-                        var primary = FindByView<Unit>(targetViewIds[0]);
-                        if (primary) center = primary.transform.position;
-                    }
-                    SummonManager.Instance.SpawnSummons(casterCtrl.unit, ab, center);
+                    SummonManager.Instance.SpawnAriseSummons(casterCtrl.unit, ab);
                 }
             }
         }
@@ -1251,11 +1292,12 @@ public sealed class AbilityResolver : MonoBehaviourPun
     struct StructureSpec
     {
         public StructureKind kind;
-        public float hp, durationTurns;
+        public float hp;
         public int healPerTick;
         public float radius;
         public int ownerViewId;
         public UnitFaction faction;
+        public int durationTurns; 
     }
 
     StructureSpec BuildSpec(Unit caster, UnitAbility ab, StructureKind kind)
@@ -1271,8 +1313,40 @@ public sealed class AbilityResolver : MonoBehaviourPun
             hp = ab.structureHP,
             healPerTick = (int)ab.structureHeal,
             radius = ab.structureRadius,
-            durationTurns = ab.structureDuration,
+            durationTurns = Mathf.RoundToInt(ab.structureDuration), // treat SO field as TURNS
         };
         return spec;
+    }
+
+    private int ComputeDamageVsStructure(UnitAbility ab, Unit caster)
+    {
+        // Simple: reuse your normal formula without defender stats
+        int dmg = ab.baseDamage;
+        if (ab.damageSource == DamageType.Physical) dmg += caster.Model.Strength;
+        else if (ab.damageSource == DamageType.Magical) dmg += caster.Model.MagicPower;
+
+        dmg = Mathf.RoundToInt(dmg * Mathf.Max(0f, ab.damageMultiplier)) + Mathf.Max(0, ab.bonusDamage);
+        return Mathf.Max(0, dmg);
+    }
+
+    private void HitStructureAuth(UnitAbility ab, UnitController casterCtrl, StructureBase s)
+    {
+        if (s == null || StructureManager.Instance == null) return;
+
+        int dmg = ComputeDamageVsStructure(ab, casterCtrl.unit);
+        if (dmg <= 0) return;
+
+        var sm = StructureManager.Instance;
+        if (Photon.Pun.PhotonNetwork.IsMasterClient)
+        {
+            sm.DamageStructure(s.NetId, dmg); // applies + mirrors
+        }
+        else
+        {
+            // ask master to apply
+            sm.photonView.RPC(nameof(StructureManager.RPC_RequestStructureHit),
+                              Photon.Pun.RpcTarget.MasterClient,
+                              s.NetId, dmg);
+        }
     }
 }

@@ -11,6 +11,9 @@ public sealed class StructureManager : MonoBehaviourPun
     public GameObject icePillarPrefab;
     public GameObject bonfirePrefab;
 
+    private int _nextStructureId = 1;
+    private readonly Dictionary<int, StructureBase> _byId = new Dictionary<int, StructureBase>();
+
     void Awake()
     {
         if (Instance && Instance != this) { Destroy(gameObject); return; }
@@ -26,62 +29,44 @@ public sealed class StructureManager : MonoBehaviourPun
             TurnManager.OnTurnBegan -= HandleTurnBegan;
     }
 
-    void Update()
-    {
-        double now = PhotonNetwork.Time;
-        for (int i = _all.Count - 1; i >= 0; i--)
-        {
-            var s = _all[i];
-            if (!s || s.IsExpired(now)) { if (s) Destroy(s.gameObject); _all.RemoveAt(i); }
-        }
-    }
-
     // ---- SPAWN (Master) ----
-    public void SpawnIcePillar(Vector3 pos, UnitFaction faction, int ownerViewId, float hp, float radius, float durationSec)
+    public void SpawnIcePillar(Vector3 pos, UnitFaction faction, int ownerViewId, float hp, float radius, int durationTurns)
     {
         if (!PhotonNetwork.IsMasterClient) return;
 
-        // limit 2 per owner: remove oldest if needed
-        int count = 0; int oldestIdx = -1; double oldestT = double.MaxValue;
+        // limit 2 per owner: remove oldest by insertion order (we'll just scan for the first pillar of owner)
+        int count = 0; int idxToRemove = -1;
         for (int i = 0; i < _all.Count; i++)
         {
             var s = _all[i] as IcePillar;
             if (s && s.OwnerViewId == ownerViewId)
             {
+                if (idxToRemove < 0) idxToRemove = i;
                 count++;
-                if (s.ExpiresAt < oldestT) { oldestT = s.ExpiresAt; oldestIdx = i; }
             }
         }
-        if (count >= 2 && oldestIdx >= 0)
+        if (count >= 2 && idxToRemove >= 0)
         {
-            var old = _all[oldestIdx]; if (old) Destroy(old.gameObject); _all.RemoveAt(oldestIdx);
+            var old = _all[idxToRemove]; if (old) Destroy(old.gameObject); _all.RemoveAt(idxToRemove);
         }
 
-        double expiresAt = PhotonNetwork.Time + Mathf.Max(0.1f, durationSec);
         _view.RPC(nameof(RPC_CreateIcePillar), RpcTarget.All,
-                  pos, (int)faction, ownerViewId, hp, radius, expiresAt);
+                  pos, (int)faction, ownerViewId, hp, radius, durationTurns);
     }
 
-    public void SpawnBonfire(Vector3 pos, UnitFaction faction, int ownerViewId, int healPerTick, float radius, float durationSec)
+    public void SpawnBonfire(Vector3 pos, UnitFaction faction, int ownerViewId, int healPerTick, float radius, int durationTurns)
     {
         if (!PhotonNetwork.IsMasterClient) return;
-
-        double expiresAt = PhotonNetwork.Time + Mathf.Max(0.1f, durationSec);
-        _view.RPC(nameof(RPC_CreateBonfire), RpcTarget.All, pos, (int)faction, ownerViewId, healPerTick, radius, expiresAt);
+        _view.RPC(nameof(RPC_CreateBonfire), RpcTarget.All, pos, (int)faction, ownerViewId, healPerTick, radius, durationTurns);
     }
 
     [PunRPC]
-    void RPC_CreateIcePillar(Vector3 pos, int factionInt, int ownerViewId, float hp, float radius, double expiresAt)
+    void RPC_CreateIcePillar(Vector3 pos, int factionInt, int ownerViewId, float hp, float radius, int durationTurns)
     {
-        var s = IcePillar.Create(
-            pos,
-            (UnitFaction)factionInt,
-            ownerViewId,
-            hp,
-            radius,
-            expiresAt
-        );
+        var s = IcePillar.Create(pos, (UnitFaction)factionInt, ownerViewId, hp, radius, durationTurns);
         _all.Add(s);
+        s.NetId = _nextStructureId++;
+        _byId[s.NetId] = s;
 
         if (icePillarPrefab && s)
         {
@@ -93,12 +78,13 @@ public sealed class StructureManager : MonoBehaviourPun
         }
     }
 
-
     [PunRPC]
-    void RPC_CreateBonfire(Vector3 pos, int factionInt, int ownerViewId, int healPerTick, float radius, double expiresAt)
+    void RPC_CreateBonfire(Vector3 pos, int factionInt, int ownerViewId, int healPerTick, float radius, int durationTurns)
     {
-        var s = Bonfire.Create(pos, (UnitFaction)factionInt, ownerViewId, healPerTick, radius, expiresAt);
+        var s = Bonfire.Create(pos, (UnitFaction)factionInt, ownerViewId, healPerTick, radius, durationTurns);
         _all.Add(s);
+        s.NetId = _nextStructureId++;
+        _byId[s.NetId] = s;
 
         if (bonfirePrefab && s)
         {
@@ -155,38 +141,38 @@ public sealed class StructureManager : MonoBehaviourPun
 
     private void HandleTurnBegan(UnitFaction factionStartingTurn)
     {
-        // Only the master authoritatively computes the tick and mirrors it to everyone.
         if (!PhotonNetwork.IsMasterClient) return;
 
-        // Gather all active bonfires of THIS faction
-        // (_all is already tracking every StructureBase we spawn)
+        // 1) Turn-based lifetime tick + cleanup
+        for (int i = _all.Count - 1; i >= 0; i--)
+        {
+            var s = _all[i];
+            if (!s) { _all.RemoveAt(i); continue; }
+            s.OnTurnBegan(factionStartingTurn); // may destroy itself
+            if (!s) { _all.RemoveAt(i); }
+        }
+
+        // 2) Bonfire healing (now we just use what's left in _all)
         var bonfires = new List<Bonfire>();
         for (int i = 0; i < _all.Count; i++)
         {
             var s = _all[i];
             if (!s || s.Kind != StructureKind.Bonfire) continue;
             if (s.Faction != factionStartingTurn) continue;
-
             var b = s as Bonfire;
-            if (b != null && !b.IsExpired(Photon.Pun.PhotonNetwork.Time))
-                bonfires.Add(b);
+            if (b != null) bonfires.Add(b);
         }
-
         if (bonfires.Count == 0) return;
 
-        // Find all alive units of the same faction
-        var units = UnityEngine.Object.FindObjectsByType<Unit>(FindObjectsSortMode.None);
+        var units = FindObjectsByType<Unit>(FindObjectsSortMode.None);
         if (units == null || units.Length == 0) return;
 
-        // Compute total heal per unit (avoid double-healing if standing in overlap)
-        // !!! bonfire heals STACK additively if overlapping. !!!
-        // If you prefer "no stacking", replace the += with Mathf.Max(...)
         var healByUnitViewId = new Dictionary<int, int>(32);
 
         foreach (var u in units)
         {
             if (u == null || u.Model == null) continue;
-            if (u.Model.Faction != factionStartingTurn) continue;  // heal only allies at their own turn
+            if (u.Model.Faction != factionStartingTurn) continue;
             if (!u.Model.IsAlive()) continue;
 
             int totalHeal = 0;
@@ -199,18 +185,15 @@ public sealed class StructureManager : MonoBehaviourPun
 
             if (totalHeal > 0)
             {
-                var pv = u.GetComponent<Photon.Pun.PhotonView>() ??
-                         u.GetComponentInParent<Photon.Pun.PhotonView>() ??
-                         u.GetComponentInChildren<Photon.Pun.PhotonView>();
+                var pv = u.GetComponent<PhotonView>() ??
+                         u.GetComponentInParent<PhotonView>() ??
+                         u.GetComponentInChildren<PhotonView>();
                 if (pv != null) healByUnitViewId[pv.ViewID] = totalHeal;
             }
         }
 
-        // Broadcast heals (each client applies locally in RPC_HealUnit)
         foreach (var kvp in healByUnitViewId)
-        {
-            _view.RPC(nameof(RPC_HealUnit), Photon.Pun.RpcTarget.All, kvp.Key, kvp.Value);
-        }
+            _view.RPC(nameof(RPC_HealUnit), RpcTarget.All, kvp.Key, kvp.Value);
     }
 
     [PunRPC] 
@@ -222,5 +205,124 @@ public sealed class StructureManager : MonoBehaviourPun
         if (unit == null || unit.Model == null) return;
 
         unit.Model.Heal(amount); // local HP update + UI on every client
+    }
+
+    public void UnregisterStructure(int id, StructureBase s)
+    {
+        if (_byId.TryGetValue(id, out var curr) && curr == s)
+            _byId.Remove(id);
+    }
+
+    public IEnumerable<StructureBase> GetStructuresInCircle(Vector3 center, float radius, UnitFaction? factionFilter, StructureTargeting targeting, UnitFaction casterFaction)
+    {
+        float r2 = radius * radius;
+        foreach (var kv in _byId)
+        {
+            var s = kv.Value;
+            if (!s) continue;
+            // faction filter
+            bool okFaction = targeting switch
+            {
+                StructureTargeting.None => false,
+                StructureTargeting.Enemy => s.Faction != casterFaction,
+                StructureTargeting.Ally => s.Faction == casterFaction,
+                StructureTargeting.Any => true,
+                _ => false
+            };
+            if (!okFaction) continue;
+
+            // distance check to structure center (you can expand to collider if needed)
+            if ((s.transform.position - center).sqrMagnitude <= r2)
+                yield return s;
+        }
+    }
+
+    // distance from point to segment for line AOE
+    public IEnumerable<StructureBase> GetStructuresNearSegment(Vector3 a, Vector3 b, float radius, StructureTargeting targeting, UnitFaction casterFaction)
+    {
+        float rr = radius * radius;
+        foreach (var kv in _byId)
+        {
+            var s = kv.Value;
+            if (!s) continue;
+
+            bool okFaction = targeting switch
+            {
+                StructureTargeting.None => false,
+                StructureTargeting.Enemy => s.Faction != casterFaction,
+                StructureTargeting.Ally => s.Faction == casterFaction,
+                StructureTargeting.Any => true,
+                _ => false
+            };
+            if (!okFaction) continue;
+
+            Vector3 p = s.transform.position;
+            float t = Mathf.Clamp01(Vector3.Dot(p - a, (b - a)) / (b - a).sqrMagnitude);
+            Vector3 proj = a + t * (b - a);
+            if ((p - proj).sqrMagnitude <= rr)
+                yield return s;
+        }
+    }
+
+    public StructureBase RaycastStructureSingle(Vector3 worldPoint, float maxPickDistance, StructureTargeting targeting, UnitFaction casterFaction)
+    {
+        // choose the nearest structure within small radius around click
+        const float pickRadius = 0.6f;
+        StructureBase best = null;
+        float bestD2 = (maxPickDistance > 0 ? maxPickDistance * maxPickDistance : float.MaxValue);
+
+        foreach (var kv in _byId)
+        {
+            var s = kv.Value;
+            if (!s) continue;
+
+            bool okFaction = targeting switch
+            {
+                StructureTargeting.None => false,
+                StructureTargeting.Enemy => s.Faction != casterFaction,
+                StructureTargeting.Ally => s.Faction == casterFaction,
+                StructureTargeting.Any => true,
+                _ => false
+            };
+            if (!okFaction) continue;
+
+            float d2 = (s.transform.position - worldPoint).sqrMagnitude;
+            if (d2 <= Mathf.Min(pickRadius * pickRadius, bestD2))
+            {
+                bestD2 = d2; best = s;
+            }
+        }
+        return best;
+    }
+
+    public void DamageStructure(int netId, int amount)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+        if (_byId.TryGetValue(netId, out var s) && s)
+        {
+            s.ApplyDamage(amount);
+            _view.RPC(nameof(RPC_OnStructureDamaged), RpcTarget.Others, netId, amount);
+            if (!s) // destroyed in ApplyDamage
+                _view.RPC(nameof(RPC_OnStructureDestroyed), RpcTarget.Others, netId);
+        }
+    }
+
+    [PunRPC]
+    void RPC_OnStructureDamaged(int netId, int amount)
+    {
+        if (_byId.TryGetValue(netId, out var s) && s) s.ApplyDamage(amount);
+    }
+
+    [PunRPC]
+    void RPC_OnStructureDestroyed(int netId)
+    {
+        if (_byId.TryGetValue(netId, out var s) && s) Destroy(s.gameObject);
+    }
+
+    [PunRPC]
+    public void RPC_RequestStructureHit(int netId, int damage)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+        DamageStructure(netId, damage);
     }
 }

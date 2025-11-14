@@ -20,8 +20,12 @@ MonoBehaviour:
   actionCost: 2
   adrenalineCost: 0
   resourceCosts: []
+  effects: []
   minAdrenaline: 0
   requiredStates: []
+  changesState: 0
+  stateKey: 
+  stateValue: 
   requiredTags: []
   requiredTargetTags: []
   requiresAdrenalineThreshold: 0
@@ -32,6 +36,8 @@ MonoBehaviour:
   lineMaxTargets: 0
   lineRange: 0
   lineAlignmentTolerance: 0.75
+  allowTargetStructures: 1
+  structureTargets: 1
   isMixedDamage: 0
   mixedPhysicalPercent: 50
   lineCollateralPercent: 0
@@ -45,8 +51,6 @@ MonoBehaviour:
   missingHealthPercentage: 0
   canChain: 0
   chainRange: 0
-  appliedEffects: []
-  statusEffectChance: 100
   healsTarget: 0
   healAmount: 0
   healPercentage: 0
@@ -62,6 +66,7 @@ MonoBehaviour:
   spawnsStructure: 0
   structureKind: 0
   structureHP: 0
+  structureHeal: 0
   structureDuration: 0
   structureRadius: 0
   spawnsZone: 0
