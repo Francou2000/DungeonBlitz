@@ -34,6 +34,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 0223feeb152e4ca45ad885b396ebd02b, type: 2}
   - {fileID: 11400000, guid: e1b5b075da8b3224f8d9b4dea9ba8e3e, type: 2}
   - {fileID: 11400000, guid: 5f56aefffa759a243b13f1d163e010f9, type: 2}
+  - {fileID: 11400000, guid: 345196a9153a8a84487137068ea15515, type: 2}
   startingForm: 
   startingWeapon: Staff
   isTrainingDummy: 0
