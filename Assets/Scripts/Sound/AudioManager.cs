@@ -32,18 +32,6 @@ public class AudioManager : MonoBehaviour
     [Header("Attack SFX")]
     [SerializeField] private AudioClip stabSFX;
     [SerializeField] private AudioClip goblinAttackSFX;
-    
-    [Header("Hurt SFX")]
-    [SerializeField] private AudioClip goblinHurtSFX;
-    [SerializeField] private AudioClip maleHurtSFX;
-    [SerializeField] private AudioClip FemaleHurtSFX;
-    [SerializeField] private AudioClip HobGoblinHurtSFX;
-    
-    [Header("Evade SFX")]
-    [SerializeField] private AudioClip evadeMaleSFX;
-    [SerializeField] private AudioClip evadeRogueSFX;
-    [SerializeField] private AudioClip evadeGoblinSFX;
-    [SerializeField] private AudioClip evadeHobGoblinSFX;
 
 
 
@@ -426,43 +414,43 @@ public class AudioManager : MonoBehaviour
     }
     
     public void PlayGoblinAttack(){
-        if (goblinAttackSFX) PlaySFXFromPool(goblinAttackSFX);
+        PlaySFX(SoundName.GoblinAttack);
     }
 
 
     //EVADE SFX
     public void PlayEvadeMale(){
-        if (evadeMaleSFX) PlaySFXFromPool(evadeMaleSFX);
+        PlaySFX(SoundName.EvadeMale);
     }
 
     public void PlayEvadeRogue(){
-        if (evadeRogueSFX) PlaySFXFromPool(evadeRogueSFX);
+        PlaySFX(SoundName.EvadeRogue);
     }
 
     public void PlayEvadeGoblin(){
-        if (evadeGoblinSFX) PlaySFXFromPool(evadeGoblinSFX);
+        PlaySFX(SoundName.EvadeGoblin);
     }
 
     public void PlayEvadeHobgoblin(){
-        if (evadeHobGoblinSFX) PlaySFXFromPool(evadeHobGoblinSFX);
+        PlaySFX(SoundName.EvadeHobGoblin);
     }
 
 
     //HURT SFX
     public void PlayHurtGoblin(){
-        if (goblinHurtSFX) PlaySFXFromPool(goblinHurtSFX);
+        PlaySFX(SoundName.HurtGoblin);
     }
 
     public void PlayHurtHobGoblin(){
-        if (HobGoblinHurtSFX) PlaySFXFromPool(HobGoblinHurtSFX);
+        PlaySFX(SoundName.HurtHobGoblin);
     }
 
     public void PlayHurtMale(){
-        if (maleHurtSFX) PlaySFXFromPool(maleHurtSFX);
+        PlaySFX(SoundName.HurtMale);
     }
 
     public void PlayHurtFemale(){
-        if (FemaleHurtSFX) PlaySFXFromPool(FemaleHurtSFX);
+        PlaySFX(SoundName.HurtFemale);
     }
 
     // Helper function to play evade sound based on unit type
@@ -473,21 +461,37 @@ public class AudioManager : MonoBehaviour
         // Get unit name to determine type
         string unitName = unit.name.ToLower();
         
-        if (unitName.Contains("goblin") && !unitName.Contains("hob"))
+        if (unitName.Contains("champion"))
         {
-            PlayEvadeGoblin();
+            PlaySFX(SoundName.EvadeChampion);
+        }
+        else if (unitName.Contains("shaman"))
+        {
+            PlaySFX(SoundName.EvadeShaman);
+        }
+        else if (unitName.Contains("rogue"))
+        {
+            PlaySFX(SoundName.EvadeRogue);
+        }
+        else if (unitName.Contains("elementalist"))
+        {
+            PlaySFX(SoundName.EvadeElementalist);
+        }
+        else if (unitName.Contains("sorcerer"))
+        {
+            PlaySFX(SoundName.EvadeSorcerer);
+        }
+        else if (unitName.Contains("goblin") && !unitName.Contains("hob"))
+        {
+            PlaySFX(SoundName.EvadeGoblin);
         }
         else if (unitName.Contains("hobgoblin") || unitName.Contains("hob"))
         {
-            PlayEvadeHobgoblin();
+            PlaySFX(SoundName.EvadeHobGoblin);
         }
-        else if (unitName.Contains("rogue") || unitName.Contains("elementalist"))
+        else // Default to male for other units (paladin, etc.)
         {
-            PlayEvadeRogue();
-        }
-        else // Default to male for other units
-        {
-            PlayEvadeMale();
+            PlaySFX(SoundName.EvadeMale);
         }
     }
 
@@ -499,21 +503,37 @@ public class AudioManager : MonoBehaviour
         // Get unit name to determine type
         string unitName = unit.name.ToLower();
         
-        if (unitName.Contains("goblin") && !unitName.Contains("hob"))
+        if (unitName.Contains("champion"))
         {
-            PlayHurtGoblin();
+            PlaySFX(SoundName.HurtChampion);
+        }
+        else if (unitName.Contains("shaman"))
+        {
+            PlaySFX(SoundName.HurtShaman);
+        }
+        else if (unitName.Contains("rogue"))
+        {
+            PlaySFX(SoundName.HurtRogue);
+        }
+        else if (unitName.Contains("elementalist"))
+        {
+            PlaySFX(SoundName.HurtElementalist);
+        }
+        else if (unitName.Contains("sorcerer"))
+        {
+            PlaySFX(SoundName.HurtSorcerer);
+        }
+        else if (unitName.Contains("goblin") && !unitName.Contains("hob"))
+        {
+            PlaySFX(SoundName.HurtGoblin);
         }
         else if (unitName.Contains("hobgoblin") || unitName.Contains("hob"))
         {
-            PlayHurtHobGoblin();
+            PlaySFX(SoundName.HurtHobGoblin);
         }
-        else if (unitName.Contains("shaman") || unitName.Contains("elementalist") || unitName.Contains("sorcerer"))
+        else // Default to male for other units (paladin, etc.)
         {
-            PlayHurtFemale();
-        }
-        else // Default to male for other units (paladin, rogue, etc.)
-        {
-            PlayHurtMale();
+            PlaySFX(SoundName.HurtMale);
         }
     }
 
@@ -560,10 +580,19 @@ public enum SoundName
     HurtHobGoblin,
     HurtMale,
     HurtFemale,
+    HurtChampion,
+    HurtShaman,
+    HurtRogue,
+    HurtElementalist,
+    HurtSorcerer,
     EvadeMale,
     EvadeRogue,
     EvadeGoblin,
     EvadeHobGoblin,
+    EvadeChampion,
+    EvadeShaman,
+    EvadeElementalist,
+    EvadeSorcerer,
     Magic1,
     Magic2,
     Magic3,
