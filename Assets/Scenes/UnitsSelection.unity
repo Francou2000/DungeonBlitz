@@ -67332,6 +67332,23 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  heroes:
+  - my_data: {fileID: 0}
+    actual_health: 0
+    volatile_time_left: 0
+    my_items: []
+  - my_data: {fileID: 0}
+    actual_health: 0
+    volatile_time_left: 0
+    my_items: []
+  - my_data: {fileID: 0}
+    actual_health: 0
+    volatile_time_left: 0
+    my_items: []
+  - my_data: {fileID: 0}
+    actual_health: 0
+    volatile_time_left: 0
+    my_items: []
   heroes_data:
   - {fileID: 11400000, guid: e908555b489ee984aae154fd64288041, type: 2}
   - {fileID: 11400000, guid: 5abf3bf8766dfa04f9f9434c99419c54, type: 2}

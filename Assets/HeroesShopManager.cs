@@ -185,11 +185,14 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
     public void SpawnItem(Transform spawn_pos, ItemData item)
     {
         if (PhotonNetwork.IsMasterClient) return;
-        GameObject new_item = Instantiate(item_prefab, spawn_pos);
-        new_item.GetComponent<SpriteRenderer>().sprite = item.sprite;
+        pedestals[actual_pedestal] = Instantiate(item_prefab, spawn_pos);
+        pedestals[actual_pedestal].GetComponent<SpriteRenderer>().sprite = item.sprite;
         //TODO: Add SetShopValues() logic
 
-        new_item.GetComponent<ItemDetector>().my_item = item;
+        pedestals[actual_pedestal].GetComponent<ItemDetector>().my_item = item;
+        pedestals[actual_pedestal].GetComponent<ItemDetector>().my_pedestal = actual_pedestal;
+
+        actual_pedestal++;
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------
@@ -197,10 +200,14 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
     //-------------------------------------------------------------------------------------------------------------------------------------
 
     ItemData actual_item;
-    public void ShowNewBuyUI(ItemData item)
+    int actual_pedestal = 0;
+    GameObject[] pedestals = new GameObject[12];
+
+    public void ShowNewBuyUI(ItemData item, int pedestal)
     {
         item_to_buy_ui.SetActive(true);
         actual_item = item;
+        actual_pedestal = pedestal;
         item_name.text = actual_item.name;
 
         //actual_item_cost = item.cost;
@@ -366,6 +373,22 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
 
     public void UseVolatileSeconds(int seconds) { volatile_seconds -= seconds; }
     public void AddVolatileSeconds(int seconds) { volatile_seconds += seconds; }
+
+
+    public void PurchaseItem()
+    {
+        UnitLoaderController.Instance.photonView.RPC("AddItemToHeroe", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber, actual_item);
+        UseVolatileSeconds(actual_item.cost);
+        photonView.RPC("RemoveItemFromShop", RpcTarget.All, actual_pedestal);
+    }
+
+    [PunRPC]
+    public void RemoveItemFromShop(int pedestalID)
+    {
+        if (PhotonNetwork.IsMasterClient) return;
+        pedestals[pedestalID].SetActive(false);
+    }
+
 }
 
 [Serializable]
