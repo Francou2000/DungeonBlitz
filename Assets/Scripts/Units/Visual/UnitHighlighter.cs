@@ -9,7 +9,7 @@ public class UnitHighlighter : MonoBehaviour
 
     void Update()
     {
-        // Donít hover through the HUD
+        // Don‚Äôt hover through the HUD
         if (EventSystem.current && EventSystem.current.IsPointerOverGameObject())
         {
             ClearHover();
@@ -22,7 +22,7 @@ public class UnitHighlighter : MonoBehaviour
         Vector3 mouseWorld = cam.ScreenToWorldPoint(Input.mousePosition);
         Vector2 p = new Vector2(mouseWorld.x, mouseWorld.y);
 
-        // OverlapPoint is the correct 2D ìhoverî test
+        // OverlapPoint is the correct 2D ‚Äúhover‚Äù test
         Collider2D hit = Physics2D.OverlapPoint(p, unitMask);
         Unit hitUnit = null;
         if (hit)

@@ -91,6 +91,9 @@ MonoBehaviour:
   - RPC_SyncAP
   - RPC_SyncHeroReady
   - SpawnItem
+  - RPC_HealUnit
+  - RPC_Mirror
+  - RPC_SetUnitState
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1
