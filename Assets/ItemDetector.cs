@@ -11,13 +11,11 @@ public class ItemDetector : MonoBehaviour
         heroesShopManager = HeroesShopManager.instance;
     }
 
-
-    public void OnCollisionEnter2D(Collision2D collision)
+    public void OnTriggerEnter2D(Collider2D collision)
     {
         heroesShopManager.ShowNewBuyUI(my_item, my_pedestal);
     }
-
-    public void OnCollisionExit2D(Collision2D collision)
+    public void OnTriggerExit2D(Collider2D collision)
     {
         heroesShopManager.HideBuyUI();
     }

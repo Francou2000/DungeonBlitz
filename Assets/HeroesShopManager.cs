@@ -23,9 +23,9 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
     }
 
     [Header("Shop time (seconds)")]
-    [SerializeField] float time_limit;
-    float time = 0;
     public int volatile_seconds;
+    [SerializeField] TextMeshProUGUI remaining_time;
+    [SerializeField] TextMeshProUGUI volatile_time_show;
 
     [Header("Items")]
     [SerializeField] ItemRarityWeigt[] rarity_weigts;
@@ -68,6 +68,7 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
     [SerializeField] GameObject nay_button;
     [SerializeField] GameObject purchase_canceled;
     [SerializeField] GameObject purchase_denied;
+    [SerializeField] GameObject purchase_accepted;
 
     [Header("Votes settings")]
     [SerializeField] GameObject votes;
@@ -75,21 +76,22 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
     [SerializeField] Color default_color;
     [SerializeField] Color positive_color;
     [SerializeField] Color negative_color;
-    int actual_vote = 0;
-    int positive_votes = 0;
+    int actual_vote = 1;
+    int positive_votes = 1;
 
-
+    UnitLoaderController unit_loader_controller;
 
     void Start()
     {
-        if (UnitLoaderController.Instance.lvl == 2)
+        unit_loader_controller = UnitLoaderController.Instance;
+        if (unit_loader_controller.lvl == 2)
         {
             foreach (ItemRarityWeigt rar in rarity_weigts)
             {
                 rarity_weigt[rar.rarity] = rar.weigt_shop_1;
             }
         }
-        if (UnitLoaderController.Instance.lvl == 3)
+        if (unit_loader_controller.lvl == 3)
         {
             foreach (ItemRarityWeigt rar in rarity_weigts)
             {
@@ -100,6 +102,9 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
         SpawnHeroesItems();
         SpawnRandomItems();
         SpawnConsumableItems();
+
+        remaining_time.text = "Remaining time: " + unit_loader_controller.heroes_remaining_time.ToString(" s");
+        volatile_time_show.text = "Volatile time: " + volatile_seconds.ToString(" s");
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------
@@ -107,7 +112,7 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
     //-------------------------------------------------------------------------------------------------------------------------------------
     void SpawnHeroesItems()
     {
-        var heroes = UnitLoaderController.Instance.playable_heroes;
+        var heroes = unit_loader_controller.playable_heroes;
         for (int i = 0; i < heroes.Length; i++)
         {
             ItemData item = GetRandomItem(heroes[i].heroe_id);
@@ -202,6 +207,7 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
     ItemData actual_item;
     int actual_pedestal = 0;
     GameObject[] pedestals = new GameObject[12];
+    bool is_requester = false;
 
     public void ShowNewBuyUI(ItemData item, int pedestal)
     {
@@ -215,12 +221,19 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
         if (actual_item.cost <= volatile_seconds)
         {
             purchase_button.SetActive(true);
+            purchase_button.GetComponent<Button>().interactable = true;
             try_purchase_button.SetActive(false);
         }
-        else
+        else if (actual_item.cost <= volatile_seconds + unit_loader_controller.heroes_remaining_time)
         {
             try_purchase_button.SetActive(true);
             purchase_button.SetActive(false);
+        }
+        else
+        {
+            purchase_button.SetActive(true);
+            purchase_button.GetComponent<Button>().interactable = false;
+            try_purchase_button.SetActive(false);
         }
 
         string hp              = actual_item.maxHP           > 0 ? " +" + actual_item.maxHP.ToString()           + " HP"              : actual_item.maxHP           < 0 ? " -" + actual_item.maxHP.ToString()           + " HP"              : "";
@@ -269,7 +282,9 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
         {
             image.color = default_color;
         }
-
+        vote_list[0].color = positive_color;
+        actual_vote = 1;
+        positive_votes = 1;
         votes.SetActive(false);       
     }
 
@@ -335,7 +350,8 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
         // Si todos votaron o hubo tres votos positivos
         if (actual_vote >= 4 | positive_votes >= 3)
         {
-
+            if (is_requester) PurchaseItem();
+            StartCoroutine(PurchaseAccepted());
         }
 
     }
@@ -370,14 +386,30 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
         yield return new WaitForSeconds(0.5f);
         purchase_denied.SetActive(false);
     }
+    IEnumerator PurchaseAccepted()
+    {
+        HideAskUI();
+        purchase_accepted.SetActive(true);
+        yield return new WaitForSeconds(0.5f);
+        purchase_accepted.SetActive(false);
+    }
 
-    public void UseVolatileSeconds(int seconds) { volatile_seconds -= seconds; }
+    public void UseVolatileSeconds(int seconds) 
+    {
+        volatile_seconds -= seconds;
+        if (volatile_seconds < 0)
+        {
+            unit_loader_controller.photonView.RPC("SpendHeroeSeconds", RpcTarget.All,-volatile_seconds);
+            volatile_seconds = 0;
+        }
+    }
     public void AddVolatileSeconds(int seconds) { volatile_seconds += seconds; }
 
 
     public void PurchaseItem()
     {
-        UnitLoaderController.Instance.photonView.RPC("AddItemToHeroe", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber, actual_item);
+        unit_loader_controller.photonView.RPC("AddItemToHeroe", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber, actual_item);
+
         UseVolatileSeconds(actual_item.cost);
         photonView.RPC("RemoveItemFromShop", RpcTarget.All, actual_pedestal);
     }
@@ -387,6 +419,9 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.IsMasterClient) return;
         pedestals[pedestalID].SetActive(false);
+
+        remaining_time.text = "Remaining time: " + unit_loader_controller.heroes_remaining_time.ToString(" s");
+        volatile_time_show.text = "Volatile time: " + volatile_seconds.ToString(" s");
     }
 
 }

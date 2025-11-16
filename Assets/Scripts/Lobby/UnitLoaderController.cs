@@ -24,10 +24,13 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
         }
     }
 
+    public float dm_remaining_time;
+    public float heroes_remaining_time;
+
     public Playable_Map playable_Map = new Playable_Map();
     public UnitData[] playable_heroes;
 
-    [SerializeField] HeroeInformation[] heroes;
+    [SerializeField] public HeroeInformation[] heroes;
     [SerializeField] UnitData[] heroes_data;
     [SerializeField] UnitData[] goblins_data;
 
@@ -36,7 +39,7 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
     [PunRPC]
     public void AddHeroe(HeroesList heroe, int client_id)
     {
-        playable_heroes[client_id - 2] = heroes_data[(int)heroe];
+        heroes[client_id - 2].my_data = heroes_data[(int)heroe];
         players_ready[client_id - 1] = true;
         CheckIfStart(false);
     }
@@ -133,6 +136,17 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
     public void AddItemToHeroe(int playerID, ItemData item)
     {
         heroes[playerID - 2].my_items.Add(item);
+    }
+    [PunRPC]
+    public void SpendHeroeSeconds(int amount)
+    {
+        heroes_remaining_time -= amount;
+    }
+
+    [PunRPC]
+    public void SpendDMSeconds(int amount)
+    {
+        dm_remaining_time -= amount;
     }
 }
 
