@@ -1,11 +1,8 @@
 ﻿using DebugTools;
 using Photon.Pun;
-using Photon.Pun.Demo.Procedural;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor.Playables;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 public sealed class AbilityResolver : MonoBehaviourPun
 {
@@ -332,6 +329,45 @@ public sealed class AbilityResolver : MonoBehaviourPun
         }
 
         Debug.Log($"[RPC_RequestCast] CanCast passed, proceeding with ability resolution");
+
+        // ---- BLINK: instant teleport inside a circle centered on the caster ----
+        if (ability.grantsMovement && ability.isTeleport)
+        {
+            // Compute Blink radius = half of your move distance per action.
+            // Prefer UnitMovement helper; fall back to Model speed * time.
+            var mv = casterCtrl.GetComponent<UnitMovement>();
+            float fullMove = (mv != null)
+                ? mv.GetMaxWorldRadius()
+                : casterCtrl.unit.Model.GetMovementSpeed() * casterCtrl.unit.Model.MoveTimeBase;  // fallback
+
+            float blinkRadius = Mathf.Max(0.1f, fullMove * 0.5f);
+
+            // Clamp aimPos to that circle (center is caster)
+            Vector3 center = casterCtrl.transform.position;
+            Vector3 dest = aimPos; dest.z = center.z;
+            Vector3 d = dest - center;
+            if (d.sqrMagnitude > blinkRadius * blinkRadius)
+                dest = center + d.normalized * blinkRadius;
+
+            // Spend costs ONCE on master
+            casterCtrl.unit.Model.SpendAction(ability.actionCost);
+            if (ability.resourceCosts != null)
+                foreach (var cost in ability.resourceCosts)
+                    casterCtrl.unit.Model.TryConsume(cost.key, cost.amount);
+            if (ability.adrenalineCost > 0)
+                casterCtrl.unit.Model.SpendAdrenaline(ability.adrenalineCost);
+
+            BroadcastAPSync(casterCtrl);
+
+            // Teleport on ALL clients
+            _view.RPC(nameof(RPC_TeleportUnit), RpcTarget.All,
+                casterCtrl.photonView.ViewID, dest);
+
+            ResolveBlinkAoE(casterCtrl, ability, dest, abilityIndex);
+
+            return; // Blink does not do damage/heal itself
+        }
+
 
         // Auto-targeting based on ability type
         if (targets == null || targets.Length == 0 || targets[0] == null)
@@ -1405,5 +1441,135 @@ public sealed class AbilityResolver : MonoBehaviourPun
                               Photon.Pun.RpcTarget.MasterClient,
                               s.NetId, dmg);
         }
+    }
+
+    [PunRPC]
+    void RPC_TeleportUnit(int unitViewId, Vector3 dest)
+    {
+        var uc = FindByView<UnitController>(unitViewId);
+        if (uc == null || uc.unit == null) return;
+
+        var u = uc.unit;
+        var from = u.transform.position;
+
+        // Snap instantly
+        u.transform.position = new Vector3(dest.x, dest.y, from.z);
+
+        // Zone crossing trigger (use same hook as walking)
+        if (PhotonNetwork.IsMasterClient && ZoneManager.Instance != null)
+            ZoneManager.Instance.HandleOnMove(u, from, dest);
+
+        // Status hooks similar to movement
+        u.GetComponent<StatusComponent>()?.OnMoved();
+
+        // Little bit of juice
+        u.View.SetFacingDirection((dest - from).normalized);
+        u.View.PlayMoveLandNet();
+    }
+
+    private void ResolveBlinkAoE(UnitController casterCtrl, UnitAbility ability, Vector3 center, int abilityIndex)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+        if (ability.aoeRadius <= 0f) return;
+
+        var caster = casterCtrl.unit;
+        var casterFaction = caster.Model.Faction;
+        float r = ability.aoeRadius;
+        float r2 = r * r;
+
+        // collect units in radius
+        var units = FindObjectsByType<Unit>(FindObjectsSortMode.None);
+        var hits = new List<Unit>(8);
+
+        for (int i = 0; i < units.Length; i++)
+        {
+            var u = units[i];
+            if (u == null || u.Model == null || !u.Model.IsAlive()) continue;
+            if (u == caster) continue;
+
+            // target filter: enemies only (adjust if you want it to be Any)
+            if (u.Model.Faction == casterFaction) continue;
+
+            var p = u.transform.position; p.z = center.z;
+            if ((p - center).sqrMagnitude <= r2)
+                hits.Add(u);
+        }
+
+        if (hits.Count == 0) return;
+
+        // compute per-target damage and apply (respect Negative Zone guard)
+        for (int i = 0; i < hits.Count; i++)
+        {
+            var target = hits[i];
+            int dmg = ComputeDamageFromAbility(ability, caster, vsStructure: false);
+            if (dmg <= 0) continue;
+
+            // Negative Zone protection (attacker outside, target inside -> 0 damage)
+            if (ZoneManager.Instance &&
+                ZoneManager.Instance.IsTargetProtectedByNegativeZone(
+                    attackerPos: caster.transform.position,
+                    targetPos: target.transform.position))
+            {
+                dmg = 0;
+            }
+
+            if (dmg > 0)
+            {
+                // Apply and mirror as you do elsewhere
+                int dealt = target.Model.ApplyDamageWithBarrier(dmg, (DamageType)ability.damageSource);
+
+                // Cancel Negative Zone if owner took real damage (spec hook reused)
+                if (dealt > 0 && ZoneManager.Instance != null)
+                {
+                    var tPV = target.Controller?.photonView;
+                    if (tPV) ZoneManager.Instance.CancelNegativeZonesOfOwner(tPV.ViewID);
+                }
+            }
+        }
+    }
+
+    private int ComputeDamageFromAbility(UnitAbility ability, Unit caster, bool vsStructure)
+    {
+        if (ability == null || caster == null) return 0;
+
+        // Mixed damage route
+        if (ability.isMixedDamage)
+        {
+            int strength = caster.Model.Strength;
+            int mpower = caster.Model.MagicPower;
+
+            return Mathf.Max(0, CombatCalculator.CalculateMixedDamage(
+                ability.baseDamage,
+                strength, /*armor*/ 0,
+                mpower,   /*mr*/    0,
+                ability.mixedPhysicalPercent
+            ));
+        }
+
+        // Single-source (Physical or Magical or Elemental mapped to Phys/Mag)
+        bool isPhysical = (ability.damageSource == DamageType.Physical);
+        bool isMagical = (ability.damageSource == DamageType.Magical
+                           || ability.damageSource == DamageType.Fire
+                           || ability.damageSource == DamageType.Frost
+                           || ability.damageSource == DamageType.Electric);
+
+        int attackerStat = isPhysical ? caster.Model.Strength : caster.Model.MagicPower;
+        int defenderStat = 0;
+
+        int dmg = Mathf.RoundToInt(
+            CombatCalculator.CalculateDamage(ability.baseDamage, attackerStat, defenderStat)
+        );
+
+        // Multipliers / flat bonus parity with your main path
+        if (ability.bonusPerMissingHpPercent > 0 && caster != null)
+            dmg = CombatCalculator.ApplyMissingHpBonus(dmg, caster, ability.bonusPerMissingHpPercent);
+
+        if (ability.damageMultiplier > 0f)
+            dmg = Mathf.RoundToInt(dmg * ability.damageMultiplier);
+
+        if (ability.bonusDamage > 0)
+            dmg += ability.bonusDamage;
+
+        return Mathf.Max(0, dmg);
     }
 }

@@ -145,6 +145,7 @@ public class UnitAbility : ScriptableObject
     public bool grantsMovement = false;
     public float movementRange = 0f;
     public bool isMovementFree = false;
+    public bool isTeleport = false;
 
     [Header("Spawns (optional)")]
     public bool spawnsSummons = false;
