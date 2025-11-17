@@ -30,7 +30,7 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
     public Playable_Map playable_Map = new Playable_Map();
     public UnitData[] playable_heroes;
 
-    [SerializeField] public HeroeInformation[] heroes;
+    [SerializeField] public HeroeInformation[] heroes = new HeroeInformation[4];
     [SerializeField] UnitData[] heroes_data;
     [SerializeField] UnitData[] goblins_data;
 
