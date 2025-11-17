@@ -101,6 +101,9 @@ MonoBehaviour:
   - RemoveItemFromShop
   - SpendDMSeconds
   - SpendHeroeSeconds
+  - RPC_OnStructureDamaged
+  - RPC_OnStructureDestroyed
+  - RPC_RequestStructureHit
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

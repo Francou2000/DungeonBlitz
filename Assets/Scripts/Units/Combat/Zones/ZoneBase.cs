@@ -11,16 +11,18 @@ public class ZoneBase : MonoBehaviour
     [HideInInspector] public ZoneKind Kind;
     [HideInInspector] public Vector3 Center;
     [HideInInspector] public float Radius;
-    [HideInInspector] public double ExpiresAt; // PhotonNetwork.Time comparison; use Time.time if offline
+    [HideInInspector] public int RemainingTurns;      // 0 => infinite
+    [HideInInspector] public int OwnerViewId = -1;
 
-    public bool IsExpired(double now) => now >= ExpiresAt;
+    public bool IsExpired() => RemainingTurns == 0;
 
-    public virtual void Init(ZoneKind kind, Vector3 center, float radius, double expiresAt)
+    public virtual void Init(ZoneKind kind, Vector3 center, float radius, int remainingTurns, int ownerViewId = -1)
     {
         Kind = kind;
         Center = center;
         Radius = Mathf.Max(0f, radius);
-        ExpiresAt = expiresAt;
+        RemainingTurns = Mathf.Max(0, remainingTurns);  // 0 can mean “immediate GC” (we remove in manager)
+        OwnerViewId = ownerViewId;
         transform.position = center;
         transform.localScale = Vector3.one;
         gameObject.name = $"{Kind}Zone";

@@ -655,6 +655,56 @@ public sealed class AbilityResolver : MonoBehaviourPun
             return;
         }
 
+        if (PhotonNetwork.IsMasterClient && ZoneManager.Instance && ability.spawnsZone)
+        {
+            var center = aimPos; center.z = 0f;
+            float r = Mathf.Max(0.1f, ability.zoneRadius);
+            int durTurns = Mathf.Max(1, Mathf.RoundToInt(ability.zoneDuration)); // reinterpret as TURNS
+
+            switch (ability.zoneKind)
+            {
+                case ZoneKind.Negative:
+                    {
+                        int ownerVid = casterCtrl.photonView.ViewID;
+                        bool isGreater = (ability.abilityName != null &&
+                                          ability.abilityName.ToLowerInvariant().Contains("greater"));
+                        if (isGreater)
+                            ZoneManager.Instance.ReplaceAnyNegativeZone(ownerVid, center, r, durTurns);
+                        else
+                            ZoneManager.Instance.SpawnCircleZone(ZoneKind.Negative, center, r, durTurns, ownerVid);
+                        break;
+                    }
+                case ZoneKind.Frozen:
+                    ZoneManager.Instance.SpawnCircleZone(ZoneKind.Frozen, center, r, durTurns);
+                    break;
+
+                case ZoneKind.StormCrossing:
+                    {
+                        Vector3 origin = casterCtrl.transform.position;
+                        Vector3 dir = (aimDir.sqrMagnitude > 1e-5f) ? aimDir : (aimPos - origin);
+                        if (dir.sqrMagnitude < 1e-5f) dir = Vector3.right;
+                        dir.z = 0f; dir.Normalize();
+
+                        float length = Mathf.Max(1f, ability.lineRange);
+                        float width = Mathf.Max(0.25f, ability.aoeRadius);
+
+                        Vector3 a = center - dir * (length * 0.5f);
+                        Vector3 b = center + dir * (length * 0.5f);
+
+                        int ownerFaction = (int)casterCtrl.unit.Model.Faction;
+                        ZoneManager.Instance.SpawnStormCrossing(
+                            a, b, width, durTurns,
+                            ownerFaction, /*allyHasteDur*/ 0,
+                            /*enemyDamage*/ Mathf.Max(0, ability.baseDamage + casterCtrl.unit.Model.MagicPower),
+                            /*shockChance*/ 0
+                        );
+                        break;
+                    }
+            }
+
+            return; 
+        }
+
         // Broadcast heals first
         if (healIds.Count > 0)
         {
@@ -786,6 +836,13 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 {
                     // Apply on master
                     var dealt = target.Model.ApplyDamageWithBarrier(dmg, (DamageType)dtype);
+
+                    if (dealt > 0 && ZoneManager.Instance != null)
+                    {
+                        var tPV = target.Controller?.photonView;
+                        if (tPV) ZoneManager.Instance.CancelNegativeZonesOfOwner(tPV.ViewID);
+                    }
+
                     Debug.Log($"[Resolve] MASTER applied {dealt} HP dmg to {target.name} (type={(DamageType)dtype})");
 
                     // Local popup on master

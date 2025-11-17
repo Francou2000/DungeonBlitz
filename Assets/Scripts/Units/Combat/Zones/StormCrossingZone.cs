@@ -16,7 +16,7 @@ public class StormCrossingZone : ZoneBase
     [Range(0, 100)] public int enemyShockChance = 25;
 
     public void InitSegment(Vector3 a, Vector3 b, float width, UnitFaction ownerFaction,
-                            int hasteDur, int dmg, int shockChance, double expiresAt)
+                            int hasteDur, int dmg, int shockChance, int remainingTurns)
     {
         A = a; B = b;
         halfWidth = Mathf.Max(0.05f, width * 0.5f);
@@ -24,8 +24,7 @@ public class StormCrossingZone : ZoneBase
         allyHasteDuration = Mathf.Max(0, hasteDur);
         enemyDamage = Mathf.Max(0, dmg);
         enemyShockChance = Mathf.Clamp(shockChance, 0, 100);
-
-        base.Init(ZoneKind.StormCrossing, (a + b) * 0.5f, width, expiresAt);
+        base.Init(ZoneKind.StormCrossing, (a + b) * 0.5f, width, remainingTurns);
         name = "StormCrossingZone";
     }
 
