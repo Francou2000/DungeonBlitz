@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using Photon.Pun;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -23,9 +24,13 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
         }
     }
 
+    public float dm_remaining_time;
+    public float heroes_remaining_time;
+
     public Playable_Map playable_Map = new Playable_Map();
     public UnitData[] playable_heroes;
 
+    [SerializeField] public HeroeInformation[] heroes;
     [SerializeField] UnitData[] heroes_data;
     [SerializeField] UnitData[] goblins_data;
 
@@ -34,7 +39,7 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
     [PunRPC]
     public void AddHeroe(HeroesList heroe, int client_id)
     {
-        playable_heroes[client_id - 2] = heroes_data[(int)heroe];
+        heroes[client_id - 2].my_data = heroes_data[(int)heroe];
         players_ready[client_id - 1] = true;
         CheckIfStart(false);
     }
@@ -126,5 +131,38 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
         Debug.Log(playable_Map.UNITS.Count());
         TimerAndLoadGame.instance.LoadGame();
     }
+
+    [PunRPC]
+    public void AddItemToHeroe(int playerID, ItemData item)
+    {
+        heroes[playerID - 2].my_items.Add(item);
+    }
+    [PunRPC]
+    public void SpendHeroeSeconds(int amount)
+    {
+        heroes_remaining_time -= amount;
+    }
+
+    [PunRPC]
+    public void SpendDMSeconds(int amount)
+    {
+        dm_remaining_time -= amount;
+    }
 }
 
+[Serializable]
+public struct HeroeInformation
+{
+    public UnitData my_data;
+    public int actual_health;
+    public int volatile_time_left;
+    public List<ItemData> my_items;
+
+    public HeroeInformation(UnitData my_data, int actual_health, int volatile_time_left, List<ItemData> my_items = null)
+    {
+        this.my_data = my_data;
+        this.actual_health = actual_health;
+        this.volatile_time_left = volatile_time_left;
+        this.my_items = my_items;
+    }
+}

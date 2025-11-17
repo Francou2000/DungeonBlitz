@@ -22,6 +22,8 @@ public class TimerAndLoadGame : MonoBehaviourPunCallbacks
     public GameObject DM_dungeon_creator;
     public GameObject HEROE_selection;
     public GameObject waiting_canvas;
+    public GameObject heroes_shop;
+    public GameObject heroes_shop_controller;
 
     public Scenes game_scene_name;
 
@@ -47,7 +49,9 @@ public class TimerAndLoadGame : MonoBehaviourPunCallbacks
             else
             {
                 //TODO: Tienda
-                waiting_canvas.SetActive(true);
+                //waiting_canvas.SetActive(true);
+                heroes_shop.SetActive(true);
+                heroes_shop_controller.SetActive(true);
             }
             
         }

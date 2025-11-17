@@ -94,10 +94,13 @@ MonoBehaviour:
   - RPC_HealUnit
   - RPC_Mirror
   - RPC_SetUnitState
-  - RPC_OnStructureDamaged
-  - RPC_OnStructureDestroyed
-  - RPC_RequestStructureHit
-  - RPC_SetupDeadGoblinSummon
+  - AskForPurchase
+  - UpdateVotingList
+  - StopPurchase
+  - AddItemToHeroe
+  - RemoveItemFromShop
+  - SpendDMSeconds
+  - SpendHeroeSeconds
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

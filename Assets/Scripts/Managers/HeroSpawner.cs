@@ -26,7 +26,7 @@ public class HeroSpawner : MonoBehaviourPunCallbacks
         int playerIndex = PhotonNetwork.LocalPlayer.ActorNumber - 2;      // GetHeroPlayerIndex();
         if (playerIndex < 0 || playerIndex >= 4) return;
 
-        UnitData data = UnitLoaderController.Instance.playable_heroes[playerIndex];
+        UnitData data = UnitLoaderController.Instance.heroes[playerIndex].my_data;
         if (data == null)
         {
             Debug.LogError("[HeroSpawner] No UnitData for player index " + playerIndex);
