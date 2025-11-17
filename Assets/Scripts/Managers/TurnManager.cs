@@ -492,8 +492,17 @@ public class TurnManager : MonoBehaviourPunCallbacks
         // Check if master client left
         if (otherPlayer.IsMasterClient)
         {
-            Debug.Log($"[TurnManager] Master client left! Heroes win by default");
-            EndGame(UnitFaction.Hero);
+            Debug.Log($"[TurnManager] Master client left! Returning to main menu.");
+            
+            // Guardar la causa de desconexión
+            EnsureDisconnectInfoManager();
+            if (DisconnectInfoManager.Instance != null)
+            {
+                DisconnectInfoManager.Instance.SetDisconnectReason(DisconnectReason.DMDisconnected);
+            }
+            
+            // Ir directamente al main menu en lugar de la pantalla de victoria
+            ReturnToMainMenu();
             return;
         }
 
@@ -507,10 +516,22 @@ public class TurnManager : MonoBehaviourPunCallbacks
             }
         }
 
-        if (remainingHeroes < 2)
+        if (remainingHeroes <= 2)
         {
-            Debug.Log($"[TurnManager] Only {remainingHeroes} heroes remaining! DM wins by default");
-            EndGame(UnitFaction.Monster);
+            Debug.Log($"[TurnManager] Only {remainingHeroes} heroes remaining! Returning to main menu.");
+            
+            // Guardar la causa de desconexión
+            EnsureDisconnectInfoManager();
+            if (DisconnectInfoManager.Instance != null)
+            {
+                DisconnectInfoManager.Instance.SetDisconnectReason(
+                    DisconnectReason.TooManyPlayersDisconnected,
+                    $"Solo quedan {remainingHeroes} jugador(es). Se requieren al menos 3 jugadores para continuar."
+                );
+            }
+            
+            // Ir directamente al main menu en lugar de la pantalla de victoria
+            ReturnToMainMenu();
         }
     }
 
@@ -518,12 +539,37 @@ public class TurnManager : MonoBehaviourPunCallbacks
     {
         Debug.Log($"[TurnManager] Master client switched to {newMasterClient.ActorNumber}");
 
-        // If we become the new master client, take over the game state
-        if (PhotonNetwork.IsMasterClient)
+        // Guardar la causa de desconexión (el DM original se desconectó)
+        EnsureDisconnectInfoManager();
+        if (DisconnectInfoManager.Instance != null)
         {
-            Debug.Log($"[TurnManager] We are now the master client");
-            EndGame(UnitFaction.Hero);
+            DisconnectInfoManager.Instance.SetDisconnectReason(DisconnectReason.DMDisconnected);
         }
+
+        // Ir directamente al main menu en lugar de la pantalla de victoria
+        ReturnToMainMenu();
+    }
+    
+    // Método helper para asegurar que DisconnectInfoManager existe
+    private void EnsureDisconnectInfoManager()
+    {
+        if (DisconnectInfoManager.Instance == null)
+        {
+            GameObject managerObj = new GameObject("DisconnectInfoManager");
+            managerObj.AddComponent<DisconnectInfoManager>();
+        }
+    }
+    
+    // Método para volver al main menu cuando hay una desconexión
+    private void ReturnToMainMenu()
+    {
+        if (PhotonNetwork.IsConnected)
+        {
+            PhotonNetwork.Disconnect();
+        }
+        
+        // Cargar el main menu
+        SceneLoaderController.Instance.LoadNextLevel(Scenes.MainMenu);
     }
 
     private void TryUnpauseIfReady(string reason = "")

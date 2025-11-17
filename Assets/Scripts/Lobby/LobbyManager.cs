@@ -378,6 +378,13 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         {
             Debug.Log("[LobbyManager] DM abandoned the room! Returning all players to main menu.");
             
+            // Guardar la causa de desconexión
+            EnsureDisconnectInfoManager();
+            if (DisconnectInfoManager.Instance != null)
+            {
+                DisconnectInfoManager.Instance.SetDisconnectReason(DisconnectReason.DMDisconnected);
+            }
+            
             // Expulsar a todos los jugadores al main menu
             if (PhotonNetwork.IsConnected)
             {
@@ -436,10 +443,27 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         // Expulsar a todos al main menu
         Debug.Log("[LobbyManager] DM disconnected! Returning all players to main menu.");
         
+        // Guardar la causa de desconexión
+        EnsureDisconnectInfoManager();
+        if (DisconnectInfoManager.Instance != null)
+        {
+            DisconnectInfoManager.Instance.SetDisconnectReason(DisconnectReason.DMDisconnected);
+        }
+        
         if (PhotonNetwork.IsConnected)
         {
             PhotonNetwork.Disconnect();
             SceneLoaderController.Instance.LoadNextLevel(mainMenuScene);
+        }
+    }
+    
+    // Método helper para asegurar que DisconnectInfoManager existe
+    private void EnsureDisconnectInfoManager()
+    {
+        if (DisconnectInfoManager.Instance == null)
+        {
+            GameObject managerObj = new GameObject("DisconnectInfoManager");
+            managerObj.AddComponent<DisconnectInfoManager>();
         }
     }
 
