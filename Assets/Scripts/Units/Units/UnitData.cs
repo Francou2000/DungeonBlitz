@@ -49,6 +49,7 @@ public class UnitData : ScriptableObject
 
     [Header("Promotion")]
     public bool isPromotable;
+    public int promotionCost;
     public UnitData promotedForm;
     
     [Header("Special Mechanics")]

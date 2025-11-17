@@ -3302,11 +3302,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   players_ready: 0000000000
+  dm_remaining_time: 0
+  heroes_remaining_time: 0
   playable_heroes:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  heroes:
+  - my_data: {fileID: 0}
+    actual_health: 0
+    volatile_time_left: 0
+    my_items: []
+  - my_data: {fileID: 0}
+    actual_health: 0
+    volatile_time_left: 0
+    my_items: []
+  - my_data: {fileID: 0}
+    actual_health: 0
+    volatile_time_left: 0
+    my_items: []
+  - my_data: {fileID: 0}
+    actual_health: 0
+    volatile_time_left: 0
+    my_items: []
   heroes_data:
   - {fileID: 11400000, guid: e908555b489ee984aae154fd64288041, type: 2}
   - {fileID: 11400000, guid: 5abf3bf8766dfa04f9f9434c99419c54, type: 2}
@@ -3317,6 +3336,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: d2141c71775c4174796377725c271e1f, type: 2}
   - {fileID: 11400000, guid: 049293ec2bb7fe14bb063e3a08a82a02, type: 2}
   - {fileID: 11400000, guid: b826a5a6a17d6c041b1f26aa3dce3497, type: 2}
+  - {fileID: 11400000, guid: 7a9ee6b020106e94a940f8e2f4f1e497, type: 2}
+  - {fileID: 11400000, guid: e78ef8dd0c46a564e9e9ed09770d3cdc, type: 2}
+  - {fileID: 11400000, guid: f4e9e40dd62fea44daa0d1c40400b903, type: 2}
+  - {fileID: 11400000, guid: c8eb942e51c0f534691a09ead5d5b8f9, type: 2}
   lvl: 1
 --- !u!4 &1458792924
 Transform:
