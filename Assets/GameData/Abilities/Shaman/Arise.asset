@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: Arise
   m_EditorClassIdentifier: 
   abilityName: Arise
-  description: Summon 2 Dead Goblins for ~2 turns.
+  description: Summon 2 Dead Goblins.
   abilityType: 2
   icon: {fileID: 21300000, guid: b9859d230f721304691e531c9b82df1c, type: 3}
   baseHitChance: 100
   actionCost: 2
-  adrenalineCost: 100
+  adrenalineCost: 0
   resourceCosts: []
   effects: []
   minAdrenaline: 0
@@ -44,7 +44,7 @@ MonoBehaviour:
   bonusPerMissingHpPercent: 0
   damageSource: 1
   baseDamage: 0
-  damageMultiplier: 1
+  damageMultiplier: 0
   bonusDamage: 0
   hits: 1
   useTargetMissingHealth: 0
@@ -59,6 +59,7 @@ MonoBehaviour:
   grantsMovement: 0
   movementRange: 0
   isMovementFree: 0
+  isTeleport: 0
   spawnsSummons: 1
   summonPrefab: {fileID: 671761192709153641, guid: ecea832b3d5cf8a48ad0570119560611, type: 3}
   summonCount: 2
@@ -79,7 +80,7 @@ MonoBehaviour:
   conditionTag: 
   reducesActionCostOnCondition: 0
   reducedActionCost: 0
-  selfOnly: 1
+  selfOnly: 0
   alliesOnly: 0
   enemiesOnly: 0
-  groundTarget: 0
+  groundTarget: 1

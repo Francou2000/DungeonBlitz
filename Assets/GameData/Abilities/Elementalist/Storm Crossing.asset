@@ -60,20 +60,21 @@ MonoBehaviour:
   grantsMovement: 0
   movementRange: 0
   isMovementFree: 0
+  isTeleport: 0
   spawnsSummons: 0
-  summonPrefabName: 
+  summonPrefab: {fileID: 0}
   summonCount: 0
-  summonDuration: 0
+  summonPrefabName: 
   spawnsStructure: 0
   structureKind: 0
   structureHP: 0
   structureHeal: 0
   structureDuration: 0
   structureRadius: 0
-  spawnsZone: 0
-  zoneKind: 0
-  zoneRadius: 0
-  zoneDuration: 0
+  spawnsZone: 1
+  zoneKind: 2
+  zoneRadius: 1.5
+  zoneDuration: 2
   isReaction: 0
   reactionTrigger: 0
   hasConditionalEffect: 0
