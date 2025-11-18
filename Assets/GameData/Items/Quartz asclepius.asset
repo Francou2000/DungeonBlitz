@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38b7c91524e34424384e8ec1395eafc6, type: 3}
   m_Name: Quartz asclepius
   m_EditorClassIdentifier: 
-  ItemID: 0
+  ItemID: 39
   sprite: {fileID: 0}
-  tailored_heroe: 0
-  rarity: 0
-  cost: 0
-  change_stats: 0
+  tailored_heroe: 3
+  rarity: 4
+  cost: 35
+  change_stats: 1
   change_actions: 0
   add_actions: 0
   consumable: 0
@@ -27,5 +27,5 @@ MonoBehaviour:
   armor: 0
   magicResistance: 0
   strength: 0
-  magicPower: 0
+  magicPower: 1
   new_ability: {fileID: 0}

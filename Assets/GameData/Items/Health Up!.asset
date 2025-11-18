@@ -13,15 +13,15 @@ MonoBehaviour:
   m_Name: Health Up!
   m_EditorClassIdentifier: 
   ItemID: 0
-  sprite: {fileID: 0}
-  tailored_heroe: 0
+  sprite: {fileID: 2896249417665592293, guid: a9ee27bdc884162478e010d68e9dd0ef, type: 3}
+  tailored_heroe: 4
   rarity: 0
-  cost: 0
-  change_stats: 0
+  cost: 5
+  change_stats: 1
   change_actions: 0
   add_actions: 0
   consumable: 0
-  maxHP: 0
+  maxHP: 5
   performance: 0
   affinity: 0
   armor: 0

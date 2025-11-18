@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Beast leather bracer
   m_EditorClassIdentifier: 
   ItemID: 23
-  sprite: {fileID: 0}
+  sprite: {fileID: 6448409571518013496, guid: 66bd003225edff14fb288d409150d55e, type: 3}
   tailored_heroe: 2
   rarity: 2
   cost: 15

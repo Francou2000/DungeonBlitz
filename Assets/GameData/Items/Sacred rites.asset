@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38b7c91524e34424384e8ec1395eafc6, type: 3}
   m_Name: Sacred rites
   m_EditorClassIdentifier: 
-  ItemID: 0
+  ItemID: 20
   sprite: {fileID: 0}
   tailored_heroe: 0
-  rarity: 0
-  cost: 0
+  rarity: 3
+  cost: 35
   change_stats: 0
   change_actions: 0
   add_actions: 0

@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38b7c91524e34424384e8ec1395eafc6, type: 3}
   m_Name: Holy water
   m_EditorClassIdentifier: 
-  ItemID: 0
-  sprite: {fileID: 0}
+  ItemID: 17
+  sprite: {fileID: -1887390045657972400, guid: 150aae87e2c33684b8cbcb584f8af273, type: 3}
   tailored_heroe: 0
-  rarity: 0
-  cost: 0
-  change_stats: 0
+  rarity: 2
+  cost: 20
+  change_stats: 1
   change_actions: 0
   add_actions: 0
   consumable: 0
@@ -27,5 +27,5 @@ MonoBehaviour:
   armor: 0
   magicResistance: 0
   strength: 0
-  magicPower: 0
+  magicPower: 2
   new_ability: {fileID: 0}

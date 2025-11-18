@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38b7c91524e34424384e8ec1395eafc6, type: 3}
   m_Name: Whetstone
   m_EditorClassIdentifier: 
-  ItemID: 0
-  sprite: {fileID: 0}
-  tailored_heroe: 0
+  ItemID: 11
+  sprite: {fileID: -5394096455326460710, guid: 36256caf6545d9b43b30d63c042088f3, type: 3}
+  tailored_heroe: 4
   rarity: 0
-  cost: 0
-  change_stats: 0
+  cost: 6
+  change_stats: 1
   change_actions: 0
   add_actions: 0
   consumable: 0
@@ -26,6 +26,6 @@ MonoBehaviour:
   affinity: 0
   armor: 0
   magicResistance: 0
-  strength: 0
+  strength: 1
   magicPower: 0
   new_ability: {fileID: 0}

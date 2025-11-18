@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38b7c91524e34424384e8ec1395eafc6, type: 3}
   m_Name: Magical Power up!
   m_EditorClassIdentifier: 
-  ItemID: 0
-  sprite: {fileID: 0}
-  tailored_heroe: 0
+  ItemID: 4
+  sprite: {fileID: 2990852252764866642, guid: 0a96406e4f5e4284381814de022f3ad1, type: 3}
+  tailored_heroe: 4
   rarity: 0
-  cost: 0
-  change_stats: 0
+  cost: 5
+  change_stats: 1
   change_actions: 0
   add_actions: 0
   consumable: 0
@@ -27,5 +27,5 @@ MonoBehaviour:
   armor: 0
   magicResistance: 0
   strength: 0
-  magicPower: 0
+  magicPower: 1
   new_ability: {fileID: 0}
