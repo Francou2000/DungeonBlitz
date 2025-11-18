@@ -35,6 +35,7 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
     [SerializeField] ItemData[] items_sorcerer;
     [SerializeField] ItemData[] items_rogue;
     [SerializeField] ItemData[] items_elementalist;
+    [SerializeField] ItemData[] items_for_all;
     [SerializeField] ItemData[] items_consumable;
 
     [Header("Items pedestals")]
@@ -179,7 +180,11 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
                 id = UnityEngine.Random.Range(0, items_rogue.Length);
                 return items_rogue[id];
             case HeroesList.None:
-                return GetRandomItem((HeroesList)UnityEngine.Random.Range(1, 5));
+                int list_id = UnityEngine.Random.Range(0, 5);
+                if (list_id != 4) return GetRandomItem((HeroesList)list_id);
+                id = UnityEngine.Random.Range(0, items_for_all.Length);
+                return items_for_all[id];
+
         }
         Debug.LogError("Error al generar item random");
         return null;
@@ -411,7 +416,8 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
         unit_loader_controller.photonView.RPC("AddItemToHeroe", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber, actual_item);
 
         UseVolatileSeconds(actual_item.cost);
-        photonView.RPC("RemoveItemFromShop", RpcTarget.All, actual_pedestal);
+        if (actual_item.is_unique) photonView.RPC("RemoveItemFromShop", RpcTarget.All, actual_pedestal);
+        else RemoveItemFromShop(actual_pedestal);
     }
 
     [PunRPC]

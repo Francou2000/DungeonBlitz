@@ -219,6 +219,9 @@ public class DC_Manager : MonoBehaviour
     public void PromoteUnit()
     {
         if (!unitDatas[(int)actualUnit - 1].isPromotable) return;
+
+        unitLoaderController.dm_remaining_time -= unitDatas[(int)actualUnit - 1].promotionCost;
+
         Vector2 unit_pos = unit_to_update.transform.position;
         RemoveUnitVisual(false);
 

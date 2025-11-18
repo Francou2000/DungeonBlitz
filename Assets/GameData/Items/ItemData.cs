@@ -11,6 +11,7 @@ public class ItemData : ScriptableObject
     [Header("Shop Info")]
     public Rarity rarity;
     public int cost;
+    public bool is_unique;
 
     [Header("Effect")]
     public bool change_stats;
