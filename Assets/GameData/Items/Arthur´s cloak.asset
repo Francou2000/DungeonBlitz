@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: "Arthur\xB4s cloak"
   m_EditorClassIdentifier: 
   ItemID: 27
-  sprite: {fileID: 0}
+  sprite: {fileID: 1779428231055646970, guid: cd76214ea92085641ae27d006c37656d, type: 3}
   tailored_heroe: 2
   rarity: 4
   cost: 35

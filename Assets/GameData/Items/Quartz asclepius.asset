@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Quartz asclepius
   m_EditorClassIdentifier: 
   ItemID: 39
-  sprite: {fileID: 0}
+  sprite: {fileID: 2957738737628422220, guid: 18eecf9bba47e6847896f6748ab42dfe, type: 3}
   tailored_heroe: 3
   rarity: 4
   cost: 35

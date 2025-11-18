@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Holy relic
   m_EditorClassIdentifier: 
   ItemID: 19
-  sprite: {fileID: 0}
+  sprite: {fileID: -8130925213320034074, guid: bc49f73e86c8d8a49acaf5b1462da9e6, type: 3}
   tailored_heroe: 0
   rarity: 3
   cost: 35

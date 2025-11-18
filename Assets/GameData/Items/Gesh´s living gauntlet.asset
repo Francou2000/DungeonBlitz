@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: "Gesh\xB4s living gauntlet"
   m_EditorClassIdentifier: 
   ItemID: 34
-  sprite: {fileID: 0}
+  sprite: {fileID: 7588244779727186660, guid: adc44976ecae2b34aa7568873f04f04a, type: 3}
   tailored_heroe: 1
   rarity: 4
   cost: 35

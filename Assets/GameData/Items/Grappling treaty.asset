@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Grappling treaty
   m_EditorClassIdentifier: 
   ItemID: 24
-  sprite: {fileID: 0}
+  sprite: {fileID: -4966994939157001044, guid: 0814fb099d4c81d4697a77f4e19927e8, type: 3}
   tailored_heroe: 2
   rarity: 2
   cost: 15
