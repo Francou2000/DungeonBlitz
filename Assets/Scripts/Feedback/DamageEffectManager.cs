@@ -10,6 +10,17 @@ public class DamageEffectManager : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject basicRangedEffectPrefab;
     [SerializeField] private GameObject biteEffectPrefab;
     [SerializeField] private GameObject clawEffectPrefab;
+    
+    [Header("New VFX Prefabs")]
+    [SerializeField] private GameObject arrowEffectPrefab;
+    [SerializeField] private GameObject electricBoltEffectPrefab;
+    [SerializeField] private GameObject fireBoltEffectPrefab;
+    [SerializeField] private GameObject iceBoltEffectPrefab;
+    [SerializeField] private GameObject healingEffectPrefab;
+    [SerializeField] private GameObject iceShardEffectPrefab;
+    [SerializeField] private GameObject javelineEffectPrefab;
+    [SerializeField] private GameObject smiteEffectPrefab;
+    [SerializeField] private GameObject thunderStrikeEffectPrefab;
 
     [Header("Effect Settings")]
     [SerializeField] private float effectOffset = 1.5f; // Distancia desde el centro de la unidad
@@ -45,6 +56,34 @@ public class DamageEffectManager : MonoBehaviourPunCallbacks
         
         if (clawEffectPrefab == null)
             clawEffectPrefab = Resources.Load<GameObject>("HitEffects/Claw");
+        
+        // Cargar nuevos prefabs de VFX
+        if (arrowEffectPrefab == null)
+            arrowEffectPrefab = Resources.Load<GameObject>("HitEffects/Arrow");
+        
+        if (electricBoltEffectPrefab == null)
+            electricBoltEffectPrefab = Resources.Load<GameObject>("HitEffects/Electric Bolt");
+        
+        if (fireBoltEffectPrefab == null)
+            fireBoltEffectPrefab = Resources.Load<GameObject>("HitEffects/Fire Bolt");
+        
+        if (iceBoltEffectPrefab == null)
+            iceBoltEffectPrefab = Resources.Load<GameObject>("HitEffects/Ice Bolt");
+        
+        if (healingEffectPrefab == null)
+            healingEffectPrefab = Resources.Load<GameObject>("HitEffects/Healing");
+        
+        if (iceShardEffectPrefab == null)
+            iceShardEffectPrefab = Resources.Load<GameObject>("HitEffects/Ice Shard");
+        
+        if (javelineEffectPrefab == null)
+            javelineEffectPrefab = Resources.Load<GameObject>("HitEffects/Javeline");
+        
+        if (smiteEffectPrefab == null)
+            smiteEffectPrefab = Resources.Load<GameObject>("HitEffects/Smite");
+        
+        if (thunderStrikeEffectPrefab == null)
+            thunderStrikeEffectPrefab = Resources.Load<GameObject>("HitEffects/ThunderStrike");
     }
 
     /// <summary>
@@ -99,29 +138,28 @@ public class DamageEffectManager : MonoBehaviourPunCallbacks
 
             // Hobgoblin abilities
             case "spear throw":
-                return basicRangedEffectPrefab;
+                return javelineEffectPrefab ?? basicRangedEffectPrefab;
             case "replenish spears":
                 // No effect for replenish spears
                 return null;
 
             // Paladin abilities
             case "smite":
-                return basicMeleeEffectPrefab;
+                return smiteEffectPrefab ?? basicMeleeEffectPrefab;
             case "justice strike":
                 return basicMeleeEffectPrefab;
             case "shield bash":
                 return basicMeleeEffectPrefab;
             case "divine smite":
-                return basicMeleeEffectPrefab;
+                return smiteEffectPrefab ?? basicMeleeEffectPrefab;
             case "healing prayer":
-                // No effect for healing prayer
-                return null;
+                return healingEffectPrefab;
 
             // Rogue abilities
             case "focus shot":
             case "piercing shot":
             case "shadow arrows":
-                return basicRangedEffectPrefab;
+                return arrowEffectPrefab ?? basicRangedEffectPrefab;
             case "swift dagger":
             case "shadow blade":
             case "blade barrage":
@@ -129,19 +167,19 @@ public class DamageEffectManager : MonoBehaviourPunCallbacks
 
             // Shaman abilities
             case "fire bolt":
-                return basicRangedEffectPrefab;
+                return fireBoltEffectPrefab ?? basicRangedEffectPrefab;
             case "lightning bolt":
-                return basicRangedEffectPrefab;
+                return electricBoltEffectPrefab ?? basicRangedEffectPrefab;
 
             // Sorcerer abilities
             case "fire bolt+":
-                return basicRangedEffectPrefab;
+                return fireBoltEffectPrefab ?? basicRangedEffectPrefab;
             case "lightning bolt+":
-                return basicRangedEffectPrefab;
+                return electricBoltEffectPrefab ?? basicRangedEffectPrefab;
             case "ice shard +":
-                return basicRangedEffectPrefab;
+                return iceShardEffectPrefab ?? basicRangedEffectPrefab;
             case "thunder strike":
-                return basicRangedEffectPrefab;
+                return thunderStrikeEffectPrefab ?? basicRangedEffectPrefab;
             case "fireball":
                 return basicRangedEffectPrefab;
             case "harness power":
@@ -169,12 +207,11 @@ public class DamageEffectManager : MonoBehaviourPunCallbacks
             case "elementalist staff":
                 return basicMeleeEffectPrefab;
             case "ice shard":
-                return basicRangedEffectPrefab;
+                return iceShardEffectPrefab ?? basicRangedEffectPrefab;
             case "restoration":
-                // No effect for restoration
-                return null;
+                return healingEffectPrefab;
             case "storm crossing":
-                return basicRangedEffectPrefab;
+                return electricBoltEffectPrefab ?? basicRangedEffectPrefab;
 
             default:
                 // Default fallback based on range
