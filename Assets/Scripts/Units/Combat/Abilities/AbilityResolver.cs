@@ -734,6 +734,16 @@ public sealed class AbilityResolver : MonoBehaviourPun
                             /*enemyDamage*/ Mathf.Max(0, ability.baseDamage + casterCtrl.unit.Model.MagicPower),
                             /*shockChance*/ 0
                         );
+
+                        float halfW = width * 0.5f;
+
+                        ResolveStormCrossingInitialHit(
+                            casterCtrl,
+                            a, b,
+                            halfW,
+                            ability.baseDamage + casterCtrl.unit.Model.MagicPower,
+                            ability.damageSource
+                        );
                         break;
                     }
             }
@@ -1571,5 +1581,33 @@ public sealed class AbilityResolver : MonoBehaviourPun
             dmg += ability.bonusDamage;
 
         return Mathf.Max(0, dmg);
+    }
+
+    private void ResolveStormCrossingInitialHit(UnitController casterCtrl, Vector3 A, Vector3 B, float halfWidth, int damage, DamageType dtype)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        var units = FindObjectsByType<Unit>(FindObjectsSortMode.None);
+
+        foreach (var u in units)
+        {
+            if (u == null || !u.Model.IsAlive()) continue;
+            if (u == casterCtrl.unit) continue;  // don't hit caster
+
+            // Faction check (Storm Crossing damages ENEMIES by design)
+            if (u.Model.Faction == casterCtrl.unit.Model.Faction) continue;
+
+            if (StormCrossingZone.IsCrossing(A, B, halfWidth, u.transform.position, u.transform.position))
+            {
+                // Apply damage using your master-authoritative damage resolver
+                ResolveDamageServerOnly(
+                    u.Controller,
+                    damage,
+                    dtype,
+                    casterCtrl.photonView.ViewID,
+                    /* abilityIndex */ -1
+                );
+            }
+        }
     }
 }

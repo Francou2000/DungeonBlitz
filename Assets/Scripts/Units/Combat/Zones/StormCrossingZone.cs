@@ -41,6 +41,13 @@ public class StormCrossingZone : ZoneBase
     // Movement crossing test (XZ)
     public bool IsCrossing(Vector3 from, Vector3 to)
     {
+        // just forward to the static helper, using this zone’s A/B/halfWidth
+        return IsCrossing(A, B, halfWidth, from, to);
+    }
+
+    public static bool IsCrossing(Vector3 A, Vector3 B, float halfWidth,
+                               Vector3 from, Vector3 to)
+    {
         Vector2 A2 = new Vector2(A.x, A.z);
         Vector2 B2 = new Vector2(B.x, B.z);
         Vector2 d = (B2 - A2);

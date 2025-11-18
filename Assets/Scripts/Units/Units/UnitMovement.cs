@@ -58,9 +58,9 @@ public class UnitMovement : MonoBehaviour
         var from = oldPosition;   
         var to = transform.position;
 
-        if (PhotonNetwork.IsMasterClient && ZoneManager.Instance != null)
+        if (PhotonNetwork.IsMasterClient)
         {
-            ZoneManager.Instance.HandleOnMove(unit, from, to);
+            ZoneManager.Instance?.HandleOnMove(unit, from, to);
         }
 
         GetComponent<StatusComponent>()?.OnMoved();
