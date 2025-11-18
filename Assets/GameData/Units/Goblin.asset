@@ -37,7 +37,7 @@ MonoBehaviour:
   startingWeapon: Dagger
   isTrainingDummy: 0
   isPromotable: 1
-  promotionCost: 10
+  promotionCost: 20
   promotedForm: {fileID: 11400000, guid: 7a9ee6b020106e94a940f8e2f4f1e497, type: 2}
   hasAttackOfOpportunity: 0
   specialTags: []

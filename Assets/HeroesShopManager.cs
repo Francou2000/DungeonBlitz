@@ -29,7 +29,7 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
 
     [Header("Items")]
     [SerializeField] ItemRarityWeigt[] rarity_weigts;
-    Dictionary<Rarity, int> rarity_weigt;
+    Dictionary<Rarity, int> rarity_weigt = new Dictionary<Rarity, int>();
     [SerializeField] GameObject item_prefab;
     [SerializeField] ItemData[] items_paladin;
     [SerializeField] ItemData[] items_sorcerer;
@@ -113,14 +113,14 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
     //-------------------------------------------------------------------------------------------------------------------------------------
     void SpawnHeroesItems()
     {
-        var heroes = unit_loader_controller.playable_heroes;
+        var heroes = unit_loader_controller.heroes;
         for (int i = 0; i < heroes.Length; i++)
         {
-            ItemData item = GetRandomItem(heroes[i].heroe_id);
+            ItemData item = GetRandomItem(heroes[i].my_data.heroe_id);
 
             SpawnItem(heroe_pedestals[i], item);
 
-            photonView.RPC(nameof(SpawnItem), RpcTarget.Others);
+            photonView.RPC("SpawnItem", RpcTarget.Others);
 
 
             //GameObject new_item = Instantiate(item_prefab, heroe_pedestals[i]);

@@ -39,7 +39,7 @@ MonoBehaviour:
   startingWeapon: Greatsword
   isTrainingDummy: 0
   isPromotable: 0
-  promotionCost: 0
+  promotionCost: 20
   promotedForm: {fileID: 11400000, guid: c8eb942e51c0f534691a09ead5d5b8f9, type: 2}
   hasAttackOfOpportunity: 0
   specialTags: []

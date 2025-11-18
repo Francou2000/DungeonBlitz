@@ -49,6 +49,7 @@ public class UnitPlaceholderIntection : MonoBehaviour
 
         if (!is_promotionable) return;
         if (promotion_cost > UnitLoaderController.Instance.dm_remaining_time) return;
+        if (2 > UnitLoaderController.Instance.lvl) return;
 
         promoteMenu.SetActive(true);
         screen_pos = Camera.main.WorldToScreenPoint(pos + new Vector2(0, 0.5f));

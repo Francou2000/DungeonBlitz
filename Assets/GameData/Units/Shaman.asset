@@ -42,7 +42,7 @@ MonoBehaviour:
   startingWeapon: Staff
   isTrainingDummy: 0
   isPromotable: 0
-  promotionCost: 0
+  promotionCost: 20
   promotedForm: {fileID: 11400000, guid: f4e9e40dd62fea44daa0d1c40400b903, type: 2}
   hasAttackOfOpportunity: 0
   specialTags: []
