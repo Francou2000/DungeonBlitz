@@ -15,8 +15,11 @@ public class StormCrossingZone : ZoneBase
     public int enemyDamage = 10;
     [Range(0, 100)] public int enemyShockChance = 25;
 
+    private LineRenderer _border;
+    [SerializeField] private float _borderWidth = 0.06f;
+
     public void InitSegment(Vector3 a, Vector3 b, float width, UnitFaction ownerFaction,
-                            int hasteDur, int dmg, int shockChance, double expiresAt)
+                            int hasteDur, int dmg, int shockChance, int remainingTurns)
     {
         A = a; B = b;
         halfWidth = Mathf.Max(0.05f, width * 0.5f);
@@ -24,9 +27,15 @@ public class StormCrossingZone : ZoneBase
         allyHasteDuration = Mathf.Max(0, hasteDur);
         enemyDamage = Mathf.Max(0, dmg);
         enemyShockChance = Mathf.Clamp(shockChance, 0, 100);
-
-        base.Init(ZoneKind.StormCrossing, (a + b) * 0.5f, width, expiresAt);
+        base.Init(ZoneKind.StormCrossing, (a + b) * 0.5f, width, remainingTurns);
         name = "StormCrossingZone";
+
+        // Storm uses its own rectangle — hide the circle ring built by base
+
+        var ring = transform.Find("Ring");
+        if (ring) ring.gameObject.SetActive(false);
+
+        BuildOrUpdateBorder();
     }
 
     // Movement crossing test (XZ)
@@ -62,5 +71,39 @@ public class StormCrossingZone : ZoneBase
         bool spansSegment = (Mathf.Max(t0, t1) >= 0f) && (Mathf.Min(t0, t1) <= len);
 
         return spansSegment && insideStripAtLeastOnce;
+    }
+
+    private void BuildOrUpdateBorder()
+    {
+        if (_border == null)
+        {
+            var go = new GameObject("Border");
+            go.transform.SetParent(transform, false);
+            _border = go.AddComponent<LineRenderer>();
+            _border.loop = true;
+            _border.useWorldSpace = true;
+            _border.widthMultiplier = _borderWidth;
+            _border.material = new Material(Shader.Find("Sprites/Default"));
+
+            var g = new Gradient();
+            Color c = new Color(1f, 0.9f, 0.3f, 0.95f); // electric yellow
+            g.SetKeys(new[] { new GradientColorKey(c, 0f), new GradientColorKey(c, 1f) },
+                      new[] { new GradientAlphaKey(c.a, 0f), new GradientAlphaKey(c.a, 1f) });
+            _border.colorGradient = g;
+        }
+
+        // rectangle corners around segment A-B with halfWidth
+        Vector3 dir = (B - A);
+        if (dir.sqrMagnitude < 1e-6f) dir = Vector3.right;
+        dir.Normalize();
+        Vector3 n = new Vector3(-dir.y, dir.x, dir.z) * halfWidth;
+
+        Vector3 p0 = A + n;
+        Vector3 p1 = B + n;
+        Vector3 p2 = B - n;
+        Vector3 p3 = A - n;
+
+        _border.positionCount = 4;
+        _border.SetPositions(new[] { p0, p1, p2, p3 });
     }
 }

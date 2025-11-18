@@ -3,20 +3,20 @@ using UnityEngine;
 
 public sealed class SummonedUnit : MonoBehaviourPun
 {
-    public double ExpiresAt;
+    public UnitFaction OwnerFaction = UnitFaction.Monster;
     public int OwnerCasterViewId;
 
-    public void Init(double expiresAt, int ownerCasterViewId)
+    public void InitPermanent(int ownerCasterViewId, UnitFaction ownerFaction)
     {
-        ExpiresAt = expiresAt;
         OwnerCasterViewId = ownerCasterViewId;
+        OwnerFaction = ownerFaction;
     }
 
-    void Update()
+    void OnEnable() { TurnManager.OnTurnBegan += HandleTurnBegan; }
+    void OnDisable() { TurnManager.OnTurnBegan -= HandleTurnBegan; }
+
+    void HandleTurnBegan(UnitFaction starting)
     {
-        if (PhotonNetwork.IsMasterClient && PhotonNetwork.Time >= ExpiresAt)
-        {
-            PhotonNetwork.Destroy(gameObject);
-        }
+        // Kept only if you later need owner-turn hooks.
     }
 }

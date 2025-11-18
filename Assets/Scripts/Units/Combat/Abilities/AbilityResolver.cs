@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using DebugTools;
+﻿using DebugTools;
 using Photon.Pun;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public sealed class AbilityResolver : MonoBehaviourPun
@@ -330,6 +330,45 @@ public sealed class AbilityResolver : MonoBehaviourPun
 
         Debug.Log($"[RPC_RequestCast] CanCast passed, proceeding with ability resolution");
 
+        // ---- BLINK: instant teleport inside a circle centered on the caster ----
+        if (ability.grantsMovement && ability.isTeleport)
+        {
+            // Compute Blink radius = half of your move distance per action.
+            // Prefer UnitMovement helper; fall back to Model speed * time.
+            var mv = casterCtrl.GetComponent<UnitMovement>();
+            float fullMove = (mv != null)
+                ? mv.GetMaxWorldRadius()
+                : casterCtrl.unit.Model.GetMovementSpeed() * casterCtrl.unit.Model.MoveTimeBase;  // fallback
+
+            float blinkRadius = Mathf.Max(0.1f, fullMove * 0.5f);
+
+            // Clamp aimPos to that circle (center is caster)
+            Vector3 center = casterCtrl.transform.position;
+            Vector3 dest = aimPos; dest.z = center.z;
+            Vector3 d = dest - center;
+            if (d.sqrMagnitude > blinkRadius * blinkRadius)
+                dest = center + d.normalized * blinkRadius;
+
+            // Spend costs ONCE on master
+            casterCtrl.unit.Model.SpendAction(ability.actionCost);
+            if (ability.resourceCosts != null)
+                foreach (var cost in ability.resourceCosts)
+                    casterCtrl.unit.Model.TryConsume(cost.key, cost.amount);
+            if (ability.adrenalineCost > 0)
+                casterCtrl.unit.Model.SpendAdrenaline(ability.adrenalineCost);
+
+            BroadcastAPSync(casterCtrl);
+
+            // Teleport on ALL clients
+            _view.RPC(nameof(RPC_TeleportUnit), RpcTarget.All,
+                casterCtrl.photonView.ViewID, dest);
+
+            ResolveBlinkAoE(casterCtrl, ability, dest, abilityIndex);
+
+            return; // Blink does not do damage/heal itself
+        }
+
+
         // Auto-targeting based on ability type
         if (targets == null || targets.Length == 0 || targets[0] == null)
         {
@@ -409,6 +448,48 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 halfWidth,
                 Mathf.Max(1, ability.lineMaxTargets)
             );
+        }
+
+        // --- collect structures (optional per ability) ---
+        var structTargets = new List<StructureBase>();
+        if (ability.allowTargetStructures && StructureManager.Instance)
+        {
+            var casterFaction = casterCtrl.unit.Model.Faction;
+
+            if (ability.areaType == AreaType.Single)
+            {
+                // try picking the nearest structure around the aim position if no unit primary
+                if (primaryTarget == null)
+                {
+                    var s = StructureManager.Instance.RaycastStructureSingle(
+                        aimPos, 4f, ability.structureTargets, casterFaction);
+                    if (s != null) structTargets.Add(s);
+                }
+            }
+            else if (ability.areaType == AreaType.Circle)
+            {
+                var center = (primaryTarget != null) ? primaryTarget.transform.position : aimPos;
+                center.z = 0f;
+                structTargets.AddRange(
+                    StructureManager.Instance.GetStructuresInCircle(
+                        center, ability.aoeRadius, null, ability.structureTargets, casterFaction));
+            }
+            else if (ability.areaType == AreaType.Line)
+            {
+                var origin = casterCtrl.transform.position;
+                Vector3 dir =
+                    (primaryTarget != null) ? (primaryTarget.transform.position - origin) :
+                    (aimDir.sqrMagnitude > 1e-5f) ? aimDir :
+                    (aimPos - origin);
+
+                var a = origin;
+                var b = origin + dir.normalized * ability.lineRange;
+                float halfWidth = (ability.aoeRadius > 0f ? ability.aoeRadius : 0.5f);
+
+                structTargets.AddRange(
+                    StructureManager.Instance.GetStructuresNearSegment(
+                        a, b, halfWidth, ability.structureTargets, casterFaction));
+            }
         }
 
         CombatLog.Resolve(traceId, $"Targets: final={computedTargets.Count} area={ability.areaType}");
@@ -575,6 +656,8 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 casterCtrl.unit.Model.TryConsume(cost.key, cost.amount);
         if (ab.adrenalineCost > 0)
             casterCtrl.unit.Model.SpendAdrenaline(ab.adrenalineCost);
+        foreach (var s in structTargets)
+            HitStructureAuth(ability, casterCtrl, s);
 
         if (PhotonNetwork.IsMasterClient && ab != null && ab.changesState && !string.IsNullOrEmpty(ab.stateKey))
         {
@@ -606,6 +689,56 @@ public sealed class AbilityResolver : MonoBehaviourPun
             Debug.Log($"[Structure] {skind} spawned by {casterCtrl.name} at {center}");
             // Structures don’t need the heal/damage pipeline; skip sending those RPCs if they’re empty.
             return;
+        }
+
+        if (PhotonNetwork.IsMasterClient && ZoneManager.Instance && ability.spawnsZone)
+        {
+            var center = aimPos; center.z = 0f;
+            float r = Mathf.Max(0.1f, ability.zoneRadius);
+            int durTurns = Mathf.Max(1, Mathf.RoundToInt(ability.zoneDuration)); // reinterpret as TURNS
+
+            switch (ability.zoneKind)
+            {
+                case ZoneKind.Negative:
+                    {
+                        int ownerVid = casterCtrl.photonView.ViewID;
+                        bool isGreater = (ability.abilityName != null &&
+                                          ability.abilityName.ToLowerInvariant().Contains("greater"));
+                        if (isGreater)
+                            ZoneManager.Instance.ReplaceAnyNegativeZone(ownerVid, center, r, durTurns);
+                        else
+                            ZoneManager.Instance.SpawnCircleZone(ZoneKind.Negative, center, r, durTurns, ownerVid);
+                        break;
+                    }
+                case ZoneKind.Frozen:
+                    ZoneManager.Instance.SpawnCircleZone(ZoneKind.Frozen, center, r, durTurns);
+                    break;
+
+                case ZoneKind.StormCrossing:
+                    {
+                        Vector3 origin = casterCtrl.transform.position;
+                        Vector3 dir = (aimDir.sqrMagnitude > 1e-5f) ? aimDir : (aimPos - origin);
+                        if (dir.sqrMagnitude < 1e-5f) dir = Vector3.right;
+                        dir.z = 0f; dir.Normalize();
+
+                        float length = Mathf.Max(1f, ability.lineRange);
+                        float width = Mathf.Max(0.25f, ability.aoeRadius);
+
+                        Vector3 a = center - dir * (length * 0.5f);
+                        Vector3 b = center + dir * (length * 0.5f);
+
+                        int ownerFaction = (int)casterCtrl.unit.Model.Faction;
+                        ZoneManager.Instance.SpawnStormCrossing(
+                            a, b, width, durTurns,
+                            ownerFaction, /*allyHasteDur*/ 0,
+                            /*enemyDamage*/ Mathf.Max(0, ability.baseDamage + casterCtrl.unit.Model.MagicPower),
+                            /*shockChance*/ 0
+                        );
+                        break;
+                    }
+            }
+
+            return; 
         }
 
         // Broadcast heals first
@@ -681,13 +814,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
 
                 if (ab.spawnsSummons && SummonManager.Instance != null)
                 {
-                    Vector3 center = casterCtrl.unit.transform.position;
-                    if (targetViewIds != null && targetViewIds.Length > 0)
-                    {
-                        var primary = FindByView<Unit>(targetViewIds[0]);
-                        if (primary) center = primary.transform.position;
-                    }
-                    SummonManager.Instance.SpawnSummons(casterCtrl.unit, ab, center);
+                    SummonManager.Instance.SpawnAriseSummons(casterCtrl.unit, ab);
                 }
             }
         }
@@ -745,6 +872,13 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 {
                     // Apply on master
                     var dealt = target.Model.ApplyDamageWithBarrier(dmg, (DamageType)dtype);
+
+                    if (dealt > 0 && ZoneManager.Instance != null)
+                    {
+                        var tPV = target.Controller?.photonView;
+                        if (tPV) ZoneManager.Instance.CancelNegativeZonesOfOwner(tPV.ViewID);
+                    }
+
                     Debug.Log($"[Resolve] MASTER applied {dealt} HP dmg to {target.name} (type={(DamageType)dtype})");
 
                     // Local popup on master
@@ -1251,11 +1385,12 @@ public sealed class AbilityResolver : MonoBehaviourPun
     struct StructureSpec
     {
         public StructureKind kind;
-        public float hp, durationTurns;
+        public float hp;
         public int healPerTick;
         public float radius;
         public int ownerViewId;
         public UnitFaction faction;
+        public int durationTurns; 
     }
 
     StructureSpec BuildSpec(Unit caster, UnitAbility ab, StructureKind kind)
@@ -1271,8 +1406,170 @@ public sealed class AbilityResolver : MonoBehaviourPun
             hp = ab.structureHP,
             healPerTick = (int)ab.structureHeal,
             radius = ab.structureRadius,
-            durationTurns = ab.structureDuration,
+            durationTurns = Mathf.RoundToInt(ab.structureDuration), // treat SO field as TURNS
         };
         return spec;
+    }
+
+    private int ComputeDamageVsStructure(UnitAbility ab, Unit caster)
+    {
+        // Simple: reuse your normal formula without defender stats
+        int dmg = ab.baseDamage;
+        if (ab.damageSource == DamageType.Physical) dmg += caster.Model.Strength;
+        else if (ab.damageSource == DamageType.Magical) dmg += caster.Model.MagicPower;
+
+        dmg = Mathf.RoundToInt(dmg * Mathf.Max(0f, ab.damageMultiplier)) + Mathf.Max(0, ab.bonusDamage);
+        return Mathf.Max(0, dmg);
+    }
+
+    private void HitStructureAuth(UnitAbility ab, UnitController casterCtrl, StructureBase s)
+    {
+        if (s == null || StructureManager.Instance == null) return;
+
+        int dmg = ComputeDamageVsStructure(ab, casterCtrl.unit);
+        if (dmg <= 0) return;
+
+        var sm = StructureManager.Instance;
+        if (Photon.Pun.PhotonNetwork.IsMasterClient)
+        {
+            sm.DamageStructure(s.NetId, dmg); // applies + mirrors
+        }
+        else
+        {
+            // ask master to apply
+            sm.photonView.RPC(nameof(StructureManager.RPC_RequestStructureHit),
+                              Photon.Pun.RpcTarget.MasterClient,
+                              s.NetId, dmg);
+        }
+    }
+
+    [PunRPC]
+    void RPC_TeleportUnit(int unitViewId, Vector3 dest)
+    {
+        var uc = FindByView<UnitController>(unitViewId);
+        if (uc == null || uc.unit == null) return;
+
+        var u = uc.unit;
+        var from = u.transform.position;
+
+        // Snap instantly
+        u.transform.position = new Vector3(dest.x, dest.y, from.z);
+
+        // Zone crossing trigger (use same hook as walking)
+        if (PhotonNetwork.IsMasterClient && ZoneManager.Instance != null)
+            ZoneManager.Instance.HandleOnMove(u, from, dest);
+
+        // Status hooks similar to movement
+        u.GetComponent<StatusComponent>()?.OnMoved();
+
+        // Little bit of juice
+        u.View.SetFacingDirection((dest - from).normalized);
+        u.View.PlayMoveLandNet();
+    }
+
+    private void ResolveBlinkAoE(UnitController casterCtrl, UnitAbility ability, Vector3 center, int abilityIndex)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+        if (ability.aoeRadius <= 0f) return;
+
+        var caster = casterCtrl.unit;
+        var casterFaction = caster.Model.Faction;
+        float r = ability.aoeRadius;
+        float r2 = r * r;
+
+        // collect units in radius
+        var units = FindObjectsByType<Unit>(FindObjectsSortMode.None);
+        var hits = new List<Unit>(8);
+
+        for (int i = 0; i < units.Length; i++)
+        {
+            var u = units[i];
+            if (u == null || u.Model == null || !u.Model.IsAlive()) continue;
+            if (u == caster) continue;
+
+            // target filter: enemies only (adjust if you want it to be Any)
+            if (u.Model.Faction == casterFaction) continue;
+
+            var p = u.transform.position; p.z = center.z;
+            if ((p - center).sqrMagnitude <= r2)
+                hits.Add(u);
+        }
+
+        if (hits.Count == 0) return;
+
+        // compute per-target damage and apply (respect Negative Zone guard)
+        for (int i = 0; i < hits.Count; i++)
+        {
+            var target = hits[i];
+            int dmg = ComputeDamageFromAbility(ability, caster, vsStructure: false);
+            if (dmg <= 0) continue;
+
+            // Negative Zone protection (attacker outside, target inside -> 0 damage)
+            if (ZoneManager.Instance &&
+                ZoneManager.Instance.IsTargetProtectedByNegativeZone(
+                    attackerPos: caster.transform.position,
+                    targetPos: target.transform.position))
+            {
+                dmg = 0;
+            }
+
+            if (dmg > 0)
+            {
+                // Apply and mirror as you do elsewhere
+                int dealt = target.Model.ApplyDamageWithBarrier(dmg, (DamageType)ability.damageSource);
+
+                // Cancel Negative Zone if owner took real damage (spec hook reused)
+                if (dealt > 0 && ZoneManager.Instance != null)
+                {
+                    var tPV = target.Controller?.photonView;
+                    if (tPV) ZoneManager.Instance.CancelNegativeZonesOfOwner(tPV.ViewID);
+                }
+            }
+        }
+    }
+
+    private int ComputeDamageFromAbility(UnitAbility ability, Unit caster, bool vsStructure)
+    {
+        if (ability == null || caster == null) return 0;
+
+        // Mixed damage route
+        if (ability.isMixedDamage)
+        {
+            int strength = caster.Model.Strength;
+            int mpower = caster.Model.MagicPower;
+
+            return Mathf.Max(0, CombatCalculator.CalculateMixedDamage(
+                ability.baseDamage,
+                strength, /*armor*/ 0,
+                mpower,   /*mr*/    0,
+                ability.mixedPhysicalPercent
+            ));
+        }
+
+        // Single-source (Physical or Magical or Elemental mapped to Phys/Mag)
+        bool isPhysical = (ability.damageSource == DamageType.Physical);
+        bool isMagical = (ability.damageSource == DamageType.Magical
+                           || ability.damageSource == DamageType.Fire
+                           || ability.damageSource == DamageType.Frost
+                           || ability.damageSource == DamageType.Electric);
+
+        int attackerStat = isPhysical ? caster.Model.Strength : caster.Model.MagicPower;
+        int defenderStat = 0;
+
+        int dmg = Mathf.RoundToInt(
+            CombatCalculator.CalculateDamage(ability.baseDamage, attackerStat, defenderStat)
+        );
+
+        // Multipliers / flat bonus parity with your main path
+        if (ability.bonusPerMissingHpPercent > 0 && caster != null)
+            dmg = CombatCalculator.ApplyMissingHpBonus(dmg, caster, ability.bonusPerMissingHpPercent);
+
+        if (ability.damageMultiplier > 0f)
+            dmg = Mathf.RoundToInt(dmg * ability.damageMultiplier);
+
+        if (ability.bonusDamage > 0)
+            dmg += ability.bonusDamage;
+
+        return Mathf.Max(0, dmg);
     }
 }

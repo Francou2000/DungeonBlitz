@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87a2cda1909aa01468970337e13de8dc, type: 3}
+  m_Name: DeadGoblin
+  m_EditorClassIdentifier: 
+  unitName: Goblin
+  full_body_foto: {fileID: 21300000, guid: cb6a24f35810a7d438ab19f0972d7719, type: 3}
+  portrait_foto: {fileID: 2073479834494625945, guid: ca5bf91de9816f94da934a60e32d8d6c, type: 3}
+  faction: 1
+  heroe_id: 0
+  pop_cost: 1
+  maxHP: 1
+  performance: 2
+  affinity: 0
+  armor: 15
+  magicResistance: 0
+  strength: 3
+  magicPower: 0
+  actionsPerTurn: 2
+  reactionsPerTurn: 1
+  baseAdrenaline: 0
+  adrenalineThreshold: 50
+  maxAdrenaline: 100
+  abilities:
+  - {fileID: 11400000, guid: 309c8c2f230433c469d50a1db7c85803, type: 2}
+  startingForm: 
+  startingWeapon: Dagger
+  isTrainingDummy: 0
+  isPromotable: 0
+  promotedForm: {fileID: 0}
+  hasAttackOfOpportunity: 0
+  specialTags: []

@@ -28,6 +28,8 @@ public class DC_Manager : MonoBehaviour
 
     [SerializeField] GameObject unit_placeholder;
     [SerializeField] GameObject edit_menu;
+    [SerializeField] GameObject promote_menu;
+    [SerializeField] GameObject promote_text;
 
     List<Vector2> used_pos = new List<Vector2>();
 
@@ -50,12 +52,7 @@ public class DC_Manager : MonoBehaviour
             switch (state)
             {
                 case DC_State.PLACING_UNIT:
-                    if (UpdateUnitOnList(pos, pos, actualUnit)) break;
-                    GameObject new_unit = Instantiate(unit_placeholder, spawn.transform);
-                    UnitPlaceholderIntection upi = new_unit.GetComponent<UnitPlaceholderIntection>();
-                    upi.SetPlaceHolder(pos + new Vector2(0.5f, 0.5f), unitDatas[(int)actualUnit - 1].full_body_foto, actualUnit);
-                    upi.EditMenu = edit_menu;
-                    HideUnit();
+                    SpawnNewUnit(pos);
                     break;
                 case DC_State.PLAICING_TRAP:
                     break;
@@ -66,6 +63,7 @@ public class DC_Manager : MonoBehaviour
                     break;
                 default:
                     edit_menu.SetActive(false);
+                    promote_menu.SetActive(false);
                     moseClick.Invoke(pos + new Vector2(0.5f, 0.5f));
                     break;
             }
@@ -95,6 +93,34 @@ public class DC_Manager : MonoBehaviour
     [SerializeField] TextMeshProUGUI pop_counter;
 
 
+    public void SpawnNewUnit(Vector2 pos)
+    {
+        if (UpdateUnitOnList(pos, pos, actualUnit)) return;
+        GameObject new_unit = Instantiate(unit_placeholder, spawn.transform);
+        UnitPlaceholderIntection upi = new_unit.GetComponent<UnitPlaceholderIntection>();
+        upi.SetPlaceHolder(pos + new Vector2(0.5f, 0.5f), unitDatas[(int)actualUnit - 1].full_body_foto, actualUnit);
+        moseClick.AddListener(upi.OnMouseClick);
+        upi.EditMenu = edit_menu;
+        upi.PromoteMenu = promote_menu;
+        upi.PromoteText = promote_text;
+        upi.Is_promotionable = unitDatas[(int)actualUnit - 1].isPromotable;
+        upi.Promotion_cost = unitDatas[(int)actualUnit - 1].promotionCost;
+        
+        HideUnit();
+    }
+    public void SpawnPromotedUnit(Vector2 pos)
+    {
+        Monsters new_actualUnit = (Monsters)((int)actualUnit + 4);
+        if (UpdateUnitOnList(pos, pos, new_actualUnit)) return;
+        GameObject new_unit = Instantiate(unit_placeholder, spawn.transform);
+        UnitPlaceholderIntection upi = new_unit.GetComponent<UnitPlaceholderIntection>();
+        upi.SetPlaceHolder(pos + new Vector2(0.5f, 0.5f), unitDatas[(int)new_actualUnit - 1].full_body_foto, new_actualUnit);
+        moseClick.AddListener(upi.OnMouseClick);
+        upi.EditMenu = edit_menu;
+        upi.PromoteMenu = promote_menu;
+        upi.Is_promotionable = unitDatas[(int)new_actualUnit - 1].isPromotable;
+        HideUnit();
+    }
     public bool UpdateUnitOnList(Vector2 origin_pos, Vector2 new_pos, Monsters unit_id)
     {
         if (AddPosToUsed(new_pos)) return true;
@@ -143,6 +169,7 @@ public class DC_Manager : MonoBehaviour
             }
             idx++;
         }
+        used_pos.Remove(pos);
     }
 
     public void RemoveAllUnitsFromList()
@@ -187,6 +214,15 @@ public class DC_Manager : MonoBehaviour
     void UpdatePopUI()
     {
         pop_counter.text = "Pop: " + actual_pop + " / " + actual_pop_limit;
+    }
+
+    public void PromoteUnit()
+    {
+        if (!unitDatas[(int)actualUnit - 1].isPromotable) return;
+        Vector2 unit_pos = unit_to_update.transform.position;
+        RemoveUnitVisual(false);
+
+        SpawnPromotedUnit(unit_pos - new Vector2(0.5f, 0.5f));
     }
 
 }

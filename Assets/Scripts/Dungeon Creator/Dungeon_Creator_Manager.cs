@@ -153,7 +153,7 @@ public class Dungeon_Creator_Manager : MonoBehaviour
 
 public enum DC_State { NONE, BUTTON, PLACING_UNIT, PLAICING_TRAP, MOVING_UNIT, MOVING_TRAP}
 public enum Maps { NONE, MAP_NAME1, MAP_NAME2, MAP_NAME3, MAP_NAME4}
-public enum Monsters { NONE, GOBLIN, HOBGOBLIN, SHAMAN, CHAMPION}
+public enum Monsters { NONE, GOBLIN, HOBGOBLIN, SHAMAN, CHAMPION, PROMOGOBLIN, PROMOHOBGOBLIN, PROMOSHAMAN, PROMOCHAMPION }
 public enum Traps { NONE, /*TRAP_NAME1, TRAP_NAME2*/}
 
 public class Playable_Map

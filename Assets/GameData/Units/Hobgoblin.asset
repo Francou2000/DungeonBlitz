@@ -37,7 +37,8 @@ MonoBehaviour:
   startingForm: 
   startingWeapon: Spear
   isTrainingDummy: 0
-  isPromotable: 0
-  promotedForm: {fileID: 0}
+  isPromotable: 1
+  promotionCost: 0
+  promotedForm: {fileID: 11400000, guid: e78ef8dd0c46a564e9e9ed09770d3cdc, type: 2}
   hasAttackOfOpportunity: 0
   specialTags: []

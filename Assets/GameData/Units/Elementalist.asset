@@ -43,6 +43,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9fc83d37ad353f548b25a0c1aba2413d, type: 2}
   - {fileID: 11400000, guid: 7a0e7757103d94b40b90b8887631906c, type: 2}
   - {fileID: 11400000, guid: 62b01ce7864378943bed2426aa5188d6, type: 2}
+  - {fileID: 11400000, guid: c47d1f72220c22949a7dd53842641f5b, type: 2}
   startingForm: Fire
   startingWeapon: Fire
   isTrainingDummy: 0

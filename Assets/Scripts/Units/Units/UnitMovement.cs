@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using Photon.Pun;
 
 public class UnitMovement : MonoBehaviour
 {
@@ -56,6 +57,11 @@ public class UnitMovement : MonoBehaviour
         
         var from = oldPosition;   
         var to = transform.position;
+
+        if (PhotonNetwork.IsMasterClient && ZoneManager.Instance != null)
+        {
+            ZoneManager.Instance.HandleOnMove(unit, from, to);
+        }
 
         GetComponent<StatusComponent>()?.OnMoved();
 

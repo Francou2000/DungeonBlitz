@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 public enum DamageType
 {
@@ -40,6 +39,8 @@ public enum AreaType
 public enum EffectTarget { Self, HitTarget }
 
 public enum EffectId { Enraged, Bleed, Taunt, Barrier, Incandescent, Root, Shock, Burn, Freeze, Buff, Debuff }
+
+public enum StructureTargeting { None, Enemy, Ally, Any }
 
 [System.Serializable]
 public struct ResourceCost { public string key; public int amount; }
@@ -105,6 +106,11 @@ public class UnitAbility : ScriptableObject
     public int lineRange = 10;              // used when areaType == Line
     public float lineAlignmentTolerance = 0.75f; // how strictly units must align with the line (dot to direction)
 
+    [Header("Structures (targeting)")]
+    public bool allowTargetStructures = false;
+    public StructureTargeting structureTargets = StructureTargeting.None;
+
+
     [Header("Advanced Damage")]
     public bool isMixedDamage = false;      // Paladin Smite style (phys + magic)
     [Range(0, 100)] public int mixedPhysicalPercent = 50; // rest goes to magical
@@ -139,12 +145,13 @@ public class UnitAbility : ScriptableObject
     public bool grantsMovement = false;
     public float movementRange = 0f;
     public bool isMovementFree = false;
+    public bool isTeleport = false;
 
     [Header("Spawns (optional)")]
     public bool spawnsSummons = false;
-    public string summonPrefabName = "";
+    public GameObject summonPrefab;
     public int summonCount = 0;
-    public float summonDuration = 0f;
+    public string summonPrefabName = "";   // fallback if you prefer name-based
 
     public bool spawnsStructure = false; // if you added structures earlier
     public StructureKind structureKind = StructureKind.None;

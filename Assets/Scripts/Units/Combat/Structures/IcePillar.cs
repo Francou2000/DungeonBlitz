@@ -2,7 +2,8 @@ using UnityEngine;
 
 public sealed class IcePillar : StructureBase
 {
-    public static IcePillar Create(Vector3 pos, UnitFaction faction, int ownerViewId, float hp, float radius, double expiresAt)
+    public static IcePillar Create(Vector3 pos, UnitFaction faction, int ownerViewId,
+                                       float hp, float radius, int durationTurns)
     {
         var go = new GameObject("IcePillar");
         var s = go.AddComponent<IcePillar>();
@@ -15,7 +16,8 @@ public sealed class IcePillar : StructureBase
             hp: Mathf.CeilToInt(Mathf.Max(1f, hp)),
             radius: Mathf.Max(0.1f, radius),
             cover: CoverType.Medium,
-            expiresAt: expiresAt
+            remainingTurns: durationTurns,
+            tickEveryTurn: false
         );
         return s;
     }
