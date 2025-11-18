@@ -105,6 +105,7 @@ MonoBehaviour:
   - RPC_OnStructureDestroyed
   - RPC_RequestStructureHit
   - RPC_TeleportUnit
+  - RPC_DestroyZone
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1
