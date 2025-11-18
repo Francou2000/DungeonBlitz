@@ -16,11 +16,11 @@ MonoBehaviour:
   full_body_foto: {fileID: -2282256684887136397, guid: 3663859c49aeb24408e34419cff67779, type: 3}
   portrait_foto: {fileID: -5270058669579480458, guid: 7d3966e2df6ce5641adbeb7f247ff7ed, type: 3}
   faction: 1
-  heroe_id: 0
+  heroe_id: 4
   pop_cost: 2
-  maxHP: 14
-  performance: 1
-  affinity: 0
+  maxHP: 20
+  performance: 0.8
+  affinity: 1
   armor: 30
   magicResistance: 30
   strength: 6
@@ -38,6 +38,7 @@ MonoBehaviour:
   startingWeapon: Spear
   isTrainingDummy: 0
   isPromotable: 0
+  promotionCost: 0
   promotedForm: {fileID: 0}
   hasAttackOfOpportunity: 0
   specialTags: []

@@ -16,10 +16,10 @@ MonoBehaviour:
   full_body_foto: {fileID: 21300000, guid: 2a657db3926e8784b8e558b9f61effa4, type: 3}
   portrait_foto: {fileID: -3886138062138046926, guid: 974b48a7ee887894998a67ae0caf9137, type: 3}
   faction: 0
-  heroe_id: 0
+  heroe_id: 2
   pop_cost: -1
   maxHP: 25
-  performance: 2
+  performance: 1.8
   affinity: 0
   armor: 40
   magicResistance: 20
@@ -43,6 +43,7 @@ MonoBehaviour:
   startingWeapon: Bow
   isTrainingDummy: 0
   isPromotable: 0
+  promotionCost: 0
   promotedForm: {fileID: 0}
   hasAttackOfOpportunity: 0
   specialTags: []

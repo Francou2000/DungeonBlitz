@@ -16,10 +16,10 @@ MonoBehaviour:
   full_body_foto: {fileID: 21300000, guid: fd60789ae374b1046abd4cc8516ab36d, type: 3}
   portrait_foto: {fileID: -84520071257581303, guid: 9f0cb94ce784d04478a4b9be7aac0dc4, type: 3}
   faction: 0
-  heroe_id: 0
+  heroe_id: 3
   pop_cost: -1
   maxHP: 15
-  performance: 1.8
+  performance: 1.4
   affinity: 0
   armor: 20
   magicResistance: 40
@@ -48,6 +48,7 @@ MonoBehaviour:
   startingWeapon: Fire
   isTrainingDummy: 0
   isPromotable: 0
+  promotionCost: 0
   promotedForm: {fileID: 0}
   hasAttackOfOpportunity: 0
   specialTags: []

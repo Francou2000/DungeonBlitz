@@ -16,14 +16,14 @@ MonoBehaviour:
   full_body_foto: {fileID: 3274347120714742855, guid: b8a9e9f1c5a9c99438e9369ff66ca1f0, type: 3}
   portrait_foto: {fileID: 2721786158489870814, guid: 95d7c3593a347e547928ac457684f555, type: 3}
   faction: 1
-  heroe_id: 0
+  heroe_id: 4
   pop_cost: 3
   maxHP: 8
-  performance: 1
+  performance: 0.8
   affinity: 0
   armor: 15
   magicResistance: 60
-  strength: 1
+  strength: 0
   magicPower: 8
   actionsPerTurn: 2
   reactionsPerTurn: 1
