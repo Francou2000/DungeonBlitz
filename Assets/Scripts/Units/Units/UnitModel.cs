@@ -57,6 +57,55 @@ public class UnitModel : MonoBehaviour
     public event System.Action<string, string> OnStateChanged;
     public Sprite Portrait => unitData != null ? unitData.portrait_foto : null;
 
+    [Header("Resource UI")]
+    [SerializeField] private string primaryResourceKey;   // e.g. "Spears", "Power"
+    [SerializeField] private Sprite primaryResourceIcon;
+    [SerializeField] private List<FormResourceIcon> formResourceIcons = new List<FormResourceIcon>();
+
+    private string currentFormId;
+
+
+    public string PrimaryResourceKey => primaryResourceKey;
+
+
+    [System.Serializable]
+    public class FormResourceIcon
+    {
+        public string formId;   // e.g. "Fire", "Frost", "Lightning"
+        public Sprite icon;     // icon to use in that form
+    }
+
+    public Sprite PrimaryResourceIcon
+    {
+        get
+        {
+            // Look for an override for this form
+            if (!string.IsNullOrEmpty(currentFormId))
+            {
+                for (int i = 0; i < formResourceIcons.Count; i++)
+                {
+                    var entry = formResourceIcons[i];
+                    if (entry != null && entry.icon != null && entry.formId == currentFormId)
+                        return entry.icon;
+                }
+            }
+            // Fallback
+            return primaryResourceIcon;
+        }
+    }
+
+    public string CurrentFormId => currentFormId;
+
+    // Fired whenever the form changes (so HUD can refresh icon)
+    public event System.Action<string> OnFormChanged;
+
+    public void SetCurrentForm(string formId)
+    {
+        if (currentFormId == formId) return;
+        currentFormId = formId;
+        OnFormChanged?.Invoke(formId);
+    }
+
     // Initialization
     public void Initialize()
     {
@@ -274,6 +323,12 @@ public class UnitModel : MonoBehaviour
             return;
 
         _states[key] = value;
+
+        if (key == "Form")
+        {
+            SetCurrentForm(value);   // this will also fire OnFormChanged
+        }
+
         OnStateChanged?.Invoke(key, value);
         Debug.Log($"[State] {UnitName} -> {key} = {value}");
     }

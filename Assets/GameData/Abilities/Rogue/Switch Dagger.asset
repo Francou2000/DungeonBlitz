@@ -24,7 +24,7 @@ MonoBehaviour:
   minAdrenaline: 0
   requiredStates: []
   changesState: 1
-  stateKey: Weapon
+  stateKey: Form
   stateValue: Dagger
   requiredTags: []
   requiredTargetTags: []
@@ -36,6 +36,8 @@ MonoBehaviour:
   lineMaxTargets: 0
   lineRange: 0
   lineAlignmentTolerance: 0.75
+  allowTargetStructures: 0
+  structureTargets: 0
   isMixedDamage: 0
   mixedPhysicalPercent: 50
   lineCollateralPercent: 0
@@ -57,13 +59,15 @@ MonoBehaviour:
   grantsMovement: 0
   movementRange: 0
   isMovementFree: 0
+  isTeleport: 0
   spawnsSummons: 0
-  summonPrefabName: 
+  summonPrefab: {fileID: 0}
   summonCount: 0
-  summonDuration: 0
+  summonPrefabName: 
   spawnsStructure: 0
   structureKind: 0
   structureHP: 0
+  structureHeal: 0
   structureDuration: 0
   structureRadius: 0
   spawnsZone: 0

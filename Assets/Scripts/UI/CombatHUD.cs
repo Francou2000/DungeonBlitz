@@ -46,8 +46,10 @@ public class CombatHUD : MonoBehaviour
     private bool _singlePreviewActive;
     private UnitAbility _singlePreviewAbility;
 
-    [Header("Resources Text")]
-    [SerializeField] private TextMeshProUGUI resourcesText;
+    [Header("Resource UI")]
+    [SerializeField] private GameObject resourceRoot;
+    [SerializeField] private Image resourceIcon;
+    [SerializeField] private TextMeshProUGUI resourceAmountText;
 
     [Header("Interactivity")]
     [SerializeField] private CanvasGroup rootCg;
@@ -113,6 +115,7 @@ public class CombatHUD : MonoBehaviour
             boundModel.OnAdrenalineChanged -= OnADR;
             boundModel.OnActionPointsChanged -= OnAP;
             boundModel.OnResourceChanged -= OnResChanged;
+            boundModel.OnFormChanged -= OnFormChanged;
             boundModel.OnStateChanged -= OnUnitStateChanged;
             boundModel = null;
         }
@@ -160,6 +163,7 @@ public class CombatHUD : MonoBehaviour
         m.OnAdrenalineChanged -= OnADR;
         m.OnActionPointsChanged -= OnAP;
         m.OnResourceChanged -= OnResChanged;
+        boundModel.OnFormChanged -= OnFormChanged;
         m.OnStateChanged -= OnUnitStateChanged;
 
 
@@ -167,6 +171,7 @@ public class CombatHUD : MonoBehaviour
         m.OnAdrenalineChanged += OnADR;
         m.OnActionPointsChanged += OnAP;
         m.OnResourceChanged += OnResChanged;
+        boundModel.OnFormChanged += OnFormChanged;
         m.OnStateChanged += OnUnitStateChanged;
     }
 
@@ -535,29 +540,53 @@ public class CombatHUD : MonoBehaviour
 
     private void RebuildResources(UnitModel model)
     {
-        if (resourcesText == null) return;
+        if (resourceRoot == null) return;
+
         if (model == null)
         {
-            resourcesText.text = string.Empty;
+            resourceRoot.SetActive(false);
             return;
         }
 
-        var res = model.GetAllResources();
-        if (res == null || res.Count == 0)
+        var key = model.PrimaryResourceKey;
+
+        // If this unit doesn't use a primary resource, hide the panel
+        if (string.IsNullOrEmpty(key))
         {
-            resourcesText.text = string.Empty;
+            resourceRoot.SetActive(false);
             return;
         }
 
-        var sb = new System.Text.StringBuilder();
-        foreach (var kv in res)
-            sb.AppendLine($"{kv.Key}: {kv.Value}");
-        resourcesText.text = sb.ToString();
+        resourceRoot.SetActive(true);
+
+        // Icon
+        if (resourceIcon != null)
+        {
+            resourceIcon.sprite = model.PrimaryResourceIcon;
+            resourceIcon.enabled = (model.PrimaryResourceIcon != null);
+        }
+
+        // Amount (show even if 0)
+        if (resourceAmountText != null)
+        {
+            int amount = model.GetRes(key);
+            resourceAmountText.text = amount.ToString();
+        }
     }
 
     private void OnResChanged(string key, int cur)
     {
-        if (boundModel != null)
-            RebuildResources(boundModel);
+        // Only care about the bound unit's primary resource
+        if (boundModel == null) return;
+        if (key != boundModel.PrimaryResourceKey) return;
+
+        RebuildResources(boundModel);
+    }
+
+    private void OnFormChanged(string newFormId)
+    {
+        if (boundModel == null) return;
+        // Icon depends on form, so just rebuild
+        RebuildResources(boundModel);
     }
 }

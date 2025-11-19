@@ -69,6 +69,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unitData: {fileID: 11400000, guid: 0df5dd05f4978a144aad0fb408d62168, type: 2}
+  primaryResourceKey: Bow
+  primaryResourceIcon: {fileID: 21300000, guid: 84237a8e48d92c044913dda40baa0e78, type: 3}
+  formResourceIcons:
+  - formId: Bow
+    icon: {fileID: 21300000, guid: 84237a8e48d92c044913dda40baa0e78, type: 3}
+  - formId: Dagger
+    icon: {fileID: 21300000, guid: 8864536459f2cc240841409a4dfaa920, type: 3}
   MoveDistanceFactor: 4
   MoveTimeBase: 6
 --- !u!114 &4020468755041615607
