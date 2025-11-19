@@ -12421,10 +12421,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4fb3b6b4c1e0f84fb03aa03d8cafaa2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  basicMeleeEffectPrefab: {fileID: 0}
-  basicRangedEffectPrefab: {fileID: 0}
-  biteEffectPrefab: {fileID: 0}
-  clawEffectPrefab: {fileID: 0}
+  basicMeleeEffectPrefab: {fileID: 1234567890123456789, guid: 54f5f4805ed8704438f0816d27856c72, type: 3}
+  basicRangedEffectPrefab: {fileID: 1234567890123456789, guid: 4fe148b9a47faed40a64f1877adcf64c, type: 3}
+  biteEffectPrefab: {fileID: 1234567890123456789, guid: a2d7b4febe24eb74ea3fc82a39a0a65b, type: 3}
+  clawEffectPrefab: {fileID: 1234567890123456789, guid: d24ada3e53b006f49a2ba852d066b78c, type: 3}
+  arrowEffectPrefab: {fileID: 7422258598062592084, guid: 69a5ae66bfa79f54f9f518f5049f0293, type: 3}
+  electricBoltEffectPrefab: {fileID: 7705692898314242146, guid: a3bf29fe5e086e4479d812604fcf5e7d, type: 3}
+  fireBoltEffectPrefab: {fileID: 1264241631553899834, guid: 7bfd7443bc7452248807ddbe99a1a432, type: 3}
+  iceBoltEffectPrefab: {fileID: 1932400950050992892, guid: 757596e152021134badcb02b1ab1eb1f, type: 3}
+  healingEffectPrefab: {fileID: 1646856768975109889, guid: fe2c2d5a1defca140b3b01272b50d905, type: 3}
+  iceShardEffectPrefab: {fileID: 3129106937729075921, guid: 56f1cad3e1093e246a2857e6fc9e3037, type: 3}
+  javelineEffectPrefab: {fileID: 2093731170351415098, guid: f098fbcda0189a14bb876f19790f24db, type: 3}
+  smiteEffectPrefab: {fileID: 3398700174525983830, guid: 3cd9e3f3974c3984ca4affc105c4539d, type: 3}
+  thunderStrikeEffectPrefab: {fileID: 4868860005325343575, guid: a353ed11aeeb79446a7404ca1fdd57da, type: 3}
   effectOffset: 1
   effectDuration: 1
   effectScale: 1

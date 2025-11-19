@@ -19,6 +19,9 @@ public class UnitView : MonoBehaviour
         outlineObject.SetActive(false);
         if (!juice) juice = GetComponent<UnitJuice>();
         pv = GetComponent<Photon.Pun.PhotonView>();
+        
+        // Inicializar el parámetro Walking en false (Idle)
+        SetWalking(false);
     }
 
     public void PlayAnimation(string animationName)
@@ -44,8 +47,25 @@ public class UnitView : MonoBehaviour
 
     // ----- Local Helpers -----
 
-    private void PlayMoveStartLocal(Vector2 dir) { if (animator) animator.Play("Move"); if (juice) juice.MoveStartSquash(dir); }
-    private void PlayMoveLandLocal() { if (animator) animator.Play("Idle"); if (juice) juice.MoveLandRebound(); }
+    private void PlayMoveStartLocal(Vector2 dir) 
+    { 
+        SetWalking(true);
+        if (juice) juice.MoveStartSquash(dir); 
+    }
+    
+    private void PlayMoveLandLocal() 
+    { 
+        SetWalking(false);
+        if (juice) juice.MoveLandRebound(); 
+    }
+    
+    private void SetWalking(bool walking)
+    {
+        if (animator != null)
+        {
+            animator.SetBool("Walking", walking);
+        }
+    }
     private void PlayAttackLocal(Vector2 facing)
     {
         if (animator) animator.Play("Attack");// if you have it
