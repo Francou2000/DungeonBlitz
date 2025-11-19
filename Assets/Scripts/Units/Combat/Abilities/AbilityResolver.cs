@@ -333,6 +333,8 @@ public sealed class AbilityResolver : MonoBehaviourPun
         // ---- BLINK: instant teleport inside a circle centered on the caster ----
         if (ability.grantsMovement && ability.isTeleport)
         {
+            Debug.Log($"[Blink] ENTER {ability.abilityName} aimPos={aimPos}");
+
             // Compute Blink radius = half of your move distance per action.
             // Prefer UnitMovement helper; fall back to Model speed * time.
             var mv = casterCtrl.GetComponent<UnitMovement>();
@@ -349,6 +351,8 @@ public sealed class AbilityResolver : MonoBehaviourPun
             if (d.sqrMagnitude > blinkRadius * blinkRadius)
                 dest = center + d.normalized * blinkRadius;
 
+            Debug.Log($"[Blink] fullMove={fullMove} radius={blinkRadius} dest={dest}");
+
             // Spend costs ONCE on master
             casterCtrl.unit.Model.SpendAction(ability.actionCost);
             if (ability.resourceCosts != null)
@@ -364,6 +368,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 casterCtrl.photonView.ViewID, dest);
 
             ResolveBlinkAoE(casterCtrl, ability, dest, abilityIndex);
+            Debug.Log("[Blink] Teleport RPC sent + AoE resolved (if any)");
 
             return; // Blink does not do damage/heal itself
         }
@@ -762,6 +767,11 @@ public sealed class AbilityResolver : MonoBehaviourPun
         }
 
         // Broadcast damage second (your existing damage RPC)
+        if (ability.spawnsSummons && SummonManager.Instance != null)
+        {
+            SummonManager.Instance.SpawnAriseSummons(casterCtrl.unit, ability);
+        }
+
         if (dmgIds.Count > 0)
         {
             _view.RPC(nameof(RPC_ResolveAbility_Area), RpcTarget.All,
@@ -812,21 +822,6 @@ public sealed class AbilityResolver : MonoBehaviourPun
 
             // broadcast punch
             casterCtrl.unit.View.PlayAttackNet(face);
-        }
-
-        // Summons/Structures/Zones after spending (kept as before – summons example)
-        if (casterCtrl != null)
-        {
-            var list = casterCtrl.unit.Model.Abilities;
-            if (abilityIndex >= 0 && abilityIndex < list.Count)
-            {
-                var ab = list[abilityIndex];
-
-                if (ab.spawnsSummons && SummonManager.Instance != null)
-                {
-                    SummonManager.Instance.SpawnAriseSummons(casterCtrl.unit, ab);
-                }
-            }
         }
 
         // Apply per-target results
@@ -1456,6 +1451,8 @@ public sealed class AbilityResolver : MonoBehaviourPun
     [PunRPC]
     void RPC_TeleportUnit(int unitViewId, Vector3 dest)
     {
+        Debug.Log($"[BlinkRPC] Teleport unitViewId={unitViewId} → {dest}");
+
         var uc = FindByView<UnitController>(unitViewId);
         if (uc == null || uc.unit == null) return;
 
@@ -1479,61 +1476,67 @@ public sealed class AbilityResolver : MonoBehaviourPun
 
     private void ResolveBlinkAoE(UnitController casterCtrl, UnitAbility ability, Vector3 center, int abilityIndex)
     {
+        // Only the master decides who gets hit
         if (!PhotonNetwork.IsMasterClient) return;
-        if (ability.aoeRadius <= 0f) return;
+        if (ability == null) return;
+        if (ability.aoeRadius <= 0f) return;          // Blink with no AoE = pure movement
+        if (!DealsAnyDamage(ability)) return;         // safety: no damage fields set
 
         var caster = casterCtrl.unit;
-        var casterFaction = caster.Model.Faction;
-        float r = ability.aoeRadius;
-        float r2 = r * r;
+        if (caster == null || caster.Model == null) return;
 
-        // collect units in radius
-        var units = FindObjectsByType<Unit>(FindObjectsSortMode.None);
-        var hits = new List<Unit>(8);
+        // Find units in radius around the landing point
+        var computedTargets = CombatCalculator.GetUnitsInRadius(
+                center,
+                ability.aoeRadius,
+                casterCtrl.unit
+            );
 
-        for (int i = 0; i < units.Length; i++)
+        if (computedTargets == null || computedTargets.Count == 0)
+            return;
+
+        foreach (var target in computedTargets)
         {
-            var u = units[i];
-            if (u == null || u.Model == null || !u.Model.IsAlive()) continue;
-            if (u == caster) continue;
+            if (target == null || target.Model == null) continue;
+            if (!target.Model.IsAlive()) continue;
 
-            // target filter: enemies only (adjust if you want it to be Any)
-            if (u.Model.Faction == casterFaction) continue;
+            // Optional: Blink AoE should only hurt enemies
+            if (target.Model.Faction == caster.Model.Faction)
+                continue;
 
-            var p = u.transform.position; p.z = center.z;
-            if ((p - center).sqrMagnitude <= r2)
-                hits.Add(u);
-        }
+            // Negative Zone protection: attacker outside & target inside ⇒ no damage
+            if (ZoneManager.Instance != null &&
+                ZoneManager.Instance.IsTargetProtectedByNegativeZone(
+                    caster.transform.position,
+                    target.transform.position))
+            {
+                // Show miss popup for feedback
+                if (target.Controller != null)
+                    photonView.RPC(nameof(RPC_ShowMissPopup), RpcTarget.All, target.Controller.photonView.ViewID);
+                continue;
+            }
 
-        if (hits.Count == 0) return;
-
-        // compute per-target damage and apply (respect Negative Zone guard)
-        for (int i = 0; i < hits.Count; i++)
-        {
-            var target = hits[i];
+            // Compute damage number using your helper (stat-scaled)
             int dmg = ComputeDamageFromAbility(ability, caster, vsStructure: false);
             if (dmg <= 0) continue;
 
-            // Negative Zone protection (attacker outside, target inside -> 0 damage)
-            if (ZoneManager.Instance &&
-                ZoneManager.Instance.IsTargetProtectedByNegativeZone(
-                    attackerPos: caster.transform.position,
-                    targetPos: target.transform.position))
+            // Apply on master + mirror to others using existing helper
+            if (target.Controller != null)
             {
-                dmg = 0;
+                ResolveDamageServerOnly(
+                    target.Controller,
+                    dmg,
+                    ability.damageSource,
+                    casterCtrl.photonView.ViewID,
+                    abilityIndex
+                );
             }
 
-            if (dmg > 0)
+            // If the target actually took real damage, cancel its Negative Zones (your existing hook)
+            if (ZoneManager.Instance != null && target.Controller != null)
             {
-                // Apply and mirror as you do elsewhere
-                int dealt = target.Model.ApplyDamageWithBarrier(dmg, (DamageType)ability.damageSource);
-
-                // Cancel Negative Zone if owner took real damage (spec hook reused)
-                if (dealt > 0 && ZoneManager.Instance != null)
-                {
-                    var tPV = target.Controller?.photonView;
-                    if (tPV) ZoneManager.Instance.CancelNegativeZonesOfOwner(tPV.ViewID);
-                }
+                var tPV = target.Controller.photonView;
+                if (tPV) ZoneManager.Instance.CancelNegativeZonesOfOwner(tPV.ViewID);
             }
         }
     }
