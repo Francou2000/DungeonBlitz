@@ -23,7 +23,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
     {
         reason = null;
         Debug.Log($"[CanCast] Checking caster={caster?.name} ability={ability?.abilityName} actions={caster?.Model?.CurrentActions}/{caster?.Model?.MaxActions}");
-        
+
         if (caster == null || ability == null) { reason = "No caster/ability"; Debug.Log($"[Cast] FAIL: {reason}"); return false; }
         if (!caster.Model.CanAct()) { reason = "No actions left"; Debug.Log($"[Cast] FAIL: {reason}"); return false; }
 
@@ -214,18 +214,18 @@ public sealed class AbilityResolver : MonoBehaviourPun
         {
             targetInfo = "No targets";
         }
-        
+
         Debug.Log($"[RequestCast] ENTER caster={casterCtrl?.name} ability={ability?.abilityName} targets={targets?.Length} traceId={traceId}");
         Debug.Log($"[RequestCast] TARGET INFO: {targetInfo}");
-        
-        if (casterCtrl == null || ability == null) 
+
+        if (casterCtrl == null || ability == null)
         {
             Debug.LogError($"[RequestCast] FAIL: casterCtrl={casterCtrl} ability={ability}");
             return;
         }
 
         int abilityIndex = casterCtrl.unit.Model.Abilities.IndexOf(ability);
-        if (abilityIndex < 0) 
+        if (abilityIndex < 0)
         {
             Debug.LogError($"[RequestCast] FAIL: ability not found in caster's abilities list. ability={ability?.abilityName}");
             return;
@@ -233,7 +233,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
 
         Debug.Log($"[RequestCast] Sending RPC to MasterClient. casterViewId={casterCtrl.photonView.ViewID} abilityIndex={abilityIndex}");
         Debug.Log($"[RequestCast] IsMasterClient={PhotonNetwork.IsMasterClient} LocalPlayer={PhotonNetwork.LocalPlayer.ActorNumber}");
-        
+
         int[] targetViewIds = PackTargets(targets);
         _view.RPC(nameof(RPC_RequestCast), RpcTarget.MasterClient,
             casterCtrl.photonView.ViewID, abilityIndex, targetViewIds, aimPos, aimDir);
@@ -293,14 +293,14 @@ public sealed class AbilityResolver : MonoBehaviourPun
     {
         Debug.Log($"[RPC_RequestCast] ENTER casterViewId={casterViewId} abilityIndex={abilityIndex} isMaster={PhotonNetwork.IsMasterClient} sender={info.Sender.ActorNumber}");
         Debug.Log($"[RPC_RequestCast] RECV aimPos={aimPos} aimDir={aimDir}");
-        if (!PhotonNetwork.IsMasterClient) 
+        if (!PhotonNetwork.IsMasterClient)
         {
             Debug.Log($"[RPC_RequestCast] Not master client, ignoring");
             return;
         }
 
         var casterCtrl = FindByView<UnitController>(casterViewId);
-        if (casterCtrl == null) 
+        if (casterCtrl == null)
         {
             Debug.LogError($"[RPC_RequestCast] FAIL: casterCtrl not found for viewId={casterViewId}");
             return;
@@ -310,19 +310,19 @@ public sealed class AbilityResolver : MonoBehaviourPun
 
         // Ability lookup from caster's list
         var list = casterCtrl.unit.Model.Abilities;
-        if (abilityIndex < 0 || abilityIndex >= list.Count) 
+        if (abilityIndex < 0 || abilityIndex >= list.Count)
         {
-            Debug.LogError($"[RPC_RequestCast] FAIL: abilityIndex={abilityIndex} out of range (0-{list.Count-1})");
+            Debug.LogError($"[RPC_RequestCast] FAIL: abilityIndex={abilityIndex} out of range (0-{list.Count - 1})");
             return;
         }
         var ability = list[abilityIndex];
-        
+
         Debug.Log($"[RPC_RequestCast] Found ability: {ability.abilityName}");
 
         var targets = UnpackTargets<Unit>(targetViewIds);
         Debug.Log($"[RPC_RequestCast] Unpacked targets: {targets?.Length}");
-        
-        if (!CanCast(casterCtrl.unit, ability, targets, out string reason)) 
+
+        if (!CanCast(casterCtrl.unit, ability, targets, out string reason))
         {
             Debug.LogError($"[RPC_RequestCast] FAIL: CanCast failed - {reason}");
             return;
@@ -753,7 +753,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
                     }
             }
 
-            return; 
+            return;
         }
 
         // Broadcast heals first
@@ -890,7 +890,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
                     var u = target.GetComponent<Unit>();
                     if (u)
                     {
-                        if (dealt > 0) 
+                        if (dealt > 0)
                         {
                             // Obtener la habilidad utilizada para el efecto de daño
                             var ability = casterCtrl.unit.Model.Abilities[abilityIndex];
@@ -903,7 +903,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
                                 AudioManager.Instance.PlayAttackSound(list[abilityIndex].abilityName);
                             }
                         }
-                        else 
+                        else
                         {
                             CombatFeedbackUI.ShowMiss(u);
                             // Play evade sound when attack misses
@@ -991,6 +991,22 @@ public sealed class AbilityResolver : MonoBehaviourPun
         var target = pv.GetComponent<Unit>();
         if (target == null || target.Model == null) return;
 
+        var casterCtrl = FindByView<UnitController>(casterViewId);
+        UnitAbility ability = null;
+        if (casterCtrl != null && casterCtrl.unit != null && casterCtrl.unit.Model != null)
+        {
+            var list = casterCtrl.unit.Model.Abilities;
+            if (abilityIndex >= 0 && abilityIndex < list.Count)
+            {
+                ability = list[abilityIndex];
+            }
+        }
+
+        string casterName = GetCasterDisplayName(casterCtrl);
+        string targetName = (target.Model != null && !string.IsNullOrEmpty(target.Model.UnitName)) ? target.Model.UnitName : target.name;
+        string abilityName = (ability != null) ? ability.abilityName : "Unknown Ability";
+        string damageTypeName = ((DamageType)damageType).ToString();
+
         var dealt = target.Model.ApplyDamageWithBarrier(damage, (DamageType)damageType);
         Debug.Log($"[AbilityRPC] Applied {dealt} HP damage to {target.name} (type={(DamageType)damageType})");
 
@@ -998,16 +1014,15 @@ public sealed class AbilityResolver : MonoBehaviourPun
         var u = target.GetComponent<Unit>();
         if (u)
         {
-            if (dealt > 0) 
+            if (dealt > 0)
             {
-                // Obtener el atacante y la habilidad para el efecto de daño
-                var casterCtrl = FindByView<UnitController>(casterViewId);
-                UnitAbility ability = null;
                 if (casterCtrl != null && abilityIndex >= 0 && abilityIndex < casterCtrl.unit.Model.Abilities.Count)
                 {
                     ability = casterCtrl.unit.Model.Abilities[abilityIndex];
                 }
-                
+
+
+
                 CombatFeedbackUI.ShowHit(u, dealt, (DamageType)damageType, false, casterCtrl?.unit, ability);
                 // Play attack sound when hit connects
                 if (AudioManager.Instance != null)
@@ -1018,13 +1033,19 @@ public sealed class AbilityResolver : MonoBehaviourPun
                         AudioManager.Instance.PlayAttackSound(list[abilityIndex].abilityName);
                     }
                 }
+
+                CombatLogUI.Log(
+                    $"{casterName} used {abilityName} on target {targetName}: HIT for {dealt} {damageTypeName} damage.");
             }
-            else 
+            else
             {
                 CombatFeedbackUI.ShowMiss(u);
                 // Play evade sound when attack misses
                 if (AudioManager.Instance != null)
                     AudioManager.Instance.PlayEvadeSoundByUnitType(u);
+
+                CombatLogUI.Log(
+                    $"{casterName} used {abilityName} on {targetName}: MISS");
             }
         }
     }
@@ -1127,7 +1148,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
     {
         var allUnits = Object.FindObjectsByType<Unit>(FindObjectsSortMode.None);
         var enemies = new List<Unit>();
-        
+
         foreach (var unit in allUnits)
         {
             if (unit != caster && unit.Model.Faction != caster.Model.Faction && unit.Model.IsAlive())
@@ -1139,15 +1160,15 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 }
             }
         }
-        
+
         // Sort by distance and return up to maxTargets
-        enemies.Sort((a, b) => 
+        enemies.Sort((a, b) =>
         {
             float distA = Vector3.Distance(caster.transform.position, a.transform.position);
             float distB = Vector3.Distance(caster.transform.position, b.transform.position);
             return distA.CompareTo(distB);
         });
-        
+
         return enemies.Take(maxTargets).ToArray();
     }
 
@@ -1395,7 +1416,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
         public float radius;
         public int ownerViewId;
         public UnitFaction faction;
-        public int durationTurns; 
+        public int durationTurns;
     }
 
     StructureSpec BuildSpec(Unit caster, UnitAbility ab, StructureKind kind)
@@ -1613,4 +1634,19 @@ public sealed class AbilityResolver : MonoBehaviourPun
             }
         }
     }
+
+    private static string GetCasterDisplayName(UnitController casterCtrl)
+    {
+        if (casterCtrl == null || casterCtrl.unit == null) return "Unknown";
+
+        var owner = casterCtrl.photonView != null ? casterCtrl.photonView.Owner : null;
+        if (owner != null && !string.IsNullOrEmpty(owner.NickName))
+            return owner.NickName;
+
+        if (casterCtrl.unit != null)
+            return casterCtrl.unit.Model.UnitName;
+
+        return casterCtrl.name;
+    }
 }
+

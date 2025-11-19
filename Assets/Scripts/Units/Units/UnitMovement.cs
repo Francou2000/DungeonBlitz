@@ -8,7 +8,7 @@ public class UnitMovement : MonoBehaviour
 {
     private Unit unit;
     [SerializeField] private float fallbackMaxMoveWorld = 3f;
-    [SerializeField] private float navMeshMaxDistance = 0.6f; // how far we search for navmesh from target
+    [SerializeField] private float navMeshMaxDistance = 5f; // how far we search for navmesh from target
 
     private int walkableMask;
 
@@ -230,5 +230,21 @@ public class UnitMovement : MonoBehaviour
 
         // Speed (units/sec) * action duration (sec) = units per action
         return m.GetMovementSpeed() * m.MoveTimeBase;
+    }
+
+    private bool SampleOnNav(Vector3 source, bool anyArea, out Vector3 result)
+    {
+        NavMeshHit hit;
+        int mask = anyArea ? NavMesh.AllAreas : walkableMask;
+
+        // use a generous radius so small offsets in Y or X/Z don’t break it
+        if (NavMesh.SamplePosition(source, out hit, navMeshMaxDistance, mask))
+        {
+            result = hit.position;
+            return true;
+        }
+
+        result = source;
+        return false;
     }
 }
