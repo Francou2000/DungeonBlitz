@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Obsidian amulet
   m_EditorClassIdentifier: 
   ItemID: 37
-  sprite: {fileID: 0}
+  sprite: {fileID: -8550875403075965159, guid: ee8372fe00f6ea947aaa5d57b1547bfc, type: 3}
   tailored_heroe: 3
   rarity: 3
   cost: 20

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Amethyst bracelet
   m_EditorClassIdentifier: 
   ItemID: 38
-  sprite: {fileID: 0}
+  sprite: {fileID: 1782195015618875714, guid: e987a36275b54f14f9ea82c8b1d31c93, type: 3}
   tailored_heroe: 3
   rarity: 3
   cost: 20

@@ -201,6 +201,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unitData: {fileID: 11400000, guid: 33de137c516eef743b7b73f01b6d7210, type: 2}
+  primaryResourceKey: 
+  primaryResourceIcon: {fileID: 0}
+  formResourceIcons: []
   MoveDistanceFactor: 4
   MoveTimeBase: 6
 --- !u!114 &4020468755041615607

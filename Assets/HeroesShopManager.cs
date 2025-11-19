@@ -227,11 +227,12 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.IsMasterClient) return;
         pedestals[actual_pedestal] = Instantiate(item_prefab, spawn_pos);
-        pedestals[actual_pedestal].GetComponent<SpriteRenderer>().sprite = item.sprite;
-        //TODO: Add SetShopValues() logic
+        pedestals[actual_pedestal].GetComponent<ItemDetector>().SetItem(item, actual_pedestal);
+        //pedestals[actual_pedestal].GetComponent<SpriteRenderer>().sprite = item.sprite;
+        ////TODO: Add SetShopValues() logic
 
-        pedestals[actual_pedestal].GetComponent<ItemDetector>().my_item = item;
-        pedestals[actual_pedestal].GetComponent<ItemDetector>().my_pedestal = actual_pedestal;
+        //pedestals[actual_pedestal].GetComponent<ItemDetector>().my_item = item;
+        //pedestals[actual_pedestal].GetComponent<ItemDetector>().my_pedestal = actual_pedestal;
 
         actual_pedestal++;
     }

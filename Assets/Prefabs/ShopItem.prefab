@@ -194,3 +194,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   my_item: {fileID: 0}
   my_pedestal: 0
+  my_spriteRenderer: {fileID: 2167533339225102931}

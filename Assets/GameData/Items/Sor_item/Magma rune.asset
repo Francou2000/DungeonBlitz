@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Magma rune
   m_EditorClassIdentifier: 
   ItemID: 30
-  sprite: {fileID: 0}
+  sprite: {fileID: 7203769344030410129, guid: 6e588b82a1b1c7545b606406a3df1d6f, type: 3}
   tailored_heroe: 1
   rarity: 3
   cost: 20
