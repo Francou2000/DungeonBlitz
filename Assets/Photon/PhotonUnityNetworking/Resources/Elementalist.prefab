@@ -94,8 +94,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   animator: {fileID: 2702198468239663030}
   spriteRenderer: {fileID: 6562437766892541019}
+  defaultSprite: {fileID: 2296304566064173724, guid: e05d25b81c64ce841941a904e1994c3f, type: 3}
+  defaultAnimator: {fileID: 9100000, guid: f8e6ba686fa0bab41b0700136d39eb78, type: 2}
   juice: {fileID: 5963188057655467818}
   outlineObject: {fileID: 9073731304434709722}
+  formVisuals:
+  - formId: Fire
+    bodySprite: {fileID: 2296304566064173724, guid: e05d25b81c64ce841941a904e1994c3f, type: 3}
+    animatorController: {fileID: 9100000, guid: f8e6ba686fa0bab41b0700136d39eb78, type: 2}
+  - formId: Lighting
+    bodySprite: {fileID: 5823256933405897591, guid: 1107d9af6307dc249a95351a403dfe0a, type: 3}
+    animatorController: {fileID: 9100000, guid: 814efcc14042b21409f4a9c0c35758fb, type: 2}
+  - formId: Frost
+    bodySprite: {fileID: -8955944476689449987, guid: 1d7f345bc33a6a642bf7cee384224605, type: 3}
+    animatorController: {fileID: 9100000, guid: 615af8dee24f31d418e4ea4b548fc67f, type: 2}
 --- !u!61 &3955947690574530163
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -366,7 +378,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 901492143694640454, guid: 757a8bd974622a5419cb75cf15a09b64, type: 3}
+  m_Sprite: {fileID: 2296304566064173724, guid: e05d25b81c64ce841941a904e1994c3f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -387,7 +399,7 @@ Animator:
   m_GameObject: {fileID: 1188601342892645210}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 256125f034755b842af5c632a37fe35e, type: 2}
+  m_Controller: {fileID: 9100000, guid: f8e6ba686fa0bab41b0700136d39eb78, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0

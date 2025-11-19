@@ -220,8 +220,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   animator: {fileID: 6203413780420117681}
   spriteRenderer: {fileID: 2015774594339109188}
+  defaultSprite: {fileID: 0}
+  defaultAnimator: {fileID: 0}
   juice: {fileID: 2765966606180897321}
   outlineObject: {fileID: 9073731304434709722}
+  formVisuals: []
 --- !u!61 &3955947690574530163
 BoxCollider2D:
   m_ObjectHideFlags: 0

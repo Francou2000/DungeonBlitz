@@ -6,22 +6,62 @@ public class UnitView : MonoBehaviour
     [SerializeField] private Animator animator;
     [SerializeField] private SpriteRenderer spriteRenderer;
 
+    [Header("Form visuals")]
+    [SerializeField] private Sprite defaultSprite;
+    [SerializeField] private RuntimeAnimatorController defaultAnimator;
+
     [SerializeField] private UnitJuice juice;
-    private Photon.Pun.PhotonView pv;
+    private PhotonView pv;
 
     private Unit unit;
 
     public GameObject outlineObject;
+
+    [System.Serializable]
+    public class FormVisual
+    {
+        public string formId;                       // e.g. "Fire", "Frost", "Lightning"
+        public Sprite bodySprite;                   // sprite to use in that form
+        public RuntimeAnimatorController animatorController; // animator for that form
+    }
+
+
+    [SerializeField]
+    private System.Collections.Generic.List<FormVisual> formVisuals
+        = new System.Collections.Generic.List<FormVisual>();
 
     public void Initialize(Unit unit)
     {
         this.unit = unit;
         outlineObject.SetActive(false);
         if (!juice) juice = GetComponent<UnitJuice>();
-        pv = GetComponent<Photon.Pun.PhotonView>();
-        
+        pv = GetComponent<PhotonView>();
+
+        // Subscribe to form changes
+        if (unit != null && unit.Model != null)
+        {
+            unit.Model.OnFormChanged += OnFormChanged;
+
+            // Apply current form immediately (in case the unit spawns already attuned)
+            var currentForm = unit.Model.CurrentFormId;
+            ApplyFormVisual(string.IsNullOrEmpty(currentForm) ? null : currentForm);
+        }
+        else
+        {
+            // No model? Just fall back to defaults.
+            ApplyFormVisual(null);
+        }
+
         // Inicializar el parámetro Walking en false (Idle)
         SetWalking(false);
+    }
+
+    void OnDestroy()
+    {
+        if (unit != null && unit.Model != null)
+        {
+            unit.Model.OnFormChanged -= OnFormChanged;
+        }
     }
 
     public void PlayAnimation(string animationName)
@@ -73,6 +113,64 @@ public class UnitView : MonoBehaviour
     }
     private void PlayHitLocal(Vector2 fromAtk) { if (juice) juice.HitNudge(fromAtk); }
     private void PlayMissLocal(Vector2 fromAtk) { if (juice) juice.MissDodge(fromAtk); }
+
+    // ----- Form Visuals -----
+
+    void OnFormChanged(string newFormId)
+    {
+        ApplyFormVisual(newFormId);
+    }
+
+    void ApplyFormVisual(string formId)
+    {
+        // TEMP: debug
+        string available = "";
+        for (int i = 0; i < formVisuals.Count; i++)
+        {
+            if (formVisuals[i] != null)
+                available += formVisuals[i].formId + ", ";
+        }
+        Debug.Log($"[UnitView] ApplyFormVisual formId='{formId}', available=[{available}] on {name}");
+
+
+        // Choose the matching entry, if any
+        FormVisual match = null;
+
+        if (!string.IsNullOrEmpty(formId))
+        {
+            for (int i = 0; i < formVisuals.Count; i++)
+            {
+                var fv = formVisuals[i];
+                if (fv != null && fv.formId == formId)
+                {
+                    match = fv;
+                    break;
+                }
+            }
+        }
+
+        // Decide what to apply
+        Sprite targetSprite = defaultSprite;
+        RuntimeAnimatorController targetAnimator = defaultAnimator;
+
+        if (match != null)
+        {
+            if (match.bodySprite != null)
+                targetSprite = match.bodySprite;
+            if (match.animatorController != null)
+                targetAnimator = match.animatorController;
+        }
+
+        // Apply to renderer + animator
+        if (spriteRenderer != null && targetSprite != null)
+            spriteRenderer.sprite = targetSprite;
+
+        if (animator != null && targetAnimator != null &&
+            animator.runtimeAnimatorController != targetAnimator)
+        {
+            animator.runtimeAnimatorController = targetAnimator;
+        }
+    }
 
     // ----- Networked Calls -----
 

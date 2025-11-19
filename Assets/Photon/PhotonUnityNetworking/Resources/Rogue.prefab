@@ -92,8 +92,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   animator: {fileID: 1003989914929845986}
   spriteRenderer: {fileID: 7932197450769637542}
+  defaultSprite: {fileID: -2832816859357876601, guid: 6e7caaf794a2453478f326074cefbf7a, type: 3}
+  defaultAnimator: {fileID: 9100000, guid: e10023c79f324d748a847be6af7b7ae6, type: 2}
   juice: {fileID: 7826705428293066901}
   outlineObject: {fileID: 9073731304434709722}
+  formVisuals:
+  - formId: Bow
+    bodySprite: {fileID: -2832816859357876601, guid: 6e7caaf794a2453478f326074cefbf7a, type: 3}
+    animatorController: {fileID: 9100000, guid: e10023c79f324d748a847be6af7b7ae6, type: 2}
+  - formId: Dagger
+    bodySprite: {fileID: -354142937742812170, guid: 9b45b40ac83564046af8ad8a97dca9e8, type: 3}
+    animatorController: {fileID: 9100000, guid: 80fa01271b0bc354ca620975efaa8b03, type: 2}
 --- !u!61 &3955947690574530163
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -364,7 +373,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -354142937742812170, guid: 9b45b40ac83564046af8ad8a97dca9e8, type: 3}
+  m_Sprite: {fileID: -2832816859357876601, guid: 6e7caaf794a2453478f326074cefbf7a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -385,7 +394,7 @@ Animator:
   m_GameObject: {fileID: 5356148395164813056}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 80fa01271b0bc354ca620975efaa8b03, type: 2}
+  m_Controller: {fileID: 9100000, guid: e10023c79f324d748a847be6af7b7ae6, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
