@@ -18,8 +18,8 @@ public class ShopPlayer : MonoBehaviourPunCallbacks
     {
         unitLoaderController = UnitLoaderController.Instance;
         HeroesList heroe_idx = unitLoaderController.heroes[PhotonNetwork.LocalPlayer.ActorNumber].my_data.heroe_id;
-        my_sprint_renderer.sprite = startSprite[(int)heroe_idx];
-        my_animator.runtimeAnimatorController = animators[(int)heroe_idx];
+        my_sprint_renderer.sprite = startSprite[(int)heroe_idx + 1];
+        my_animator.runtimeAnimatorController = animators[(int)heroe_idx + 1];
     }
 
     

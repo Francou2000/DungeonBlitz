@@ -12,14 +12,11 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
     public static HeroesShopManager instance;
     private void Awake()
     {
-        if (instance == null)
+        if (instance != null)
         {
+            Destroy(instance);
+        }
             instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
     }
 
     [Header("Shop time (seconds)")]
@@ -152,7 +149,7 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
     {
         for (int i = 0; i < c_item_pedestals.Length; i++)
         {
-            if (UnityEngine.Random.Range(0, 10) < c_empty_chance) continue;
+            if (UnityEngine.Random.Range(0, 100) < c_empty_chance) continue;
             int item = UnityEngine.Random.Range(0, items_consumable.Length);
             //SpawnItem(c_item_pedestals[i], item);
 
@@ -283,7 +280,7 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
         string magicPower      = actual_item.magicPower      > 0 ? " +" + actual_item.magicPower.ToString()      + " magicPower"      : actual_item.magicPower      < 0 ? " -" + actual_item.magicPower.ToString()      + " magicPower"      : "";
         item_stat_description.text = hp + performance + affinity + armor + magicResistance + strength + magicPower;
         
-        item_effect_description.text = "Unlock Action: " + actual_item.new_ability.name;
+        // item_effect_description.text = "Unlock Action: " + actual_item.new_ability.name;
 
 
     }
@@ -446,7 +443,7 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
 
     public void PurchaseItem()
     {
-        unit_loader_controller.photonView.RPC("AddItemToHeroe", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber, actual_item);
+        unit_loader_controller.photonView.RPC("AddItemToHeroe", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber, actual_item.ItemID);
 
         UseVolatileSeconds(actual_item.cost);
         if (actual_item.is_unique) photonView.RPC("RemoveItemFromShop", RpcTarget.All, actual_pedestal);

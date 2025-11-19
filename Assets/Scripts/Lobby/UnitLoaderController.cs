@@ -26,6 +26,13 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
         }
     }
 
+    private void Start()
+    {
+        foreach (ItemData item in items)
+        {
+            dic_items[item.ItemID] = item;
+        }
+    }
     /// <summary>
     /// Inicializa los arrays para evitar datos residuales
     /// </summary>
@@ -179,6 +186,8 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
 
     public int lvl = 1;
 
+    [SerializeField] ItemData[] items;
+    Dictionary<int, ItemData> dic_items = new Dictionary<int, ItemData>();
     [PunRPC]
     public void AddHeroe(HeroesList heroe, int client_id)
     {
@@ -305,7 +314,7 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    public void AddItemToHeroe(int playerID, ItemData item)
+    public void AddItemToHeroe(int playerID, int itemID)
     {
         // Validar que el playerID sea válido (debe ser un héroe, no el DM)
         if (playerID <= 1)
@@ -332,7 +341,7 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
             );
         }
 
-        heroes[heroIndex].my_items.Add(item);
+        heroes[heroIndex].my_items.Add(dic_items[itemID]);
         Debug.Log($"[UnitLoaderController] Item agregado al jugador {playerID} (índice héroe: {heroIndex})");
     }
     [PunRPC]
