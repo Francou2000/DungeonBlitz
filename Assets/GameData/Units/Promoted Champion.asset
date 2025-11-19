@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87a2cda1909aa01468970337e13de8dc, type: 3}
   m_Name: Promoted Champion
   m_EditorClassIdentifier: 
-  unitName: Champion
+  unitName: Promoted Champion
   full_body_foto: {fileID: 6504433520214898271, guid: 07b8384554f0d1a44a2fdc1b752a70b1, type: 3}
-  portrait_foto: {fileID: -8680507463708838209, guid: b4bc9d61bea2bb74587a34701c730cc9, type: 3}
+  portrait_foto: {fileID: 21300000, guid: 1276d720fbaf13446bc5d85e2b525c33, type: 3}
   faction: 1
   heroe_id: 4
   pop_cost: 4

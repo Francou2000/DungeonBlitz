@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitName: Hobgoblin
   full_body_foto: {fileID: -2282256684887136397, guid: 3663859c49aeb24408e34419cff67779, type: 3}
-  portrait_foto: {fileID: -5270058669579480458, guid: 7d3966e2df6ce5641adbeb7f247ff7ed, type: 3}
+  portrait_foto: {fileID: 21300000, guid: 9c90fb24070a975459606800ef750c19, type: 3}
   faction: 1
   heroe_id: 4
   pop_cost: 2

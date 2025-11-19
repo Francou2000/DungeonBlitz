@@ -149,6 +149,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fallbackMaxMoveWorld: 3
+  navMeshMaxDistance: 0.6
 --- !u!114 &1758931014776470608
 MonoBehaviour:
   m_ObjectHideFlags: 0

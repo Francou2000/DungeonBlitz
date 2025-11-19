@@ -63,24 +63,15 @@ public class AbilityTooltip : MonoBehaviour
             Instance.body.text = $"AP: {ab.actionCost}  Range: {ab.range}\n{ab.description}";
         }
 
-        // Ensure proper size before clamping
-        LayoutRebuilder.ForceRebuildLayoutImmediate(Instance.rt);
-
-        // Place and reveal
-        Instance.PositionAt(screenPos + (Vector3)Instance.screenOffset);
         if (!Instance.gameObject.activeSelf) Instance.gameObject.SetActive(true);
         Instance.cg.alpha = 1f;
         Instance.cg.blocksRaycasts = false;
         Instance.transform.SetAsLastSibling(); // on top
-
-        // Debug
-        // Debug.Log($"[Tooltip] Show OK on canvas '{Instance._canvas.name}', pos={Instance._rt.anchoredPosition}");
     }
 
     public static void Move(Vector3 screenPos)
     {
         if (!EnsureInstance() || !Instance.canvas) return;
-        Instance.PositionAt(screenPos + (Vector3)Instance.screenOffset);
     }
 
     public static void Hide()
@@ -115,24 +106,5 @@ public class AbilityTooltip : MonoBehaviour
         if (img) img.raycastTarget = false;
 
         return true;
-    }
-
-    void PositionAt(Vector3 screenPos)
-    {
-        var canvasRT = (RectTransform)canvas.transform;
-        var cam = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
-
-        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRT, screenPos, cam, out var local))
-        {
-            rt.anchoredPosition = ClampToCanvas(local, canvasRT.rect, rt.rect.size);
-        }
-    }
-
-    static Vector2 ClampToCanvas(Vector2 pos, Rect canvasRect, Vector2 size)
-    {
-        var half = size * 0.5f;
-        float x = Mathf.Clamp(pos.x, canvasRect.xMin + half.x, canvasRect.xMax - half.x);
-        float y = Mathf.Clamp(pos.y, canvasRect.yMin + half.y, canvasRect.yMax - half.y);
-        return new Vector2(x, y);
     }
 }

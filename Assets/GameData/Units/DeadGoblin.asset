@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87a2cda1909aa01468970337e13de8dc, type: 3}
   m_Name: DeadGoblin
   m_EditorClassIdentifier: 
-  unitName: Goblin
+  unitName: Dead Goblin
   full_body_foto: {fileID: 21300000, guid: cb6a24f35810a7d438ab19f0972d7719, type: 3}
-  portrait_foto: {fileID: 2073479834494625945, guid: ca5bf91de9816f94da934a60e32d8d6c, type: 3}
+  portrait_foto: {fileID: 21300000, guid: 598e12bc77226cb43b505cd85ccc3b02, type: 3}
   faction: 1
   heroe_id: 0
   pop_cost: 1
@@ -36,6 +36,7 @@ MonoBehaviour:
   startingWeapon: Dagger
   isTrainingDummy: 0
   isPromotable: 0
+  promotionCost: 0
   promotedForm: {fileID: 0}
   hasAttackOfOpportunity: 0
   specialTags: []

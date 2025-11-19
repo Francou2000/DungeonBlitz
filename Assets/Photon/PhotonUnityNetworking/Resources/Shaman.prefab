@@ -69,6 +69,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unitData: {fileID: 11400000, guid: 049293ec2bb7fe14bb063e3a08a82a02, type: 2}
+  primaryResourceKey: 
+  primaryResourceIcon: {fileID: 0}
+  formResourceIcons: []
   MoveDistanceFactor: 4
   MoveTimeBase: 6
 --- !u!114 &4020468755041615607
@@ -146,6 +149,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fallbackMaxMoveWorld: 3
+  navMeshMaxDistance: 0.6
 --- !u!114 &1758931014776470608
 MonoBehaviour:
   m_ObjectHideFlags: 0
