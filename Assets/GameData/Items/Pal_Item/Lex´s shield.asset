@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: "Lex\xB4s shield"
   m_EditorClassIdentifier: 
   ItemID: 21
-  sprite: {fileID: 0}
+  sprite: {fileID: -1335967696576636133, guid: 91b75437b16d88144b3f4e641a9c0aa7, type: 3}
   tailored_heroe: 0
   rarity: 4
   cost: 50

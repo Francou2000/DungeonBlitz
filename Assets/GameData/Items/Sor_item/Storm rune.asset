@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Storm rune
   m_EditorClassIdentifier: 
   ItemID: 32
-  sprite: {fileID: 0}
+  sprite: {fileID: -1214853740418561935, guid: 8714be78e4eb17e468fb02707426113e, type: 3}
   tailored_heroe: 1
   rarity: 3
   cost: 20

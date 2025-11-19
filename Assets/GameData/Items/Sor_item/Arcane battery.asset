@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Arcane battery
   m_EditorClassIdentifier: 
   ItemID: 29
-  sprite: {fileID: 0}
+  sprite: {fileID: -2651704670371697745, guid: bf7445831a7852d4787f37ea12934746, type: 3}
   tailored_heroe: 1
   rarity: 2
   cost: 15

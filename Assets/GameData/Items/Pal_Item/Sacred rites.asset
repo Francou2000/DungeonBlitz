@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Sacred rites
   m_EditorClassIdentifier: 
   ItemID: 20
-  sprite: {fileID: 0}
+  sprite: {fileID: -6848367553547319891, guid: d072e630de0687f46a799e7cd580edea, type: 3}
   tailored_heroe: 0
   rarity: 3
   cost: 35

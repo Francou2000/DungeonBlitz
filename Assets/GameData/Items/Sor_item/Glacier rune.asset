@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Glacier rune
   m_EditorClassIdentifier: 
   ItemID: 31
-  sprite: {fileID: 0}
+  sprite: {fileID: 3460956175555564615, guid: e3864a7925ab2834899ff015a1a14cd7, type: 3}
   tailored_heroe: 1
   rarity: 3
   cost: 20

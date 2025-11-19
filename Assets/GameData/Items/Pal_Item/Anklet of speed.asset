@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Anklet of speed
   m_EditorClassIdentifier: 
   ItemID: 15
-  sprite: {fileID: 0}
+  sprite: {fileID: 7334622043711577506, guid: 0c02a7de50b1ec641af554e9fd379df9, type: 3}
   tailored_heroe: 0
   rarity: 2
   cost: 12
