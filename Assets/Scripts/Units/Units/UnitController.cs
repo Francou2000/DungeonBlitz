@@ -140,7 +140,15 @@ public class UnitController : MonoBehaviourPun
             if (!TurnManager.Instance.IsCurrentTurn(unit)) return;
         }
         if (!photonView.IsMine) return;
-        if (!unit.Model.CanAct()) return;
+
+        if (!unit.Model.CanAct() || unit.Model.CurrentActions < ability.actionCost)
+        {
+            Debug.LogWarning(
+                $"[ExecuteAbility] Not enough AP for {ability.abilityName}: " +
+                $"has={unit.Model.CurrentActions}, cost={ability.actionCost}"
+            );
+            return;
+        }
 
         if (!PhotonNetwork.IsMasterClient && ability.resourceCosts != null)
         {
