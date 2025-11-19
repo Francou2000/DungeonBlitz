@@ -105,6 +105,9 @@ MonoBehaviour:
   - RPC_OnStructureDestroyed
   - RPC_RequestStructureHit
   - RPC_TeleportUnit
+  - SpawnNewConsumableItem
+  - SpawnNewHeroeItem
+  - SpawnNewRandomItem
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

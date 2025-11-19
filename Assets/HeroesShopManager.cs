@@ -82,6 +82,8 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
 
     UnitLoaderController unit_loader_controller;
 
+    [Header("Votes settings")]
+    UnitData[] unidades;
     void Start()
     {
         unit_loader_controller = UnitLoaderController.Instance;
@@ -116,11 +118,11 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
         var heroes = unit_loader_controller.heroes;
         for (int i = 0; i < heroes.Length; i++)
         {
-            ItemData item = GetRandomItem(heroes[i].my_data.heroe_id);
+            int item = GetRandomItem(heroes[i].my_data.heroe_id);
 
-            SpawnItem(heroe_pedestals[i], item);
+            // SpawnItem(heroe_pedestals[i], item);
 
-            photonView.RPC("SpawnItem", RpcTarget.Others);
+            photonView.RPC("SpawnNewHeroeItem", RpcTarget.Others, i, heroes[i].my_data.heroe_id, item);
 
 
             //GameObject new_item = Instantiate(item_prefab, heroe_pedestals[i]);
@@ -135,10 +137,10 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
         for (int i = 0; i < r_item_pedestals.Length; i++)
         {
             if (UnityEngine.Random.Range(0, 100) < r_empty_chance) continue;
-            ItemData item = GetRandomItem();
-            SpawnItem(r_item_pedestals[i], item);
+            int item = GetRandomItem();
+            //SpawnItem(r_item_pedestals[i], item);
 
-
+            photonView.RPC("SpawnNewRandomItem", RpcTarget.Others, i, item);
 
             //GameObject new_item = Instantiate(item_prefab, r_item_pedestals[i]);
             //new_item.GetComponent<SpriteRenderer>().sprite = item.sprite;
@@ -151,10 +153,10 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
         for (int i = 0; i < c_item_pedestals.Length; i++)
         {
             if (UnityEngine.Random.Range(0, 10) < c_empty_chance) continue;
-            ItemData item = items_consumable[UnityEngine.Random.Range(0, items_consumable.Length)];
-            SpawnItem(c_item_pedestals[i], item);
+            int item = UnityEngine.Random.Range(0, items_consumable.Length);
+            //SpawnItem(c_item_pedestals[i], item);
 
-
+            photonView.RPC("SpawnNewConsumableItem", RpcTarget.Others, i, item);
 
             //GameObject new_item = Instantiate(item_prefab, c_item_pedestals[i]);
             //new_item.GetComponent<SpriteRenderer>().sprite = item.sprite;
@@ -162,36 +164,65 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
         }
     }
 
-    ItemData GetRandomItem(HeroesList item_pool = HeroesList.None)
+    int GetRandomItem(HeroesList item_pool = HeroesList.None)
     {
         int id;
         switch (item_pool)
         {
             case HeroesList.Paladin:
-                id =  UnityEngine.Random.Range(0, items_paladin.Length);
-                return items_paladin[id];
+                return UnityEngine.Random.Range(0, items_paladin.Length);
             case HeroesList.Elementalist:
-                id = UnityEngine.Random.Range(0, items_elementalist.Length);
-                return items_elementalist[id];
+                return UnityEngine.Random.Range(0, items_elementalist.Length);
             case HeroesList.Sorcerer:
-                id = UnityEngine.Random.Range(0, items_sorcerer.Length);
-                return items_sorcerer[id];
+                return UnityEngine.Random.Range(0, items_sorcerer.Length);
             case HeroesList.Rogue:
-                id = UnityEngine.Random.Range(0, items_rogue.Length);
-                return items_rogue[id];
+                return UnityEngine.Random.Range(0, items_rogue.Length);
             case HeroesList.None:
                 int list_id = UnityEngine.Random.Range(0, 5);
                 if (list_id != 4) return GetRandomItem((HeroesList)list_id);
-                id = UnityEngine.Random.Range(0, items_for_all.Length);
-                return items_for_all[id];
+                return UnityEngine.Random.Range(0, items_for_all.Length);
 
         }
         Debug.LogError("Error al generar item random");
-        return null;
+        return -1;
 
     }
 
     [PunRPC]
+    public void SpawnNewHeroeItem(int spawn_idx, HeroesList heroeID, int item_idx)
+    {
+        switch (heroeID)
+        {
+            case HeroesList.Paladin:
+                SpawnItem(heroe_pedestals[spawn_idx], items_paladin[item_idx]);
+                break;
+            case HeroesList.Elementalist:
+                SpawnItem(heroe_pedestals[spawn_idx], items_elementalist[item_idx]);
+                break;
+            case HeroesList.Sorcerer:
+                SpawnItem(heroe_pedestals[spawn_idx], items_sorcerer[item_idx]);
+                break;
+            case HeroesList.Rogue:
+                SpawnItem(heroe_pedestals[spawn_idx], items_rogue[item_idx]);
+                break;
+            case HeroesList.None:
+                break;
+        }
+    }
+
+    [PunRPC]
+    public void SpawnNewRandomItem(int spawn_idx, int item_idx)
+    {
+        SpawnItem(r_item_pedestals[spawn_idx], items_for_all[item_idx]);
+    }
+
+    [PunRPC]
+    public void SpawnNewConsumableItem(int spawn_idx, int item_idx)
+    {
+        SpawnItem(c_item_pedestals[spawn_idx], items_consumable[item_idx]);
+    }
+
+
     public void SpawnItem(Transform spawn_pos, ItemData item)
     {
         if (PhotonNetwork.IsMasterClient) return;
@@ -204,6 +235,7 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
 
         actual_pedestal++;
     }
+
 
     //-------------------------------------------------------------------------------------------------------------------------------------
     //---------------------------------------------------------Item Interaction/UI---------------------------------------------------------
