@@ -218,7 +218,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 315a3251f0d77304cbeea1938b9ccd2a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animator: {fileID: 0}
+  animator: {fileID: 5658705932139951562}
   spriteRenderer: {fileID: 2015774594339109188}
   juice: {fileID: 2765966606180897321}
   outlineObject: {fileID: 9073731304434709722}
