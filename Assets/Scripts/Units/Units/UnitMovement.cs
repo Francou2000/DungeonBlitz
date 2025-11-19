@@ -84,22 +84,35 @@ public class UnitMovement : MonoBehaviour
     {
         clampedCorners = null;
 
-        if (!SampleOnWalkable(from, out var fromNav))
+        // START: sample on ANY area (AllAreas) so we always get a triangle near the unit
+        if (!SampleOnNav(from, true, out var fromNav))
+        {
+            Debug.Log($"[Move] Sample start failed. from={from}, maxDist={navMeshMaxDistance}");
             return false;
+        }
 
-        // Sample target on Walkable; if you clicked water, this will snap to the nearest
-        // Walkable edge.
-        if (!SampleOnWalkable(target, out var targetNav))
+        // TARGET: must be on Walkable only (so we don't end inside water)
+        if (!SampleOnNav(target, false, out var targetNav))
+        {
+            Debug.Log($"[Move] Sample target failed. target={target}, maxDist={navMeshMaxDistance}");
             return false;
+        }
 
         var path = new NavMeshPath();
+
         // allow Complete and Partial paths (clicking on water should give Partial to the bank)
         if (!NavMesh.CalculatePath(fromNav, targetNav, walkableMask, path))
+        {
+            Debug.Log("[Move] NavMesh.CalculatePath returned false.");
             return false;
+        }
 
         var raw = path.corners;
         if (raw == null || raw.Length == 0)
+        {
+            Debug.Log("[Move] Path has no corners.");
             return false;
+        }
 
         // We want to walk from the CURRENT position along this path,
         // limited to maxDistance.
