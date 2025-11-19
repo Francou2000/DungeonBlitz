@@ -118,5 +118,5 @@ MonoBehaviour:
   enableCritStyle: 1
   critScale: 1.35
   critColor: {r: 1, g: 0.95, b: 0.6, a: 1}
-  verticalOffset: 1.6
-  worldScale: 0.05
+  verticalOffset: 1
+  worldScale: 0.02

@@ -3335,12 +3335,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
+  m_fontSize: 30
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMax: 30
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -12471,9 +12471,9 @@ MonoBehaviour:
   javelineEffectPrefab: {fileID: 2093731170351415098, guid: f098fbcda0189a14bb876f19790f24db, type: 3}
   smiteEffectPrefab: {fileID: 3398700174525983830, guid: 3cd9e3f3974c3984ca4affc105c4539d, type: 3}
   thunderStrikeEffectPrefab: {fileID: 4868860005325343575, guid: a353ed11aeeb79446a7404ca1fdd57da, type: 3}
-  effectOffset: 1
+  effectOffset: 0.5
   effectDuration: 1
-  effectScale: 1
+  effectScale: 0.75
 --- !u!114 &568910069
 MonoBehaviour:
   m_ObjectHideFlags: 0
