@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 449bac6c85f32b84c8c64038be3f3ec7
+guid: 9bd5b253a80b0ed49995f87a766d46b7
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8026638815491481726
-    second: Goblin Shaman Walk 1_0
+      213: -7115672211312794968
+    second: Goblin Shaman Walk 3_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -96,16 +96,42 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Goblin Shaman Walk 1_0
+      name: Goblin Shaman Walk 3_0
       rect:
         serializedVersion: 2
         x: 3
         y: 0
-        width: 121
+        width: 117
         height: 180
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -115,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 28f94463686ab9090800000000000000
-      internalID: -8026638815491481726
+      spriteID: 8a2259203dd004d90800000000000000
+      internalID: -7115672211312794968
       vertices: []
       indices: 
       edges: []
@@ -135,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Goblin Shaman Walk 1_0: -8026638815491481726
+      Goblin Shaman Walk 3_0: -7115672211312794968
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

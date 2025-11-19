@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 17a3be23c706b014ca6b321b6f232278
+guid: 6d0046f4b097d0f4db380ea8c9c62dba
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3181684224680513795
-    second: Goblin Shaman Idle 1_0
+      213: -4310378690032705403
+    second: Goblin Shaman Walk 4_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -96,16 +96,42 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Goblin Shaman Idle 1_0
+      name: Goblin Shaman Walk 4_0
       rect:
         serializedVersion: 2
-        x: 3
+        x: 5
         y: 0
-        width: 120
+        width: 127
         height: 180
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -115,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 301db8fe1fc972c20800000000000000
-      internalID: 3181684224680513795
+      spriteID: 580ef253b657e24c0800000000000000
+      internalID: -4310378690032705403
       vertices: []
       indices: 
       edges: []
@@ -135,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Goblin Shaman Idle 1_0: 3181684224680513795
+      Goblin Shaman Walk 4_0: -4310378690032705403
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
