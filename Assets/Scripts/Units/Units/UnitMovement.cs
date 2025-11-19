@@ -1,11 +1,16 @@
-using System.Collections;
-using UnityEngine;
 using Photon.Pun;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.AI;
 
 public class UnitMovement : MonoBehaviour
 {
     private Unit unit;
     [SerializeField] private float fallbackMaxMoveWorld = 3f;
+    [SerializeField] private float navMeshMaxDistance = 0.6f; // how far we search for navmesh from target
+
+    private static readonly int WalkableMask = 1 << NavMesh.GetAreaFromName("Walkable");
 
     private void Awake()
     {
@@ -17,45 +22,163 @@ public class UnitMovement : MonoBehaviour
     {
         Vector3 oldPosition = unit.transform.position;
 
-        Vector3 clampedTarget = ClampToMoveRange(oldPosition, mouseWorld);
-        float speed = unit.Model.GetMovementSpeed();
-
-        Vector3 dir = (clampedTarget - oldPosition);
-        unit.View.SetFacingDirection(dir);
-        unit.View.PlayMoveStartNet(dir);
-
+        // status check
         var sc = GetComponent<StatusComponent>();
-        if (sc != null && sc.IsRooted()) { Debug.Log("[Move] Blocked by Root"); return; }
-
-        unit.StartCoroutine(MoveCoroutine(clampedTarget, oldPosition, speed, () =>
+        if (sc != null && sc.IsRooted())
         {
-            //After finishing movement, check for reactions
+            Debug.Log("[Move] Blocked by Root");
+            onFinish?.Invoke();
+            return;
+        }
+
+        float maxMoveDist = GetMaxWorldRadius();
+
+        // Build a path on the NavMesh and clamp it to maxMoveDist
+        if (!TryBuildClampedPath(oldPosition, mouseWorld, maxMoveDist, out var pathCorners))
+        {
+            // no valid path or no distance to move
+            Debug.Log("[Move] No valid NavMesh path");
+            onFinish?.Invoke();
+            return;
+        }
+
+        if (pathCorners.Length <= 1)
+        {
+            onFinish?.Invoke();
+            return;
+        }
+
+        float speed = unit.Model.GetMovementSpeed();
+        Vector3 firstDir = (pathCorners[1] - pathCorners[0]);
+        if (firstDir.sqrMagnitude > 0.0001f)
+        {
+            unit.View.SetFacingDirection(firstDir);
+        }
+        unit.View.PlayMoveStartNet(firstDir);
+
+        unit.StartCoroutine(MoveAlongPathCoroutine(pathCorners, oldPosition, speed, () =>
+        {
             ReactionManager.Instance?.TryTriggerReactions(unit, oldPosition);
             onFinish?.Invoke();
         }));
     }
 
-    //Ensures the target is within move range
-    private Vector3 ClampToRange(Vector3 target, Vector3 origin)
-    {
-        float range = unit.Model.Performance * unit.Model.MoveDistanceFactor;
-        Vector3 dir = target - origin;
+    // --- PATH BUILDING -------------------------------------------------------
 
-        return dir.magnitude > range ? origin + dir.normalized * range : target;
+    // Builds a NavMesh path from "from" to "target" and clamps it to maxDistance
+    // along the path. Returns the list of corners to follow.
+    private bool TryBuildClampedPath(Vector3 from, Vector3 target, float maxDistance, out Vector3[] clampedCorners)
+    {
+        clampedCorners = null;
+
+        if (!SampleOnWalkable(from, out var fromNav))
+            return false;
+
+        // Sample target on Walkable; if you clicked water, this will snap to the nearest
+        // Walkable edge.
+        if (!SampleOnWalkable(target, out var targetNav))
+            return false;
+
+        var path = new NavMeshPath();
+        // NOTE: we allow both Complete and Partial paths: clicking in water gives a Partial
+        // path that ends at the bank, which is exactly what we want.
+        if (!NavMesh.CalculatePath(fromNav, targetNav, WalkableMask, path))
+            return false;
+
+        var raw = path.corners;
+        if (raw == null || raw.Length == 0)
+            return false;
+
+        // We want to walk from the CURRENT position along this path,
+        // limited to maxDistance. Start with the actual position as first corner.
+        List<Vector3> result = new List<Vector3>();
+        result.Add(from); // starting point
+
+        float remaining = maxDistance;
+        Vector3 current = from;
+
+        // Start from the first navmesh corner
+        for (int i = 0; i < raw.Length; i++)
+        {
+            Vector3 next = raw[i];
+            float segLen = Vector3.Distance(current, next);
+
+            if (segLen <= 0.0001f)
+            {
+                current = next;
+                continue;
+            }
+
+            if (remaining <= 0f)
+                break;
+
+            if (segLen <= remaining)
+            {
+                // we can take this whole segment
+                result.Add(next);
+                remaining -= segLen;
+                current = next;
+            }
+            else
+            {
+                // we can only go partway along this segment
+                float t = remaining / segLen;
+                Vector3 partial = Vector3.Lerp(current, next, t);
+                result.Add(partial);
+                remaining = 0f;
+                current = partial;
+                break;
+            }
+        }
+
+        if (result.Count <= 1)
+            return false; // nowhere to go
+
+        clampedCorners = result.ToArray();
+        return true;
     }
 
-    private IEnumerator MoveCoroutine(Vector3 targetPos, Vector3 oldPosition, float speed, System.Action onFinish)
+    // Samples a point on the Walkable NavMesh near "source".
+    private bool SampleOnWalkable(Vector3 source, out Vector3 result)
     {
-        unit.View.SetFacingDirection((targetPos - transform.position).normalized);
-
-
-        while (Vector3.Distance(transform.position, targetPos) > 0.05f)
+        NavMeshHit hit;
+        if (NavMesh.SamplePosition(source, out hit, navMeshMaxDistance, WalkableMask))
         {
-            transform.position = Vector3.MoveTowards(transform.position, targetPos, speed * Time.deltaTime);
-            yield return null;
+            result = hit.position;
+            return true;
         }
-        
-        var from = oldPosition;   
+
+        result = source;
+        return false;
+    }
+
+    // --- COROUTINE -----------------------------------------------------------
+
+    private IEnumerator MoveAlongPathCoroutine(Vector3[] corners, Vector3 oldPosition, float speed, System.Action onFinish)
+    {
+        int index = 1; // 0 is the starting point (current position)
+
+        while (index < corners.Length)
+        {
+            Vector3 targetPos = corners[index];
+
+            // Update facing towards this segment's target
+            Vector3 segDir = (targetPos - transform.position);
+            if (segDir.sqrMagnitude > 0.0001f)
+            {
+                unit.View.SetFacingDirection(segDir);
+            }
+
+            while (Vector3.Distance(transform.position, targetPos) > 0.05f)
+            {
+                transform.position = Vector3.MoveTowards(transform.position, targetPos, speed * Time.deltaTime);
+                yield return null;
+            }
+
+            index++;
+        }
+
+        var from = oldPosition;
         var to = transform.position;
 
         if (PhotonNetwork.IsMasterClient)
@@ -64,8 +187,6 @@ public class UnitMovement : MonoBehaviour
         }
 
         GetComponent<StatusComponent>()?.OnMoved();
-
-        // (re)enable reactions call here as well, immediately after move:
         ReactionManager.Instance?.TryTriggerReactions(unit, from);
 
         unit.Model.SpendAction();
@@ -74,6 +195,8 @@ public class UnitMovement : MonoBehaviour
         onFinish?.Invoke();
     }
 
+
+    // UTILS
     private Vector3 ClampToMoveRange(Vector3 from, Vector3 mouseWorld)
     {
         Vector3 dir = mouseWorld - from;
