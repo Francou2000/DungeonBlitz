@@ -58,7 +58,7 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
     /// Usa la posición relativa en lugar del ActorNumber para ser más robusto
     /// Retorna -1 si el índice está fuera de rango o el jugador no se encuentra
     /// </summary>
-    private int GetHeroIndex(int client_id)
+    public int GetHeroIndex(int client_id)
     {
         if (!PhotonNetwork.IsConnected || !PhotonNetwork.InRoom)
         {

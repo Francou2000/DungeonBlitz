@@ -1,11 +1,10 @@
 using Photon.Pun;
-using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class ShopPlayer : MonoBehaviourPunCallbacks
 {
-    [SerializeField] AnimatorController[] animators;
+    [SerializeField] RuntimeAnimatorController[] animators;
     [SerializeField] Animator my_animator;
     [SerializeField] Sprite[] startSprite;
     [SerializeField] SpriteRenderer my_sprint_renderer;
@@ -18,7 +17,8 @@ public class ShopPlayer : MonoBehaviourPunCallbacks
     void Start()
     {
         unitLoaderController = UnitLoaderController.Instance;
-        HeroesList heroe_idx = unitLoaderController.heroes[PhotonNetwork.LocalPlayer.ActorNumber].my_data.heroe_id;
+        int player_idx = unitLoaderController.GetHeroIndex(PhotonNetwork.LocalPlayer.ActorNumber);
+        HeroesList heroe_idx = unitLoaderController.heroes[player_idx].my_data.heroe_id;
         my_sprint_renderer.sprite = startSprite[(int)heroe_idx + 1];
         my_animator.runtimeAnimatorController = animators[(int)heroe_idx + 1];
     }
