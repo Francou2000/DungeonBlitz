@@ -10,17 +10,32 @@ public class UnitMovement : MonoBehaviour
     [SerializeField] private float fallbackMaxMoveWorld = 3f;
     [SerializeField] private float navMeshMaxDistance = 0.6f; // how far we search for navmesh from target
 
-    private static readonly int WalkableMask = 1 << NavMesh.GetAreaFromName("Walkable");
+    private int walkableMask;
 
     private void Awake()
     {
         unit = GetComponent<Unit>();
+
+        int walkableArea = NavMesh.GetAreaFromName("Walkable");
+        if (walkableArea < 0)
+        {
+            Debug.LogError("[UnitMovement] NavMesh area 'Walkable' not found. Check Navigation Areas.");
+            walkableMask = NavMesh.AllAreas;
+        }
+        else
+        {
+            walkableMask = 1 << walkableArea;
+        }
     }
 
     //Moves to the given world position, clamped to range. Calls onFinish when done
     public void MoveTo(Vector3 mouseWorld, System.Action onFinish)
     {
         Vector3 oldPosition = unit.transform.position;
+
+        // clamp the desired point to the move radius (this matches your move targeter)
+        float maxMoveDist = GetMaxWorldRadius();
+        Vector3 desiredWithinRadius = ClampToMoveRange(oldPosition, mouseWorld);
 
         // status check
         var sc = GetComponent<StatusComponent>();
@@ -31,10 +46,8 @@ public class UnitMovement : MonoBehaviour
             return;
         }
 
-        float maxMoveDist = GetMaxWorldRadius();
-
-        // Build a path on the NavMesh and clamp it to maxMoveDist
-        if (!TryBuildClampedPath(oldPosition, mouseWorld, maxMoveDist, out var pathCorners))
+        // Build a NavMesh path to the clamped point and clamp along that path
+        if (!TryBuildClampedPath(oldPosition, desiredWithinRadius, maxMoveDist, out var pathCorners))
         {
             // no valid path or no distance to move
             Debug.Log("[Move] No valid NavMesh path");
@@ -80,9 +93,8 @@ public class UnitMovement : MonoBehaviour
             return false;
 
         var path = new NavMeshPath();
-        // NOTE: we allow both Complete and Partial paths: clicking in water gives a Partial
-        // path that ends at the bank, which is exactly what we want.
-        if (!NavMesh.CalculatePath(fromNav, targetNav, WalkableMask, path))
+        // allow Complete and Partial paths (clicking on water should give Partial to the bank)
+        if (!NavMesh.CalculatePath(fromNav, targetNav, walkableMask, path))
             return false;
 
         var raw = path.corners;
@@ -90,14 +102,13 @@ public class UnitMovement : MonoBehaviour
             return false;
 
         // We want to walk from the CURRENT position along this path,
-        // limited to maxDistance. Start with the actual position as first corner.
+        // limited to maxDistance.
         List<Vector3> result = new List<Vector3>();
         result.Add(from); // starting point
 
         float remaining = maxDistance;
         Vector3 current = from;
 
-        // Start from the first navmesh corner
         for (int i = 0; i < raw.Length; i++)
         {
             Vector3 next = raw[i];
@@ -142,7 +153,7 @@ public class UnitMovement : MonoBehaviour
     private bool SampleOnWalkable(Vector3 source, out Vector3 result)
     {
         NavMeshHit hit;
-        if (NavMesh.SamplePosition(source, out hit, navMeshMaxDistance, WalkableMask))
+        if (NavMesh.SamplePosition(source, out hit, navMeshMaxDistance, walkableMask))
         {
             result = hit.position;
             return true;
