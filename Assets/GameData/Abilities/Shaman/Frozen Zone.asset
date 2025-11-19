@@ -73,7 +73,7 @@ MonoBehaviour:
   spawnsZone: 1
   zoneKind: 1
   zoneRadius: 3
-  zoneDuration: 5
+  zoneDuration: 4
   isReaction: 0
   reactionTrigger: 0
   hasConditionalEffect: 0
