@@ -39,7 +39,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 7966dc208f74b0d4ea74fbda1ddcde83, type: 2}
   - {fileID: 11400000, guid: efc2424ef2e0e0646914b3fdf592a98a, type: 2}
   - {fileID: 11400000, guid: 9d2e87610f427654383cc3f3f00611de, type: 2}
-  startingForm: 
+  startingForm: Bow
   startingWeapon: Bow
   isTrainingDummy: 0
   isPromotable: 0
