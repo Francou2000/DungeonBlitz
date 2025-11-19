@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: e1ac3b909201d134686195ad42c51fe9
+guid: aedba3f4013678542996cfe42d6ca398
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4310378690032705403
-    second: Goblin Shaman Walk 4_0
+      213: 1723277880928941257
+    second: Goblin Shaman Idle 3_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,12 +100,12 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Goblin Shaman Walk 4_0
+      name: Goblin Shaman Idle 3_0
       rect:
         serializedVersion: 2
-        x: 5
+        x: 6
         y: 0
-        width: 127
+        width: 128
         height: 180
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 580ef253b657e24c0800000000000000
-      internalID: -4310378690032705403
+      spriteID: 9c4be063a105ae710800000000000000
+      internalID: 1723277880928941257
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Goblin Shaman Walk 4_0: -4310378690032705403
+      Goblin Shaman Idle 3_0: 1723277880928941257
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
