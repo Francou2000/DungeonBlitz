@@ -26,6 +26,13 @@ public sealed class AbilityResolver : MonoBehaviourPun
 
         if (caster == null || ability == null) { reason = "No caster/ability"; Debug.Log($"[Cast] FAIL: {reason}"); return false; }
         if (!caster.Model.CanAct()) { reason = "No actions left"; Debug.Log($"[Cast] FAIL: {reason}"); return false; }
+        if (ability.actionCost > 0 && caster.Model.CurrentActions < ability.actionCost)
+        {
+            reason = "Not enough action points";
+            Debug.Log($"[CanCast] FAIL: not enough AP: has={caster.Model.CurrentActions}, needs={ability.actionCost}");
+            return false;
+        }
+
 
         // --- Resource costs ---
         if (ability.resourceCosts != null)
@@ -507,6 +514,40 @@ public sealed class AbilityResolver : MonoBehaviourPun
 
         // -------- PER-TARGET ROUTING: heal allies, damage enemies --------
 
+        // --- If this ability does not deal damage or healing, just log its use once (buffs, stances, etc.) ---
+        bool hasAnyDamage = DealsAnyDamage(ability);
+        bool hasAnyHealOrBar = ability.healsTarget || ability.grantsBarrier;
+        bool spawnsZone = ability.spawnsZone;
+        bool spawnsStructure = IsStructureAbility(ability, out _);
+        bool changesState = ability.changesState;
+
+        if (PhotonNetwork.IsMasterClient &&
+            !hasAnyDamage && !hasAnyHealOrBar &&
+            !spawnsZone && !spawnsStructure &&
+            !changesState)
+        {
+            string casterName = GetCasterDisplayName(casterCtrl);
+            string abilityName = ability.abilityName;
+
+            string msg;
+            if (computedTargets.Count > 0 && computedTargets[0] != null)
+            {
+                var t = computedTargets[0];
+                string targetName =
+                    (t.Model != null && !string.IsNullOrEmpty(t.Model.UnitName))
+                    ? t.Model.UnitName
+                    : t.name;
+
+                msg = $"{casterName} used {abilityName} on {targetName}.";
+            }
+            else
+            {
+                msg = $"{casterName} used {abilityName}.";
+            }
+
+            _view.RPC(nameof(RPC_CombatLogMessage), RpcTarget.All, msg);
+        }
+
         // Batches to send
         var healIds = new List<int>();
         var healVals = new List<int>();
@@ -674,6 +715,13 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 casterCtrl.photonView.ViewID, ab.stateKey, ab.stateValue);
 
             Debug.Log($"[Resolver] Stance set on cast: {ab.stateKey} = {ab.stateValue}");
+
+            // --- Combat log for forms / stances ---
+            string casterName = GetCasterDisplayName(casterCtrl);
+            string abilityName = ab.abilityName;
+            string msg = $"{casterName} used {abilityName}: {ab.stateKey} = {ab.stateValue}.";
+
+            _view.RPC(nameof(RPC_CombatLogMessage), RpcTarget.All, msg);
         }
 
         BroadcastAPSync(casterCtrl);
@@ -698,9 +746,16 @@ public sealed class AbilityResolver : MonoBehaviourPun
 
         if (PhotonNetwork.IsMasterClient && ZoneManager.Instance && ability.spawnsZone)
         {
+            string casterName = GetCasterDisplayName(casterCtrl);
+            string abilityName = ability.abilityName;
+            string zoneName = ability.zoneKind.ToString();
+
+            string zoneMsg = $"{casterName} used {abilityName}, creating a {zoneName} zone.";
+            _view.RPC(nameof(RPC_CombatLogMessage), RpcTarget.All, zoneMsg);
+
             var center = aimPos; center.z = 0f;
             float r = Mathf.Max(0.1f, ability.zoneRadius);
-            int durTurns = Mathf.Max(1, Mathf.RoundToInt(ability.zoneDuration)); // reinterpret as TURNS
+            int durTurns = Mathf.Max(1, Mathf.RoundToInt(ability.zoneDuration));
 
             switch (ability.zoneKind)
             {
@@ -876,7 +931,9 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 if (PhotonNetwork.IsMasterClient)
                 {
                     // Apply on master
-                    var dealt = target.Model.ApplyDamageWithBarrier(dmg, (DamageType)dtype);
+                    int beforeHp = target.Model.CurrentHP;
+                    target.Model.ApplyDamageWithBarrier(dmg, (DamageType)dtype);
+                    int dealt = Mathf.Max(0, beforeHp - target.Model.CurrentHP);
 
                     if (dealt > 0 && ZoneManager.Instance != null)
                     {
@@ -992,17 +1049,39 @@ public sealed class AbilityResolver : MonoBehaviourPun
         // Handle completely missed attacks (no hit at all)
         if (hits != null && targetViewIds != null)
         {
+            // Get caster + ability for log text
+            string casterName = GetCasterDisplayName(casterCtrl);
+            UnitAbility missAbility = null;
+            if (casterCtrl != null && casterCtrl.unit != null)
+            {
+                var list = casterCtrl.unit.Model.Abilities;
+                if (abilityIndex >= 0 && abilityIndex < list.Count)
+                    missAbility = list[abilityIndex];
+            }
+            string abilityName = missAbility != null ? missAbility.abilityName : "Unknown Ability";
+
             for (int i = 0; i < targetViewIds.Length; i++)
             {
-                if (i < hits.Length && !hits[i]) // Attack completely missed
+                bool missedCompletely = (i < hits.Length && !hits[i]);
+                if (!missedCompletely) continue;
+
+                var target = FindByView<Unit>(targetViewIds[i]);
+                if (target != null)
                 {
-                    var target = FindByView<Unit>(targetViewIds[i]);
-                    if (target != null)
+                    var u = target.GetComponent<Unit>();
+                    if (u != null)
                     {
-                        CombatFeedbackUI.ShowMiss(target.GetComponent<Unit>());
-                        // Play evade sound when attack completely misses
+                        CombatFeedbackUI.ShowMiss(u);
                         if (AudioManager.Instance != null)
-                            AudioManager.Instance.PlayEvadeSoundByUnitType(target.GetComponent<Unit>());
+                            AudioManager.Instance.PlayEvadeSoundByUnitType(u);
+
+                        string targetName =
+                            (target.Model != null && !string.IsNullOrEmpty(target.Model.UnitName))
+                            ? target.Model.UnitName
+                            : target.name;
+
+                        CombatLogUI.Log(
+                            $"{casterName} used {abilityName} on {targetName}: MISS");
                     }
                 }
             }
@@ -1034,8 +1113,12 @@ public sealed class AbilityResolver : MonoBehaviourPun
         string abilityName = (ability != null) ? ability.abilityName : "Unknown Ability";
         string damageTypeName = ((DamageType)damageType).ToString();
 
-        var dealt = target.Model.ApplyDamageWithBarrier(damage, (DamageType)damageType);
+        int beforeHp = target.Model.CurrentHP;
+        target.Model.ApplyDamageWithBarrier(damage, (DamageType)damageType);
+        int dealt = Mathf.Max(0, beforeHp - target.Model.CurrentHP);
+
         Debug.Log($"[AbilityRPC] Applied {dealt} HP damage to {target.name} (type={(DamageType)damageType})");
+
 
         // --- Popup on every client ---
         var u = target.GetComponent<Unit>();
@@ -1083,28 +1166,49 @@ public sealed class AbilityResolver : MonoBehaviourPun
     {
         Debug.Log($"[RPC_ApplyHealing] ENTER targets={(targetViewIds == null ? 0 : targetViewIds.Length)}");
 
-        // Mostrar el nombre de la habilidad sobre el caster
+        // Caster + ability info
         var casterCtrl = FindByView<UnitController>(casterViewId);
+        UnitAbility ability = null;
+        string casterName = "Unknown";
+
         if (casterCtrl != null && casterCtrl.unit != null)
         {
+            casterName = GetCasterDisplayName(casterCtrl);
+
             var list = casterCtrl.unit.Model.Abilities;
             if (abilityIndex >= 0 && abilityIndex < list.Count)
             {
-                CombatFeedbackUI.ShowAbilityName(casterCtrl.unit, list[abilityIndex].abilityName);
+                ability = list[abilityIndex];
+                CombatFeedbackUI.ShowAbilityName(casterCtrl.unit, ability.abilityName);
             }
         }
+
+        string abilityName = ability != null ? ability.abilityName : "Unknown Ability";
 
         int n = (targetViewIds == null) ? 0 : targetViewIds.Length;
         for (int i = 0; i < n; i++)
         {
             var pv = PhotonView.Find(targetViewIds[i]);
-            if (pv == null) { Debug.LogWarning($"[RPC_ApplyHealing] PV NOT FOUND id={targetViewIds[i]}"); continue; }
+            if (pv == null)
+            {
+                Debug.LogWarning($"[RPC_ApplyHealing] PV NOT FOUND id={targetViewIds[i]}");
+                continue;
+            }
 
             var unit = pv.GetComponent<Unit>() ?? pv.GetComponentInChildren<Unit>() ?? pv.GetComponentInParent<Unit>();
-            if (unit == null || unit.Model == null) { Debug.LogWarning($"[RPC_ApplyHealing] NO Unit on PV id={targetViewIds[i]} go={pv.gameObject.name}"); continue; }
+            if (unit == null || unit.Model == null)
+            {
+                Debug.LogWarning($"[RPC_ApplyHealing] NO Unit on PV id={targetViewIds[i]} go={pv.gameObject.name}");
+                continue;
+            }
 
             int heal = (heals != null && i < heals.Length) ? heals[i] : 0;
             int barrier = (barriers != null && i < barriers.Length) ? barriers[i] : 0;
+
+            string targetName =
+                (unit.Model != null && !string.IsNullOrEmpty(unit.Model.UnitName))
+                ? unit.Model.UnitName
+                : unit.name;
 
             if (heal > 0)
             {
@@ -1120,6 +1224,20 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 var sc = unit.GetComponent<StatusComponent>();
                 if (sc != null) sc.Apply(EffectLibrary.Barrier(barrier, 2));
                 Debug.Log($"[RPC_ApplyHealing] Barrier {barrier} to {unit.name}");
+            }
+
+            // Log only if something actually happened
+            if (heal > 0 || barrier > 0)
+            {
+                string msg;
+                if (heal > 0 && barrier > 0)
+                    msg = $"{casterName} used {abilityName} on {targetName}: HEAL {heal}, BARRIER {barrier}.";
+                else if (heal > 0)
+                    msg = $"{casterName} used {abilityName} on {targetName}: HEAL {heal}.";
+                else
+                    msg = $"{casterName} used {abilityName} on {targetName}: BARRIER {barrier}.";
+
+                CombatLogUI.Log(msg);
             }
         }
     }
@@ -1674,6 +1792,12 @@ public sealed class AbilityResolver : MonoBehaviourPun
             return casterCtrl.unit.Model.UnitName;
 
         return casterCtrl.name;
+    }
+
+    [PunRPC]
+    void RPC_CombatLogMessage(string message)
+    {
+        CombatLogUI.Log(message);
     }
 }
 
