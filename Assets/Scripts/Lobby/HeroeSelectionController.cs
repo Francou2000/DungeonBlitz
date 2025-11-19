@@ -21,14 +21,16 @@ public class HeroeSelectionController : MonoBehaviourPunCallbacks
     }
 
     [SerializeField] Image[] buttons_border;
+    [SerializeField] Color selected;
+    [SerializeField] Color non_selected;
     [SerializeField] ReadyHeroeSelection actual_heroe;
 
     public void UpdateHeroeData(HeroesList heroe_id)
     {
         for (int i = 0; i < buttons_border.Length; i++)
         {
-            if (i == (int)heroe_id) { buttons_border[i].color = Color.green; }
-            else { buttons_border[i].color = Color.red; }
+            if (i == (int)heroe_id) { buttons_border[i].color = selected; }
+            else { buttons_border[i].color = non_selected; }
         }
         actual_heroe.actual_unit = heroe_id;
         UnitLoaderController.Instance.photonView.RPC("AddHeroe", RpcTarget.All, heroe_id, PhotonNetwork.LocalPlayer.ActorNumber);
