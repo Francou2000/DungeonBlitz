@@ -886,6 +886,34 @@ public sealed class AbilityResolver : MonoBehaviourPun
 
                     Debug.Log($"[Resolve] MASTER applied {dealt} HP dmg to {target.name} (type={(DamageType)dtype})");
 
+                    // --- Combat log for MASTER client ---
+                    string casterName = GetCasterDisplayName(casterCtrl);
+                    string targetName = (target.Model != null && !string.IsNullOrEmpty(target.Model.UnitName))
+                        ? target.Model.UnitName
+                        : target.name;
+
+                    UnitAbility ability = null;
+                    if (casterCtrl != null && casterCtrl.unit != null && casterCtrl.unit.Model != null)
+                    {
+                        var list = casterCtrl.unit.Model.Abilities;
+                        if (abilityIndex >= 0 && abilityIndex < list.Count)
+                            ability = list[abilityIndex];
+                    }
+
+                    string abilityName = ability != null ? ability.abilityName : "Unknown Ability";
+                    string damageTypeName = ((DamageType)dtype).ToString();
+
+                    if (dealt > 0)
+                    {
+                        CombatLogUI.Log(
+                            $"{casterName} used {abilityName} on {targetName}: HIT for {dealt} {damageTypeName} damage.");
+                    }
+                    else
+                    {
+                        CombatLogUI.Log(
+                            $"{casterName} used {abilityName} on {targetName}: MISS");
+                    }
+
                     // Local popup on master
                     var u = target.GetComponent<Unit>();
                     if (u)
@@ -893,7 +921,6 @@ public sealed class AbilityResolver : MonoBehaviourPun
                         if (dealt > 0)
                         {
                             // Obtener la habilidad utilizada para el efecto de daño
-                            var ability = casterCtrl.unit.Model.Abilities[abilityIndex];
                             CombatFeedbackUI.ShowHit(u, dealt, (DamageType)dtype, false, casterCtrl.unit, ability);
                             // Play attack sound when hit connects
                             if (AudioManager.Instance != null)

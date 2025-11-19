@@ -1,6 +1,7 @@
-using UnityEngine;
-using TMPro;
+using Photon.Pun.Demo.SlotRacer.Utils;
 using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
 
 public class CombatLogUI : MonoBehaviour
 {
@@ -8,6 +9,8 @@ public class CombatLogUI : MonoBehaviour
 
     [SerializeField] private TMP_Text logText;
     [SerializeField] private int maxLines = 10;
+
+    private readonly List<string> _lines = new();
 
     private void Awake()
     {
@@ -35,16 +38,13 @@ public class CombatLogUI : MonoBehaviour
 
     private void AddLine(string message)
     {
-        var lines = new List<string>();
+        _lines.Add(message);
 
-        lines.Add(message);
+        while (_lines.Count > maxLines)
+            _lines.RemoveAt(0);
 
-        while (lines.Count > maxLines)
-        {
-            lines.RemoveAt(0);
-        }
-
-        if(logText != null)
-            logText.text = string.Join("\n", lines);
+        if (logText != null)
+            logText.text = string.Join("\n", _lines);
     }
 }
+
