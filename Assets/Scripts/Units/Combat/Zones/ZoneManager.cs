@@ -7,6 +7,9 @@ public class ZoneManager : MonoBehaviour
     public static ZoneManager Instance { get; private set; }
     private PhotonView _view;
 
+    private int _nextZoneId = 1;
+    private readonly Dictionary<int, ZoneBase> _byId = new();
+
     private readonly List<ZoneBase> _zones = new List<ZoneBase>();
 
     void Awake()
@@ -19,18 +22,28 @@ public class ZoneManager : MonoBehaviour
     void OnEnable() { TurnManager.OnTurnBegan += HandleTurnBegan; }
     void OnDisable() { TurnManager.OnTurnBegan -= HandleTurnBegan; }
 
-    void HandleTurnBegan(UnitFaction _)
+    void HandleTurnBegan(UnitFaction activeFaction)
     {
         if (!PhotonNetwork.IsMasterClient) return;
+
         for (int i = _zones.Count - 1; i >= 0; i--)
         {
             var z = _zones[i];
             if (!z) { _zones.RemoveAt(i); continue; }
+
+            // If zone has an owner, only tick on that owner's faction turn
+            if (z.OwnerViewId != -1)
+            {
+                var pv = PhotonView.Find(z.OwnerViewId);
+                var owner = pv ? pv.GetComponent<UnitModel>() : null;
+                if (owner != null && owner.Faction != activeFaction)
+                    continue; // not this owner's turn -> don't decrement
+            }
+
             if (z.RemainingTurns > 0) z.RemainingTurns--;
             if (z.RemainingTurns == 0)
             {
-                Destroy(z.gameObject);
-                _zones.RemoveAt(i);
+                DestroyZoneAuth(z); // replicated destroy
             }
         }
     }
@@ -39,14 +52,16 @@ public class ZoneManager : MonoBehaviour
     public void SpawnCircleZone(ZoneKind kind, Vector3 center, float radius, int durationTurns, int ownerViewId = -1)
     {
         if (!PhotonNetwork.IsMasterClient) return;
-        _view.RPC(nameof(RPC_CreateCircleZone), RpcTarget.All, (int)kind, center, radius, durationTurns, ownerViewId);
+        int netId = _nextZoneId++;
+        _view.RPC(nameof(RPC_CreateCircleZone), RpcTarget.All,
+            netId, (int)kind, center, radius, durationTurns, ownerViewId);
     }
 
     [PunRPC]
-    void RPC_CreateCircleZone(int kindInt, Vector3 center, float radius, int durationTurns, int ownerViewId)
+    void RPC_CreateCircleZone(int netId, int kindInt, Vector3 center, float radius, int durationTurns, int ownerViewId)
     {
         var kind = (ZoneKind)kindInt;
-        var go = new GameObject($"{(ZoneKind)kind}Zone");
+        var go = new GameObject($"{kind}Zone");
         ZoneBase zone = null;
         switch (kind)
         {
@@ -54,26 +69,31 @@ public class ZoneManager : MonoBehaviour
             case ZoneKind.Frozen: zone = go.AddComponent<FrozenZone>(); break;
             default: Debug.LogWarning($"[ZoneManager] Unknown zone kind {kind}"); Destroy(go); return;
         }
+        zone.NetId = netId;
         zone.Init(kind, center, radius, durationTurns, ownerViewId);
         _zones.Add(zone);
+        _byId[netId] = zone;
     }
 
     public void SpawnStormCrossing(Vector3 a, Vector3 b, float width, int durationTurns,
-                               int ownerFaction, int allyHasteDuration, int enemyDamage, int shockChance)
+                                   int ownerFaction, int allyHasteDuration, int enemyDamage, int shockChance)
     {
         if (!PhotonNetwork.IsMasterClient) return;
+        int netId = _nextZoneId++;
         _view.RPC(nameof(RPC_CreateStormCrossing), RpcTarget.All,
-            a, b, width, durationTurns, ownerFaction, allyHasteDuration, enemyDamage, shockChance);
+            netId, a, b, width, durationTurns, ownerFaction, allyHasteDuration, enemyDamage, shockChance);
     }
 
     [PunRPC]
-    void RPC_CreateStormCrossing(Vector3 a, Vector3 b, float width, int durationTurns,
+    void RPC_CreateStormCrossing(int netId, Vector3 a, Vector3 b, float width, int durationTurns,
                                  UnitFaction ownerFaction, int allyHasteDur, int enemyDmg, int shockChance)
     {
         var go = new GameObject("StormCrossingZone");
         var z = go.AddComponent<StormCrossingZone>();
+        z.NetId = netId;
         z.InitSegment(a, b, width, ownerFaction, allyHasteDur, enemyDmg, shockChance, durationTurns);
         _zones.Add(z);
+        _byId[netId] = z;
     }
 
     // Master decides on movement, broadcasts effect application
@@ -114,8 +134,6 @@ public class ZoneManager : MonoBehaviour
     {
         var u = PhotonView.Find(unitViewId)?.GetComponent<Unit>();
         if (u == null) return;
-
-       // u.Model.statusHandler?.ApplyEffect(EffectLibrary.Haste(hasteDuration));
     }
 
     [PunRPC]
@@ -127,7 +145,6 @@ public class ZoneManager : MonoBehaviour
         if (damage > 0) u.Model.ApplyDamageWithBarrier(damage, DamageType.Magical); // lightning ? magical
 
         if (shockChance > 0 && Random.Range(0f, 100f) <= shockChance) return;
-     //       u.Model.statusHandler?.ApplyEffect(EffectLibrary.Shock(1));
     }
 
     // === Queries ===
@@ -167,10 +184,7 @@ public class ZoneManager : MonoBehaviour
         {
             var z = _zones[i];
             if (z && z.Kind == ZoneKind.Negative && z.OwnerViewId == ownerViewId)
-            {
-                Destroy(z.gameObject);
-                _zones.RemoveAt(i);
-            }
+                DestroyZoneAuth(z);
         }
     }
 
@@ -179,12 +193,33 @@ public class ZoneManager : MonoBehaviour
         if (!PhotonNetwork.IsMasterClient) return;
         for (int i = _zones.Count - 1; i >= 0; i--)
         {
-            if (_zones[i] && _zones[i].Kind == ZoneKind.Negative)
-            {
-                Destroy(_zones[i].gameObject);
-                _zones.RemoveAt(i);
-            }
+            var z = _zones[i];
+            if (z && z.Kind == ZoneKind.Negative)
+                DestroyZoneAuth(z);
         }
         SpawnCircleZone(ZoneKind.Negative, center, radius, durationTurns, ownerViewId);
+    }
+
+    void DestroyZoneAuth(ZoneBase z)
+    {
+        if (!PhotonNetwork.IsMasterClient || z == null) return;
+
+        int id = z.NetId;
+        _byId.Remove(id);
+        _zones.Remove(z);
+        Destroy(z.gameObject);
+
+        _view.RPC(nameof(RPC_DestroyZone), RpcTarget.Others, id);
+    }
+
+    [PunRPC]
+    void RPC_DestroyZone(int netId)
+    {
+        if (_byId.TryGetValue(netId, out var z) && z)
+        {
+            _byId.Remove(netId);
+            _zones.Remove(z);
+            Destroy(z.gameObject);
+        }
     }
 }

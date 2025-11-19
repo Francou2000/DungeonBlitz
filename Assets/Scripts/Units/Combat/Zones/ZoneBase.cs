@@ -13,6 +13,7 @@ public class ZoneBase : MonoBehaviour
     [HideInInspector] public float Radius;
     [HideInInspector] public int RemainingTurns;      // 0 => infinite
     [HideInInspector] public int OwnerViewId = -1;
+    [HideInInspector] public int NetId = -1;
 
     public bool IsExpired() => RemainingTurns == 0;
 
