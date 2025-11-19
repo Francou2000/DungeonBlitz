@@ -60,7 +60,7 @@ namespace SpatialUI
             Vector3 anchorPos = GetAnchor(target);
             
             // Calcular posición inicial más arriba y centrada (offset de 1f para estar más arriba pero no tanto)
-            Vector3 basePos = anchorPos + Vector3.up * (config.verticalOffset + 1f);
+            Vector3 basePos = anchorPos + Vector3.up * (config.verticalOffset + 0.2f);
             Vector3 endPos = basePos + new Vector3(0f, config.riseDistance * 0.6f, 0f); // Menos movimiento horizontal
 
             var ft = pool.Get();

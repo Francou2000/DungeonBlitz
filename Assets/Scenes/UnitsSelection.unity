@@ -49648,7 +49648,7 @@ MonoBehaviour:
   heroes_shop: {fileID: 1258144795}
   heroes_shop_controller: {fileID: 2136047807}
   game_scene_name: 3
-  preparation_time_limit: 60
+  preparation_time_limit: 300
   time: 0
   slider1: {fileID: 607336068}
   slider2: {fileID: 312667377}
