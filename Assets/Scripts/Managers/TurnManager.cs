@@ -162,6 +162,8 @@ public class TurnManager : MonoBehaviourPunCallbacks
     public void NextLevel(int lvl)
     {
         _unitControler.lvl = lvl;
+        _unitControler.dm_remaining_time = timePool[UnitFaction.Monster];
+        _unitControler.heroes_remaining_time = timePool[UnitFaction.Hero];
         SceneLoaderController.Instance.LoadNextLevel(Scenes.UnitsSelection);
     }
 

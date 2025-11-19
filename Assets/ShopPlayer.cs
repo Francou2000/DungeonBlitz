@@ -1,6 +1,7 @@
 using Photon.Pun;
 using UnityEditor.Animations;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class ShopPlayer : MonoBehaviourPunCallbacks
 {
@@ -25,13 +26,14 @@ public class ShopPlayer : MonoBehaviourPunCallbacks
     
     void Update()
     {
-        if (Input.GetMouseButton(0))
+        if (Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject())
         {
             my_animator.SetBool("Walking", true);
             is_walking = true;
             pos_to_move = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             dir_to_move = (pos_to_move - (Vector2)transform.position).normalized;
             transform.localScale = dir_to_move.x > 0 ? Vector3.one : new Vector3(-1, 1, 1);
+            HeroesShopManager.instance.HideBuyUI();
         }
 
         if ((pos_to_move - (Vector2)transform.position).magnitude < 0.5f)

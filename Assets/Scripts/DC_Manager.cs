@@ -4,6 +4,7 @@ using System.ComponentModel;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 
 public class DC_Manager : MonoBehaviour
 {
@@ -52,16 +53,19 @@ public class DC_Manager : MonoBehaviour
             switch (state)
             {
                 case DC_State.PLACING_UNIT:
+                    if (EventSystem.current.IsPointerOverGameObject()) return;
                     SpawnNewUnit(pos);
                     break;
                 case DC_State.PLAICING_TRAP:
                     break;
                 case DC_State.MOVING_UNIT:
+                    if (EventSystem.current.IsPointerOverGameObject()) return;
                     UpdateUnitOnList(Unit_Original_Pos, pos, actualUnit);
                     break;
                 case DC_State.MOVING_TRAP:
                     break;
                 default:
+                    if (EventSystem.current.IsPointerOverGameObject()) return;
                     edit_menu.SetActive(false);
                     promote_menu.SetActive(false);
                     moseClick.Invoke(pos + new Vector2(0.5f, 0.5f));

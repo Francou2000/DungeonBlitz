@@ -98,13 +98,15 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
                 rarity_weigt[rar.rarity] = rar.weigt_shop_2;
             }
         }
+
+        remaining_time.text = "Remaining time: " + ((int)unit_loader_controller.heroes_remaining_time).ToString() + " s";
+        volatile_time_show.text = "Volatile time: " + volatile_seconds.ToString() + " s";
+
         if (!PhotonNetwork.IsMasterClient) return;
         SpawnHeroesItems();
         SpawnRandomItems();
         SpawnConsumableItems();
 
-        remaining_time.text = "Remaining time: " + unit_loader_controller.heroes_remaining_time.ToString(" s");
-        volatile_time_show.text = "Volatile time: " + volatile_seconds.ToString(" s");
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------
@@ -265,6 +267,13 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
             purchase_button.SetActive(false);
         }
         else
+        {
+            purchase_button.SetActive(true);
+            purchase_button.GetComponent<Button>().interactable = false;
+            try_purchase_button.SetActive(false);
+        }
+
+        if (item.tailored_heroe != HeroesList.None && item.tailored_heroe != unit_loader_controller.heroes[PhotonNetwork.LocalPlayer.ActorNumber].my_data.heroe_id)
         {
             purchase_button.SetActive(true);
             purchase_button.GetComponent<Button>().interactable = false;
@@ -432,15 +441,29 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
     public void UseVolatileSeconds(int seconds) 
     {
         volatile_seconds -= seconds;
-        if (volatile_seconds < 0)
-        {
-            unit_loader_controller.photonView.RPC("SpendHeroeSeconds", RpcTarget.All,-volatile_seconds);
-            volatile_seconds = 0;
-        }
+        bool vol = !(volatile_seconds < 0);
+        photonView.RPC("UpdateTimeCoins", RpcTarget.All, vol);
     }
     public void AddVolatileSeconds(int seconds) { volatile_seconds += seconds; }
 
-
+    [PunRPC]
+    public void UpdateTimeCoins(bool only_volatile)
+    {
+        if (PhotonNetwork.IsMasterClient) return;
+        if (only_volatile)
+        {
+            volatile_time_show.text = "Volatile time: " + volatile_seconds.ToString() + " s";
+            return;
+        }
+        else
+        {
+            unit_loader_controller.SpendHeroeSeconds(-volatile_seconds);
+            volatile_seconds = 0;
+            remaining_time.text = "Remaining time: " + ((int)unit_loader_controller.heroes_remaining_time).ToString() + " s";
+            volatile_time_show.text = "Volatile time: " + volatile_seconds.ToString() + " s";
+        }
+            
+    }
     public void PurchaseItem()
     {
         unit_loader_controller.photonView.RPC("AddItemToHeroe", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber, actual_item.ItemID);
@@ -448,6 +471,7 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
         UseVolatileSeconds(actual_item.cost);
         if (actual_item.is_unique) photonView.RPC("RemoveItemFromShop", RpcTarget.All, actual_pedestal);
         else RemoveItemFromShop(actual_pedestal);
+        StartCoroutine(PurchaseAccepted());
     }
 
     [PunRPC]

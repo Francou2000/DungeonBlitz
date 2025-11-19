@@ -6706,7 +6706,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &132595014
 RectTransform:
   m_ObjectHideFlags: 0
@@ -10671,7 +10671,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 200, y: 50}
+  m_SizeDelta: {x: 249.5479, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &342082623
 CanvasRenderer:
@@ -10807,8 +10807,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -151.5581, y: -172}
-  m_SizeDelta: {x: 228.88391, y: 74.61377}
+  m_AnchoredPosition: {x: -183.95496, y: -172}
+  m_SizeDelta: {x: 293.6776, y: 74.6138}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &342727648
 MonoBehaviour:
@@ -24891,8 +24891,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -151.5581, y: -72.306885}
-  m_SizeDelta: {x: 228.88391, y: 74.61377}
+  m_AnchoredPosition: {x: -183.95496, y: -72.306885}
+  m_SizeDelta: {x: 293.6776, y: 74.6138}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &605012312
 MonoBehaviour:
@@ -38142,6 +38142,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 2136047809}
+        m_TargetAssemblyTypeName: HeroesShopManager, Assembly-CSharp
+        m_MethodName: HideBuyUI
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1205485428
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -39803,8 +39815,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 200, y: 0}
-  m_SizeDelta: {x: 800, y: 760}
+  m_AnchoredPosition: {x: -9.065399, y: 0}
+  m_SizeDelta: {x: 381.8691, y: 760}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1348747031
 MonoBehaviour:
@@ -45476,6 +45488,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 049293ec2bb7fe14bb063e3a08a82a02, type: 2}
   - {fileID: 11400000, guid: b826a5a6a17d6c041b1f26aa3dce3497, type: 2}
   lvl: 1
+  items: []
 --- !u!4 &1737350056
 Transform:
   m_ObjectHideFlags: 0
@@ -52623,7 +52636,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 200, y: 50}
+  m_SizeDelta: {x: 249.5479, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2012386298
 CanvasRenderer:

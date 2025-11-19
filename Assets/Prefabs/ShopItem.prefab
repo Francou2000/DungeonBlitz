@@ -195,3 +195,4 @@ MonoBehaviour:
   my_item: {fileID: 0}
   my_pedestal: 0
   my_spriteRenderer: {fileID: 2167533339225102931}
+  my_animator: {fileID: 8082619882936642765}
