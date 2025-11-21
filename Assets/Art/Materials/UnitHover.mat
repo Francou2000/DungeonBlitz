@@ -72,8 +72,8 @@ Material:
     - _ZWrite: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _EdgeColor: {r: 1, g: 1, b: 1, a: 1}
-    - _MainColor: {r: 1, g: 1, b: 1, a: 0}
+    - _EdgeColor: {r: 0.5345911, g: 0.10590949, b: 0.10590949, a: 1}
+    - _MainColor: {r: 1, g: 0, b: 0, a: 0}
     - _NoiseScale: {r: 3, g: 3, b: 0, a: 0}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

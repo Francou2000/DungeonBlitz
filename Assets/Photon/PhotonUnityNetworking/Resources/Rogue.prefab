@@ -96,6 +96,9 @@ MonoBehaviour:
   defaultAnimator: {fileID: 9100000, guid: e10023c79f324d748a847be6af7b7ae6, type: 2}
   juice: {fileID: 7826705428293066901}
   outlineObject: {fileID: 9073731304434709722}
+  controlledHoverColor: {r: 0, g: 0, b: 1, a: 1}
+  allyHoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  enemyHoverColor: {r: 1, g: 0, b: 0, a: 1}
   sortingBase: 1000
   sortingMultiplier: 100
   formVisuals:

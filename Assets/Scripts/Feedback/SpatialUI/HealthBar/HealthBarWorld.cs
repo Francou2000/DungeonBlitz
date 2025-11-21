@@ -1,3 +1,4 @@
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,40 +14,34 @@ public class HealthBarWorld : MonoBehaviour
     public bool useRendererBounds = true;   // place above sprite bounds if available
     public float extraHeight = 0.2f;        // extra above bounds
 
-    [Header("Visuals")]
-    public Gradient colorByPct;             // optional: color by HP%
+    [Header("Visibility")]
     public bool hideWhenFull = false;
     public bool hideWhenDead = true;
 
-    Camera _cam;
+    [Header("Team Colors")]
+    public Color controlledColor = Color.blue;
+    public Color allyColor = Color.yellow;
+    public Color enemyColor = Color.red;
+
     Transform _follow;
-    Renderer _rend;       // any child renderer (for bounds)
+    Renderer _rend;
     int _lastHP = -1, _lastMax = -1;
 
-    void Awake()
+    public void Bind(Unit unit)
     {
-        _cam = Camera.main;
-        // Ensure we are under a world-space canvas
-        var canvas = GetComponentInParent<Canvas>();
-        if (!canvas) Debug.LogWarning("[HealthBarWorld] No parent Canvas found. Place bars under a world-space Canvas.");
-    }
-
-    public void Bind(Unit u)
-    {
-        targetUnit = u;
-        if (!targetUnit) return;
-
-        _follow = u.transform;
-        _rend = u.GetComponentInChildren<Renderer>();
-
-        // subscribe to model event (fires on ALL clients when RPC applies HP)
-        if (u.Model != null)
-            u.Model.OnHealthChanged += OnHealthChanged;
-
-        foreach (var ap in GetComponentsInChildren<APBinder>(true))
+        targetUnit = unit;
+        if (!targetUnit)
         {
-            ap.Bind(u);
+            gameObject.SetActive(false);
+            return;
         }
+
+        if (targetUnit.Model != null)
+            targetUnit.Model.OnHealthChanged += OnHealthChanged;
+
+        // Follow the visual if possible, otherwise the unit root
+        _follow = (targetUnit.View != null) ? targetUnit.View.transform : targetUnit.transform;
+        _rend = _follow.GetComponentInChildren<Renderer>();
 
         ForceRefresh();
     }
@@ -55,16 +50,21 @@ public class HealthBarWorld : MonoBehaviour
 
     void LateUpdate()
     {
-        if (!targetUnit || !_follow) { gameObject.SetActive(false); return; }
+        if (!targetUnit || _follow == null)
+        {
+            gameObject.SetActive(false);
+            return;
+        }
 
-        // Poll if no event
-        var hp = targetUnit.Model?.CurrentHP ?? 0;
-        var mx = targetUnit.Model?.MaxHP ?? 1;
-        if (hp != _lastHP || mx != _lastMax) UpdateFill(hp, mx);
+        // Keep amount + color in sync every frame (even if HP didn't change)
+        if (targetUnit.Model != null)
+        {
+            UpdateFill(targetUnit.Model.CurrentHP, targetUnit.Model.MaxHP);
+        }
 
-        // Position above head (URP 2D: XY, keep Z=0)
+        // Position above the unit
         Vector3 anchor = _follow.position;
-        if (useRendererBounds && _rend)
+        if (useRendererBounds && _rend != null)
         {
             var b = _rend.bounds;
             anchor = new Vector3(b.center.x, b.max.y + extraHeight, 0f);
@@ -74,30 +74,59 @@ public class HealthBarWorld : MonoBehaviour
             anchor += worldOffset;
             anchor.z = 0f;
         }
+
         transform.position = anchor;
     }
 
     void UpdateFill(int hp, int max)
     {
-        _lastHP = hp; _lastMax = Mathf.Max(1, max);
+        _lastHP = hp;
+        _lastMax = Mathf.Max(1, max);
+
         if (!fill) return;
 
         float pct = Mathf.Clamp01((float)hp / _lastMax);
         fill.fillAmount = pct;
 
-        if (colorByPct != null)
-            fill.color = colorByPct.Evaluate(pct);
+        // Team / control color
+        Color teamCol = GetTeamColor();
+        fill.color = teamCol;
 
-        // Simple visibility rules
-        if (hideWhenDead && hp <= 0) { SetVisible(false); return; }
-        if (hideWhenFull) { SetVisible(pct < 0.999f); } else SetVisible(true);
+        if (back)
+        {
+            var backCol = back.color;
+            back.color = new Color(teamCol.r, teamCol.g, teamCol.b, backCol.a);
+        }
+
+        // Visibility rules
+        if (hideWhenDead && hp <= 0)
+        {
+            SetVisible(false);
+            return;
+        }
+
+        if (hideWhenFull)
+        {
+            SetVisible(pct < 0.999f);
+        }
+        else
+        {
+            SetVisible(true);
+        }
     }
 
     void ForceRefresh()
     {
-        var hp = targetUnit?.Model?.CurrentHP ?? 0;
-        var mx = targetUnit?.Model?.MaxHP ?? 1;
-        UpdateFill(hp, mx);
+        if (targetUnit != null && targetUnit.Model != null)
+        {
+            int hp = targetUnit.Model.CurrentHP;
+            int mx = targetUnit.Model.MaxHP;
+            UpdateFill(hp, mx);
+        }
+        else
+        {
+            UpdateFill(0, 1);
+        }
     }
 
     void SetVisible(bool v)
@@ -110,5 +139,25 @@ public class HealthBarWorld : MonoBehaviour
     {
         if (targetUnit && targetUnit.Model != null)
             targetUnit.Model.OnHealthChanged -= OnHealthChanged;
+    }
+
+    Color GetTeamColor()
+    {
+        if (targetUnit == null) return allyColor;
+
+        // Local side: master client = Monster (DM), others = Hero
+        UnitFaction localFaction =
+            PhotonNetwork.IsMasterClient ? UnitFaction.Monster : UnitFaction.Hero;
+
+        bool isControlled =
+            UnitController.ActiveUnit != null &&
+            UnitController.ActiveUnit.unit == targetUnit &&
+            UnitController.ActiveUnit.photonView.IsMine;
+
+        bool sameFaction = targetUnit.Faction == localFaction;
+
+        if (isControlled) return controlledColor; // blue
+        else if (sameFaction) return allyColor;       // yellow
+        else return enemyColor;      // red
     }
 }
