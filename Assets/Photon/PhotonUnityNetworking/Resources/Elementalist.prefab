@@ -98,6 +98,8 @@ MonoBehaviour:
   defaultAnimator: {fileID: 9100000, guid: f8e6ba686fa0bab41b0700136d39eb78, type: 2}
   juice: {fileID: 5963188057655467818}
   outlineObject: {fileID: 9073731304434709722}
+  sortingBase: 1000
+  sortingMultiplier: 100
   formVisuals:
   - formId: Fire
     bodySprite: {fileID: 2296304566064173724, guid: e05d25b81c64ce841941a904e1994c3f, type: 3}

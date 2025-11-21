@@ -96,6 +96,8 @@ MonoBehaviour:
   defaultAnimator: {fileID: 9100000, guid: e10023c79f324d748a847be6af7b7ae6, type: 2}
   juice: {fileID: 7826705428293066901}
   outlineObject: {fileID: 9073731304434709722}
+  sortingBase: 1000
+  sortingMultiplier: 100
   formVisuals:
   - formId: Bow
     bodySprite: {fileID: -2832816859357876601, guid: 6e7caaf794a2453478f326074cefbf7a, type: 3}

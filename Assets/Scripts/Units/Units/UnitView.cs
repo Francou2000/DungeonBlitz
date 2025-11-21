@@ -17,6 +17,11 @@ public class UnitView : MonoBehaviour
 
     public GameObject outlineObject;
 
+    [SerializeField, Header("Y-Sorting")]
+    private int sortingBase = 0;          // Base offset so units are above ground tiles, etc.
+    [SerializeField]
+    private float sortingMultiplier = 100f; // How strongly Y affects the order (100 = 1 unit = 100 layers)
+
     [System.Serializable]
     public class FormVisual
     {
@@ -54,6 +59,16 @@ public class UnitView : MonoBehaviour
 
         // Inicializar el parámetro Walking en false (Idle)
         SetWalking(false);
+    }
+
+    private void LateUpdate()
+    {
+        if (spriteRenderer == null) return;
+
+        // Lower Y -> larger sortingOrder (in front)
+        // Higher Y -> smaller sortingOrder (behind)
+        int order = sortingBase - Mathf.RoundToInt(transform.position.y * sortingMultiplier);
+        spriteRenderer.sortingOrder = order;
     }
 
     void OnDestroy()

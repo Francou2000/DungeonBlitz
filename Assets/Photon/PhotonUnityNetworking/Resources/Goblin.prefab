@@ -224,6 +224,8 @@ MonoBehaviour:
   defaultAnimator: {fileID: 0}
   juice: {fileID: 2765966606180897321}
   outlineObject: {fileID: 9073731304434709722}
+  sortingBase: 1000
+  sortingMultiplier: 100
   formVisuals: []
 --- !u!61 &3955947690574530163
 BoxCollider2D:
