@@ -1,4 +1,5 @@
 using UnityEngine;
+using Photon.Pun;
 
 public class CameraController : MonoBehaviour
 {
@@ -13,15 +14,32 @@ public class CameraController : MonoBehaviour
     private Vector3 lastMousePosition;
     private Camera cam;
 
+    [SerializeField] private bool focusOnControlledUnitOnStart = true;
+    private bool didInitialFocus = false;
+
     void Start()
     {
         cam = Camera.main;
+
+        if (focusOnControlledUnitOnStart)
+        {
+            TryFocusOnControlledUnit();
+        }
     }
 
     void Update()
     {
         HandlePanning();
         HandleZooming();
+    }
+
+    void LateUpdate()
+    {
+        // In case ActiveUnit wasn’t ready at Start, keep trying until it exists
+        if (!didInitialFocus && focusOnControlledUnitOnStart)
+        {
+            TryFocusOnControlledUnit();
+        }
     }
 
     void HandlePanning()
@@ -103,5 +121,26 @@ public class CameraController : MonoBehaviour
         Vector3 size = topRight - bottomLeft;
 
         Gizmos.DrawWireCube(bottomLeft + size / 2f, size);
+    }
+
+    void TryFocusOnControlledUnit()
+    {
+        // Make sure there is an active unit and that it belongs to this client
+        if (UnitController.ActiveUnit == null) return;
+        if (!UnitController.ActiveUnit.photonView.IsMine) return;
+
+        // Prefer the visual transform if present
+        Transform t = (UnitController.ActiveUnit.unit != null &&
+                       UnitController.ActiveUnit.unit.View != null)
+                        ? UnitController.ActiveUnit.unit.View.transform
+                        : UnitController.ActiveUnit.transform;
+
+        Vector3 pos = transform.position;
+        pos.x = t.position.x;
+        pos.y = t.position.y;
+        transform.position = pos;
+
+        ClampPosition();         // respect your bounds
+        didInitialFocus = true;
     }
 }
