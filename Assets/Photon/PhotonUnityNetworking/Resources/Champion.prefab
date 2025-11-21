@@ -92,6 +92,9 @@ MonoBehaviour:
   defaultAnimator: {fileID: 0}
   juice: {fileID: 1333362421050520372}
   outlineObject: {fileID: 9073731304434709722}
+  controlledHoverColor: {r: 0, g: 0, b: 1, a: 1}
+  allyHoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  enemyHoverColor: {r: 1, g: 0, b: 0, a: 1}
   sortingBase: 1000
   sortingMultiplier: 100
   formVisuals: []
@@ -475,7 +478,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: -5992761392973993716, guid: 593992ff109a81540a1c3075ef0a8853, type: 3}
-  m_Color: {r: 0.8679245, g: 0.8679245, b: 0.8679245, a: 1}
+  m_Color: {r: 0.99371064, g: 0.99371064, b: 0.99371064, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

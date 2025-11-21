@@ -17,6 +17,14 @@ public class UnitView : MonoBehaviour
 
     public GameObject outlineObject;
 
+    [Header("Hover Colors")]
+    [SerializeField] private Color controlledHoverColor = Color.blue;
+    [SerializeField] private Color allyHoverColor = Color.yellow;
+    [SerializeField] private Color enemyHoverColor = Color.red;
+
+    private SpriteRenderer outlineRenderer;
+    private MaterialPropertyBlock outlineMPB;
+
     [SerializeField, Header("Y-Sorting")]
     private int sortingBase = 0;          // Base offset so units are above ground tiles, etc.
     [SerializeField]
@@ -38,7 +46,18 @@ public class UnitView : MonoBehaviour
     public void Initialize(Unit unit)
     {
         this.unit = unit;
-        outlineObject.SetActive(false);
+
+        if (outlineObject != null)
+        {
+            outlineRenderer = outlineObject.GetComponent<SpriteRenderer>();
+            if (outlineRenderer != null && outlineMPB == null)
+            {
+                outlineMPB = new MaterialPropertyBlock();
+            }
+
+            outlineObject.SetActive(false);
+        }
+
         if (!juice) juice = GetComponent<UnitJuice>();
         pv = GetComponent<PhotonView>();
 
@@ -97,7 +116,38 @@ public class UnitView : MonoBehaviour
     
     public void SetHighlighted(bool highlighted)
     {
-        outlineObject.SetActive(highlighted);
+        if (outlineObject != null)
+            outlineObject.SetActive(highlighted);
+
+        if (!highlighted || outlineRenderer == null)
+            return;
+
+        // Local side: master = Monster (DM), others = Hero
+        UnitFaction localFaction =
+            PhotonNetwork.IsMasterClient ? UnitFaction.Monster : UnitFaction.Hero;
+
+        bool isControlled =
+            UnitController.ActiveUnit != null &&
+            UnitController.ActiveUnit.unit == unit &&
+            UnitController.ActiveUnit.photonView.IsMine;
+
+        bool sameFaction = unit != null && unit.Faction == localFaction;
+
+        Color color;
+        if (isControlled)
+            color = controlledHoverColor;   // blue
+        else if (sameFaction)
+            color = allyHoverColor;         // yellow
+        else
+            color = enemyHoverColor;        // red
+
+        if (outlineMPB == null)
+            outlineMPB = new MaterialPropertyBlock();
+
+        outlineRenderer.GetPropertyBlock(outlineMPB);
+        outlineMPB.SetColor("_EdgeColor", color);  // your hover shader uses Main/Edge colors
+        outlineMPB.SetColor("_MainColor", color);
+        outlineRenderer.SetPropertyBlock(outlineMPB);
     }
 
     // ----- Local Helpers -----
