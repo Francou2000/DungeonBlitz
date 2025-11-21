@@ -33,6 +33,23 @@ public sealed class AbilityResolver : MonoBehaviourPun
             return false;
         }
 
+        // --- Form change: don't allow switching to the form we already have ---
+        if (ability.changesState && !string.IsNullOrEmpty(ability.stateKey))
+        {
+            // We special-case "Form" because Elementalist/Rogue both use it
+            if (ability.stateKey == "Form")
+            {
+                var currentForm = caster.Model.CurrentFormId;
+                if (!string.IsNullOrEmpty(currentForm) &&
+                    string.Equals(currentForm, ability.stateValue, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    reason = "Already in this form";
+                    Debug.Log($"[CanCast] FAIL: already in form '{currentForm}'");
+                    return false;
+                }
+            }
+        }
+
 
         // --- Resource costs ---
         if (ability.resourceCosts != null)

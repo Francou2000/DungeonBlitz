@@ -141,6 +141,21 @@ public class UnitController : MonoBehaviourPun
         }
         if (!photonView.IsMine) return;
 
+        // Prevent trying to switch to the same form on the client
+        if (ability.changesState && !string.IsNullOrEmpty(ability.stateKey))
+        {
+            if (ability.stateKey == "Form")
+            {
+                var currentForm = unit.Model.CurrentFormId;
+                if (!string.IsNullOrEmpty(currentForm) &&
+                    string.Equals(currentForm, ability.stateValue, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    Debug.Log($"[ExecuteAbility] Ignoring {ability.abilityName}: already in form '{currentForm}'");
+                    return;
+                }
+            }
+        }
+
         if (!unit.Model.CanAct() || unit.Model.CurrentActions < ability.actionCost)
         {
             Debug.LogWarning(
