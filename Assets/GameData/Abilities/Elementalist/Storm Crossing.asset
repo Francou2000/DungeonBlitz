@@ -34,7 +34,7 @@ MonoBehaviour:
   areaType: 1
   range: 9
   aoeRadius: 0
-  lineMaxTargets: 8
+  lineMaxTargets: 2
   lineRange: 9
   lineAlignmentTolerance: 0.75
   allowTargetStructures: 1

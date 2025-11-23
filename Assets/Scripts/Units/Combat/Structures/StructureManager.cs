@@ -14,6 +14,9 @@ public sealed class StructureManager : MonoBehaviourPun
     private int _nextStructureId = 1;
     private readonly Dictionary<int, StructureBase> _byId = new Dictionary<int, StructureBase>();
 
+    private float _lastTurnBeganTime = -999f;
+    private UnitFaction _lastTurnFaction;
+
     void Awake()
     {
         if (Instance && Instance != this) { Destroy(gameObject); return; }
@@ -142,6 +145,16 @@ public sealed class StructureManager : MonoBehaviourPun
     private void HandleTurnBegan(UnitFaction factionStartingTurn)
     {
         if (!PhotonNetwork.IsMasterClient) return;
+
+        if (factionStartingTurn == _lastTurnFaction &&
+       Time.time - _lastTurnBeganTime < 0.1f)   // 0.1s is plenty for the RPC echo
+        {
+            Debug.Log($"[Structures] Ignoring duplicate OnTurnBegan for {factionStartingTurn}");
+            return;
+        }
+
+        _lastTurnFaction = factionStartingTurn;
+        _lastTurnBeganTime = Time.time;
 
         // 1) Turn-based lifetime tick + cleanup
         for (int i = _all.Count - 1; i >= 0; i--)

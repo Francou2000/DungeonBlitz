@@ -266,6 +266,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   controller: {fileID: 0}
   model: {fileID: 0}
+  disableStatuses: 1
 --- !u!114 &-8765545820984386248
 MonoBehaviour:
   m_ObjectHideFlags: 0
