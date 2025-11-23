@@ -180,7 +180,8 @@ public sealed class StructureManager : MonoBehaviourPun
             {
                 var bf = bonfires[i];
                 if (!bf) continue;
-                if (bf.IsInRange(u)) totalHeal += Mathf.Max(0, bf.HealPerTick);
+                if (bf.IsInRange(u))
+                    totalHeal += Mathf.Max(0, bf.HealPerTick);
             }
 
             if (totalHeal > 0)
@@ -188,20 +189,33 @@ public sealed class StructureManager : MonoBehaviourPun
                 var pv = u.GetComponent<PhotonView>() ??
                          u.GetComponentInParent<PhotonView>() ??
                          u.GetComponentInChildren<PhotonView>();
-                if (pv != null) healByUnitViewId[pv.ViewID] = totalHeal;
+                if (pv != null)
+                    healByUnitViewId[pv.ViewID] = totalHeal; // one entry per unit
             }
         }
 
+        // One RPC per healed unit
         foreach (var kvp in healByUnitViewId)
+        {
             _view.RPC(nameof(RPC_HealUnit), RpcTarget.All, kvp.Key, kvp.Value);
+        }
     }
 
-    [PunRPC] 
+    public void UnregisterStructure(int id, StructureBase s)
+    {
+        if (_byId.TryGetValue(id, out var curr) && curr == s)
+            _byId.Remove(id);
+    }
+
+    [PunRPC]
     void RPC_HealUnit(int targetViewId, int amount)
     {
         var pv = PhotonView.Find(targetViewId);
         if (pv == null) return;
-        var unit = pv.GetComponent<Unit>();
+
+        var unit = pv.GetComponent<Unit>() ??
+                   pv.GetComponentInChildren<Unit>() ??
+                   pv.GetComponentInParent<Unit>();
         if (unit == null || unit.Model == null) return;
 
         int before = unit.Model.CurrentHP;
@@ -211,14 +225,8 @@ public sealed class StructureManager : MonoBehaviourPun
         if (applied > 0)
         {
             CombatFeedbackUI.ShowHeal(unit, applied);
-            Debug.Log($"[Bonfire] Healed {unit.name} for {applied} via Bonfire");
+            Debug.Log($"[Bonfire] Healed {unit.name} for {applied}");
         }
-    }
-
-    public void UnregisterStructure(int id, StructureBase s)
-    {
-        if (_byId.TryGetValue(id, out var curr) && curr == s)
-            _byId.Remove(id);
     }
 
     public IEnumerable<StructureBase> GetStructuresInCircle(Vector3 center, float radius, UnitFaction? factionFilter, StructureTargeting targeting, UnitFaction casterFaction)

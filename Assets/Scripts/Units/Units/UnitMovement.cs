@@ -28,6 +28,18 @@ public class UnitMovement : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        unit = GetComponent<Unit>();
+
+        if (NavMesh.SamplePosition(transform.position, out var hit, 5f, NavMesh.AllAreas))
+        {
+            Vector3 p = hit.position;
+            p.z = transform.position.z; // keep your visual plane
+            transform.position = p;
+        }
+    }
+
     //Moves to the given world position, clamped to range. Calls onFinish when done
     public void MoveTo(Vector3 mouseWorld, System.Action onFinish)
     {
@@ -55,7 +67,9 @@ public class UnitMovement : MonoBehaviour
             return;
         }
 
-        if (pathCorners.Length <= 1)
+        pathCorners = CleanPath(pathCorners);
+
+        if (pathCorners == null || pathCorners.Length <= 1)
         {
             onFinish?.Invoke();
             return;
@@ -84,17 +98,15 @@ public class UnitMovement : MonoBehaviour
     {
         clampedCorners = null;
 
-        // START: sample on ANY area (AllAreas) so we always get a triangle near the unit
+        // sample on ANY area (AllAreas) so we always get a triangle near the unit
         if (!SampleOnNav(from, true, out var fromNav))
         {
-            Debug.Log($"[Move] Sample start failed. from={from}, maxDist={navMeshMaxDistance}");
             return false;
         }
 
-        // TARGET: must be on Walkable only (so we don't end inside water)
+        // must be on Walkable only (so we don't end inside water)
         if (!SampleOnNav(target, false, out var targetNav))
         {
-            Debug.Log($"[Move] Sample target failed. target={target}, maxDist={navMeshMaxDistance}");
             return false;
         }
 
@@ -103,14 +115,12 @@ public class UnitMovement : MonoBehaviour
         // allow Complete and Partial paths (clicking on water should give Partial to the bank)
         if (!NavMesh.CalculatePath(fromNav, targetNav, walkableMask, path))
         {
-            Debug.Log("[Move] NavMesh.CalculatePath returned false.");
             return false;
         }
 
         var raw = path.corners;
         if (raw == null || raw.Length == 0)
         {
-            Debug.Log("[Move] Path has no corners.");
             return false;
         }
 
@@ -186,16 +196,29 @@ public class UnitMovement : MonoBehaviour
         {
             Vector3 targetPos = corners[index];
 
-            // Update facing towards this segment's target
             Vector3 segDir = (targetPos - transform.position);
             if (segDir.sqrMagnitude > 0.0001f)
             {
                 unit.View.SetFacingDirection(segDir);
             }
 
+            int safety = 0;
             while (Vector3.Distance(transform.position, targetPos) > 0.05f)
             {
+                Vector3 before = transform.position;
                 transform.position = Vector3.MoveTowards(transform.position, targetPos, speed * Time.deltaTime);
+
+                if ((Time.frameCount % 10) == 0) // log every ~10 frames
+                {
+                    float dist = Vector3.Distance(transform.position, targetPos);
+                }
+
+                safety++;
+                if (safety > 2000)
+                {
+                    break;
+                }
+
                 yield return null;
             }
 
@@ -205,16 +228,14 @@ public class UnitMovement : MonoBehaviour
         var from = oldPosition;
         var to = transform.position;
 
-        if (PhotonNetwork.IsMasterClient)
-        {
-            ZoneManager.Instance?.HandleOnMove(unit, from, to);
-        }
-
+        ZoneManager.Instance?.HandleOnMove(unit, from, to);
         GetComponent<StatusComponent>()?.OnMoved();
         ReactionManager.Instance?.TryTriggerReactions(unit, from);
 
         unit.Model.SpendAction();
         unit.View.PlayMoveLandNet();
+
+        Debug.Log($"[Move] Coroutine END for {unit.name} at t={Time.time}, finalPos={transform.position}");
 
         onFinish?.Invoke();
     }
@@ -259,5 +280,36 @@ public class UnitMovement : MonoBehaviour
 
         result = source;
         return false;
+    }
+
+    private Vector3[] CleanPath(Vector3[] corners)
+    {
+        if (corners == null || corners.Length <= 1)
+            return corners;
+
+        List<Vector3> result = new List<Vector3>(corners.Length);
+
+        // Use the unit's current Z so we don't get "into the screen" segments
+        float planeZ = transform.position.z;
+
+        // First corner is our current position (clamped to plane)
+        Vector3 last = new Vector3(corners[0].x, corners[0].y, planeZ);
+        result.Add(last);
+
+        const float minSqrDist = 0.01f; // ~0.1 units
+
+        for (int i = 1; i < corners.Length; i++)
+        {
+            Vector3 p = new Vector3(corners[i].x, corners[i].y, planeZ);
+
+            // Skip tiny segments that don't actually move us
+            if ((p - last).sqrMagnitude < minSqrDist)
+                continue;
+
+            result.Add(p);
+            last = p;
+        }
+
+        return result.ToArray();
     }
 }
