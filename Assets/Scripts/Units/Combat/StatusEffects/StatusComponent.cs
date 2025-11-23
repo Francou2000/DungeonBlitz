@@ -109,7 +109,6 @@ public class StatusComponent : MonoBehaviourPun
 
     public int GetAPDeltaForThisTurn()
     {
-        if (Disabled) return;
         Log($"AP DELTA this turn queried = {_apDeltaThisTurn}");
         return _apDeltaThisTurn;
     }
