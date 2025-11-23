@@ -7,7 +7,7 @@ public class HealthBarWorld : MonoBehaviour
     [Header("Binding")]
     public Unit targetUnit;                 // assign via Bind() or Inspector
     public Image fill;                      // foreground fill
-    public Image back;                      // optional background image
+    public Image back;                      // background image
 
     [Header("Positioning")]
     public Vector3 worldOffset = new Vector3(0f, 1.6f, 0f);  // height above head
@@ -91,12 +91,6 @@ public class HealthBarWorld : MonoBehaviour
         // Team / control color
         Color teamCol = GetTeamColor();
         fill.color = teamCol;
-
-        if (back)
-        {
-            var backCol = back.color;
-            back.color = new Color(teamCol.r, teamCol.g, teamCol.b, backCol.a);
-        }
 
         // Visibility rules
         if (hideWhenDead && hp <= 0)

@@ -26,7 +26,7 @@ public class CombatHUD : MonoBehaviour
     [SerializeField] private TMP_Text timerText;
 
     [Header("Icons")]
-    [SerializeField] private Sprite moveIcon; 
+    [SerializeField] private Sprite moveIcon;
     [SerializeField] private Image portraitImage;
 
     [Header("Pause Menu")]
@@ -54,6 +54,21 @@ public class CombatHUD : MonoBehaviour
     [Header("Interactivity")]
     [SerializeField] private CanvasGroup rootCg;
 
+    [Header("End Turn FX")]
+    [SerializeField] private Image endTurnImage;   // leave null to use endTurnButton.image
+    [SerializeField] private float endFlashSpeed = 4f;
+    [SerializeField] private float endPulseScale = 1.1f;
+
+    [SerializeField] private Image endTurnGlowImage;   
+    [SerializeField] private float glowMaxAlpha = 0.8f;
+    [SerializeField] private float glowScaleMultiplier = 1.3f;
+
+    private bool endPulseActive;
+    private bool endVisualsCached;
+    private Color endOriginalColor;
+    private Vector3 endOriginalScale;
+    private Vector3 glowOriginalScale;
+
 
     void Awake()
     {
@@ -61,6 +76,8 @@ public class CombatHUD : MonoBehaviour
         if (pageRight) pageRight.onClick.AddListener(() => Page(+VisibleAbilitySlots()));
         if (endTurnButton) endTurnButton.onClick.AddListener(EndTurn);
         if (pauseButton) pauseButton.onClick.AddListener(TogglePause);
+
+        CacheEndTurnVisuals();
     }
 
     private void Start()
@@ -68,6 +85,11 @@ public class CombatHUD : MonoBehaviour
         TurnManager.OnActiveControllerChanged += HandleActiveUnitChanged;
         TurnManager.OnTurnUI += OnTurnUi;
         TurnManager.OnTurnBegan += OnTurnBegan;
+    }
+
+    void Update()
+    {
+        UpdateEndTurnFX();
     }
 
     private void HandleActiveUnitChanged(UnitController newUnit)
@@ -99,6 +121,8 @@ public class CombatHUD : MonoBehaviour
         controller = ctrl;
         pageStart = 0;
 
+        StopEndTurnAttention();
+
         RefreshPortrait();
         RebuildBars();
         RebuildGrid();
@@ -120,6 +144,7 @@ public class CombatHUD : MonoBehaviour
             boundModel = null;
         }
         controller = null;
+        StopEndTurnAttention();
     }
 
     void OnEnable()
@@ -153,7 +178,7 @@ public class CombatHUD : MonoBehaviour
         boundModel = m;
 
         hpBar?.Set(m.CurrentHP, m.MaxHP);
-        adrBar?.Set(m.Adrenaline, m.MaxAdrenaline);  
+        adrBar?.Set(m.Adrenaline, m.MaxAdrenaline);
         apPips?.SetMax(m.MaxActions);
         apPips?.SetCurrent(m.CurrentActions);
         RebuildResources(m);
@@ -177,7 +202,21 @@ public class CombatHUD : MonoBehaviour
 
     void OnHP(int cur, int max) { hpBar?.Set(cur, max); }
     void OnADR(int cur, int max) { adrBar?.Set(cur, max); }
-    void OnAP(int cur, int max) { apPips?.SetMax(max); apPips?.SetCurrent(cur); }
+    void OnAP(int cur, int max)
+    {
+        apPips?.SetMax(max);
+        apPips?.SetCurrent(cur);
+
+        // Only grab attention when it's this unit's turn AND they have no AP
+        bool isTurn = TurnManager.Instance != null &&
+                      controller != null &&
+                      TurnManager.Instance.IsCurrentTurn(controller.unit);
+
+        if (isTurn && cur <= 0)
+            StartEndTurnAttention();
+        else
+            StopEndTurnAttention();
+    }
 
     void RefreshBars()
     {
@@ -215,7 +254,7 @@ public class CombatHUD : MonoBehaviour
         //  Move button (always 1 slot)
         var moveBtn = GetButton();
         moveBtn.transform.SetParent(gridContainer, false);
-        moveBtn.BindMove(moveIcon, apCost: 1);              
+        moveBtn.BindMove(moveIcon, apCost: 1);
         moveBtn.OnClick = OnActionClicked;
         moveBtn.OnHover = OnActionHover;
         moveBtn.OnUnhover = OnActionUnhover;
@@ -236,7 +275,7 @@ public class CombatHUD : MonoBehaviour
             var view = GetButton();
             view.transform.SetParent(gridContainer, false);
             int apCost = ab.actionCost;
-            Sprite icon = ab.icon;                  
+            Sprite icon = ab.icon;
             view.Bind(ab, icon, apCost);
             view.OnClick = OnActionClicked;
             view.OnHover = OnActionHover;
@@ -466,7 +505,7 @@ public class CombatHUD : MonoBehaviour
     }
 
     private void OnTurnBegan(UnitFaction side)
-    {   
+    {
         if (controller != null && controller.model != null &&
             controller.model.Faction == side)
         {
@@ -509,7 +548,7 @@ public class CombatHUD : MonoBehaviour
 
     // ----- Footer actions -----
     void EndTurn()
-    {   
+    {
         if (TargeterController2D.Instance)
             TargeterController2D.Instance.HideMoveRange();
         TurnManager.Instance?.RequestEndTurn();
@@ -527,14 +566,14 @@ public class CombatHUD : MonoBehaviour
             {
                 pauseMenuController = controllers[0];
             }
-            
+
             if (pauseMenuController == null)
             {
                 Debug.LogWarning("[CombatHUD] PauseMenuController no encontrado en la escena. Por favor agrega el componente PauseMenuController a un GameObject.");
                 return;
             }
         }
-        
+
         pauseMenuController.TogglePause();
     }
 
@@ -588,5 +627,87 @@ public class CombatHUD : MonoBehaviour
         if (boundModel == null) return;
         // Icon depends on form, so just rebuild
         RebuildResources(boundModel);
+    }
+
+    void CacheEndTurnVisuals()
+    {
+        if (endTurnButton != null && endTurnImage == null)
+            endTurnImage = endTurnButton.image;
+
+        if (endTurnImage != null && !endVisualsCached)
+        {
+            endOriginalColor = endTurnImage.color;
+            endOriginalScale = endTurnImage.rectTransform.localScale;
+
+            if (endTurnGlowImage != null)
+            {
+                glowOriginalScale = endTurnGlowImage.rectTransform.localScale;
+                // start hidden
+                var c = endTurnGlowImage.color;
+                endTurnGlowImage.color = new Color(c.r, c.g, c.b, 0f);
+            }
+
+            endVisualsCached = true;
+        }
+    }
+
+    void UpdateEndTurnFX()
+    {
+        if (!endPulseActive || endTurnImage == null || !endVisualsCached)
+            return;
+
+        // 0 -> 1 -> 0 ping-pong over time
+        float phase = (Mathf.Sin(Time.unscaledTime * endFlashSpeed) + 1f) * 0.5f;
+
+        // Icon pulse (size only)
+        float scaleFactor = Mathf.Lerp(1f, endPulseScale, phase);
+        var rt = endTurnImage.rectTransform;
+        rt.localScale = endOriginalScale * scaleFactor;
+
+        // Normalized 0..1 between base and max size
+        float norm = Mathf.InverseLerp(1f, endPulseScale, scaleFactor);
+
+        // Glow image: fade + grow/shrink
+        if (endTurnGlowImage != null)
+        {
+            var glowRT = endTurnGlowImage.rectTransform;
+
+            // Slightly bigger than the icon
+            float glowScale = Mathf.Lerp(1f, glowScaleMultiplier, norm);
+            glowRT.localScale = glowOriginalScale * glowScale;
+
+            // Alpha from 0 -> max -> 0
+            var c = endTurnGlowImage.color;
+            c.a = norm * glowMaxAlpha;
+            endTurnGlowImage.color = c;
+        }
+
+        // You can keep the main icon color fixed now
+        endTurnImage.color = endOriginalColor;
+    }
+
+    void StartEndTurnAttention()
+    {
+        CacheEndTurnVisuals();
+        endPulseActive = true;
+    }
+
+    void StopEndTurnAttention()
+    {
+        endPulseActive = false;
+
+        if (endTurnImage != null && endVisualsCached)
+        {
+            endTurnImage.color = endOriginalColor;
+            endTurnImage.rectTransform.localScale = endOriginalScale;
+        }
+
+        if (endTurnGlowImage != null && endVisualsCached)
+        {
+            var c = endTurnGlowImage.color;
+            c.a = 0f;
+            endTurnGlowImage.color = c;
+            endTurnGlowImage.rectTransform.localScale = glowOriginalScale;
+        }
     }
 }
