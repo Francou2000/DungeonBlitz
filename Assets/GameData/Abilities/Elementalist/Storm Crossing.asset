@@ -36,6 +36,7 @@ MonoBehaviour:
   aoeRadius: 0
   lineMaxTargets: 2
   lineRange: 9
+  lineWidth: 1
   lineAlignmentTolerance: 0.75
   allowTargetStructures: 1
   structureTargets: 1

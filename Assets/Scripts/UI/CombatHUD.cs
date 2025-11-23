@@ -386,31 +386,48 @@ public class CombatHUD : MonoBehaviour
     {
         if (!IsUsableNow()) return;
 
+        // --- MOVE BUTTON LOGIC ---
         if (view.IsMove)
         {
-            UnitController.SetAction(UnitAction.Move);
+            // Toggle move mode
+            if (UnitController.GetCurrentAction() == UnitAction.Move)
+            {
+                // Turn move off
+                UnitController.SetAction(UnitAction.None);
+                if (TargeterController2D.Instance)
+                    TargeterController2D.Instance.HideMoveRange();
+            }
+            else
+            {
+                // Turn move on
+                UnitController.SetAction(UnitAction.Move);
 
-            float radius = (controller && controller.Movement)
-                ? controller.Movement.GetMaxWorldRadius()
-                : 3f;
+                if (TargeterController2D.Instance && controller != null && controller.Movement != null)
+                {
+                    float radius = controller.Movement.GetMaxWorldRadius();
+                    TargeterController2D.Instance.ShowMoveRange(controller, radius);
+                }
+            }
 
-            if (TargeterController2D.Instance)
-                TargeterController2D.Instance.ShowMoveRange(controller, radius);
-
+            // When choosing Move we clear any selected ability
+            selectedAbility = null;
             UpdateSelectedHighlight();
             return;
         }
 
+        // --- ABILITY BUTTON LOGIC (unchanged behavior) ---
+
         selectedAbility = view.Ability;
         UpdateSelectedHighlight();
 
+        // Leave move mode when selecting an ability
         UnitController.SetAction(UnitAction.None);
         if (TargeterController2D.Instance)
             TargeterController2D.Instance.HideMoveRange();
 
         controller.SetSelectedAbility(selectedAbility);
 
-        // 1) AOE/Line/Ground → Targeter2D for aim confirm (center/dir)
+        // 1) AoE / line-zone / ground → Targeter2D aim mode
         if (NeedsAreaTargeting(selectedAbility))
         {
             if (!TargeterController2D.Instance)
@@ -432,7 +449,7 @@ public class CombatHUD : MonoBehaviour
             return;
         }
 
-        // 2) Single-target unit (self/ally/enemy) → StartTargeting and let UnitSelector call HandleUnitTarget()
+        // 2) Single-target / line-attack (e.g. Piercing Shot) → unit targeting
         if (RequiresUnitTarget(selectedAbility))
         {
             if (selectedAbility.selfOnly)
@@ -442,9 +459,8 @@ public class CombatHUD : MonoBehaviour
                 return;
             }
 
-            controller.StartTargeting(selectedAbility); // world click will call HandleUnitTarget
+            controller.StartTargeting(selectedAbility);
 
-            // begin single-target preview (range ring + impact circle)
             if (TargeterController2D.Instance)
             {
                 TargeterController2D.Instance.BeginSinglePreview(controller, selectedAbility);
@@ -457,26 +473,48 @@ public class CombatHUD : MonoBehaviour
         // 3) Instant / no-target
         controller.ExecuteAbility(selectedAbility, null);
         RefreshInteractivity();
+
     }
 
     // true for single-target unit selection (self/ally/enemy)
     bool RequiresUnitTarget(UnitAbility a)
     {
         if (a == null) return false;
-        if (NeedsAreaTargeting(a)) return false;   // prevent AoE from ever taking the unit path
-        controller.StartTargeting(selectedAbility);
-        return a.selfOnly || a.alliesOnly || a.enemiesOnly;
+        if (NeedsAreaTargeting(a)) return false; // AoE/ground/zone handled elsewhere
+
+        bool needsUnitFlags = a.selfOnly || a.alliesOnly || a.enemiesOnly;
+
+        // "True" line attack: Line + not ground + no zone
+        bool isTrueLineAttack =
+            a.areaType == AreaType.Line &&
+            !a.groundTarget &&
+            !a.spawnsZone;
+
+        return needsUnitFlags || isTrueLineAttack;
     }
 
     // true for AoE, line or ground target
     bool NeedsAreaTargeting(UnitAbility a)
     {
         if (a == null) return false;
-        return a.areaType == AreaType.Circle || a.areaType == AreaType.Line || a.groundTarget;
+
+        // Circle AoE
+        if (a.areaType == AreaType.Circle) return true;
+
+        // Ground abilities (any shape)
+        if (a.groundTarget) return true;
+
+        // Line that spawns a zone (Storm Crossing etc.)
+        if (a.areaType == AreaType.Line && a.spawnsZone)
+            return true;
+
+        // "True" line attacks (Piercing Shot) are NOT area-targeted here
+        return false;
     }
 
     void OnActionHover(ActionButtonView v, UnityEngine.EventSystems.PointerEventData e)
     {
+        // Tooltip logic
         if (hoveredView != v)
         {
             hoveredView = v;
@@ -486,12 +524,79 @@ public class CombatHUD : MonoBehaviour
         {
             AbilityTooltip.Move(e.position); // just reposition, no re-show
         }
+
+        // --- RANGE PREVIEW ON HOVER ---
+
+        if (TargeterController2D.Instance == null || controller == null)
+            return;
+
+        // Hovering the Move button → show move range
+        if (v.IsMove)
+        {
+            if (controller.Movement != null)
+            {
+                float radius = controller.Movement.GetMaxWorldRadius();
+                TargeterController2D.Instance.ShowMoveRange(controller, radius);
+            }
+            return;
+        }
+
+        // Hovering an ability → show its range ring (and line preview if it's a line)
+        var ability = v.Ability;
+        if (ability == null)
+            return;
+
+        TargeterController2D.Instance.BeginSinglePreview(controller, ability);
+        _singlePreviewActive = true;
+        _singlePreviewAbility = ability;
     }
 
     void OnActionUnhover()
     {
+        var prev = hoveredView;  // what we were hovering
         hoveredView = null;
         AbilityTooltip.Hide();
+
+        if (TargeterController2D.Instance == null || controller == null)
+            return;
+
+        // If we were hovering the Move button, hide move range
+        if (prev != null && prev.IsMove)
+        {
+            // Only hide if we're NOT actually in Move mode
+            if (UnitController.GetCurrentAction() != UnitAction.Move)
+            {
+                TargeterController2D.Instance.HideMoveRange();
+            }
+            return;
+        }
+
+        // If we were hovering an ability
+        if (prev != null && prev.Ability != null)
+        {
+            var hoveredAbility = prev.Ability;
+
+            // If this is the same ability we just selected with a click,
+            // DO NOT kill its preview – let OnActionClicked's behavior stand.
+            if (selectedAbility == hoveredAbility)
+            {
+                return;
+            }
+
+            // This was just a hover-preview: clear it
+            TargeterController2D.Instance.EndSinglePreview();
+            _singlePreviewActive = false;
+            _singlePreviewAbility = null;
+
+            // If we *do* have a different ability selected that needs a unit target,
+            // restore its preview so it stays visible after unhover.
+            if (selectedAbility != null && RequiresUnitTarget(selectedAbility))
+            {
+                TargeterController2D.Instance.BeginSinglePreview(controller, selectedAbility);
+                _singlePreviewActive = true;
+                _singlePreviewAbility = selectedAbility;
+            }
+        }
     }
 
     private Sprite GetPortrait(UnitController c)

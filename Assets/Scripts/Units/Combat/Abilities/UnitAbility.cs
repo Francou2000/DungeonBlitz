@@ -104,6 +104,7 @@ public class UnitAbility : ScriptableObject
     public float aoeRadius = 0f;            // used when areaType == Circle
     public int lineMaxTargets = 1;          // used when areaType == Line
     public int lineRange = 10;              // used when areaType == Line
+    public float lineWidth = 0f;
     public float lineAlignmentTolerance = 0.75f; // how strictly units must align with the line (dot to direction)
 
     [Header("Structures (targeting)")]

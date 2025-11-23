@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class TargeterController2D : MonoBehaviour
@@ -44,43 +44,95 @@ public class TargeterController2D : MonoBehaviour
 
     void Update()
     {
+        // Keep move range centered on caster if we're showing it
         if (showingMove && caster != null && rangeRing != null && rangeRing.gameObject.activeSelf)
         {
             var p = caster.transform.position; p.z = 0f;
             rangeRing.transform.position = p;
         }
 
-        if (EventSystem.current && EventSystem.current.IsPointerOverGameObject()) return;
-        if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape)) { Cleanup(); return; }
+        // Donâ€™t aim if pointer is on UI
+        if (EventSystem.current && EventSystem.current.IsPointerOverGameObject())
+            return;
 
-        if (caster == null || ability == null) return;
+        // Right click / Esc cancels active aim (AoE/ground line), and also clears previews
+        if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape))
+        {
+            Cleanup();
+            return;
+        }
+
+        // Two modes:
+        //  - Aim mode: Begin(...) was called (AoE/ground abilities, including line zones)
+        //  - Single-preview mode: BeginSinglePreview(...) was called (single-target, e.g. Piercing Shot)
+        bool isAimMode = (onConfirm != null && caster != null && ability != null);
+        bool isSinglePreview = (!isAimMode && _singlePreviewActive && _singlePrevCaster != null && _singlePrevAbility != null);
+
+        if (!isAimMode && !isSinglePreview)
+            return;
+
+        if (!cam) cam = Camera.main;
+
+        // Pick which caster/ability we are using this frame
+        UnitController activeCaster = isAimMode ? caster : _singlePrevCaster;
+        UnitAbility activeAbility = isAimMode ? ability : _singlePrevAbility;
+
+        if (activeCaster == null || activeAbility == null)
+            return;
 
         Vector3 mouse = cam.ScreenToWorldPoint(Input.mousePosition);
-        mouse.z = 0;
+        mouse.z = 0f;
 
         // Clamp to range from caster
-        Vector3 from = caster.transform.position;
-        Vector3 to = ClampToRange(from, mouse, ability.areaType == AreaType.Line ? ability.lineRange : ability.range);
+        Vector3 from = activeCaster.transform.position;
+        Vector3 to = ClampToRange(from, mouse,
+            activeAbility.areaType == AreaType.Line ? activeAbility.lineRange : activeAbility.range);
 
-        rangeRing.Draw(from, ability.areaType == AreaType.Line ? ability.lineRange : ability.range);
+        // Range ring around caster
+        if (rangeRing)
+        {
+            rangeRing.Draw(from,
+                activeAbility.areaType == AreaType.Line ? activeAbility.lineRange : activeAbility.range);
+            rangeRing.gameObject.SetActive(true);
+        }
 
-        Vector3 dir = (to - from); if (dir.sqrMagnitude < 0.001f) dir = Vector3.right;
+        Vector3 dir = (to - from);
+        if (dir.sqrMagnitude < 0.001f) dir = Vector3.right;
 
         // Draw shape
-        if (ability.areaType == AreaType.Circle || ability.areaType == AreaType.Single)
+        if (activeAbility.areaType == AreaType.Circle || activeAbility.areaType == AreaType.Single)
         {
-            float r = ability.areaType == AreaType.Single ? 0.25f : ability.aoeRadius;
-            circle.Draw(to, r);
+            if (circle)
+            {
+                float r = activeAbility.areaType == AreaType.Single ? 0.25f : activeAbility.aoeRadius;
+                circle.Draw(to, r);
+                circle.gameObject.SetActive(true);
+            }
+            if (line) line.gameObject.SetActive(false);
         }
-        else if (ability.areaType == AreaType.Line)
+        else if (activeAbility.areaType == AreaType.Line)
         {
-            // rotate with Q/E
-            if (Input.GetKey(KeyCode.Q)) dir = Quaternion.Euler(0, 0, 180 * Time.deltaTime) * dir;
-            if (Input.GetKey(KeyCode.E)) dir = Quaternion.Euler(0, 0, -180 * Time.deltaTime) * dir;
-            line.Draw(from, dir, ability.lineRange);
+            // In AIM MODE (Storm Crossing, etc) allow Q/E rotation.
+            // In SINGLE-PREVIEW (Piercing Shot), direction is just casterâ†’mouse (no Q/E)
+            if (isAimMode)
+            {
+                if (Input.GetKey(KeyCode.Q))
+                    dir = Quaternion.Euler(0, 0, 180 * Time.deltaTime) * dir;
+                if (Input.GetKey(KeyCode.E))
+                    dir = Quaternion.Euler(0, 0, -180 * Time.deltaTime) * dir;
+            }
+
+            if (line)
+            {
+                line.gameObject.SetActive(true);
+                line.Draw(from, dir, activeAbility.lineRange);
+            }
+
+            if (circle) circle.gameObject.SetActive(false);
         }
 
-        if (Input.GetMouseButtonDown(0))
+        // Only AIM MODE consumes the left click and fires the confirm callback.
+        if (isAimMode && Input.GetMouseButtonDown(0))
         {
             onConfirm?.Invoke(to, dir.normalized);
             Cleanup();
@@ -131,6 +183,7 @@ public class TargeterController2D : MonoBehaviour
     // Begin showing a preview ring on caster (range) and a circle where the pointer/hover is.
     public void BeginSinglePreview(UnitController c, UnitAbility a)
     {
+        enabled = true;                    // ensure Update() runs
         _singlePreviewActive = true;
         _singlePrevCaster = c;
         _singlePrevAbility = a;
@@ -141,22 +194,15 @@ public class TargeterController2D : MonoBehaviour
         if (rangeRing)
         {
             var from = c.transform.position; from.z = 0f;
-            float r = a.areaType == AreaType.Line ? a.lineRange : a.range; // same rule you use in Update()
+            float r = a.areaType == AreaType.Line ? a.lineRange : a.range;
             rangeRing.Draw(from, r);
             rangeRing.gameObject.SetActive(true);
         }
 
         if (circle) circle.gameObject.SetActive(false);
+        // we don't force line on here; Update() will turn it on for line abilities
     }
 
-    // Move the preview circle (call from HUD/hover)
-    public void UpdateSinglePreview(Vector3 worldPos)
-    {
-        // No inner impact circle for single-target preview
-        // Keep this empty on purpose
-    }
-
-    // Stop preview without touching “move range” mode
     public void EndSinglePreview()
     {
         _singlePreviewActive = false;
@@ -164,10 +210,22 @@ public class TargeterController2D : MonoBehaviour
         _singlePrevAbility = null;
 
         if (circle) circle.gameObject.SetActive(false);
+        if (line) line.gameObject.SetActive(false);
 
         // Only hide the range ring if we're not showing move range
         if (rangeRing && !showingMove)
             rangeRing.gameObject.SetActive(false);
+
+        // If we're not aiming anything and not showing move, we can sleep
+        if (!showingMove && onConfirm == null)
+            enabled = false;
+    }
+
+    // Move the preview circle (call from HUD/hover)
+    public void UpdateSinglePreview(Vector3 worldPos)
+    {
+        // No inner impact circle for single-target preview
+        // Keep this empty on purpose
     }
 
     // Helper radius for single-target impact visualization

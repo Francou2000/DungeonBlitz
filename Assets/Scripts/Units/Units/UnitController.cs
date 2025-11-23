@@ -445,7 +445,7 @@ public class UnitController : MonoBehaviourPun
         Vector2 clickPos2D = new Vector2(clickPos.x, clickPos.y);
 
         RaycastHit2D hit = Physics2D.Raycast(clickPos2D, Vector2.zero);
-        
+
         if (hit.collider != null)
         {
             Unit clickedUnit = hit.collider.GetComponent<Unit>();
@@ -519,7 +519,10 @@ public class UnitController : MonoBehaviourPun
 
         // hide HUD/targeter visuals if this unit was showing them
         if (TargeterController2D.Instance)
-            TargeterController2D.Instance.HideMoveRange();
+        {
+            TargeterController2D.Instance.HideMoveRange();   // for Move
+            TargeterController2D.Instance.EndSinglePreview(); // for Piercing Shot / other singles
+        }
     }
 
     private void LogAlliesInRange(int range)

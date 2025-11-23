@@ -120,12 +120,25 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 return false;
             }
         }
-        // 3) Ground/AoE/Line: can be cast without an explicit unit (position/aim will be used)
-        else if (groundTarget || ability.areaType == AreaType.Circle || ability.areaType == AreaType.Line)
+
+        // Treat these as "click on ground / area" spells:
+        bool isGroundOrAoE =
+            groundTarget                           // explicitly marked as ground-target
+            || ability.areaType == AreaType.Circle // standard AoE
+            || (ability.areaType == AreaType.Line && ability.spawnsZone); // line that creates a zone
+
+        // True line *attack*: must be cast on a unit (e.g. Piercing Shot)
+        bool isTrueLineAttack =
+            ability.areaType == AreaType.Line
+            && !groundTarget
+            && !ability.spawnsZone;
+
+        // 3) Ground/AoE/zone: can be cast without an explicit unit
+        if (isGroundOrAoE)
         {
-            Debug.Log("[CanCast] Area/ground ability; explicit unit not required.");
+            Debug.Log("[CanCast] Area/ground/zone ability; explicit unit not required.");
         }
-        // 4) Everything else (true single-target): must have a unit or we may auto-target
+        // 4) True line attacks + any other non-ground stuff: need a target (or auto-target for single)
         else
         {
             if (targets == null || targets.Length == 0 || targets[0] == null)
@@ -143,7 +156,6 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 }
             }
         }
-
 
         // Allies/Enemies-only (when a unit target is provided)
         if (targets != null && targets.Length > 0 && targets[0] != null)
@@ -453,6 +465,8 @@ public sealed class AbilityResolver : MonoBehaviourPun
         else if (ability.areaType == AreaType.Line)
         {
             Vector3 origin = casterCtrl.transform.position;
+            // Choose length: prefer lineRange, fall back to range as a safety
+            int lineLength = (ability.lineRange > 0) ? ability.lineRange : ability.range;
 
             // Pick a direction: primary target first, else aimDir, else aimPos
             Vector3 dir;
@@ -473,7 +487,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
                 casterCtrl.unit,
                 origin,
                 dir,
-                ability.range,
+                lineLength,
                 halfWidth,
                 Mathf.Max(1, ability.lineMaxTargets)
             );
@@ -799,7 +813,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
                         dir.z = 0f; dir.Normalize();
 
                         float length = Mathf.Max(1f, ability.lineRange);
-                        float width = Mathf.Max(0.25f, ability.aoeRadius);
+                        float width = ability.lineWidth > 0f ? ability.lineWidth : 1f;
 
                         Vector3 a = center - dir * (length * 0.5f);
                         Vector3 b = center + dir * (length * 0.5f);
@@ -1778,14 +1792,11 @@ public sealed class AbilityResolver : MonoBehaviourPun
         foreach (var u in units)
         {
             if (u == null || !u.Model.IsAlive()) continue;
-            if (u == casterCtrl.unit) continue;  // don't hit caster
+            if (u == casterCtrl.unit) continue; // don't hit caster
+            if (u.Model.Faction == casterCtrl.unit.Model.Faction) continue; // enemies only
 
-            // Faction check (Storm Crossing damages ENEMIES by design)
-            if (u.Model.Faction == casterCtrl.unit.Model.Faction) continue;
-
-            if (StormCrossingZone.IsCrossing(A, B, halfWidth, u.transform.position, u.transform.position))
+            if (IsWithinLineStrip2D(A, B, u.transform.position, halfWidth))
             {
-                // Apply damage using your master-authoritative damage resolver
                 ResolveDamageServerOnly(
                     u.Controller,
                     damage,
@@ -1815,6 +1826,26 @@ public sealed class AbilityResolver : MonoBehaviourPun
     void RPC_CombatLogMessage(string message)
     {
         CombatLogUI.Log(message);
+    }
+
+    // Returns true if point P is within 'halfWidth' of segment A–B in 2D (X/Y plane).
+    private bool IsWithinLineStrip2D(Vector3 A, Vector3 B, Vector3 P3, float halfWidth)
+    {
+        Vector2 A2 = new Vector2(A.x, A.y);
+        Vector2 B2 = new Vector2(B.x, B.y);
+        Vector2 P = new Vector2(P3.x, P3.y);
+
+        Vector2 AB = B2 - A2;
+        float lenSq = AB.sqrMagnitude;
+        if (lenSq < 1e-4f) return false; // degenerate segment
+
+        float t = Vector2.Dot(P - A2, AB) / lenSq;
+        t = Mathf.Clamp01(t);
+
+        Vector2 closest = A2 + AB * t;
+        float dist = Vector2.Distance(P, closest);
+
+        return dist <= halfWidth;
     }
 }
 
