@@ -353,7 +353,11 @@ public class CombatHUD : MonoBehaviour
         if (abilities == null || abilities.Count == 0) return;
 
         int cap = VisibleAbilitySlots();
-        pageStart = Mathf.Clamp(pageStart + delta, 0, Mathf.Max(0, abilities.Count - cap));
+
+        // allow last page to be partially filled
+        int maxStart = Mathf.Max(0, abilities.Count - 1);
+
+        pageStart = Mathf.Clamp(pageStart + delta, 0, maxStart);
         RebuildGrid();
     }
 
