@@ -34,12 +34,71 @@ public class UnitModel : MonoBehaviour
     public int MaxReactions => unitData.reactionsPerTurn;
     public int CurrentReactions => currentReactions;
 
-    public float Performance => unitData.performance;
-    public int Affinity => unitData.affinity;
-    public int Armor => unitData.armor;
-    public int MagicResistance => unitData.magicResistance;
-    public int Strength => unitData.strength;
-    public int MagicPower => unitData.magicPower;
+    public float Performance
+    {
+        get
+        {
+            var sc = GetComponent<StatusComponent>();
+            float basePerf = unitData.performance;
+
+            if (sc == null)
+                return basePerf;
+
+            // For Performance, amount is treated as % (see StatusEffect comment)
+            int deltaPct = sc.GetStatDelta(Stat.Performance);
+            return basePerf * (1f + deltaPct / 100f);
+        }
+    }
+
+    public int Affinity
+    {
+        get
+        {
+            var sc = GetComponent<StatusComponent>();
+            int delta = sc ? sc.GetStatDelta(Stat.Affinity) : 0;
+            return unitData.affinity + delta;
+        }
+    }
+
+    public int Armor
+    {
+        get
+        {
+            var sc = GetComponent<StatusComponent>();
+            int delta = sc ? sc.GetStatDelta(Stat.Armor) : 0;
+            return unitData.armor + delta;
+        }
+    }
+
+    public int MagicResistance
+    {
+        get
+        {
+            var sc = GetComponent<StatusComponent>();
+            int delta = sc ? sc.GetStatDelta(Stat.MagicRes) : 0;
+            return unitData.magicResistance + delta;
+        }
+    }
+
+    public int Strength
+    {
+        get
+        {
+            var sc = GetComponent<StatusComponent>();
+            int delta = sc ? sc.GetStatDelta(Stat.Strength) : 0;
+            return unitData.strength + delta;
+        }
+    }
+
+    public int MagicPower
+    {
+        get
+        {
+            var sc = GetComponent<StatusComponent>();
+            int delta = sc ? sc.GetStatDelta(Stat.MagicPower) : 0;
+            return unitData.magicPower + delta;
+        }
+    }
 
     public int Adrenaline => adrenaline;
     public int AdrenalineThreshold => unitData.adrenalineThreshold;
@@ -142,11 +201,19 @@ public class UnitModel : MonoBehaviour
 
     public void ResetTurn()
     {
-        currentActions = MaxActions;
-        currentReactions = MaxReactions;
-
         thisUnit = GetComponent<Unit>();
-        GetComponent<StatusComponent>()?.OnTurnBegan();
+        var sc = GetComponent<StatusComponent>();
+
+        // Let statuses tick/start-of-turn effects run on MASTER
+        sc?.OnTurnBegan();
+
+        // Now ask the status component how many actions we really get
+        if (sc != null)
+            currentActions = GetMaxActionsThisTurn();
+        else
+            currentActions = MaxActions;
+
+        currentReactions = MaxReactions;
 
         CheckAdrenalineState();
     }
@@ -412,8 +479,6 @@ public class UnitModel : MonoBehaviour
     {
         var sc = GetComponent<StatusComponent>();
         if (sc != null) amount = Mathf.FloorToInt(amount * sc.GetHealingMultiplierThisTurn());
-
-        CombatFeedbackUI.ShowHeal(this.GetComponent<Unit>(), amount);
 
         int oldHP = currentHP;
         currentHP = Mathf.Min(MaxHP, currentHP + Mathf.Max(0, amount));

@@ -34,9 +34,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 0223feeb152e4ca45ad885b396ebd02b, type: 2}
   - {fileID: 11400000, guid: e1b5b075da8b3224f8d9b4dea9ba8e3e, type: 2}
   - {fileID: 11400000, guid: 5f56aefffa759a243b13f1d163e010f9, type: 2}
-  - {fileID: 11400000, guid: 30d95cfb053c3a648b433578284179ab, type: 2}
+  - {fileID: 11400000, guid: 90953e9d8e4f64243a1c7f1148b488d7, type: 2}
   - {fileID: 11400000, guid: 630b13942bc481046823fd11231502ff, type: 2}
-  - {fileID: 11400000, guid: e680b0ec8d10b73488918acabc680296, type: 2}
   - {fileID: 11400000, guid: 345196a9153a8a84487137068ea15515, type: 2}
   startingForm: 
   startingWeapon: Staff

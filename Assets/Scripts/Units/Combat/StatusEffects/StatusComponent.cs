@@ -22,15 +22,29 @@ public class StatusComponent : MonoBehaviourPun
 
     public IEnumerable<StatusEffect> ActiveEffects => _active;
 
+    Unit _ownerUnit;
+
+    [SerializeField] private bool disableStatuses = true;
+    private bool Disabled => disableStatuses;
+
     void Awake()
     {
         if (!controller) controller = GetComponent<UnitController>();
         if (!model) model = GetComponent<UnitModel>();
+        _ownerUnit = GetComponent<Unit>();
+    }
+
+    string OwnerName => _ownerUnit ? _ownerUnit.name : gameObject.name;
+
+    void Log(string msg)
+    {
+        Debug.Log($"[STATUS] [{OwnerName}] {msg}");
     }
 
     // --------- Public API (call on MASTER) ---------
     public void Apply(StatusEffect e)
     {
+        if (Disabled) return;
         if (!PhotonNetwork.IsMasterClient || e == null) return;
 
         // Non-stack: refresh if same type & same targetLock (for Taunt), else add
@@ -50,15 +64,20 @@ public class StatusComponent : MonoBehaviourPun
             }
         }
 
-        _active.Add(e);
-        OnEffectApplied?.Invoke(e);
-        Debug.Log($"[Barrier][Apply] {controller.name} barrierHP={e.barrierHP} dur={e.remainingTurns} stacks={_active.Count(x => x.type == StatusType.Barrier)}");
+        Log($"APPLY {e.type} " +
+                $"amount={e.amount} " +
+                $"remainingTurns={e.remainingTurns} aux={e.aux} " +
+                $"barrierHP={e.barrierHP} stat={e.stat} isDebuff={e.isDebuff} " +
+                $"apDelta={e.nextTurnActionsDelta} healMult={e.healMultiplier} " +
+                $"bleedOnMove={e.bleedDamageOnMove} targetLock={e.targetLockViewId} " +
+                $"sourceViewId={e.sourceViewId}");
 
         Mirror();
     }
 
     public void Remove(StatusType t)
     {
+        if (Disabled) return;
         if (!PhotonNetwork.IsMasterClient) return;
 
         // walk backwards so we can RemoveAt safely
@@ -68,6 +87,9 @@ public class StatusComponent : MonoBehaviourPun
             {
                 var removed = _active[i];          // keep the instance
                 _active.RemoveAt(i);
+
+                Log($"REMOVE {removed.type} (explicit remove) remainingTurns={removed.remainingTurns} aux={removed.aux}");
+                OnEffectRemoved?.Invoke(removed);
                 OnEffectRemoved?.Invoke(removed);  // notify with the effect, not the enum
             }
         }
@@ -85,7 +107,12 @@ public class StatusComponent : MonoBehaviourPun
 
     public int GetBarrierPool() => _active.Sum(x => x.barrierHP);
 
-    public int GetAPDeltaForThisTurn() => _apDeltaThisTurn;
+    public int GetAPDeltaForThisTurn()
+    {
+        if (Disabled) return;
+        Log($"AP DELTA this turn queried = {_apDeltaThisTurn}");
+        return _apDeltaThisTurn;
+    }
     public float GetHealingMultiplierThisTurn() => _healingMultThisTurn;
 
     public bool IsTauntedTo(int viewId) => _active.Any(x => x.type == StatusType.Taunt && x.targetLockViewId == viewId);
@@ -95,7 +122,10 @@ public class StatusComponent : MonoBehaviourPun
     // Call when THIS unit’s turn begins (MASTER).
     public void OnTurnBegan()
     {
+        if (Disabled) return;
         if (!PhotonNetwork.IsMasterClient) return;
+
+        Log("TURN BEGAN");
 
         _apDeltaThisTurn = 0;
         _healingMultThisTurn = 1f;
@@ -103,35 +133,65 @@ public class StatusComponent : MonoBehaviourPun
         // Start-of-turn ticks/effects
         foreach (var e in _active.ToList())
         {
+            Log($"  Begin -> {e.type} rem={e.remainingTurns} aux={e.aux} barrierHP={e.barrierHP}");
+
             // Burn ticks at start of victim’s next two turns (aux = ticks left)
             if (e.type == StatusType.Burn && e.aux > 0)
             {
                 int tick = ComputeBurnTickFromSource(e.sourceViewId);
+                Log($"    Burn tick from viewId={e.sourceViewId} damage={tick} aux(before)={e.aux}");
                 AbilityResolver.Instance.ResolveDamageServerOnly(controller, tick, DamageType.Fire, e.sourceViewId, -1);
                 e.aux--;
+                Log($"    Burn aux(after)={e.aux}");
             }
 
-            // Action/AP one-turn changes (Haste/Shock)
-            _apDeltaThisTurn += e.nextTurnActionsDelta;
+            // Action/AP one-turn changes (Haste/Shock/Enraged)
+            if (e.nextTurnActionsDelta != 0)
+            {
+                _apDeltaThisTurn += e.nextTurnActionsDelta;
+                Log($"    AP delta contribution from {e.type} = {e.nextTurnActionsDelta}");
+            }
 
-            // Healing multiplier (poison-like if you add it later)
-            _healingMultThisTurn *= Mathf.Max(0f, e.healMultiplier);
+            // Healing multiplier (poison-like or regen-like)
+            if (!Mathf.Approximately(e.healMultiplier, 0f) && !Mathf.Approximately(e.healMultiplier, 1f))
+            {
+                _healingMultThisTurn *= Mathf.Max(0f, e.healMultiplier);
+                Log($"    HealMult contribution from {e.type} = {e.healMultiplier} -> turn mult now = {_healingMultThisTurn}");
+            }
         }
 
+        Log($"  AP DELTA total this turn = {_apDeltaThisTurn}, HealMult={_healingMultThisTurn}");
         Mirror();
     }
 
     // Call when THIS unit’s turn ends (MASTER).
     public void OnTurnEnded()
     {
+        if (Disabled) return;
         if (!PhotonNetwork.IsMasterClient) return;
+
+        Log("TURN ENDED (before decay)");
+
+        foreach (var e in _active)
+        {
+            Log($"  End(before) -> {e.type} rem={e.remainingTurns} aux={e.aux} barrierHP={e.barrierHP}");
+        }
 
         // Bleed ends after a full turn without moving
         var bleed = _active.FirstOrDefault(x => x.type == StatusType.Bleed);
-        if (bleed != null && !_movedThisTurn) _active.Remove(bleed);
+        if (bleed != null && !_movedThisTurn)
+        {
+            Log("  Bleed removed because unit did NOT move this turn");
+            _active.Remove(bleed);
+            OnEffectRemoved?.Invoke(bleed);
+        }
 
         // Shock/Frozen expire after the turn
-        _active.RemoveAll(x => x.type == StatusType.Shock || x.type == StatusType.Freeze);
+        int removedShock = _active.RemoveAll(x => x.type == StatusType.Shock || x.type == StatusType.Freeze);
+        if (removedShock > 0)
+        {
+            Log($"  Removed {removedShock} Shock/Freeze effects at end of turn");
+        }
 
         // Decrement general durations (not Burn’s aux; Barrier stays until HP is 0 or duration ends)
         foreach (var e in _active.ToList())
@@ -140,23 +200,40 @@ public class StatusComponent : MonoBehaviourPun
             if (e.remainingTurns > 0)
             {
                 e.remainingTurns--;
-                if (e.remainingTurns <= 0) _active.Remove(e);
+                Log($"  Decay {e.type} -> remainingTurns now {e.remainingTurns}");
+
+                if (e.remainingTurns <= 0)
+                {
+                    Log($"  Duration over -> removing {e.type}");
+                    _active.Remove(e);
+                    OnEffectRemoved?.Invoke(e);
+                }
             }
         }
 
         _movedThisTurn = false;
+
+        Log("TURN ENDED (after decay)");
+        foreach (var e in _active)
+        {
+            Log($"  End(after) -> {e.type} rem={e.remainingTurns} aux={e.aux} barrierHP={e.barrierHP}");
+        }
+
         Mirror();
     }
 
     // Call when THIS unit successfully finishes a move (MASTER).
     public void OnMoved()
     {
+        if (Disabled) return;
         if (!PhotonNetwork.IsMasterClient) return;
         _movedThisTurn = true;
+        Log("MOVED this turn (flag _movedThisTurn = true)");
 
         var bleed = _active.FirstOrDefault(x => x.type == StatusType.Bleed && x.bleedDamageOnMove > 0);
         if (bleed != null)
         {
+            Log($"  Bleed tick on move: damage={bleed.bleedDamageOnMove}");
             AbilityResolver.Instance.ResolveDamageServerOnly(controller, bleed.bleedDamageOnMove, DamageType.Physical);
         }
     }
@@ -202,6 +279,7 @@ public class StatusComponent : MonoBehaviourPun
     // --------- RPC mirroring (UI only on clients) ---------
     void Mirror()
     {
+        if (Disabled) return;
         if (!PhotonNetwork.IsMasterClient) return;
         photonView.RPC(nameof(RPC_Mirror), RpcTarget.Others, Serialize());
     }
@@ -216,6 +294,7 @@ public class StatusComponent : MonoBehaviourPun
     [PunRPC]
     void RPC_Mirror(byte[] data)
     {
+        if (Disabled) return;
         if (PhotonNetwork.IsMasterClient) return; // master already knows
 
         // keep old list to raise removals

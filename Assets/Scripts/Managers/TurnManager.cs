@@ -340,6 +340,9 @@ public class TurnManager : MonoBehaviourPunCallbacks
 
     private void AdvanceTurn()
     {
+        // End-of-turn decay for the faction that is finishing its turn
+        ResolveEndOfTurnForFaction(currentTurn);
+
         currentTurn = GetOpposingFaction(currentTurn);
         turnNumber++;
         turnTimer = 0f;
@@ -495,14 +498,14 @@ public class TurnManager : MonoBehaviourPunCallbacks
         if (otherPlayer.IsMasterClient)
         {
             Debug.Log($"[TurnManager] Master client left! Returning to main menu.");
-            
+
             // Guardar la causa de desconexión
             EnsureDisconnectInfoManager();
             if (DisconnectInfoManager.Instance != null)
             {
                 DisconnectInfoManager.Instance.SetDisconnectReason(DisconnectReason.DMDisconnected);
             }
-            
+
             // Ir directamente al main menu en lugar de la pantalla de victoria
             ReturnToMainMenu();
             return;
@@ -521,7 +524,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
         if (remainingHeroes <= 2)
         {
             Debug.Log($"[TurnManager] Only {remainingHeroes} heroes remaining! Returning to main menu.");
-            
+
             // Guardar la causa de desconexión
             EnsureDisconnectInfoManager();
             if (DisconnectInfoManager.Instance != null)
@@ -531,7 +534,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
                     $"Solo quedan {remainingHeroes} jugador(es). Se requieren al menos 3 jugadores para continuar."
                 );
             }
-            
+
             // Ir directamente al main menu en lugar de la pantalla de victoria
             ReturnToMainMenu();
         }
@@ -551,7 +554,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
         // Ir directamente al main menu en lugar de la pantalla de victoria
         ReturnToMainMenu();
     }
-    
+
     // Método helper para asegurar que DisconnectInfoManager existe
     private void EnsureDisconnectInfoManager()
     {
@@ -561,7 +564,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
             managerObj.AddComponent<DisconnectInfoManager>();
         }
     }
-    
+
     // Método para volver al main menu cuando hay una desconexión
     private void ReturnToMainMenu()
     {
@@ -569,7 +572,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
         {
             PhotonNetwork.Disconnect();
         }
-        
+
         // Cargar el main menu
         SceneLoaderController.Instance.LoadNextLevel(Scenes.MainMenu);
     }
@@ -649,5 +652,18 @@ public class TurnManager : MonoBehaviourPunCallbacks
             return PhotonNetwork.IsMasterClient;
 
         return false;
+    }
+
+    private void ResolveEndOfTurnForFaction(UnitFaction faction)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        foreach (var unit in Object.FindObjectsByType<Unit>(FindObjectsSortMode.None))
+        {
+            if (unit.Model != null && unit.Model.Faction == faction)
+            {
+                unit.GetComponent<StatusComponent>()?.OnTurnEnded();
+            }
+        }
     }
 }

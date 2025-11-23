@@ -90,7 +90,7 @@ MonoBehaviour:
   pipPrefab: {fileID: 6788835973661278128, guid: aee55d8032b997a46b7fabd833520067, type: 3}
   pipSpacing: 0
   pipSize: 0.25
-  hideWhenZero: 0
+  hideWhenZero: 1
 --- !u!1 &1491234150750550829
 GameObject:
   m_ObjectHideFlags: 0

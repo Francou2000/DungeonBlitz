@@ -44,7 +44,7 @@ MonoBehaviour:
   mixedPhysicalPercent: 50
   lineCollateralPercent: 0
   bonusPerMissingHpPercent: 0
-  damageSource: 2
+  damageSource: 1
   baseDamage: 4
   damageMultiplier: 1
   bonusDamage: 0
@@ -61,10 +61,11 @@ MonoBehaviour:
   grantsMovement: 0
   movementRange: 0
   isMovementFree: 0
+  isTeleport: 0
   spawnsSummons: 0
-  summonPrefabName: 
+  summonPrefab: {fileID: 0}
   summonCount: 0
-  summonDuration: 0
+  summonPrefabName: 
   spawnsStructure: 0
   structureKind: 0
   structureHP: 0

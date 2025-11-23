@@ -204,7 +204,15 @@ public sealed class StructureManager : MonoBehaviourPun
         var unit = pv.GetComponent<Unit>();
         if (unit == null || unit.Model == null) return;
 
-        unit.Model.Heal(amount); // local HP update + UI on every client
+        int before = unit.Model.CurrentHP;
+        unit.Model.Heal(amount);
+        int applied = unit.Model.CurrentHP - before;
+
+        if (applied > 0)
+        {
+            CombatFeedbackUI.ShowHeal(unit, applied);
+            Debug.Log($"[Bonfire] Healed {unit.name} for {applied} via Bonfire");
+        }
     }
 
     public void UnregisterStructure(int id, StructureBase s)
