@@ -23,7 +23,7 @@ MonoBehaviour:
   effects: []
   minAdrenaline: 0
   requiredStates:
-  - Weapon:Dagger
+  - Form:Dagger
   changesState: 0
   stateKey: 
   stateValue: 

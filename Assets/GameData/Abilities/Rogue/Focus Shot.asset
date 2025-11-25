@@ -23,7 +23,7 @@ MonoBehaviour:
   effects: []
   minAdrenaline: 0
   requiredStates:
-  - Weapon:Bow
+  - Form:Bow
   changesState: 0
   stateKey: 
   stateValue: 

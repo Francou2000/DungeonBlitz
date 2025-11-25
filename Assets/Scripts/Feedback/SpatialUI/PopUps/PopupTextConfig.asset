@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 781965bc64a834d438abb68270da890c, type: 3}
   m_Name: PopupTextConfig
   m_EditorClassIdentifier: 
-  font: {fileID: 11400000, guid: e7398cfd60a9ab940b056062eec34a89, type: 2}
+  font: {fileID: 11400000, guid: a98f2cdaa4282dd48b448201ac72fa2b, type: 2}
   physical: {r: 1, g: 0.55, b: 0, a: 1}
   magical: {r: 0.66, g: 0.33, b: 1, a: 1}
   fire: {r: 1, g: 0.25, b: 0.1, a: 1}
