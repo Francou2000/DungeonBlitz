@@ -21,8 +21,8 @@ MonoBehaviour:
   maxHP: 35
   performance: 1
   affinity: 0
-  armor: 60
-  magicResistance: 60
+  armor: 40
+  magicResistance: 40
   strength: 6
   magicPower: 6
   actionsPerTurn: 2
