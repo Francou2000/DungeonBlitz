@@ -69,6 +69,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unitData: {fileID: 11400000, guid: d2141c71775c4174796377725c271e1f, type: 2}
+  my_items: []
   primaryResourceKey: Spears
   primaryResourceIcon: {fileID: 21300000, guid: e9021a8fd45b46440b9ebf82715ce983, type: 3}
   formResourceIcons: []

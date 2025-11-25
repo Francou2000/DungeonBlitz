@@ -69,6 +69,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unitData: {fileID: 11400000, guid: 049293ec2bb7fe14bb063e3a08a82a02, type: 2}
+  my_items: []
   primaryResourceKey: 
   primaryResourceIcon: {fileID: 0}
   formResourceIcons: []
