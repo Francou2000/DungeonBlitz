@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitName: Paladin
   full_body_foto: {fileID: 21300000, guid: d1bb0d3fc86a2924795e3b5070025161, type: 3}
-  portrait_foto: {fileID: 21300000, guid: 1522482f6a36c9a40a97fae3a8eef71f, type: 3}
+  portrait_foto: {fileID: -5963572368491179404, guid: 69f94a6d732440147b57ec3a5bbf7824, type: 3}
   faction: 0
   heroe_id: 0
   pop_cost: -1
