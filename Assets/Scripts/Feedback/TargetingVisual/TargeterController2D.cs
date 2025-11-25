@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.XR;
 
 public class TargeterController2D : MonoBehaviour
 {
@@ -152,6 +153,7 @@ public class TargeterController2D : MonoBehaviour
         line.gameObject.SetActive(false);
         enabled = false;
 
+        showingMove = false;                // remove leftover move mode
         _singlePreviewActive = false;
         _singlePrevCaster = null;
         _singlePrevAbility = null;
@@ -172,7 +174,9 @@ public class TargeterController2D : MonoBehaviour
 
     public void HideMoveRange()
     {
+        showingMove = false;                 // stop blocking ability previews
         if (rangeRing) rangeRing.gameObject.SetActive(false);
+
     }
 
     public void Cancel()

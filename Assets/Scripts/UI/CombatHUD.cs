@@ -112,7 +112,12 @@ public class CombatHUD : MonoBehaviour
         if (controller == ctrl) return;
 
         // Close any open targeting UI and pending modes
-        if (TargeterController2D.Instance) TargeterController2D.Instance.Cancel();
+        if (TargeterController2D.Instance)
+        {
+            TargeterController2D.Instance.Cancel();          // existing cleanup
+            TargeterController2D.Instance.EndSinglePreview(); // kill stale preview
+            TargeterController2D.Instance.HideMoveRange();    // kill move ring
+        }
         if (controller != null) controller.CancelTargeting();
 
         UnbindCurrentUnit();
@@ -122,6 +127,12 @@ public class CombatHUD : MonoBehaviour
         pageStart = 0;
 
         StopEndTurnAttention();
+        // Reset selection and previews when binding to a new unit
+        selectedAbility = null;
+        _singlePreviewActive = false;
+        _singlePreviewAbility = null;
+        hoveredView = null;
+        AbilityTooltip.Hide();
 
         RefreshPortrait();
         RebuildBars();
@@ -425,7 +436,23 @@ public class CombatHUD : MonoBehaviour
         if (TargeterController2D.Instance)
             TargeterController2D.Instance.HideMoveRange();
 
+        if (TargeterController2D.Instance)
+        {
+            TargeterController2D.Instance.Cancel();       
+        }
+        controller.CancelTargeting();                     
+        controller.ClearAimCache();                       
+
+
         controller.SetSelectedAbility(selectedAbility);
+
+        if (TargeterController2D.Instance)
+        {
+            TargeterController2D.Instance.EndSinglePreview();               // stop previous ability preview
+            TargeterController2D.Instance.BeginSinglePreview(controller, selectedAbility);
+            _singlePreviewActive = true;
+            _singlePreviewAbility = selectedAbility;
+        }
 
         // 1) AoE / line-zone / ground → Targeter2D aim mode
         if (NeedsAreaTargeting(selectedAbility))
@@ -514,7 +541,7 @@ public class CombatHUD : MonoBehaviour
 
     void OnActionHover(ActionButtonView v, UnityEngine.EventSystems.PointerEventData e)
     {
-        // Tooltip logic
+        // ── Tooltip ────────────────────────────────────────────────
         if (hoveredView != v)
         {
             hoveredView = v;
@@ -522,15 +549,13 @@ public class CombatHUD : MonoBehaviour
         }
         else
         {
-            AbilityTooltip.Move(e.position); // just reposition, no re-show
+            AbilityTooltip.Move(e.position);
         }
-
-        // --- RANGE PREVIEW ON HOVER ---
 
         if (TargeterController2D.Instance == null || controller == null)
             return;
 
-        // Hovering the Move button → show move range
+        // ── MOVE button preview ─────────────────────────────────────
         if (v.IsMove)
         {
             if (controller.Movement != null)
@@ -541,11 +566,17 @@ public class CombatHUD : MonoBehaviour
             return;
         }
 
-        // Hovering an ability → show its range ring (and line preview if it's a line)
         var ability = v.Ability;
-        if (ability == null)
+        if (ability == null) return;
+
+        // ── Skip preview for self-only or no-target abilities ───────
+        if (ability.selfOnly)
             return;
 
+        if (!RequiresUnitTarget(ability) && !NeedsAreaTargeting(ability))
+            return;
+
+        // ── Correct preview for all real abilities ──────────────────
         TargeterController2D.Instance.BeginSinglePreview(controller, ability);
         _singlePreviewActive = true;
         _singlePreviewAbility = ability;
@@ -553,46 +584,37 @@ public class CombatHUD : MonoBehaviour
 
     void OnActionUnhover()
     {
-        var prev = hoveredView;  // what we were hovering
+        var prev = hoveredView;
         hoveredView = null;
         AbilityTooltip.Hide();
 
         if (TargeterController2D.Instance == null || controller == null)
             return;
 
-        // If we were hovering the Move button, hide move range
+        // If leaving move button
         if (prev != null && prev.IsMove)
         {
-            // Only hide if we're NOT actually in Move mode
             if (UnitController.GetCurrentAction() != UnitAction.Move)
-            {
                 TargeterController2D.Instance.HideMoveRange();
-            }
             return;
         }
 
-        // If we were hovering an ability
+        // If leaving an ability button
         if (prev != null && prev.Ability != null)
         {
-            var hoveredAbility = prev.Ability;
-
-            // If this is the same ability we just selected with a click,
-            // DO NOT kill its preview – let OnActionClicked's behavior stand.
-            if (selectedAbility == hoveredAbility)
-            {
+            // Do not kill preview for the *selected* ability
+            if (selectedAbility == prev.Ability)
                 return;
-            }
 
-            // This was just a hover-preview: clear it
-            TargeterController2D.Instance.EndSinglePreview();
+            // End hover-preview
+            OnAbilityHoverExit();
             _singlePreviewActive = false;
             _singlePreviewAbility = null;
 
-            // If we *do* have a different ability selected that needs a unit target,
-            // restore its preview so it stays visible after unhover.
+            // Restore preview if another ability is selected and needs unit target
             if (selectedAbility != null && RequiresUnitTarget(selectedAbility))
             {
-                TargeterController2D.Instance.BeginSinglePreview(controller, selectedAbility);
+                OnAbilityHoverEnter(selectedAbility);
                 _singlePreviewActive = true;
                 _singlePreviewAbility = selectedAbility;
             }
@@ -817,5 +839,51 @@ public class CombatHUD : MonoBehaviour
             endTurnGlowImage.color = c;
             endTurnGlowImage.rectTransform.localScale = glowOriginalScale;
         }
+    }
+
+    // Called when mouse enters an ability button
+    private void OnAbilityHoverEnter(UnitAbility ability)
+    {
+        if (TargeterController2D.Instance != null && controller != null && ability != null)
+        {
+            TargeterController2D.Instance.BeginSinglePreview(controller, ability);
+        }
+    }
+
+    // Called when mouse exits an ability button
+    private void OnAbilityHoverExit()
+    {
+        if (TargeterController2D.Instance != null)
+        {
+            TargeterController2D.Instance.EndSinglePreview();
+        }
+    }
+
+    // Called by UnitController after an ability actually fires
+    public void ClearSelectedAbilityIf(UnitController caster, UnitAbility ability)
+    {
+        // Only react if this HUD is bound to that unit
+        if (controller != caster) return;
+        if (ability == null) return;
+
+        // Only clear if this was the ability that was selected on this HUD
+        if (selectedAbility != ability) return;
+
+        selectedAbility = null;
+        UpdateSelectedHighlight();
+
+        // Kill any single preview / aim mode
+        if (TargeterController2D.Instance != null)
+        {
+            TargeterController2D.Instance.EndSinglePreview();
+            TargeterController2D.Instance.Cancel();
+        }
+
+        _singlePreviewActive = false;
+        _singlePreviewAbility = null;
+
+        // Also clear hover state & tooltip, just in case
+        hoveredView = null;
+        AbilityTooltip.Hide();
     }
 }

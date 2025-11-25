@@ -135,10 +135,18 @@ public class UnitController : MonoBehaviourPun
     {
         if (ability == null) return;
         if (isCasting) return;          //  block duplicates
+
+        if (TargeterController2D.Instance != null)
+        {
+            TargeterController2D.Instance.EndSinglePreview();
+            TargeterController2D.Instance.Cancel();        // for AoE/Line
+        }
+
         if (TurnManager.Instance != null)
         {
             if (!TurnManager.Instance.IsCurrentTurn(unit)) return;
         }
+
         if (!photonView.IsMine) return;
 
         // Prevent trying to switch to the same form on the client
@@ -211,6 +219,18 @@ public class UnitController : MonoBehaviourPun
 
         // clear cached aim after firing
         ClearAimCache();
+
+        if (TargeterController2D.Instance != null)
+        {
+            TargeterController2D.Instance.EndSinglePreview();
+        }
+
+        // Tell the HUD this ability actually fired so it can drop the old selection
+        var hud = FindFirstObjectByType<CombatHUD>();
+        if (hud != null)
+        {
+            hud.ClearSelectedAbilityIf(this, ability);
+        }
     }
 
     protected virtual void OnAbilityExecuted(UnitAbility ability, Unit target)
@@ -221,20 +241,6 @@ public class UnitController : MonoBehaviourPun
             int healAmount = ability.CalculateHealAmount(model);
             target.Heal(healAmount, unit);
         }
-
-        /* LEGACY
-        var sc = target.GetComponent<StatusComponent>();
-        if (sc != null && ability.appliedEffects != null && ability.appliedEffects.Count > 0)
-        {
-            foreach (var eff in ability.appliedEffects)
-            {
-                if (Random.Range(0f, 100f) <= ability.statusEffectChance)
-                {
-                    var v2 = ConvertLegacyEffectToV2(eff, this, target); // helper below
-                    if (v2 != null) sc.Apply(v2);
-                }
-            }
-        }*/
 
         // barriers via EffectLibrary
         if (ability.grantsBarrier && target != null)
@@ -413,7 +419,7 @@ public class UnitController : MonoBehaviourPun
         cachedAimDir = dir;
     }
 
-    private void ClearAimCache()
+    public void ClearAimCache()
     {
         cachedAimPos = null;
         cachedAimDir = null;
