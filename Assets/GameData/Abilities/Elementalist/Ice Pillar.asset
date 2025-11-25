@@ -15,7 +15,7 @@ MonoBehaviour:
   abilityName: Ice Pillar
   description: Spawn Ice Pillar structure.
   abilityType: 3
-  icon: {fileID: 21300000, guid: b6d818c95eab29d4aa5398398450f157, type: 3}
+  icon: {fileID: -5598632691685109012, guid: e95796af1d900644b957c41301d44e03, type: 3}
   baseHitChance: 100
   actionCost: 1
   adrenalineCost: 0
@@ -36,7 +36,10 @@ MonoBehaviour:
   aoeRadius: 0.5
   lineMaxTargets: 0
   lineRange: 0
+  lineWidth: 0
   lineAlignmentTolerance: 0.75
+  allowTargetStructures: 0
+  structureTargets: 0
   isMixedDamage: 0
   mixedPhysicalPercent: 50
   lineCollateralPercent: 0
@@ -58,10 +61,11 @@ MonoBehaviour:
   grantsMovement: 0
   movementRange: 0
   isMovementFree: 0
+  isTeleport: 0
   spawnsSummons: 0
-  summonPrefabName: 
+  summonPrefab: {fileID: 0}
   summonCount: 0
-  summonDuration: 0
+  summonPrefabName: 
   spawnsStructure: 1
   structureKind: 1
   structureHP: 5

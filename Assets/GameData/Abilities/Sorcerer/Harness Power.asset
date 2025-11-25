@@ -15,15 +15,19 @@ MonoBehaviour:
   abilityName: Harness Power
   description: +1 Power stack.
   abilityType: 3
-  icon: {fileID: 21300000, guid: b9859d230f721304691e531c9b82df1c, type: 3}
+  icon: {fileID: 8350336525384476017, guid: 7db14a077b8a53b4e8ee4c1d0081aa41, type: 3}
   baseHitChance: 100
   actionCost: 1
   adrenalineCost: 0
   resourceCosts:
   - key: Power
     amount: -1
+  effects: []
   minAdrenaline: 0
   requiredStates: []
+  changesState: 0
+  stateKey: 
+  stateValue: 
   requiredTags: []
   requiredTargetTags: []
   requiresAdrenalineThreshold: 0
@@ -33,7 +37,10 @@ MonoBehaviour:
   aoeRadius: 0
   lineMaxTargets: 0
   lineRange: 0
+  lineWidth: 0
   lineAlignmentTolerance: 0
+  allowTargetStructures: 0
+  structureTargets: 0
   isMixedDamage: 0
   mixedPhysicalPercent: 0
   lineCollateralPercent: 0
@@ -47,8 +54,6 @@ MonoBehaviour:
   missingHealthPercentage: 0
   canChain: 0
   chainRange: 0
-  appliedEffects: []
-  statusEffectChance: 0
   healsTarget: 0
   healAmount: 0
   healPercentage: 0
@@ -57,13 +62,15 @@ MonoBehaviour:
   grantsMovement: 0
   movementRange: 0
   isMovementFree: 0
+  isTeleport: 0
   spawnsSummons: 0
-  summonPrefabName: 
+  summonPrefab: {fileID: 0}
   summonCount: 0
-  summonDuration: 0
+  summonPrefabName: 
   spawnsStructure: 0
   structureKind: 0
   structureHP: 0
+  structureHeal: 0
   structureDuration: 0
   structureRadius: 0
   spawnsZone: 0

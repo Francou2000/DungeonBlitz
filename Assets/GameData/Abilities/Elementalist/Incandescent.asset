@@ -15,7 +15,7 @@ MonoBehaviour:
   abilityName: Incandescent
   description: Apply Incandescent to two nearest allies (coded selection).
   abilityType: 3
-  icon: {fileID: 21300000, guid: abe998d7ef6847840b3d657c9085ec73, type: 3}
+  icon: {fileID: -3712250007794359395, guid: dd74e45ce7c569743ba87279ed756784, type: 3}
   baseHitChance: 100
   actionCost: 2
   adrenalineCost: 0
@@ -36,7 +36,10 @@ MonoBehaviour:
   aoeRadius: 6
   lineMaxTargets: 0
   lineRange: 0
+  lineWidth: 0
   lineAlignmentTolerance: 0.75
+  allowTargetStructures: 0
+  structureTargets: 0
   isMixedDamage: 0
   mixedPhysicalPercent: 50
   lineCollateralPercent: 0
@@ -58,13 +61,15 @@ MonoBehaviour:
   grantsMovement: 0
   movementRange: 0
   isMovementFree: 0
+  isTeleport: 0
   spawnsSummons: 0
-  summonPrefabName: 
+  summonPrefab: {fileID: 0}
   summonCount: 0
-  summonDuration: 0
+  summonPrefabName: 
   spawnsStructure: 0
   structureKind: 0
   structureHP: 0
+  structureHeal: 0
   structureDuration: 0
   structureRadius: 0
   spawnsZone: 0

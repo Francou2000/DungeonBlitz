@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitName: Elementalist
   full_body_foto: {fileID: 21300000, guid: fd60789ae374b1046abd4cc8516ab36d, type: 3}
-  portrait_foto: {fileID: 21300000, guid: 10c68b7a7846a364199cdfc7584090ae, type: 3}
+  portrait_foto: {fileID: -131418282065872233, guid: 5c4ed4844d2422744a308a9d15131067, type: 3}
   faction: 0
   heroe_id: 3
   pop_cost: -1

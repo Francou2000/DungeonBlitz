@@ -15,7 +15,7 @@ MonoBehaviour:
   abilityName: Blink
   description: Teleport to a ground tile up to 4m.
   abilityType: 2
-  icon: {fileID: 21300000, guid: 6535e79d75908374a9c78cbdd764c0b3, type: 3}
+  icon: {fileID: -2093625715265575485, guid: 49f73d529e0a21b4bb10d72d1f7acd09, type: 3}
   baseHitChance: 65
   actionCost: 1
   adrenalineCost: 0
@@ -36,6 +36,7 @@ MonoBehaviour:
   aoeRadius: 3
   lineMaxTargets: 0
   lineRange: 0
+  lineWidth: 0
   lineAlignmentTolerance: 0.75
   allowTargetStructures: 0
   structureTargets: 0

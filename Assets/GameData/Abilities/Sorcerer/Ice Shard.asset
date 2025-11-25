@@ -15,7 +15,7 @@ MonoBehaviour:
   abilityName: Ice Shard
   description: Ice projectile.
   abilityType: 1
-  icon: {fileID: 21300000, guid: b6d818c95eab29d4aa5398398450f157, type: 3}
+  icon: {fileID: -5598632691685109012, guid: e95796af1d900644b957c41301d44e03, type: 3}
   baseHitChance: 70
   actionCost: 1
   adrenalineCost: 0
@@ -35,6 +35,7 @@ MonoBehaviour:
   aoeRadius: 0
   lineMaxTargets: 0
   lineRange: 0
+  lineWidth: 0
   lineAlignmentTolerance: 0.75
   allowTargetStructures: 1
   structureTargets: 1
@@ -59,10 +60,11 @@ MonoBehaviour:
   grantsMovement: 0
   movementRange: 0
   isMovementFree: 0
+  isTeleport: 0
   spawnsSummons: 0
-  summonPrefabName: 
+  summonPrefab: {fileID: 0}
   summonCount: 0
-  summonDuration: 0
+  summonPrefabName: 
   spawnsStructure: 0
   structureKind: 0
   structureHP: 0
