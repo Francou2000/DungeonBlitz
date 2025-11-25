@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
+using UnityEngine.Rendering;
 
 public class DC_Manager : MonoBehaviour
 {
@@ -37,6 +38,9 @@ public class DC_Manager : MonoBehaviour
     UnitLoaderController unitLoaderController;
 
     public int lvl = 0; //Chequear con UnitLoaderController
+
+    [SerializeField] Vector2[] non_standable_tile;
+    public Vector2[] Non_standable_tile {  get { return non_standable_tile; } set { non_standable_tile = value; } }
     void Start()
     {
         unitLoaderController = UnitLoaderController.Instance;
@@ -99,6 +103,7 @@ public class DC_Manager : MonoBehaviour
 
     public void SpawnNewUnit(Vector2 pos)
     {
+        if (CheckIfCanStand(pos)) return;
         if (UpdateUnitOnList(pos, pos, actualUnit)) return;
         GameObject new_unit = Instantiate(unit_placeholder, spawn.transform);
         UnitPlaceholderIntection upi = new_unit.GetComponent<UnitPlaceholderIntection>();
@@ -115,6 +120,7 @@ public class DC_Manager : MonoBehaviour
     public void SpawnPromotedUnit(Vector2 pos)
     {
         Monsters new_actualUnit = (Monsters)((int)actualUnit + 4);
+        if (CheckIfCanStand(pos)) return;
         if (UpdateUnitOnList(pos, pos, new_actualUnit)) return;
         GameObject new_unit = Instantiate(unit_placeholder, spawn.transform);
         UnitPlaceholderIntection upi = new_unit.GetComponent<UnitPlaceholderIntection>();
@@ -131,6 +137,15 @@ public class DC_Manager : MonoBehaviour
         RemoveUnitFromList(origin_pos, unit_id);
         AddUnitToList(new_pos, unit_id);
         AddUnitToController();
+        return false;
+    }
+
+    public bool CheckIfCanStand(Vector2 origin_pos)
+    {
+        foreach (Vector2 pos in non_standable_tile)
+        {
+            if (pos == origin_pos) return true;
+        }
         return false;
     }
 
@@ -181,6 +196,7 @@ public class DC_Manager : MonoBehaviour
         unitList.Clear();
         AddUnitToController();
         actual_pop = 0;
+        UpdatePopUI();
         resetUnits.Invoke();
     }
 
