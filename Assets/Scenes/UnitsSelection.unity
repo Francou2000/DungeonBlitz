@@ -15334,8 +15334,8 @@ MonoBehaviour:
   zoomSpeed: 1
   minZoom: 3
   maxZoom: 5
-  minBounds: {x: -25, y: -5}
-  maxBounds: {x: 25, y: 5}
+  minBounds: {x: -14, y: -5}
+  maxBounds: {x: 23, y: 5}
   focusOnControlledUnitOnStart: 1
 --- !u!1 &391518683
 GameObject:
