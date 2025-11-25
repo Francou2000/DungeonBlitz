@@ -12,6 +12,8 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
 
     public bool[] players_ready = new bool[5];
     
+    public HeroesList my_heroe = HeroesList.None;
+
     private void Awake()
     {
         if (Instance == null)

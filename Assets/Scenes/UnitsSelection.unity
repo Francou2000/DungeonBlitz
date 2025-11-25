@@ -15336,6 +15336,7 @@ MonoBehaviour:
   maxZoom: 5
   minBounds: {x: -25, y: -5}
   maxBounds: {x: 25, y: 5}
+  focusOnControlledUnitOnStart: 1
 --- !u!1 &391518683
 GameObject:
   m_ObjectHideFlags: 0
@@ -15521,7 +15522,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &419664104
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -32229,7 +32230,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &833726947
 RectTransform:
   m_ObjectHideFlags: 0
@@ -34959,7 +34960,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &979379699
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -43742,7 +43743,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1572387119
 Transform:
   m_ObjectHideFlags: 0
@@ -45935,7 +45936,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1756068857
 Transform:
   m_ObjectHideFlags: 0

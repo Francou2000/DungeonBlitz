@@ -55,6 +55,8 @@ public class HeroSpawner : MonoBehaviourPunCallbacks
             GameObject obj = PhotonNetwork.Instantiate(prefab.name, pos, Quaternion.identity);
             Debug.Log($"[HeroSpawner] Spawned {prefab.name} for player {playerIndex + 1}");
 
+            obj.GetComponent<UnitModel>().AddItems(UnitLoaderController.Instance.heroes[playerIndex].my_items);
+
             if (obj.TryGetComponent(out UnitController controller) && controller.photonView.IsMine)
             {
                 UnitController.ActiveUnit = controller;

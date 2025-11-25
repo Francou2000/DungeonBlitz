@@ -21,6 +21,8 @@ public class UnitModel : MonoBehaviour
     public List<UnitAbility> Abilities { get; private set; } = new();
     public List<UnitAbility> AdrenalineAbilities { get; private set; } = new();
 
+    public List<ItemData> my_items = new List<ItemData>();
+
     [Header("Public Getters")]
     public string UnitName => unitData.unitName;
     public UnitFaction Faction => unitData.faction;
@@ -44,9 +46,12 @@ public class UnitModel : MonoBehaviour
             if (sc == null)
                 return basePerf;
 
+            float item_perf = 0;
+            foreach (ItemData item in my_items) { item_perf += item.performance; }
+
             // For Performance, amount is treated as % (see StatusEffect comment)
             int deltaPct = sc.GetStatDelta(Stat.Performance);
-            return basePerf * (1f + deltaPct / 100f);
+            return basePerf * (1f + deltaPct / 100f) + item_perf;
         }
     }
 
@@ -55,8 +60,12 @@ public class UnitModel : MonoBehaviour
         get
         {
             var sc = GetComponent<StatusComponent>();
+
+            int item_aff = 0;
+            foreach (ItemData item in my_items) { item_aff += item.affinity; }
+
             int delta = sc ? sc.GetStatDelta(Stat.Affinity) : 0;
-            return unitData.affinity + delta;
+            return unitData.affinity + delta + item_aff;
         }
     }
 
@@ -65,8 +74,12 @@ public class UnitModel : MonoBehaviour
         get
         {
             var sc = GetComponent<StatusComponent>();
+
+            int item_armor = 0;
+            foreach (ItemData item in my_items) { item_armor += item.armor; }
+
             int delta = sc ? sc.GetStatDelta(Stat.Armor) : 0;
-            return unitData.armor + delta;
+            return unitData.armor + delta + item_armor;
         }
     }
 
@@ -75,8 +88,12 @@ public class UnitModel : MonoBehaviour
         get
         {
             var sc = GetComponent<StatusComponent>();
+
+            int item_mr = 0;
+            foreach (ItemData item in my_items) { item_mr += item.magicResistance; }
+
             int delta = sc ? sc.GetStatDelta(Stat.MagicRes) : 0;
-            return unitData.magicResistance + delta;
+            return unitData.magicResistance + delta + item_mr;
         }
     }
 
@@ -85,8 +102,12 @@ public class UnitModel : MonoBehaviour
         get
         {
             var sc = GetComponent<StatusComponent>();
+
+            int item_str = 0;
+            foreach (ItemData item in my_items) { item_str += item.strength; }
+
             int delta = sc ? sc.GetStatDelta(Stat.Strength) : 0;
-            return unitData.strength + delta;
+            return unitData.strength + delta + item_str;
         }
     }
 
@@ -95,8 +116,12 @@ public class UnitModel : MonoBehaviour
         get
         {
             var sc = GetComponent<StatusComponent>();
+
+            int item_mp = 0;
+            foreach (ItemData item in my_items) { item_mp += item.magicPower; }
+
             int delta = sc ? sc.GetStatDelta(Stat.MagicPower) : 0;
-            return unitData.magicPower + delta;
+            return unitData.magicPower + delta + item_mp;
         }
     }
 
@@ -185,6 +210,11 @@ public class UnitModel : MonoBehaviour
         InitializeStartingResources();
         
         CheckAdrenalineState();
+    }
+
+    public void AddItems(List<ItemData> items)
+    {
+        my_items = items;
     }
 
     private void InitializeStartingResources()

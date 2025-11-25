@@ -39,7 +39,7 @@ public class TimerAndLoadGame : MonoBehaviourPunCallbacks
         if (PhotonNetwork.IsMasterClient)
         {
             DM_dungeon_creator.SetActive(true);
-            // if (UnitLoaderController.Instance.lvl > 1) heroes_shop_controller.SetActive(true);
+            if (UnitLoaderController.Instance.lvl > 1) heroes_shop_controller.SetActive(true);
         }
         else
         {
@@ -52,7 +52,7 @@ public class TimerAndLoadGame : MonoBehaviourPunCallbacks
                 //TODO: Tienda
                 //waiting_canvas.SetActive(true);
                 heroes_shop.SetActive(true);
-                // heroes_shop_controller.SetActive(true);
+                heroes_shop_controller.SetActive(true);
             }
             
         }
