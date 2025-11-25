@@ -273,7 +273,7 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
             try_purchase_button.SetActive(false);
         }
 
-        if (item.tailored_heroe != HeroesList.None && item.tailored_heroe != unit_loader_controller.heroes[PhotonNetwork.LocalPlayer.ActorNumber].my_data.heroe_id)
+        if (item.tailored_heroe != HeroesList.None && item.tailored_heroe != unit_loader_controller.my_heroe)
         {
             purchase_button.SetActive(true);
             purchase_button.GetComponent<Button>().interactable = false;
@@ -442,6 +442,8 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
     {
         volatile_seconds -= seconds;
         bool vol = !(volatile_seconds < 0);
+        if (!vol) volatile_seconds = 0;
+        volatile_time_show.text = "Volatile time: " + volatile_seconds.ToString() + " s";
         photonView.RPC("UpdateTimeCoins", RpcTarget.All, vol);
     }
     public void AddVolatileSeconds(int seconds) { volatile_seconds += seconds; }
@@ -450,17 +452,10 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
     public void UpdateTimeCoins(bool only_volatile)
     {
         if (PhotonNetwork.IsMasterClient) return;
-        if (only_volatile)
-        {
-            volatile_time_show.text = "Volatile time: " + volatile_seconds.ToString() + " s";
-            return;
-        }
-        else
+        if (!only_volatile)
         {
             unit_loader_controller.SpendHeroeSeconds(-volatile_seconds);
-            volatile_seconds = 0;
             remaining_time.text = "Remaining time: " + ((int)unit_loader_controller.heroes_remaining_time).ToString() + " s";
-            volatile_time_show.text = "Volatile time: " + volatile_seconds.ToString() + " s";
         }
             
     }
