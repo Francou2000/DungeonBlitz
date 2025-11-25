@@ -38,7 +38,7 @@ MonoBehaviour:
   lineMaxTargets: 0
   lineRange: 0
   lineWidth: 0
-  lineAlignmentTolerance: 0.75
+  lineAlignmentTolerance: 0
   allowTargetStructures: 0
   structureTargets: 0
   isMixedDamage: 0
