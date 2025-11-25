@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitName: Goblin
   full_body_foto: {fileID: -5820938325540021890, guid: b5c5f38f53e1a4a46af7efc646ab7f3c, type: 3}
-  portrait_foto: {fileID: 21300000, guid: 598e12bc77226cb43b505cd85ccc3b02, type: 3}
+  portrait_foto: {fileID: 3661463516662842445, guid: 560514a49760b244fbd00e058642b2f3, type: 3}
   faction: 1
   heroe_id: 4
   pop_cost: 1
