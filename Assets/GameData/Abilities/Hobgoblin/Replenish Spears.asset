@@ -20,7 +20,7 @@ MonoBehaviour:
   actionCost: 2
   adrenalineCost: 0
   resourceCosts:
-  - key: Spears
+  - key: Power
     amount: -3
   effects: []
   minAdrenaline: 0

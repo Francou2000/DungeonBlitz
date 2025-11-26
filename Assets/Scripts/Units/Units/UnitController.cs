@@ -22,6 +22,8 @@ public class UnitController : MonoBehaviourPun
 
     public bool isControllable = true;
 
+    public CombatHUD boundHud;
+
     private UnitMovement movement;
 
     public UnitMovement Movement => movement;
@@ -133,6 +135,9 @@ public class UnitController : MonoBehaviourPun
     // New ability execution system
     public virtual void ExecuteAbility(UnitAbility ability, Unit target, Vector3 targetPosition = default)
     {
+        Debug.Log($"[UnitController] ExecuteAbility: unit={name}, ability={ability?.abilityName}, " +
+          $"target={target?.name}, targetPos={targetPosition}");
+
         if (ability == null) return;
         if (isCasting) return;          //  block duplicates
 
@@ -225,12 +230,12 @@ public class UnitController : MonoBehaviourPun
             TargeterController2D.Instance.EndSinglePreview();
         }
 
+        if (boundHud != null)
+            Debug.Log($"[UnitController] Notifying HUD to clear selection: hudFor={boundHud.controller?.name}");
+
         // Tell the HUD this ability actually fired so it can drop the old selection
-        var hud = FindFirstObjectByType<CombatHUD>();
-        if (hud != null)
-        {
-            hud.ClearSelectedAbilityIf(this, ability);
-        }
+        if (boundHud != null)
+            boundHud.ClearSelectedAbilityIf(this, ability);
     }
 
     protected virtual void OnAbilityExecuted(UnitAbility ability, Unit target)

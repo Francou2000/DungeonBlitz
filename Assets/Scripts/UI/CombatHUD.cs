@@ -6,7 +6,7 @@ using System.Collections.Generic;
 public class CombatHUD : MonoBehaviour
 {
     [Header("Bind at runtime")]
-    [SerializeField] private UnitController controller;  // active units controller
+    [SerializeField] public UnitController controller;  // active units controller
 
     [Header("Top Bar")]
     [SerializeField] private ResourceBarView hpBar;
@@ -110,6 +110,7 @@ public class CombatHUD : MonoBehaviour
     public void Bind(UnitController ctrl)
     {
         if (controller == ctrl) return;
+        Debug.Log($"[HUD] Bind to controller={ctrl?.name}");
 
         // Close any open targeting UI and pending modes
         if (TargeterController2D.Instance)
@@ -124,6 +125,7 @@ public class CombatHUD : MonoBehaviour
         ClearGrid();
 
         controller = ctrl;
+        controller.boundHud = this;
         pageStart = 0;
 
         StopEndTurnAttention();
@@ -397,6 +399,9 @@ public class CombatHUD : MonoBehaviour
     {
         if (!IsUsableNow()) return;
 
+        Debug.Log($"[HUD] CLICK: view={(view.IsMove ? "\\Move\\" : view.Ability?.abilityName)} " +
+              $"controller={controller?.name}, selectedBefore={selectedAbility?.abilityName}");
+
         // --- MOVE BUTTON LOGIC ---
         if (view.IsMove)
         {
@@ -452,6 +457,8 @@ public class CombatHUD : MonoBehaviour
             TargeterController2D.Instance.BeginSinglePreview(controller, selectedAbility);
             _singlePreviewActive = true;
             _singlePreviewAbility = selectedAbility;
+
+            Debug.Log($"[HUD] CLICK - started preview: caster={controller?.name}, ability={selectedAbility?.abilityName}");
         }
 
         // 1) AoE / line-zone / ground → Targeter2D aim mode
@@ -504,7 +511,7 @@ public class CombatHUD : MonoBehaviour
     }
 
     // true for single-target unit selection (self/ally/enemy)
-    bool RequiresUnitTarget(UnitAbility a)
+   bool RequiresUnitTarget(UnitAbility a)
     {
         if (a == null) return false;
         if (NeedsAreaTargeting(a)) return false; // AoE/ground/zone handled elsewhere
@@ -555,6 +562,9 @@ public class CombatHUD : MonoBehaviour
         if (TargeterController2D.Instance == null || controller == null)
             return;
 
+        Debug.Log($"[HUD] HOVER: view={(v.IsMove ? "\\Move\\" : v.Ability?.abilityName)} " +
+              $"controller={controller?.name}, selected={selectedAbility?.abilityName}");
+
         // ── MOVE button preview ─────────────────────────────────────
         if (v.IsMove)
         {
@@ -588,6 +598,9 @@ public class CombatHUD : MonoBehaviour
         hoveredView = null;
         AbilityTooltip.Hide();
 
+        Debug.Log($"[HUD] UNHOVER: prev={(prev?.IsMove == true ? "Move" : prev?.Ability?.abilityName)} " +
+              $"controller={controller?.name}, selected={selectedAbility?.abilityName}");
+
         if (TargeterController2D.Instance == null || controller == null)
             return;
 
@@ -610,14 +623,6 @@ public class CombatHUD : MonoBehaviour
             OnAbilityHoverExit();
             _singlePreviewActive = false;
             _singlePreviewAbility = null;
-
-            // Restore preview if another ability is selected and needs unit target
-            if (selectedAbility != null && RequiresUnitTarget(selectedAbility))
-            {
-                OnAbilityHoverEnter(selectedAbility);
-                _singlePreviewActive = true;
-                _singlePreviewAbility = selectedAbility;
-            }
         }
     }
 
@@ -862,6 +867,11 @@ public class CombatHUD : MonoBehaviour
     // Called by UnitController after an ability actually fires
     public void ClearSelectedAbilityIf(UnitController caster, UnitAbility ability)
     {
+        Debug.Log($"[HUD] ClearSelectedAbilityIf: hudController={controller?.name}, " +
+              $"caster={caster?.name}, ability={ability?.abilityName}, " +
+              $"selected={selectedAbility?.abilityName}");
+
+
         // Only react if this HUD is bound to that unit
         if (controller != caster) return;
         if (ability == null) return;

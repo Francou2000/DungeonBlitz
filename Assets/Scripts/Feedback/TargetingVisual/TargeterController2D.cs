@@ -36,6 +36,8 @@ public class TargeterController2D : MonoBehaviour
         caster = c; ability = a; onConfirm = confirm;
         enabled = true;
 
+        Debug.Log($"[Targeter] BEGIN AIM: caster={caster?.name}, ability={ability?.abilityName}");
+
         if (!cam) cam = Camera.main;
 
         if (rangeRing) rangeRing.gameObject.SetActive(true);
@@ -157,6 +159,10 @@ public class TargeterController2D : MonoBehaviour
         _singlePreviewActive = false;
         _singlePrevCaster = null;
         _singlePrevAbility = null;
+
+        caster = null;
+        ability = null;
+        onConfirm = null;
     }
 
     public void ShowMoveRange(UnitController caster, float radius)
@@ -181,6 +187,7 @@ public class TargeterController2D : MonoBehaviour
 
     public void Cancel()
     {
+        Debug.Log("[Targeter] CANCEL called");
         Cleanup();
     }
 
@@ -191,6 +198,10 @@ public class TargeterController2D : MonoBehaviour
         _singlePreviewActive = true;
         _singlePrevCaster = c;
         _singlePrevAbility = a;
+
+        Debug.Log($"[Targeter] BEGIN SINGLE PREVIEW: caster={c?.name}, ability={a?.abilityName} " +
+             $"(onConfirm still set? {onConfirm != null})");
+
 
         if (c == null || a == null) return;
 
@@ -209,6 +220,8 @@ public class TargeterController2D : MonoBehaviour
 
     public void EndSinglePreview()
     {
+        Debug.Log($"[Targeter] END SINGLE PREVIEW: caster={_singlePrevCaster?.name}, ability={_singlePrevAbility?.abilityName}");
+
         _singlePreviewActive = false;
         _singlePrevCaster = null;
         _singlePrevAbility = null;

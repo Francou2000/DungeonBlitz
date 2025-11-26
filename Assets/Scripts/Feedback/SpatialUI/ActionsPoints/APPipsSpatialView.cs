@@ -38,6 +38,7 @@ public class APPipsSpatialView : MonoBehaviour
 
     private void EnsurePipCount(int max)
     {
+        Debug.Log("Max pips: " + max);
         // add
         while (pips.Count < max)
         {

@@ -245,6 +245,7 @@ MonoBehaviour:
   unit: {fileID: 778253703200391807}
   model: {fileID: 6965386814850586551}
   isControllable: 1
+  boundHud: {fileID: 0}
 --- !u!114 &4002144771029121240
 MonoBehaviour:
   m_ObjectHideFlags: 0
