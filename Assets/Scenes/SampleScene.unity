@@ -6585,6 +6585,10 @@ MonoBehaviour:
   - {fileID: 458508234}
   - {fileID: 1598626968}
   is_game: 1
+  non_standable_map1: []
+  non_standable_map2: []
+  non_standable_map3: []
+  non_standable_map4: []
 --- !u!156049354 &1144618308
 Grid:
   m_ObjectHideFlags: 0
@@ -7148,7 +7152,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: hhhh
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a98f2cdaa4282dd48b448201ac72fa2b, type: 2}
   m_sharedMaterial: {fileID: -8925822166161459934, guid: a98f2cdaa4282dd48b448201ac72fa2b, type: 2}
