@@ -9,6 +9,9 @@ public class HealthBarWorld : MonoBehaviour
     public Image fill;                      // foreground fill
     public Image back;                      // background image
 
+    [Header("Action Points")]
+    public APPipsSpatialView apPips;
+
     [Header("Positioning")]
     public Vector3 worldOffset = new Vector3(0f, 1.6f, 0f);  // height above head
     public bool useRendererBounds = true;   // place above sprite bounds if available
@@ -37,7 +40,10 @@ public class HealthBarWorld : MonoBehaviour
         }
 
         if (targetUnit.Model != null)
+        {
             targetUnit.Model.OnHealthChanged += OnHealthChanged;
+            targetUnit.Model.OnActionPointsChanged += OnAPChanged;
+        }
 
         // Follow the visual if possible, otherwise the unit root
         _follow = (targetUnit.View != null) ? targetUnit.View.transform : targetUnit.transform;
@@ -47,6 +53,12 @@ public class HealthBarWorld : MonoBehaviour
     }
 
     void OnHealthChanged(int current, int max) => UpdateFill(current, max);
+
+    void OnAPChanged(int current, int max)
+    {
+        if (apPips != null)
+            apPips.Set(current, max);
+    }
 
     void LateUpdate()
     {
@@ -116,10 +128,14 @@ public class HealthBarWorld : MonoBehaviour
             int hp = targetUnit.Model.CurrentHP;
             int mx = targetUnit.Model.MaxHP;
             UpdateFill(hp, mx);
+            if (apPips != null)
+                apPips.Set(targetUnit.Model.CurrentActions, targetUnit.Model.MaxActions);
         }
         else
         {
             UpdateFill(0, 1);
+            if (apPips != null)
+                apPips.Set(0, 0);
         }
     }
 
@@ -132,7 +148,10 @@ public class HealthBarWorld : MonoBehaviour
     void OnDestroy()
     {
         if (targetUnit && targetUnit.Model != null)
+        {
             targetUnit.Model.OnHealthChanged -= OnHealthChanged;
+            targetUnit.Model.OnActionPointsChanged -= OnAPChanged;
+        }
     }
 
     Color GetTeamColor()

@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 1087944117601691617}
   - component: {fileID: 8201820807069367725}
   - component: {fileID: 2380843336390496915}
-  - component: {fileID: 5069624680312157031}
   m_Layer: 5
   m_Name: APPips
   m_TagString: Untagged
@@ -92,20 +91,6 @@ MonoBehaviour:
   pipSpacing: 0
   pipSize: 0.25
   hideWhenZero: 1
---- !u!114 &5069624680312157031
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1132633373021090186}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ff74416b926850642861a49d8004f289, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  pipPrefab: {fileID: 6693039678801015812, guid: aee55d8032b997a46b7fabd833520067, type: 3}
-  container: {fileID: 557625180734513935}
 --- !u!1 &1491234150750550829
 GameObject:
   m_ObjectHideFlags: 0
@@ -311,6 +296,7 @@ MonoBehaviour:
   targetUnit: {fileID: 0}
   fill: {fileID: 2034297019598005975}
   back: {fileID: 3590392468825340918}
+  apPips: {fileID: 2380843336390496915}
   worldOffset: {x: 0, y: 1.6, z: 0}
   useRendererBounds: 1
   extraHeight: 0.2

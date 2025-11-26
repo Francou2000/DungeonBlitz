@@ -338,11 +338,29 @@ public class CombatHUD : MonoBehaviour
             if (view.IsMove) continue;
 
             var ab = view.Ability;
-            bool can = (ab != null) && AbilityResolver.CanCast(controller.unit, ab, null, out _);
             var btn = view.GetComponent<Button>();
-            if (btn) btn.interactable = can && IsUsableNow();
+
+            if (ab == null || btn == null)
+                continue;
+
+            // Ask the resolver if this ability is currently legal
+            bool can = AbilityResolver.CanCast(controller.unit, ab, null, out var reason);
+
+            // DEBUG: log only for Replenish Spears (or everything if you want)
+            if (ab.abilityName == "Replenish Spears")
+            {
+                Debug.Log(
+                    $"[HUD] Gate ability='{ab.abilityName}' " +
+                    $"unit={controller.name} can={can} " +
+                    $"reason='{reason}' " +
+                    $"AP={controller.model.CurrentActions}/{controller.model.MaxActions} " +
+                    $"ADR={controller.model.Adrenaline} " +
+                    $"Spears={controller.model.GetRes("Power")}"
+                );
+            }
+            btn.interactable = can && IsUsableNow();
+            }
         }
-    }
 
     ActionButtonView GetButton()
     {
@@ -397,7 +415,11 @@ public class CombatHUD : MonoBehaviour
     // ----- Interactions -----
     void OnActionClicked(ActionButtonView view)
     {
-        if (!IsUsableNow()) return;
+        if (!IsUsableNow())
+        {
+            Debug.Log($"[HUD] CLICK blocked by IsUsableNow for {view.Ability?.abilityName}");
+            return;
+        }
 
         Debug.Log($"[HUD] CLICK: view={(view.IsMove ? "\\Move\\" : view.Ability?.abilityName)} " +
               $"controller={controller?.name}, selectedBefore={selectedAbility?.abilityName}");

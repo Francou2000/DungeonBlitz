@@ -109,6 +109,11 @@ public sealed class AbilityResolver : MonoBehaviourPun
         if (selfOnly)
         {
             Debug.Log("[CanCast] Self-only ability; explicit unit not required.");
+
+            // All generic gates (AP, resources, states, adrenaline, etc.)
+            // have already been checked above, so we can safely allow the cast here.
+            reason = null;
+            return true;
         }
         // 2) Allies-only: if this is a *single-target* ally spell, we do require a unit
         else if (alliesOnly && ability.areaType == AreaType.Single)
@@ -1848,4 +1853,3 @@ public sealed class AbilityResolver : MonoBehaviourPun
         return dist <= halfWidth;
     }
 }
-
