@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Fire Bolt+
   m_EditorClassIdentifier: 
   abilityName: Fire Bolt+
-  description: Consume 1 Power. Fire projectile.
+  description: Costs 1 power stack. Medium damage ranged spell. Has a chance to apply
+    Burn to target, dealing light damage over time.
   abilityType: 1
   icon: {fileID: -3712250007794359395, guid: dd74e45ce7c569743ba87279ed756784, type: 3}
   baseHitChance: 80

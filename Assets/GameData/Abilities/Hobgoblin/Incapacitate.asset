@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Incapacitate
   m_EditorClassIdentifier: 
   abilityName: Incapacitate
-  description: Root target; grants free 50% move to self.
+  description: Medium damage melee attack. Allows the attacker to use Goblin Flee
+    for free this turn.
   abilityType: 1
   icon: {fileID: -1385329937053884868, guid: 6483c6f4a3b723244bb7cdbcfdfa7b3e, type: 3}
   baseHitChance: 60

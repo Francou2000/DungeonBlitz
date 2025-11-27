@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Lightning Bolt
   m_EditorClassIdentifier: 
   abilityName: Lightning Bolt
-  description: Electric projectile.
+  description: Low damage ranged spell.
   abilityType: 1
   icon: {fileID: -2093625715265575485, guid: 49f73d529e0a21b4bb10d72d1f7acd09, type: 3}
   baseHitChance: 70

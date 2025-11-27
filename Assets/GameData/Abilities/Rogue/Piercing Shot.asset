@@ -13,7 +13,9 @@ MonoBehaviour:
   m_Name: Piercing Shot
   m_EditorClassIdentifier: 
   abilityName: Piercing Shot
-  description: Line up to 9m, two targets.
+  description: Medium damage ranged attack. Deals damage to enemies behind target
+    as well. If the attack hits, Swift Dagger and Switch cost no action points for
+    the remainder of the turn.
   abilityType: 1
   icon: {fileID: 970022881309504011, guid: 7b0a5a4b5a59262488b2706dbb2a907f, type: 3}
   baseHitChance: 65

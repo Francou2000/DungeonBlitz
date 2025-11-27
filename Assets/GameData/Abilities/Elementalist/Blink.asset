@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Blink
   m_EditorClassIdentifier: 
   abilityName: Blink
-  description: Teleport to a ground tile up to 4m.
+  description: Quickly dash a medium distance.
   abilityType: 2
   icon: {fileID: -2093625715265575485, guid: 49f73d529e0a21b4bb10d72d1f7acd09, type: 3}
   baseHitChance: 65

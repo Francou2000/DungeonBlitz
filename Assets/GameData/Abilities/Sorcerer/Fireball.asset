@@ -13,7 +13,9 @@ MonoBehaviour:
   m_Name: Fireball
   m_EditorClassIdentifier: 
   abilityName: Fireball
-  description: Circle AoE; consume 3 Power.
+  description: Requires adrenaline. Costs 3 power stacks. High damage ranged spell.
+    Deals damage in an area. Has a chance to apply Burn to targets, dealing light
+    damage over time.
   abilityType: 2
   icon: {fileID: -3712250007794359395, guid: dd74e45ce7c569743ba87279ed756784, type: 3}
   baseHitChance: 80

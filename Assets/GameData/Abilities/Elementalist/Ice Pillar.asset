@@ -13,7 +13,9 @@ MonoBehaviour:
   m_Name: Ice Pillar
   m_EditorClassIdentifier: 
   abilityName: Ice Pillar
-  description: Spawn Ice Pillar structure.
+  description: Creates an Ice Pillar that acts as medium cover, and inflicts Frozen
+    on nearby enemies, reducing their performance by 50%. Lasts until destroyed by
+    an attack or spell. Two can be active at the same time.
   abilityType: 3
   icon: {fileID: -5598632691685109012, guid: e95796af1d900644b957c41301d44e03, type: 3}
   baseHitChance: 100

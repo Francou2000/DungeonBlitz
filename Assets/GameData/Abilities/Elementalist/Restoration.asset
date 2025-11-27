@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Restoration
   m_EditorClassIdentifier: 
   abilityName: Restoration
-  description: Heal an ally 5 + MP.
+  description: Heals target a small amount, scaling with the caster's Magical Power.
   abilityType: 3
   icon: {fileID: -3712250007794359395, guid: dd74e45ce7c569743ba87279ed756784, type: 3}
   baseHitChance: 100

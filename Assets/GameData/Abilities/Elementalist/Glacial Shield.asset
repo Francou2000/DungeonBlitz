@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Glacial Shield
   m_EditorClassIdentifier: 
   abilityName: Glacial Shield
-  description: Barrier to ally (scales with MP in code).
+  description: Requires adrenaline. Grants an ally target a shield, scaling with
+    the caster's Magical Power.
   abilityType: 3
   icon: {fileID: -5598632691685109012, guid: e95796af1d900644b957c41301d44e03, type: 3}
   baseHitChance: 100

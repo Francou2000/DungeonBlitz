@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 594969d2d10a3344b90d23064033a40b, type: 3}
   m_Name: Attune Lightning
   m_EditorClassIdentifier: 
-  abilityName: 'Attune: Lightning'
-  description: 'Set Form: Lightning.'
+  abilityName: 'Attune: Thunder'
+  description: Attunes the caster to the Thunder element, enabling them to cast spells
+    of that element.
   abilityType: 3
   icon: {fileID: -2093625715265575485, guid: 49f73d529e0a21b4bb10d72d1f7acd09, type: 3}
   baseHitChance: 100

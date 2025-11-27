@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Shadow Blade
   m_EditorClassIdentifier: 
   abilityName: Shadow Blade
-  description: +20% of target missing HP.
+  description: Requires Adrenaline. Heavy damage melee attack. Deals extra damage
+    based on target's missing HP.
   abilityType: 2
   icon: {fileID: -1385329937053884868, guid: 6483c6f4a3b723244bb7cdbcfdfa7b3e, type: 3}
   baseHitChance: 70

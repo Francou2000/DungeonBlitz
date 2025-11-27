@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Focus Shot
   m_EditorClassIdentifier: 
   abilityName: Focus Shot
-  description: Bow shot.
+  description: Low damage ranged attack.
   abilityType: 1
   icon: {fileID: 970022881309504011, guid: 7b0a5a4b5a59262488b2706dbb2a907f, type: 3}
   baseHitChance: 65

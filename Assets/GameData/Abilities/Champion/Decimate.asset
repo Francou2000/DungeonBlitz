@@ -13,7 +13,9 @@ MonoBehaviour:
   m_Name: Decimate
   m_EditorClassIdentifier: 
   abilityName: Decimate
-  description: AoE around self; chance to Bleed.
+  description: Medium damage melee attack. Damage all enemies in melee range of the
+    caster. If the unit was hit by Apprehend this turn, may cause Bleeding, dealing
+    damage every time the unit moves.
   abilityType: 1
   icon: {fileID: -1385329937053884868, guid: 6483c6f4a3b723244bb7cdbcfdfa7b3e, type: 3}
   baseHitChance: 50

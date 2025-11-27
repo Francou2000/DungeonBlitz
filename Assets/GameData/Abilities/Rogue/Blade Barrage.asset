@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Blade Barrage
   m_EditorClassIdentifier: 
   abilityName: Blade Barrage
-  description: Hit 3 times.
+  description: Three low damage melee attacks. If at least one attack hits, Focus
+    Shot and Switch cost no action points for the remainder of the turn.
   abilityType: 1
   icon: {fileID: 970022881309504011, guid: 7b0a5a4b5a59262488b2706dbb2a907f, type: 3}
   baseHitChance: 70

@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Goblin Flurry
   m_EditorClassIdentifier: 
   abilityName: Goblin Flurry
-  description: 2 hits.
+  description: Light damage melee attack. If the attack hits, repeat the attack an
+    extra time. Requires adrenaline.
   abilityType: 2
   icon: {fileID: 970022881309504011, guid: 7b0a5a4b5a59262488b2706dbb2a907f, type: 3}
   baseHitChance: 70

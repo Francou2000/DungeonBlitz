@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Shield Bash
   m_EditorClassIdentifier: 
   abilityName: Shield Bash
-  description: Melee bash; chance to Root.
+  description: Light damage melee attack. 25% chance to Root target for 1 turn, impeding
+    movement.
   abilityType: 1
   icon: {fileID: 970022881309504011, guid: 7b0a5a4b5a59262488b2706dbb2a907f, type: 3}
   baseHitChance: 60

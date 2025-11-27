@@ -13,7 +13,9 @@ MonoBehaviour:
   m_Name: Roguish Fleetness
   m_EditorClassIdentifier: 
   abilityName: Roguish Fleetness
-  description: Haste + safe movement for 2 turns.
+  description: Alternative Move action. Caster is unaffected by traps and opportunity
+    attacks during that movement. Caster also gains Haste for 2 turns, gaining 25%
+    performance.
   abilityType: 3
   icon: {fileID: 8350336525384476017, guid: 7db14a077b8a53b4e8ee4c1d0081aa41, type: 3}
   baseHitChance: 100

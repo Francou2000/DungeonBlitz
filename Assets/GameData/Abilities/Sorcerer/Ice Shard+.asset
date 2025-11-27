@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Ice Shard+
   m_EditorClassIdentifier: 
   abilityName: Ice Shard+
-  description: Consume 1 Power. Ice projectile.
+  description: Costs 1 power stack. Medium damage ranged spell. Has a chance to inflict
+    Frozen to target for 2 turns, reducing their performance by 50%.
   abilityType: 1
   icon: {fileID: -5598632691685109012, guid: e95796af1d900644b957c41301d44e03, type: 3}
   baseHitChance: 80

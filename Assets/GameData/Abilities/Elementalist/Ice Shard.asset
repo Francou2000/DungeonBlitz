@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Ice Shard
   m_EditorClassIdentifier: 
   abilityName: Ice Shard
-  description: Ice projectile.
+  description: Low damage ranged spell.
   abilityType: 1
   icon: {fileID: -5598632691685109012, guid: e95796af1d900644b957c41301d44e03, type: 3}
   baseHitChance: 70

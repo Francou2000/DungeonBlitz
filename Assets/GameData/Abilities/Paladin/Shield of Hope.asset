@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Shield of Hope
   m_EditorClassIdentifier: 
   abilityName: Shield of Hope
-  description: Self DR + performance cost (handled via effect tags/code).
+  description: Gain light damage reduction in exchange for losing 25% Performance
+    for two turns.
   abilityType: 3
   icon: {fileID: 8350336525384476017, guid: 7db14a077b8a53b4e8ee4c1d0081aa41, type: 3}
   baseHitChance: 100

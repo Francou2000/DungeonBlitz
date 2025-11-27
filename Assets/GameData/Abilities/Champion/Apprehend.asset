@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Apprehend
   m_EditorClassIdentifier: 
   abilityName: Apprehend
-  description: 'On hit: reduce Decimate cost (handled in code).'
+  description: Medium damage melee attack. If the attack hits, lower the cost of
+    Apprehend to 1 action point for the rest of the turn.
   abilityType: 1
   icon: {fileID: 970022881309504011, guid: 7b0a5a4b5a59262488b2706dbb2a907f, type: 3}
   baseHitChance: 70

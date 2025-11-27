@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Spear Throw
   m_EditorClassIdentifier: 
   abilityName: Spear Throw
-  description: Consumes 1 Spear.
+  description: Consumes 1 spear charge. Medium damage ranged attack.
   abilityType: 1
   icon: {fileID: 970022881309504011, guid: 7b0a5a4b5a59262488b2706dbb2a907f, type: 3}
   baseHitChance: 60

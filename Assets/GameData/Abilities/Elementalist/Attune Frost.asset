@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 594969d2d10a3344b90d23064033a40b, type: 3}
   m_Name: Attune Frost
   m_EditorClassIdentifier: 
-  abilityName: 'Attune: Frost'
-  description: 'Set Form: Frost.'
+  abilityName: 'Attune: Ice'
+  description: Attunes the caster to the Ice element, enabling them to cast spells
+    of that element.
   abilityType: 3
   icon: {fileID: -5598632691685109012, guid: e95796af1d900644b957c41301d44e03, type: 3}
   baseHitChance: 100

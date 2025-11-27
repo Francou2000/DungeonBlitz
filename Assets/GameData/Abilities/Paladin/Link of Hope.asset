@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Link of Hope
   m_EditorClassIdentifier: 
   abilityName: Link of Hope
-  description: Share 25% Armor/MR with an ally (handled in code).
+  description: Requires adrenaline. Grant a target ally 25% of the caster's Armor
+    and Magic Resistance.
   abilityType: 3
   icon: {fileID: 8350336525384476017, guid: 7db14a077b8a53b4e8ee4c1d0081aa41, type: 3}
   baseHitChance: 100

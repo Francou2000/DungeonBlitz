@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: Champion Rage
   m_EditorClassIdentifier: 
   abilityName: Champion Rage
-  description: 'Enraged state 2 turns: DR 10%, +1 action, must attack closest; then
-    fatigued 1 turn.'
+  description: Requires Adrenaline. Caster becomes Enraged for 2 turns, gaining small
+    damage reduction and an extra action point. After Enraged wears off, can't move
+    for 1 turn.
   abilityType: 2
   icon: {fileID: 8350336525384476017, guid: 7db14a077b8a53b4e8ee4c1d0081aa41, type: 3}
   baseHitChance: 100

@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Arise
   m_EditorClassIdentifier: 
   abilityName: Arise
-  description: Summon 2 Dead Goblins.
+  description: Requires adrenaline. Summon 2 Dead Goblins around caster. Dead Goblins
+    are fragile and can only do basic attacks.
   abilityType: 2
   icon: {fileID: 8350336525384476017, guid: 7db14a077b8a53b4e8ee4c1d0081aa41, type: 3}
   baseHitChance: 100

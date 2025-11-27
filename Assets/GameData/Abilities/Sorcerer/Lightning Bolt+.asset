@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Lightning Bolt+
   m_EditorClassIdentifier: 
   abilityName: Lightning Bolt+
-  description: Consume 1 Power. Electric projectile.
+  description: Costs 1 power stack. Medium damage ranged spell. Has a chance to apply
+    Shock to target for 1 turn, reducing their action points by 1.
   abilityType: 1
   icon: {fileID: -2093625715265575485, guid: 49f73d529e0a21b4bb10d72d1f7acd09, type: 3}
   baseHitChance: 80

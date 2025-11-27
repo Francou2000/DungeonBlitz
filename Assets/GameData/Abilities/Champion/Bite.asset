@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Bite
   m_EditorClassIdentifier: 
   abilityName: Bite
-  description: Extra damage by target lost HP; heal if target Bleeding.
+  description: Light damage melee attack. If the target is bleeding, heal the attacker
+    by a part of the damage dealt.
   abilityType: 1
   icon: {fileID: 970022881309504011, guid: 7b0a5a4b5a59262488b2706dbb2a907f, type: 3}
   baseHitChance: 70

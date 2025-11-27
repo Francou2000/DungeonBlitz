@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Justice Strike
   m_EditorClassIdentifier: 
   abilityName: Justice Strike
-  description: Melee strike.
+  description: Medium damage melee attack.
   abilityType: 1
   icon: {fileID: -1385329937053884868, guid: 6483c6f4a3b723244bb7cdbcfdfa7b3e, type: 3}
   baseHitChance: 70

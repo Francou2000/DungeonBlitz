@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Face Me!
   m_EditorClassIdentifier: 
   abilityName: Face Me!
-  description: Mutual Taunt (2 turns) and +1 Affinity.
+  description: Requires Adrenaline. Caster and target both become Taunted for 2 turns,
+    meaning they can only target each other with attacks.
   abilityType: 2
   icon: {fileID: 8350336525384476017, guid: 7db14a077b8a53b4e8ee4c1d0081aa41, type: 3}
   baseHitChance: 100

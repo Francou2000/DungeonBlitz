@@ -13,7 +13,9 @@ MonoBehaviour:
   m_Name: Thunder Strike
   m_EditorClassIdentifier: 
   abilityName: Thunder Strike
-  description: Line 2 targets; consume 2 Power.
+  description: Requires adrenaline. Costs 2 power stacks. High damage ranged spell.
+    Can target two enemies. Has a chance to apply Shock to targets for 1 turn, reducing
+    their action points by 1.
   abilityType: 2
   icon: {fileID: -2093625715265575485, guid: 49f73d529e0a21b4bb10d72d1f7acd09, type: 3}
   baseHitChance: 80

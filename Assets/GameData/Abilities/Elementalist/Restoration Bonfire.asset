@@ -13,7 +13,9 @@ MonoBehaviour:
   m_Name: Restoration Bonfire
   m_EditorClassIdentifier: 
   abilityName: Restoration Bonfire
-  description: Place a 1HP bonfire that heals on cast and each hero turn.
+  description: Requires adrenaline. Creates a bonfire that heals allies around it
+    when it spawns, and repeats the healing at the start of every turn. Last until
+    destroyed by an attack or spell.
   abilityType: 3
   icon: {fileID: -3712250007794359395, guid: dd74e45ce7c569743ba87279ed756784, type: 3}
   baseHitChance: 0

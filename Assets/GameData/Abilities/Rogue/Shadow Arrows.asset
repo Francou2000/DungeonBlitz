@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Shadow Arrows
   m_EditorClassIdentifier: 
   abilityName: Shadow Arrows
-  description: +20% of target missing HP.
+  description: 'Requires adrenaline. Three low damage ranged attacks. Deals extra
+    damage based on target''s missing HP. '
   abilityType: 2
   icon: {fileID: -1385329937053884868, guid: 6483c6f4a3b723244bb7cdbcfdfa7b3e, type: 3}
   baseHitChance: 65

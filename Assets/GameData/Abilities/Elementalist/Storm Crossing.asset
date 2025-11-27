@@ -13,7 +13,9 @@ MonoBehaviour:
   m_Name: Storm Crossing
   m_EditorClassIdentifier: 
   abilityName: Storm Crossing
-  description: Create a persistent line zone for 2 turns.
+  description: Creates a barrier on the map that lasts for two turns. Deals low damage
+    to enemies that cross it, and has a chance to inflict Shock, reducing their action
+    points by 1. Grants Haste to allies that cross it.
   abilityType: 1
   icon: {fileID: 21300000, guid: 6535e79d75908374a9c78cbdd764c0b3, type: 3}
   baseHitChance: 100

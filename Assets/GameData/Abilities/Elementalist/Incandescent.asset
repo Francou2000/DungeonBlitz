@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Incandescent
   m_EditorClassIdentifier: 
   abilityName: Incandescent
-  description: Apply Incandescent to two nearest allies (coded selection).
+  description: Grants Incandescent to the two nearest allies, giving them medium
+    fire damage on their physical attacks.
   abilityType: 3
   icon: {fileID: -3712250007794359395, guid: dd74e45ce7c569743ba87279ed756784, type: 3}
   baseHitChance: 100

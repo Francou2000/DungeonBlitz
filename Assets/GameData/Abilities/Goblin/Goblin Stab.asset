@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Goblin Stab
   m_EditorClassIdentifier: 
   abilityName: Goblin Stab
-  description: Apply Bleeding.
+  description: Medium damage melee attack. Reduces target's Performance by 25% for
+    one turn.
   abilityType: 1
   icon: {fileID: 970022881309504011, guid: 7b0a5a4b5a59262488b2706dbb2a907f, type: 3}
   baseHitChance: 65

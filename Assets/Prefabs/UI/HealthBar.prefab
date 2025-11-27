@@ -302,9 +302,9 @@ MonoBehaviour:
   extraHeight: 0.2
   hideWhenFull: 0
   hideWhenDead: 1
-  controlledColor: {r: 0, g: 0, b: 1, a: 1}
-  allyColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  enemyColor: {r: 1, g: 0, b: 0, a: 1}
+  controlledColor: {r: 0.12941177, g: 0.33333334, b: 0.9019608, a: 1}
+  allyColor: {r: 1, g: 0.8163534, b: 0, a: 1}
+  enemyColor: {r: 1, g: 0.205793, b: 0, a: 1}
 --- !u!114 &5120091820020577357
 MonoBehaviour:
   m_ObjectHideFlags: 0

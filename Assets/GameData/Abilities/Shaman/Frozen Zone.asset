@@ -13,7 +13,9 @@ MonoBehaviour:
   m_Name: Frozen Zone
   m_EditorClassIdentifier: 
   abilityName: Frozen Zone
-  description: Zone that applies Frozen on move inside.
+  description: Requires adrenaline. Creates a zone wherein units receive the Frozen
+    debuff, lowering their performance by 50%. Can be cast for 1 Action Point if
+    inside a Negative Zone.
   abilityType: 2
   icon: {fileID: -5598632691685109012, guid: e95796af1d900644b957c41301d44e03, type: 3}
   baseHitChance: 100

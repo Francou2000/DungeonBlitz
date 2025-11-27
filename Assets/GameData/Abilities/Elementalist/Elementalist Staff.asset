@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Elementalist Staff
   m_EditorClassIdentifier: 
   abilityName: Elementalist Staff
-  description: Basic melee.
+  description: Low damage melee attack.
   abilityType: 0
   icon: {fileID: 970022881309504011, guid: 7b0a5a4b5a59262488b2706dbb2a907f, type: 3}
   baseHitChance: 60

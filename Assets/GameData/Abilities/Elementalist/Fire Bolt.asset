@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Fire Bolt
   m_EditorClassIdentifier: 
   abilityName: Fire Bolt
-  description: Fire projectile.
+  description: Low damage ranged spell.
   abilityType: 1
   icon: {fileID: -3712250007794359395, guid: dd74e45ce7c569743ba87279ed756784, type: 3}
   baseHitChance: 70

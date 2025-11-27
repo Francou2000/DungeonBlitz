@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: Negative Zone
   m_EditorClassIdentifier: 
   abilityName: Negative Zone
-  description: "Create zone: blocks outside\u2192inside damage; dispels if caster
-    takes dmg."
+  description: Creates a zone wherein units can't suffer damage from attacks casted
+    outside the area. Lasts until the caster takes damage. Only one negative zone
+    can exist per caster.
   abilityType: 3
   icon: {fileID: 8350336525384476017, guid: 7db14a077b8a53b4e8ee4c1d0081aa41, type: 3}
   baseHitChance: 100

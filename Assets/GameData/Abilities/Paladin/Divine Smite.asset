@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Divine Smite
   m_EditorClassIdentifier: 
   abilityName: Divine Smite
-  description: Heavier mixed damage.
+  description: Requires adrenaline. High damage melee spell attack. Deals both physical
+    and magical damage. Deals extra damage scaling with target's max HP.
   abilityType: 2
   icon: {fileID: -1385329937053884868, guid: 6483c6f4a3b723244bb7cdbcfdfa7b3e, type: 3}
   baseHitChance: 70
