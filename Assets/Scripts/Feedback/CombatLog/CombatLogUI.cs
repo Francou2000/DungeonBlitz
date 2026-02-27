@@ -20,6 +20,12 @@ public class CombatLogUI : MonoBehaviour
             return;
         }
         Instance = this;
+
+        if (logText != null)
+        {
+            logText.enableWordWrapping = true;
+            logText.overflowMode = TextOverflowModes.Ellipsis;
+        }
     }
     
     public static void Log(string message)
@@ -47,4 +53,3 @@ public class CombatLogUI : MonoBehaviour
             logText.text = string.Join("\n", _lines);
     }
 }
-
