@@ -41,7 +41,7 @@ public class UnitMovement : MonoBehaviour
     }
 
     //Moves to the given world position, clamped to range. Calls onFinish when done
-    public void MoveTo(Vector3 mouseWorld, System.Action onFinish)
+    public void MoveTo(Vector3 mouseWorld, System.Action onFinish, System.Action<Vector3> onDestinationResolved = null)
     {
         Vector3 oldPosition = unit.transform.position;
 
@@ -74,6 +74,8 @@ public class UnitMovement : MonoBehaviour
             onFinish?.Invoke();
             return;
         }
+
+        onDestinationResolved?.Invoke(pathCorners[pathCorners.Length - 1]);
 
         float speed = unit.Model.GetMovementSpeed();
         Vector3 firstDir = (pathCorners[1] - pathCorners[0]);
@@ -271,7 +273,7 @@ public class UnitMovement : MonoBehaviour
         NavMeshHit hit;
         int mask = anyArea ? NavMesh.AllAreas : walkableMask;
 
-        // use a generous radius so small offsets in Y or X/Z don’t break it
+        // use a generous radius so small offsets in Y or X/Z donÂ’t break it
         if (NavMesh.SamplePosition(source, out hit, navMeshMaxDistance, mask))
         {
             result = hit.position;
