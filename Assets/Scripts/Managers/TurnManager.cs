@@ -76,6 +76,22 @@ public class TurnManager : MonoBehaviourPunCallbacks
             BroadcastHeroReady();
 
             DecideFirstTurn(); // Only Master Client decides who goes first
+
+            // Analytics hook (authoritative side): start one match session for all downstream KPIs.
+            var analytics = AnalyticsGameplayAdapter.TryGet();
+            if (analytics != null)
+            {
+                string roomName = PhotonNetwork.InRoom ? PhotonNetwork.CurrentRoom.Name : "offline";
+                string levelCombo = $"map_{_unitControler.playable_Map.Actual_map}_lvl_{_unitControler.lvl}";
+                string matchId = $"{roomName}_{PhotonNetwork.ServerTimestamp}";
+                int heroCount = 0;
+                foreach (var p in PhotonNetwork.PlayerList)
+                {
+                    if (p.ActorNumber != PhotonNetwork.MasterClient.ActorNumber) heroCount++;
+                }
+
+                analytics.OnMatchStarted(matchId, levelCombo, heroCount, PhotonNetwork.InRoom);
+            }
         }
 
         StartCoroutine(DeferredUnpauseFallback());
@@ -463,6 +479,16 @@ public class TurnManager : MonoBehaviourPunCallbacks
 
         Debug.Log($"[TurnManager] {winner} wins!");
 
+        // Analytics hook (authoritative side): sends match_ended and flushes summary events once.
+        var analytics = AnalyticsGameplayAdapter.TryGet();
+        if (analytics != null)
+        {
+            int heroesAlive = CountAliveUnitsForFaction(UnitFaction.Hero);
+            int goblinsAlive = CountAliveUnitsForFaction(UnitFaction.Monster);
+            bool isSuccessful = winner == UnitFaction.Hero;
+            analytics.OnMatchEnded(winner == UnitFaction.Hero ? "Heroes" : "DM", isSuccessful, heroesAlive, goblinsAlive);
+        }
+
         // MasterClient tells everyone to load the win scene
         if (PhotonNetwork.IsMasterClient)
         {
@@ -665,5 +691,19 @@ public class TurnManager : MonoBehaviourPunCallbacks
                 unit.GetComponent<StatusComponent>()?.OnTurnEnded();
             }
         }
+    }
+
+    private int CountAliveUnitsForFaction(UnitFaction faction)
+    {
+        int alive = 0;
+        foreach (var unit in Object.FindObjectsByType<Unit>(FindObjectsSortMode.None))
+        {
+            if (unit != null && unit.Model != null && unit.Model.Faction == faction && unit.Model.IsAlive())
+            {
+                alive++;
+            }
+        }
+
+        return alive;
     }
 }

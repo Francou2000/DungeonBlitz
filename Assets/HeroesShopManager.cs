@@ -385,7 +385,7 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
         }
         actual_vote++;
 
-        // Si 2 o más jugadores negaron la petición
+        // Si 2 o mÃ¡s jugadores negaron la peticiÃ³n
         if (actual_vote - positive_votes >= 2)
         {
             photonView.RPC("StopPurchase", RpcTarget.All, false);
@@ -462,6 +462,16 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
     public void PurchaseItem()
     {
         unit_loader_controller.photonView.RPC("AddItemToHeroe", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber, actual_item.ItemID);
+
+        // Analytics hook: economy KPI for item usage by class.
+        // Fired only on authoritative side by service to prevent duplicate sends from all clients.
+        var analytics = AnalyticsGameplayAdapter.TryGet();
+        if (analytics != null && actual_item != null)
+        {
+            string playerId = AnalyticsGameplayAdapter.ResolvePlayerId(PhotonNetwork.LocalPlayer);
+            string playerClass = unit_loader_controller != null ? unit_loader_controller.my_heroe.ToString() : "Unknown";
+            analytics.OnItemPurchased(playerId, playerClass, actual_item.ItemID.ToString(), 1);
+        }
 
         UseVolatileSeconds(actual_item.cost);
         if (actual_item.is_unique) photonView.RPC("RemoveItemFromShop", RpcTarget.All, actual_pedestal);

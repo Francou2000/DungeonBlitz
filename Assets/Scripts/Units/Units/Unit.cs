@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Photon.Pun;
 
 public enum UnitFaction
 {
@@ -93,6 +94,16 @@ public class Unit : MonoBehaviour
         
         // Fire event
         OnAbilityUsed?.Invoke(ability, target);
+
+        // Analytics hook: ability usage KPI.
+        // Sent through centralized adapter to keep combat code decoupled from backend SDK calls.
+        var analytics = AnalyticsGameplayAdapter.TryGet();
+        if (analytics != null && ability != null)
+        {
+            string targetType = target != null && target.Model != null ? target.Model.Faction.ToString() : string.Empty;
+            int turnNumber = TurnManager.Instance != null ? TurnManager.Instance.turnNumber : -1;
+            analytics.OnAbilityUsed(GetAnalyticsPlayerId(), Model.UnitName, ability.abilityName, targetType, turnNumber);
+        }
     }
     
     // Turn management
@@ -117,9 +128,50 @@ public class Unit : MonoBehaviour
     // Damage handling
     public void TakeDamage(int damage, DamageType damageType, Unit attacker = null)
     {
+        bool wasAliveBefore = Model != null && Model.IsAlive();
         Model.TakeDamage(damage, damageType);
         Controller.OnDamageTaken(damage, damageType, attacker);
         OnDamageTaken?.Invoke(damage, damageType, attacker);
+
+        var analytics = AnalyticsGameplayAdapter.TryGet();
+        if (analytics != null)
+        {
+            // Hero damage KPI (damage done per hero). Trigger when hero damages monster.
+            if (attacker != null && attacker.Model != null && attacker.Model.Faction == UnitFaction.Hero && Model != null && Model.Faction == UnitFaction.Monster)
+            {
+                analytics.OnHeroDealtDamage(attacker.GetAnalyticsPlayerId(), Mathf.Max(0, damage));
+            }
+
+            // Goblin damage KPI (damage dealt by goblins). Trigger when monster damages hero.
+            if (attacker != null && attacker.Model != null && attacker.Model.Faction == UnitFaction.Monster && Model != null && Model.Faction == UnitFaction.Hero)
+            {
+                analytics.OnGoblinDealtDamage(attacker.GetAnalyticsUnitId(), Mathf.Max(0, damage));
+            }
+
+            // Death hooks for player_died / goblin_died + kill attribution.
+            bool diedNow = wasAliveBefore && Model != null && !Model.IsAlive();
+            if (diedNow)
+            {
+                if (Model.Faction == UnitFaction.Hero)
+                {
+                    string killerType = attacker != null && attacker.Model != null ? attacker.Model.Faction.ToString() : "unknown";
+                    string killerId = attacker != null ? attacker.GetAnalyticsUnitId() : "unknown";
+                    analytics.OnHeroDied(GetAnalyticsPlayerId(), Model.UnitName, killerType, killerId);
+                }
+                else if (Model.Faction == UnitFaction.Monster)
+                {
+                    string killerPlayerId = attacker != null && attacker.Model != null && attacker.Model.Faction == UnitFaction.Hero
+                        ? attacker.GetAnalyticsPlayerId()
+                        : "unknown";
+                    string killerClass = attacker != null && attacker.Model != null ? attacker.Model.UnitName : "unknown";
+                    analytics.OnGoblinDied(GetAnalyticsUnitId(), Model.UnitName, killerPlayerId, killerClass);
+                    if (attacker != null && attacker.Model != null && attacker.Model.Faction == UnitFaction.Hero)
+                    {
+                        analytics.OnHeroKilledGoblin(attacker.GetAnalyticsPlayerId(), attacker.Model.UnitName, GetAnalyticsUnitId(), Model.UnitName);
+                    }
+                }
+            }
+        }
     }
     
     // Healing
@@ -203,4 +255,27 @@ public class Unit : MonoBehaviour
             }
         }
     }
+
+    private string GetAnalyticsUnitId()
+    {
+        var pv = GetComponent<PhotonView>();
+        if (pv != null && pv.ViewID != 0)
+        {
+            return pv.ViewID.ToString();
+        }
+
+        return GetInstanceID().ToString();
+    }
+
+    private string GetAnalyticsPlayerId()
+    {
+        var pv = GetComponent<PhotonView>();
+        if (pv != null && pv.Owner != null)
+        {
+            return AnalyticsGameplayAdapter.ResolvePlayerId(pv.Owner);
+        }
+
+        return GetAnalyticsUnitId();
+    }
+
 }
