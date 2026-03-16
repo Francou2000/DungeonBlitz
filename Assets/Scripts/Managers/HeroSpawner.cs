@@ -62,6 +62,16 @@ public class HeroSpawner : MonoBehaviourPunCallbacks
                 UnitController.ActiveUnit = controller;
                 Debug.Log("[HeroSpawner] Assigned player unit as active unit: " + controller.unit.Model.UnitName);
             }            
+
+            // Analytics hook: register hero spawn for time_alive and class performance KPIs.
+            // Note: service enforces authority-only emission to avoid duplicate submissions.
+            var analytics = AnalyticsGameplayAdapter.TryGet();
+            if (analytics != null)
+            {
+                string playerId = AnalyticsGameplayAdapter.ResolvePlayerId(PhotonNetwork.LocalPlayer);
+                string playerClass = data.unitName;
+                analytics.OnHeroSpawned(playerId, playerClass);
+            }
         }
         else
         {
