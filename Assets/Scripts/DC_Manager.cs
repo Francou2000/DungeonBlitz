@@ -221,6 +221,14 @@ public class DC_Manager : MonoBehaviour
         actualUnit = unit_id;
         state = DC_State.PLACING_UNIT;
 
+        // Analytics hook: DM unit selection KPI.
+        // Tracks which goblin type is selected by the DM during composition.
+        var analytics = AnalyticsGameplayAdapter.TryGet();
+        if (analytics != null)
+        {
+            analytics.OnDMSelectedUnit(unit_id.ToString(), 1);
+        }
+
         return true;
     }
 
