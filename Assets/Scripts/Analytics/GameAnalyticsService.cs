@@ -48,7 +48,7 @@ public sealed class GameAnalyticsService
             _dedupeKeys.Add(dedupeKey);
         }
 
-        payload["timestamp"] = payload.ContainsKey("timestamp") ? payload["timestamp"] : NowUnixMs;
+        payload["time_stamp"] = payload.ContainsKey("time_stamp") ? payload["time_stamp"] : NowUnixMs;
 
         if (!IsBootstrapReady)
         {
@@ -100,7 +100,7 @@ public sealed class GameAnalyticsService
         RecordOrQueue("match_started", new Dictionary<string, object>
         {
             ["match_id"] = matchId,
-            ["timestamp"] = startMs,
+            ["time_stamp"] = startMs,
             ["level_combination_id"] = levelCombinationId,
             ["dm_player_id"] = string.IsNullOrWhiteSpace(dmPlayerId) ? "unknown_dm" : dmPlayerId,
             ["hero_count"] = Mathf.Max(0, heroCount),
@@ -189,7 +189,7 @@ public sealed class GameAnalyticsService
             ["player_id"] = playerId,
             ["player_class"] = string.IsNullOrWhiteSpace(playerClass) ? "Unknown" : playerClass,
             ["ability_name"] = abilityName,
-            ["timestamp"] = NowUnixMs,
+            ["time_stamp"] = NowUnixMs,
         };
 
         if (!string.IsNullOrWhiteSpace(targetType)) payload["target_type"] = targetType;
@@ -246,7 +246,7 @@ public sealed class GameAnalyticsService
             ["match_id"] = Session.MatchId,
             ["goblin_type"] = goblinType,
             ["quantity"] = Mathf.Max(1, quantity),
-            ["timestamp"] = NowUnixMs,
+            ["time_stamp"] = NowUnixMs,
         });
     }
 
@@ -262,7 +262,7 @@ public sealed class GameAnalyticsService
             ["player_class"] = string.IsNullOrWhiteSpace(playerClass) ? "Unknown" : playerClass,
             ["item_id"] = itemId,
             ["quantity"] = Mathf.Max(1, quantity),
-            ["timestamp"] = NowUnixMs,
+            ["time_stamp"] = NowUnixMs,
         });
     }
 

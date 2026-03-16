@@ -102,7 +102,7 @@ Create these exact event names and parameter schemas:
 
 1. `match_started`
    - `match_id` (string)
-   - `timestamp` (number)
+   - `time_stamp` (number)
    - `level_combination_id` (string)
    - `dm_player_id` (string)
    - `hero_count` (number)
@@ -145,7 +145,7 @@ Create these exact event names and parameter schemas:
    - `player_id` (string)
    - `player_class` (string)
    - `ability_name` (string)
-   - `timestamp` (number)
+   - `time_stamp` (number)
    - `target_type` (string, optional in analysis)
    - `turn_number` (number, optional in analysis)
 
@@ -171,7 +171,7 @@ Create these exact event names and parameter schemas:
    - `match_id` (string)
    - `goblin_type` (string)
    - `quantity` (number)
-   - `timestamp` (number)
+   - `time_stamp` (number)
 
 9. `item_purchased`
    - `match_id` (string)
@@ -179,7 +179,7 @@ Create these exact event names and parameter schemas:
    - `player_class` (string)
    - `item_id` (string)
    - `quantity` (number)
-   - `timestamp` (number)
+   - `time_stamp` (number)
 
 ## 5.5 Scene setup
 No manual prefab placement is required because `AnalyticsBootstrap` self-creates before scene load.  
