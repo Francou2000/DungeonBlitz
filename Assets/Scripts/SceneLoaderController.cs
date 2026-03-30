@@ -39,21 +39,6 @@ public class SceneLoaderController : MonoBehaviour
         
         yield return new WaitForSeconds(transition_time);
 
-        if (!PhotonNetwork.IsConnected)
-        {
-            SceneManager.LoadScene((int)scene_to_load);
-            yield break;
-        }
-
-        // Keep clients synchronized in multiplayer transitions.
-        PhotonNetwork.AutomaticallySyncScene = true;
-
-        // In-room transitions should be driven only by the master client.
-        if (PhotonNetwork.InRoom && !PhotonNetwork.IsMasterClient)
-        {
-            yield break;
-        }
-
         PhotonNetwork.LoadLevel((int)scene_to_load);
     }
 
