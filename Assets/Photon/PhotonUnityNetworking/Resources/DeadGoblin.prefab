@@ -369,7 +369,7 @@ MonoBehaviour:
   boundHud: {fileID: 0}
   showMoveOrderIndicator: 1
   moveIndicatorZOffset: -0.01
-  moveIndicatorSize: 20
+  moveIndicatorSize: 5
 --- !u!114 &2686605404695109215
 MonoBehaviour:
   m_ObjectHideFlags: 0
