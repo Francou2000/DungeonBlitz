@@ -48,8 +48,6 @@ public sealed class GameAnalyticsService
             _dedupeKeys.Add(dedupeKey);
         }
 
-        payload["time_stamp"] = payload.ContainsKey("time_stamp") ? payload["time_stamp"] : NowUnixMs;
-
         if (!IsBootstrapReady)
         {
             payload["__eventName"] = eventName;
@@ -149,7 +147,7 @@ public sealed class GameAnalyticsService
             ["player_class"] = player.PlayerClass,
             ["spawn_time"] = player.SpawnUnixMs,
             ["death_time"] = deathMs,
-            ["time_alive"] = player.ComputeTimeAliveSeconds(deathMs),
+            ["time_alive"] = Mathf.RoundToInt(player.ComputeTimeAliveSeconds(deathMs)),
             ["killer_type"] = string.IsNullOrWhiteSpace(killerType) ? "unknown" : killerType,
             ["killer_id"] = string.IsNullOrWhiteSpace(killerId) ? "unknown" : killerId,
         }, dedupeKey: $"player_died:{Session.MatchId}:{playerId}");
@@ -167,7 +165,7 @@ public sealed class GameAnalyticsService
             ["player_class"] = player.PlayerClass,
             ["damage_done"] = player.DamageDone,
             ["kills"] = player.Kills,
-            ["time_alive"] = player.ComputeTimeAliveSeconds(endUnixMs),
+            ["time_alive"] = Mathf.RoundToInt(player.ComputeTimeAliveSeconds(endUnixMs)),
             ["spawn_time"] = player.SpawnUnixMs,
             ["death_time"] = player.DeathUnixMs ?? endUnixMs,
             ["run_result"] = runResult,
@@ -214,7 +212,7 @@ public sealed class GameAnalyticsService
             ["goblin_type"] = goblin.GoblinType,
             ["spawn_time"] = goblin.SpawnUnixMs,
             ["death_time"] = deathMs,
-            ["time_alive"] = goblin.ComputeTimeAliveSeconds(deathMs),
+            ["time_alive"] = Mathf.RoundToInt(goblin.ComputeTimeAliveSeconds(deathMs)),
             ["killer_player_id"] = string.IsNullOrWhiteSpace(killerPlayerId) ? "unknown" : killerPlayerId,
             ["killer_class"] = string.IsNullOrWhiteSpace(killerClass) ? "unknown" : killerClass,
         }, dedupeKey: $"goblin_died:{Session.MatchId}:{goblinId}");
@@ -231,7 +229,7 @@ public sealed class GameAnalyticsService
             ["goblin_id"] = goblin.GoblinId,
             ["goblin_type"] = goblin.GoblinType,
             ["damage_dealt"] = goblin.DamageDealt,
-            ["time_alive"] = goblin.ComputeTimeAliveSeconds(endUnixMs),
+            ["time_alive"] = Mathf.RoundToInt(goblin.ComputeTimeAliveSeconds(endUnixMs)),
             ["killer_class"] = string.IsNullOrWhiteSpace(goblin.KillerClass) ? "unknown" : goblin.KillerClass,
         }, dedupeKey: $"goblin_stats:{Session.MatchId}:{goblin.GoblinId}");
     }

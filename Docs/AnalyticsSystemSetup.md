@@ -73,7 +73,7 @@ The current code already invokes hooks in these systems:
 - **Match start / end**: `TurnManager`
 - **Hero spawn**: `HeroSpawner`
 - **Goblin spawn**: `MonsterSpawner`
-- **Ability + damage + death attribution**: `Unit`
+- **Ability + damage + death attribution**: `AbilityResolver` (authoritative damage path)
 - **DM unit selection**: `DC_Manager.ShowUnit`
 - **Item purchased**: `HeroesShopManager.PurchaseItem`
 
@@ -125,7 +125,7 @@ Create these exact event names and parameter schemas:
    - `player_class` (string)
    - `spawn_time` (number)
    - `death_time` (number)
-   - `time_alive` (number)
+   - `time_alive` (integer)
    - `killer_type` (string)
    - `killer_id` (string)
 
@@ -135,7 +135,7 @@ Create these exact event names and parameter schemas:
    - `player_class` (string)
    - `damage_done` (number)
    - `kills` (number)
-   - `time_alive` (number)
+   - `time_alive` (integer)
    - `spawn_time` (number)
    - `death_time` (number)
    - `run_result` (string)
@@ -155,7 +155,7 @@ Create these exact event names and parameter schemas:
    - `goblin_type` (string)
    - `spawn_time` (number)
    - `death_time` (number)
-   - `time_alive` (number)
+   - `time_alive` (integer)
    - `killer_player_id` (string)
    - `killer_class` (string)
 
@@ -164,7 +164,7 @@ Create these exact event names and parameter schemas:
    - `goblin_id` (string)
    - `goblin_type` (string)
    - `damage_dealt` (number)
-   - `time_alive` (number)
+   - `time_alive` (integer)
    - `killer_class` (string)
 
 8. `dm_unit_selection`
