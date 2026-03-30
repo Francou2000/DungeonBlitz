@@ -1,179 +1,111 @@
-using ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class CreateAndJoinRooms : MonoBehaviourPunCallbacks
 {
-    [Header("Create Room")]
-    [SerializeField] private TMP_InputField createRoomName;
-    [SerializeField] private TMP_InputField createRoomPsw;
-
-    [Header("Join Room")]
-    [SerializeField] private TMP_InputField joinRoomName;
-    [SerializeField] private TMP_InputField joinRoomPsw;
-
-    [Header("Shared")]
+    [SerializeField] TMP_InputField createRoomName, createRoomPsw;
+    [SerializeField] TMP_InputField joinRoomName, joinRoomPsw;
     [SerializeField] private TMP_InputField nicknameInput;
-    [SerializeField] private Button createButton;
-    [SerializeField] private Button joinButton;
-    [SerializeField] private Scenes roomScene;
-
-    private const string PasswordPropertyKey = "pwd";
-    private const string AttemptedPasswordKey = "AttemptedPwd";
-
+    [SerializeField] private Button createButton, JoinButton;
+    
+    [SerializeField] Scenes rommScene;
+    private bool roomID;
     private void Start()
     {
-        if (nicknameInput != null) nicknameInput.onValueChanged.AddListener(OnInputChanged);
-        if (createRoomName != null) createRoomName.onValueChanged.AddListener(OnInputChanged);
-        if (joinRoomName != null) joinRoomName.onValueChanged.AddListener(OnInputChanged);
-
-        RefreshButtonState();
+        nicknameInput.onValueChanged.AddListener(OnNicknameChanged);
+        createRoomName.onValueChanged.AddListener(OnRoomIDChanged);
+        joinRoomName.onValueChanged.AddListener(OnRoomIDChanged);
+        JoinButton.interactable = false;
+        createButton.interactable = false;
     }
 
-    private void OnDestroy()
+    public void OnNicknameChanged(string value)
     {
-        if (nicknameInput != null) nicknameInput.onValueChanged.RemoveListener(OnInputChanged);
-        if (createRoomName != null) createRoomName.onValueChanged.RemoveListener(OnInputChanged);
-        if (joinRoomName != null) joinRoomName.onValueChanged.RemoveListener(OnInputChanged);
+            createButton.interactable = !string.IsNullOrWhiteSpace(value);
+            JoinButton.interactable = !string.IsNullOrWhiteSpace(value);
     }
 
-    private void OnInputChanged(string _)
+    public void OnRoomIDChanged(string value)
     {
-        RefreshButtonState();
-    }
-
-    private void RefreshButtonState()
-    {
-        bool hasNickname = !string.IsNullOrWhiteSpace(nicknameInput != null ? nicknameInput.text : string.Empty);
-
-        if (createButton != null)
-            createButton.interactable = hasNickname && !string.IsNullOrWhiteSpace(createRoomName != null ? createRoomName.text : string.Empty);
-
-        if (joinButton != null)
-            joinButton.interactable = hasNickname && !string.IsNullOrWhiteSpace(joinRoomName != null ? joinRoomName.text : string.Empty);
+        roomID = !string.IsNullOrWhiteSpace(value);
     }
 
     public void CreateRoom()
     {
-        if (createButton != null && !createButton.interactable) return;
-
-        string roomName = createRoomName != null ? createRoomName.text.Trim() : string.Empty;
-        if (string.IsNullOrWhiteSpace(roomName))
+        if (roomID)
         {
-            Debug.LogWarning("[CreateAndJoinRooms] Room name is empty. Cannot create room.");
-            return;
-        }
+            string nick = nicknameInput.text.Trim().ToUpper();
+            //Debug.Log(nick+" se unio a la room");
+            PlayerPrefs.SetString("playerNickname",nick);
+            PhotonNetwork.NickName = nick;
 
-        if (!TryApplyNickname()) return;
+            // Create room logic
+            RoomOptions options = new RoomOptions();
+            options.MaxPlayers = 5;  // m�ximo de jugadores
+            options.IsVisible = true;
+            options.IsOpen = true;
 
-        string attemptedPwd = createRoomPsw != null ? createRoomPsw.text : string.Empty;
-        PlayerPrefs.SetString(AttemptedPasswordKey, attemptedPwd);
-
-        RoomOptions options = new RoomOptions
-        {
-            MaxPlayers = 5,
-            IsVisible = true,
-            IsOpen = true,
-            CustomRoomProperties = new Hashtable
+            // Agregamos una propiedad personalizada para la contrase�a
+            options.CustomRoomProperties = new ExitGames.Client.Photon.Hashtable()
             {
-                { PasswordPropertyKey, attemptedPwd }
-            },
-            CustomRoomPropertiesForLobby = new[] { PasswordPropertyKey }
-        };
+                { "pwd", createRoomPsw.text }
+            };
 
-        PhotonNetwork.CreateRoom(roomName, options, TypedLobby.Default);
+            // Indicamos qu� propiedades son visibles en el lobby
+            options.CustomRoomPropertiesForLobby = new string[] { "pwd" };
+
+            // Guardamos la contrase�a que quiere usar el cliente
+            PlayerPrefs.SetString("AttemptedPwd", createRoomPsw.text);
+
+            // Creamos la room
+            PhotonNetwork.CreateRoom(createRoomName.text, options, TypedLobby.Default);
+        }
     }
 
     public void JoinRoom()
     {
-        if (joinButton != null && !joinButton.interactable) return;
-
-        string roomName = joinRoomName != null ? joinRoomName.text.Trim() : string.Empty;
-        if (string.IsNullOrWhiteSpace(roomName))
+        if (roomID)
         {
-            Debug.LogWarning("[CreateAndJoinRooms] Room name is empty. Cannot join room.");
-            return;
+            string nick = nicknameInput.text.Trim().ToUpper();
+            Debug.Log(nick+" se unio a la room");
+            PlayerPrefs.SetString("playerNickname",nick);
+            PhotonNetwork.NickName = nick;
+
+            // Join room logic
+            // Intentamos unirnos a la sala por nombre
+            PhotonNetwork.JoinRoom(joinRoomName.text);
+
+            // Guardamos la contrase�a que quiere usar el cliente
+            PlayerPrefs.SetString("AttemptedPwd", joinRoomPsw.text);
         }
-
-        if (!TryApplyNickname()) return;
-
-        // Persist password BEFORE JoinRoom call so callback always reads latest value.
-        string attemptedPwd = joinRoomPsw != null ? joinRoomPsw.text : string.Empty;
-        PlayerPrefs.SetString(AttemptedPasswordKey, attemptedPwd);
-
-        PhotonNetwork.JoinRoom(roomName);
-    }
-
-    private bool TryApplyNickname()
-    {
-        string nick = nicknameInput != null ? nicknameInput.text.Trim().ToUpperInvariant() : string.Empty;
-        if (string.IsNullOrWhiteSpace(nick))
-        {
-            Debug.LogWarning("[CreateAndJoinRooms] Nickname is empty. Cannot continue.");
-            return false;
-        }
-
-        PlayerPrefs.SetString("playerNickname", nick);
-        PhotonNetwork.NickName = nick;
-        return true;
     }
 
     public override void OnJoinedRoom()
     {
-        Debug.Log("[CreateAndJoinRooms] Joined room: " + PhotonNetwork.CurrentRoom?.Name);
+        Debug.Log("Intentando entrar a la sala: " + PhotonNetwork.CurrentRoom.Name);
 
-        // Pause queue during scene transition only after validation passes.
-        string attemptedPwd = PlayerPrefs.GetString(AttemptedPasswordKey, string.Empty);
-
-        string roomPwd = string.Empty;
-        if (PhotonNetwork.CurrentRoom != null
-            && PhotonNetwork.CurrentRoom.CustomProperties != null
-            && PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(PasswordPropertyKey, out object roomPwdObj)
-            && roomPwdObj != null)
-        {
-            roomPwd = roomPwdObj.ToString();
-        }
-
-        if (!string.Equals(attemptedPwd, roomPwd, System.StringComparison.Ordinal))
-        {
-            Debug.LogWarning("[CreateAndJoinRooms] Invalid room password. Leaving room.");
-            PhotonNetwork.IsMessageQueueRunning = true;
-            PhotonNetwork.LeaveRoom();
-            return;
-        }
-
-        Debug.Log("[CreateAndJoinRooms] Password validated. Loading room scene.");
+        // Pausar la cola de mensajes para evitar errores de PhotonView durante la carga
         PhotonNetwork.IsMessageQueueRunning = false;
-        SceneLoaderController.Instance.LoadNextLevel(roomScene);
-    }
 
-    public override void OnLeftRoom()
-    {
-        PhotonNetwork.IsMessageQueueRunning = true;
-        RefreshButtonState();
-    }
+        // Verificamos si la contrase�a coincide
+        string attemptedPwd = PlayerPrefs.GetString("AttemptedPwd", "");
+        string roomPwd = PhotonNetwork.CurrentRoom.CustomProperties["pwd"].ToString();
 
-    public override void OnCreateRoomFailed(short returnCode, string message)
-    {
-        PhotonNetwork.IsMessageQueueRunning = true;
-        Debug.LogError($"[CreateAndJoinRooms] CreateRoom failed ({returnCode}): {message}");
-        RefreshButtonState();
+        if (attemptedPwd != roomPwd)
+        {
+            Debug.LogWarning("Contrase�a incorrecta, te expulsamos.");
+            PhotonNetwork.LeaveRoom();
+        }
+        else
+        {
+            Debug.Log("Contase�a correcta, entraste a la sala: " + PhotonNetwork.CurrentRoom.Name);
+            // PhotonNetwork.LoadLevel(rommScene);
+            SceneLoaderController.Instance.LoadNextLevel(rommScene);
+        }
     }
-
-    public override void OnJoinRoomFailed(short returnCode, string message)
-    {
-        PhotonNetwork.IsMessageQueueRunning = true;
-        Debug.LogError($"[CreateAndJoinRooms] JoinRoom failed ({returnCode}): {message}");
-        RefreshButtonState();
-    }
-
-    public override void OnDisconnected(DisconnectCause cause)
-    {
-        PhotonNetwork.IsMessageQueueRunning = true;
-        Debug.LogWarning($"[CreateAndJoinRooms] Disconnected from Photon: {cause}");
-        RefreshButtonState();
-    }
+    
 }
