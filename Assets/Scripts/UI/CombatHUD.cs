@@ -180,7 +180,13 @@ public class CombatHUD : MonoBehaviour
     }
     void OnTurnUi(int turn, UnitFaction side, float remaining)
     {
-        if (timerText) timerText.text = Mathf.CeilToInt(remaining).ToString();
+        if (timerText)
+        {
+            int remainingSeconds = Mathf.Max(0, Mathf.CeilToInt(remaining));
+            int minutes = remainingSeconds / 60;
+            int seconds = remainingSeconds % 60;
+            timerText.text = $"{minutes:D2}:{seconds:D2}";
+        }
     }
 
     // ----- Bars -----
