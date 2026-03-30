@@ -26,6 +26,11 @@ public class UnitController : MonoBehaviourPun
 
     private UnitMovement movement;
 
+    [Header("Movement Feedback")]
+    [SerializeField] private bool showMoveOrderIndicator = true;
+    [SerializeField] private float moveIndicatorZOffset = -0.01f;
+    [Tooltip("Multiplier for the move destination marker size.")][SerializeField] private float moveIndicatorSize = 2f;
+
     public UnitMovement Movement => movement;
 
     private static UnitController activeUnit;
@@ -362,6 +367,12 @@ public class UnitController : MonoBehaviourPun
                 TargeterController2D.Instance.HideMoveRange();
 
             isMoving = false;
+        }, destination =>
+        {
+            if (showMoveOrderIndicator)
+            {
+                MoveOrderIndicator.Spawn(destination, moveIndicatorZOffset, moveIndicatorSize);
+            }
         });
     }
 
