@@ -8,6 +8,7 @@ using UnityEngine.SceneManagement;
 public class SceneLoaderController : MonoBehaviour
 {
     public static SceneLoaderController Instance;
+    private bool _isLoadingScene;
     private void Awake()
     {
         if (Instance != null)
@@ -25,19 +26,20 @@ public class SceneLoaderController : MonoBehaviour
 
     public void LoadNextLevel(Scenes scene_to_load)
     {
+        if (_isLoadingScene) return;
         StartCoroutine(LoadLevel(scene_to_load));
         // SceneManager.LoadScene((int)scene_to_load - 1);
     }
 
     IEnumerator LoadLevel(Scenes scene_to_load)
     {
+        _isLoadingScene = true;
+
         _animator.SetTrigger("Start");
         
         yield return new WaitForSeconds(transition_time);
 
-        // Instance = null;
         PhotonNetwork.LoadLevel((int)scene_to_load);
-        // SceneManager.LoadScene((int)scene_to_load - 1);
     }
 
 }
