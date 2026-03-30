@@ -548,6 +548,9 @@ public sealed class AbilityResolver : MonoBehaviourPun
             CombatFeedbackUI.ShowAbilityName(casterCtrl.unit, ability.abilityName);
         }
 
+        // Analytics: authoritative ability-use tracking (reliable path).
+        TryTrackAbilityUse(casterCtrl, ability, primaryTarget);
+
         // -------- PER-TARGET ROUTING: heal allies, damage enemies --------
 
         // --- If this ability does not deal damage or healing, just log its use once (buffs, stances, etc.) ---
@@ -970,6 +973,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
                     int beforeHp = target.Model.CurrentHP;
                     target.Model.ApplyDamageWithBarrier(dmg, (DamageType)dtype);
                     int dealt = Mathf.Max(0, beforeHp - target.Model.CurrentHP);
+                    TryTrackDamageAndDeaths(casterCtrl, target.Controller, dealt, beforeHp > 0);
 
                     if (dealt > 0 && ZoneManager.Instance != null)
                     {
@@ -1152,6 +1156,7 @@ public sealed class AbilityResolver : MonoBehaviourPun
         int beforeHp = target.Model.CurrentHP;
         target.Model.ApplyDamageWithBarrier(damage, (DamageType)damageType);
         int dealt = Mathf.Max(0, beforeHp - target.Model.CurrentHP);
+        TryTrackDamageAndDeaths(casterCtrl, target.Controller, dealt, beforeHp > 0);
 
         Debug.Log($"[AbilityRPC] Applied {dealt} HP damage to {target.name} (type={(DamageType)damageType})");
 
@@ -1425,8 +1430,10 @@ public sealed class AbilityResolver : MonoBehaviourPun
         if (target == null || target.model == null) return;
 
         // Apply on master using your existing barrier path
+        bool wasAliveBefore = target.model.CurrentHP > 0;
         int dealt = target.model.ApplyDamageWithBarrier(amount, type);
         Debug.Log($"[V2] MASTER dealt {dealt} ({type}) to {target.name} (server-only helper)");
+        TryTrackDamageAndDeaths(null, target, dealt, wasAliveBefore);
 
         // Mirror to other clients (use -1 when there is no specific ability; RPC handles it)
         photonView.RPC(nameof(RPC_ApplyDamageToClient), RpcTarget.Others,
@@ -1852,4 +1859,78 @@ public sealed class AbilityResolver : MonoBehaviourPun
 
         return dist <= halfWidth;
     }
+    private void TryTrackAbilityUse(UnitController casterCtrl, UnitAbility ability, Unit primaryTarget)
+    {
+        if (!PhotonNetwork.IsMasterClient || casterCtrl == null || casterCtrl.unit == null || ability == null) return;
+
+        var analytics = AnalyticsGameplayAdapter.TryGet();
+        if (analytics == null) return;
+
+        string playerId = ResolveAnalyticsPlayerId(casterCtrl);
+        string playerClass = casterCtrl.unit.Model != null ? casterCtrl.unit.Model.UnitName : "Unknown";
+        string targetType = primaryTarget != null && primaryTarget.Model != null ? primaryTarget.Model.Faction.ToString() : string.Empty;
+        int turn = TurnManager.Instance != null ? TurnManager.Instance.turnNumber : -1;
+        analytics.OnAbilityUsed(playerId, playerClass, ability.abilityName, targetType, turn);
+    }
+
+    private void TryTrackDamageAndDeaths(UnitController casterCtrl, UnitController targetCtrl, int dealt, bool wasAliveBefore)
+    {
+        if (!PhotonNetwork.IsMasterClient || targetCtrl == null || targetCtrl.unit == null || dealt < 0) return;
+
+        var analytics = AnalyticsGameplayAdapter.TryGet();
+        if (analytics == null) return;
+
+        var targetUnit = targetCtrl.unit;
+        var targetModel = targetUnit.Model;
+        var casterUnit = casterCtrl != null ? casterCtrl.unit : null;
+        var casterModel = casterUnit != null ? casterUnit.Model : null;
+
+        // Damage KPI attribution.
+        if (dealt > 0 && casterModel != null && targetModel != null)
+        {
+            if (casterModel.Faction == UnitFaction.Hero && targetModel.Faction == UnitFaction.Monster)
+            {
+                analytics.OnHeroDealtDamage(ResolveAnalyticsPlayerId(casterCtrl), dealt);
+            }
+            else if (casterModel.Faction == UnitFaction.Monster && targetModel.Faction == UnitFaction.Hero)
+            {
+                analytics.OnGoblinDealtDamage(ResolveAnalyticsUnitId(casterCtrl), dealt);
+            }
+        }
+
+        // Death KPI attribution.
+        bool diedNow = wasAliveBefore && targetModel != null && !targetModel.IsAlive();
+        if (!diedNow) return;
+
+        if (targetModel.Faction == UnitFaction.Hero)
+        {
+            string killerType = casterModel != null ? casterModel.Faction.ToString() : "unknown";
+            string killerId = ResolveAnalyticsUnitId(casterCtrl);
+            analytics.OnHeroDied(ResolveAnalyticsPlayerId(targetCtrl), targetModel.UnitName, killerType, killerId);
+        }
+        else if (targetModel.Faction == UnitFaction.Monster)
+        {
+            string killerPlayerId = (casterModel != null && casterModel.Faction == UnitFaction.Hero) ? ResolveAnalyticsPlayerId(casterCtrl) : "unknown";
+            string killerClass = casterModel != null ? casterModel.UnitName : "unknown";
+            string goblinId = ResolveAnalyticsUnitId(targetCtrl);
+            analytics.OnGoblinDied(goblinId, targetModel.UnitName, killerPlayerId, killerClass);
+            if (casterModel != null && casterModel.Faction == UnitFaction.Hero)
+            {
+                analytics.OnHeroKilledGoblin(ResolveAnalyticsPlayerId(casterCtrl), casterModel.UnitName, goblinId, targetModel.UnitName);
+            }
+        }
+    }
+
+    private string ResolveAnalyticsUnitId(UnitController ctrl)
+    {
+        if (ctrl == null || ctrl.photonView == null) return "unknown_unit";
+        return ctrl.photonView.ViewID.ToString();
+    }
+
+    private string ResolveAnalyticsPlayerId(UnitController ctrl)
+    {
+        if (ctrl == null || ctrl.photonView == null) return "unknown_player";
+        return AnalyticsGameplayAdapter.ResolvePlayerId(ctrl.photonView.Owner);
+    }
+
 }
