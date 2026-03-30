@@ -40,8 +40,19 @@ public class MonsterSpawner : MonoBehaviourPunCallbacks
                 continue;
             }
 
-            PhotonNetwork.Instantiate(prefab.name, dcUnit.pos, Quaternion.identity);
+            GameObject spawned = PhotonNetwork.Instantiate(prefab.name, dcUnit.pos, Quaternion.identity);
             Debug.Log($"[EnemySpawner] Spawned {prefab.name} at {dcUnit.pos}");
+
+            // Analytics hook: register goblin spawn for goblin lifetime KPI.
+            var analytics = AnalyticsGameplayAdapter.TryGet();
+            if (analytics != null && spawned != null)
+            {
+                string goblinId = spawned.GetComponent<PhotonView>() != null
+                    ? spawned.GetComponent<PhotonView>().ViewID.ToString()
+                    : spawned.GetInstanceID().ToString();
+                string goblinType = dcUnit.unit_type != null ? dcUnit.unit_type.unitName : prefab.name;
+                analytics.OnGoblinSpawned(goblinId, goblinType);
+            }
         }
     }
 }
