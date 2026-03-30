@@ -20,6 +20,12 @@ public class CombatLogUI : MonoBehaviour
             return;
         }
         Instance = this;
+
+        if (logText != null)
+        {
+            logText.enableWordWrapping = true;
+            logText.overflowMode = TextOverflowModes.Overflow;
+        }
     }
     
     public static void Log(string message)
@@ -43,8 +49,38 @@ public class CombatLogUI : MonoBehaviour
         while (_lines.Count > maxLines)
             _lines.RemoveAt(0);
 
-        if (logText != null)
-            logText.text = string.Join("\n", _lines);
+        TrimOldLinesUntilFits();
+    }
+
+    private void TrimOldLinesUntilFits()
+    {
+        if (logText == null || _lines.Count == 0)
+            return;
+
+        int firstLineToKeep = 0;
+        while (firstLineToKeep < _lines.Count - 1)
+        {
+            string candidate = string.Join("\n", _lines.GetRange(firstLineToKeep, _lines.Count - firstLineToKeep));
+            if (FitsInLogBox(candidate))
+                break;
+
+            firstLineToKeep++;
+        }
+
+        if (firstLineToKeep > 0)
+            _lines.RemoveRange(0, firstLineToKeep);
+
+        logText.text = string.Join("\n", _lines);
+    }
+
+    private bool FitsInLogBox(string text)
+    {
+        Rect rect = logText.rectTransform.rect;
+        Vector4 margin = logText.margin;
+        float availableWidth = Mathf.Max(0f, rect.width - margin.x - margin.z);
+        float availableHeight = Mathf.Max(0f, rect.height - margin.y - margin.w);
+
+        Vector2 preferred = logText.GetPreferredValues(text, availableWidth, float.PositiveInfinity);
+        return preferred.y <= availableHeight;
     }
 }
-
