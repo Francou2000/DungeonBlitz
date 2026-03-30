@@ -244,6 +244,7 @@ public class UnitModel : MonoBehaviour
             currentActions = MaxActions;
 
         currentReactions = MaxReactions;
+        OnActionPointsChanged?.Invoke(currentActions, MaxActions);
 
         CheckAdrenalineState();
     }
