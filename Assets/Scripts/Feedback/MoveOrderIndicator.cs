@@ -14,13 +14,24 @@ public class MoveOrderIndicator : MonoBehaviour
     private SpriteRenderer[] parts;
     private float elapsed;
 
-    public static void Spawn(Vector3 worldPosition, float zOffset = -0.01f)
+    public static void Spawn(Vector3 worldPosition, float zOffset = -0.01f, float sizeMultiplier = 1f)
     {
         var go = new GameObject("MoveOrderIndicator");
         go.transform.position = new Vector3(worldPosition.x, worldPosition.y, worldPosition.z + zOffset);
 
         var indicator = go.AddComponent<MoveOrderIndicator>();
+        indicator.ApplySizeMultiplier(sizeMultiplier);
         indicator.BuildVisual();
+    }
+
+    private void ApplySizeMultiplier(float sizeMultiplier)
+    {
+        sizeMultiplier = Mathf.Max(0.1f, sizeMultiplier);
+
+        startScale *= sizeMultiplier;
+        endScale *= sizeMultiplier;
+        barWidth *= sizeMultiplier;
+        barLength *= sizeMultiplier;
     }
 
     private void BuildVisual()

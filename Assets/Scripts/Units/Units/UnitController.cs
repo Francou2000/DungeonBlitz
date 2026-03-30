@@ -29,6 +29,7 @@ public class UnitController : MonoBehaviourPun
     [Header("Movement Feedback")]
     [SerializeField] private bool showMoveOrderIndicator = true;
     [SerializeField] private float moveIndicatorZOffset = -0.01f;
+    [Tooltip("Multiplier for the move destination marker size.")][SerializeField] private float moveIndicatorSize = 2f;
 
     public UnitMovement Movement => movement;
 
@@ -370,7 +371,7 @@ public class UnitController : MonoBehaviourPun
         {
             if (showMoveOrderIndicator)
             {
-                MoveOrderIndicator.Spawn(destination, moveIndicatorZOffset);
+                MoveOrderIndicator.Spawn(destination, moveIndicatorZOffset, moveIndicatorSize);
             }
         });
     }
