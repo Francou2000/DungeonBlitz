@@ -29,6 +29,7 @@ public class TimerAndLoadGame : MonoBehaviourPunCallbacks
 
     public float preparation_time_limit;
     public float time;
+    private bool hasTriggeredLoad;
 
     [SerializeField] Slider slider1;
     [SerializeField] Slider slider2;
@@ -36,6 +37,7 @@ public class TimerAndLoadGame : MonoBehaviourPunCallbacks
     void Start()
     {
         time = 0;
+        hasTriggeredLoad = false;
         if (PhotonNetwork.IsMasterClient)
         {
             DM_dungeon_creator.SetActive(true);
@@ -62,13 +64,14 @@ public class TimerAndLoadGame : MonoBehaviourPunCallbacks
     void Update()
     {
         if (PhotonNetwork.MasterClient != PhotonNetwork.LocalPlayer) return;
+        if (hasTriggeredLoad) return;
         time += Time.deltaTime;
         float sliderValue = time / preparation_time_limit;
         slider1.value = sliderValue;
         slider2.value = sliderValue;
         if (time > preparation_time_limit)
         {
-            // LoadGame();
+            hasTriggeredLoad = true;
             photonView.RPC("LoadGame", RpcTarget.All);
         }
     }
