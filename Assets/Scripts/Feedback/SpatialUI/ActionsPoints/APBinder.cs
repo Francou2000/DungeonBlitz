@@ -27,11 +27,12 @@ public class APBinder : MonoBehaviour
 
     private void OnEnable()
     {
-        // In case Unit/Model aren’t ready this frame (spawn order), retry next frame once
+        // In case Unit/Model aren't ready this frame (spawn order), retry next frame once
         if (model == null) StartCoroutine(DelayedResolveAndWire());
         else Rewire();
 
         TurnManager.OnTurnBegan += OnTurnBeganRepaint;
+        TurnManager.OnTurnUI += OnTurnUiRepaint;
     }
 
     private void OnDisable()
@@ -39,8 +40,8 @@ public class APBinder : MonoBehaviour
         Unwire();
 
         TurnManager.OnTurnBegan -= OnTurnBeganRepaint;
+        TurnManager.OnTurnUI -= OnTurnUiRepaint;
     }
-
 
     private IEnumerator DelayedResolveAndWire()
     {
@@ -87,7 +88,7 @@ public class APBinder : MonoBehaviour
             return;
         }
 
-        // Immediate paint so we’re correct even if we missed the first event
+        // Immediate paint so we're correct even if we missed the first event.
         apPips?.Set(model.CurrentActions, model.MaxActions);
 
         model.OnActionPointsChanged += OnAP;
@@ -106,16 +107,30 @@ public class APBinder : MonoBehaviour
         apPips?.Set(cur, max);
     }
 
-    // Force a repaint when a new turn begins (AP was reset in TurnManager)
+    // Repaint on turn-begin and once more next frame to survive RPC/event ordering.
     private void OnTurnBeganRepaint(UnitFaction side)
     {
         if (model == null) return;
-
-        // Only repaint when it's this unit's faction turn (same logic as CombatHUD)
-        if (model.Faction == side)
-        {
-            apPips?.Set(model.CurrentActions, model.MaxActions);
-        }
+        apPips?.Set(model.CurrentActions, model.MaxActions);
+        StartCoroutine(RepaintNextFrame());
     }
 
+    // Keep active side world AP pips synced even if an AP event was missed.
+    private void OnTurnUiRepaint(int turnNumber, UnitFaction side, float remaining)
+    {
+        if (model == null) return;
+
+        var tm = TurnManager.Instance;
+        if (tm == null || unit == null) return;
+
+        if (tm.IsCurrentTurn(unit))
+            apPips?.Set(model.CurrentActions, model.MaxActions);
+    }
+
+    private IEnumerator RepaintNextFrame()
+    {
+        yield return null;
+        if (model == null) yield break;
+        apPips?.Set(model.CurrentActions, model.MaxActions);
+    }
 }
