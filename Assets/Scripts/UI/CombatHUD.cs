@@ -194,6 +194,7 @@ public class CombatHUD : MonoBehaviour
         adrBar?.Set(m.Adrenaline, m.MaxAdrenaline);
         apPips?.SetMax(m.MaxActions);
         apPips?.SetCurrent(m.CurrentActions);
+        UpdateEndTurnAttentionFromCurrentAP();
         RebuildResources(m);
 
         // clear stale subscriptions first (in case Bind() called multiple times)
@@ -231,6 +232,23 @@ public class CombatHUD : MonoBehaviour
             StopEndTurnAttention();
     }
 
+
+    private void UpdateEndTurnAttentionFromCurrentAP()
+    {
+        if (controller?.model == null)
+        {
+            StopEndTurnAttention();
+            return;
+        }
+
+        bool isTurn = TurnManager.Instance != null &&
+                      TurnManager.Instance.IsCurrentTurn(controller.unit);
+
+        if (isTurn && controller.model.CurrentActions <= 0)
+            StartEndTurnAttention();
+        else
+            StopEndTurnAttention();
+    }
     void RefreshBars()
     {
         if (controller?.model == null) return;
@@ -239,6 +257,7 @@ public class CombatHUD : MonoBehaviour
         adrBar?.Set(m.Adrenaline, m.MaxAdrenaline);
         apPips?.SetMax(m.MaxActions);
         apPips?.SetCurrent(m.CurrentActions);
+        UpdateEndTurnAttentionFromCurrentAP();
     }
 
     // ----- Grid -----

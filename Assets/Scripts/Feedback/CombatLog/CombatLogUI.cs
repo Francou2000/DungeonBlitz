@@ -9,6 +9,7 @@ public class CombatLogUI : MonoBehaviour
 
     [SerializeField] private TMP_Text logText;
     [SerializeField] private int maxLines = 10;
+    [SerializeField] private bool fitToTextBoxHeight = true;
 
     private readonly List<string> _lines = new();
 
@@ -43,8 +44,23 @@ public class CombatLogUI : MonoBehaviour
         while (_lines.Count > maxLines)
             _lines.RemoveAt(0);
 
-        if (logText != null)
+        if (logText == null)
+            return;
+
+        logText.text = string.Join("\n", _lines);
+
+        if (!fitToTextBoxHeight)
+            return;
+
+        var rect = logText.rectTransform.rect;
+        if (rect.height <= 0f)
+            return;
+
+        // Trim oldest lines until the text fits inside the assigned TMP box.
+        while (_lines.Count > 1 && logText.preferredHeight > rect.height)
+        {
+            _lines.RemoveAt(0);
             logText.text = string.Join("\n", _lines);
+        }
     }
 }
-
