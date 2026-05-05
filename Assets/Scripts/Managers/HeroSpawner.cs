@@ -10,6 +10,12 @@ public class HeroSpawner : MonoBehaviourPunCallbacks
 
     void Start()
     {
+        LoadHeroes();
+    }
+
+    public void LoadHeroes()
+    {
+
         Debug.Log($"[HeroSpawner] Start() running on Actor={PhotonNetwork.LocalPlayer.ActorNumber} IsMaster={PhotonNetwork.IsMasterClient}");
 
         if (!PhotonNetwork.IsConnected || !PhotonNetwork.InRoom)
@@ -61,7 +67,7 @@ public class HeroSpawner : MonoBehaviourPunCallbacks
             {
                 UnitController.ActiveUnit = controller;
                 Debug.Log("[HeroSpawner] Assigned player unit as active unit: " + controller.unit.Model.UnitName);
-            }            
+            }
         }
         else
         {
@@ -70,8 +76,6 @@ public class HeroSpawner : MonoBehaviourPunCallbacks
 
         StartCoroutine(WaitForTurnManager(playerIndex));
     }
-
-
     GameObject FindPrefabFor(UnitData data)
     {
         foreach (var prefab in heroPrefabs)
