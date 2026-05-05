@@ -6,8 +6,8 @@ public class TutorialShowcase : MonoBehaviour
     [SerializeField] GameObject _thisUI;
     [SerializeField] GameObject _tutorialUI;
 
-    [SerializeField] private bool _isFirstTime = true;
-
+    [SerializeField] private bool _isCreate;
+    AudioManager audioManager;
 
     void Start()
     {
@@ -16,10 +16,23 @@ public class TutorialShowcase : MonoBehaviour
 
     private void OnEnable()
     {
-        if (_isFirstTime)
+        audioManager = AudioManager.Instance;
+        if (_isCreate)
         {
-            ShowTutorial();
-            _isFirstTime = false;
+            if (audioManager.is_first_create_tutorial)
+            {
+                ShowTutorial();
+                audioManager.is_first_create_tutorial = false;
+            }
+        }
+        else
+        {
+            if (audioManager.is_first_join_tutorial)
+            {
+                ShowTutorial();
+                audioManager.is_first_join_tutorial = false;
+            }
+
         }
     }
 

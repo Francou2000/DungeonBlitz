@@ -34,6 +34,8 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip goblinAttackSFX;
 
 
+    public bool is_first_create_tutorial = true;
+    public bool is_first_join_tutorial = true;
 
     private void Awake()
     {

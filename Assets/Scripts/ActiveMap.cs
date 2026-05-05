@@ -41,7 +41,8 @@ public class ActiveMap : MonoBehaviour
             if (i == (int)map - 1)
             {
                 map_list[i].SetActive(true);
-                DC_Manager.instance.Non_standable_tile = non_standable[i];
+                // DC_Manager.instance.Non_standable_tile = non_standable[i];
+                DC_Manager.instance.CoverNonStandableTiles(non_standable[i]);
             }
             else
             {

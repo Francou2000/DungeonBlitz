@@ -39,6 +39,7 @@ public class DC_Manager : MonoBehaviour
 
     public int lvl = 0; //Chequear con UnitLoaderController
 
+    [SerializeField] GameObject cantStandTile;
     [SerializeField] Vector2[] non_standable_tile;
     public Vector2[] Non_standable_tile {  get { return non_standable_tile; } set { non_standable_tile = value; } }
     void Start()
@@ -90,6 +91,7 @@ public class DC_Manager : MonoBehaviour
     public UnitPlaceholderIntection Unit_to_update { set {  unit_to_update = value; } }
 
     [SerializeField] SpriteRenderer unitPreShow;
+    [SerializeField] Animator unitPreShow_animator;
     public Monsters actualUnit;
 
     [Header("Population")]
@@ -144,7 +146,11 @@ public class DC_Manager : MonoBehaviour
     {
         foreach (Vector2 pos in non_standable_tile)
         {
-            if (pos == origin_pos) return true;
+            if (pos == origin_pos)
+            {
+                unitPreShow_animator.SetTrigger("CantPlace");
+                return true;
+            }
         }
         return false;
     }
@@ -248,4 +254,19 @@ public class DC_Manager : MonoBehaviour
         SpawnPromotedUnit(unit_pos - new Vector2(0.5f, 0.5f));
     }
 
+    List<GameObject> cantstandcells = new List<GameObject>();
+    Vector2 tile_offset = new Vector2(0.5f, 0.5f);
+    public void CoverNonStandableTiles(Vector2[] non_standable)
+    {
+        Non_standable_tile = non_standable;
+        foreach (GameObject tile in cantstandcells) 
+        {
+            Destroy(tile);
+        }
+        cantstandcells.Clear();
+        foreach (Vector2 pos in non_standable_tile)
+        {
+            cantstandcells.Add(Instantiate(cantStandTile, pos + tile_offset, Quaternion.identity));
+        }
+    }
 }

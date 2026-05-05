@@ -2190,7 +2190,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _thisUI: {fileID: 1392120147}
   _tutorialUI: {fileID: 15196564}
-  _isFirstTime: 1
+  _isCreate: 0
 --- !u!114 &164600051
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3117,7 +3117,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _thisUI: {fileID: 1138471359}
   _tutorialUI: {fileID: 954107029}
-  _isFirstTime: 1
+  _isCreate: 1
 --- !u!114 &240665867
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16393,6 +16393,14 @@ PrefabInstance:
     - target: {fileID: 1963737523277124617, guid: 8f6026b4bb6e5f64fa5cf28bf574f612, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2211938219625451240, guid: 8f6026b4bb6e5f64fa5cf28bf574f612, type: 3}
+      propertyPath: is_first_join_tutorial
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2211938219625451240, guid: 8f6026b4bb6e5f64fa5cf28bf574f612, type: 3}
+      propertyPath: is_first_create_tutorial
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3631581902081145981, guid: 8f6026b4bb6e5f64fa5cf28bf574f612, type: 3}
       propertyPath: m_Name
