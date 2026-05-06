@@ -119,8 +119,7 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
         {
             int item = GetRandomItem(heroes[i].my_data.heroe_id);
 
-            // SpawnItem(heroe_pedestals[i], item);
-
+            SpawnNewHeroeItem(i, heroes[i].my_data.heroe_id, item);
             photonView.RPC("SpawnNewHeroeItem", RpcTarget.Others, i, heroes[i].my_data.heroe_id, item);
 
 
@@ -137,8 +136,7 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
         {
             if (UnityEngine.Random.Range(0, 100) < r_empty_chance) continue;
             int item = GetRandomItem();
-            //SpawnItem(r_item_pedestals[i], item);
-
+            SpawnNewRandomItem(i, item);
             photonView.RPC("SpawnNewRandomItem", RpcTarget.Others, i, item);
 
             //GameObject new_item = Instantiate(item_prefab, r_item_pedestals[i]);
@@ -153,8 +151,7 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
         {
             if (UnityEngine.Random.Range(0, 100) < c_empty_chance) continue;
             int item = UnityEngine.Random.Range(0, items_consumable.Length);
-            //SpawnItem(c_item_pedestals[i], item);
-
+            SpawnNewConsumableItem(i, item);
             photonView.RPC("SpawnNewConsumableItem", RpcTarget.Others, i, item);
 
             //GameObject new_item = Instantiate(item_prefab, c_item_pedestals[i]);
@@ -385,7 +382,7 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
         }
         actual_vote++;
 
-        // Si 2 o más jugadores negaron la petición
+        // Si 2 o mÃ¡s jugadores negaron la peticiÃ³n
         if (actual_vote - positive_votes >= 2)
         {
             photonView.RPC("StopPurchase", RpcTarget.All, false);

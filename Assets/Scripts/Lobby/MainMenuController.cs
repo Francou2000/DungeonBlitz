@@ -187,9 +187,7 @@ public class MainMenuController : MonoBehaviourPunCallbacks
         // Limpiar UnitLoaderController cuando hay una desconexión
         CleanupUnitLoader();
 
-        // Intentar reconectar automáticamente
-        Debug.Log("[MainMenuController] Intentando reconectar a Photon...");
-        PhotonNetwork.ConnectUsingSettings();
+        // La reconexión se centraliza en ServerConectionManager para evitar rutas duplicadas.
     }
 
     public override void OnConnectedToMaster()

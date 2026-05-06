@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 
 public class SceneLoaderController : MonoBehaviour
 {
+    private bool sceneLoadInProgress = false;
     public static SceneLoaderController Instance;
     private void Awake()
     {
@@ -17,6 +18,27 @@ public class SceneLoaderController : MonoBehaviour
         Instance = this;
     }
 
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (PhotonNetwork.IsConnected && !PhotonNetwork.IsMessageQueueRunning)
+        {
+            Debug.Log($"[SceneLoaderController] Resuming Photon message queue on scene load: {scene.name}");
+            PhotonNetwork.IsMessageQueueRunning = true;
+        }
+
+        sceneLoadInProgress = false;
+    }
+
     //[SerializeField] Scenes scene_to_load2;
     //public UnityEvent<Scenes> scene_to_load1 = new UnityEvent<Scenes>();
 
@@ -25,12 +47,25 @@ public class SceneLoaderController : MonoBehaviour
 
     public void LoadNextLevel(Scenes scene_to_load)
     {
+        if (sceneLoadInProgress)
+        {
+            Debug.LogWarning($"[SceneLoaderController] Scene load already in progress. Ignoring request for {scene_to_load}.");
+            return;
+        }
+
+        sceneLoadInProgress = true;
         StartCoroutine(LoadLevel(scene_to_load));
         // SceneManager.LoadScene((int)scene_to_load - 1);
     }
 
     IEnumerator LoadLevel(Scenes scene_to_load)
     {
+        if (PhotonNetwork.IsConnected)
+        {
+            Debug.Log($"[SceneLoaderController] Pausing Photon message queue before scene load: {scene_to_load}");
+            PhotonNetwork.IsMessageQueueRunning = false;
+        }
+
         _animator.SetTrigger("Start");
         
         yield return new WaitForSeconds(transition_time);

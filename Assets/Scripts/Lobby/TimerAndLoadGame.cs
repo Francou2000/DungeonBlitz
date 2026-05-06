@@ -29,6 +29,7 @@ public class TimerAndLoadGame : MonoBehaviourPunCallbacks
 
     public float preparation_time_limit;
     public float time;
+    private bool hasTriggeredLoad = false;
 
     [SerializeField] Slider slider1;
     [SerializeField] Slider slider2;
@@ -66,10 +67,12 @@ public class TimerAndLoadGame : MonoBehaviourPunCallbacks
         float sliderValue = time / preparation_time_limit;
         slider1.value = sliderValue;
         slider2.value = sliderValue;
-        if (time > preparation_time_limit)
+        if (time > preparation_time_limit && !hasTriggeredLoad)
         {
-            // LoadGame();
+            hasTriggeredLoad = true;
+            Debug.Log($"[TimerAndLoadGame] Triggering LoadGame once. Room={PhotonNetwork.CurrentRoom?.Name}, t={time:F2}");
             photonView.RPC("LoadGame", RpcTarget.All);
+            enabled = false;
         }
     }
 
