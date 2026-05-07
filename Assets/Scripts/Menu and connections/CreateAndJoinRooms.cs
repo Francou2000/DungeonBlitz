@@ -90,8 +90,7 @@ public class CreateAndJoinRooms : MonoBehaviourPunCallbacks
     {
         Debug.Log("Intentando entrar a la sala: " + PhotonNetwork.CurrentRoom.Name);
 
-        // Pausar la cola de mensajes para evitar errores de PhotonView durante la carga
-        PhotonNetwork.IsMessageQueueRunning = false;
+        PhotonNetwork.IsMessageQueueRunning = true;
 
         // Verificamos si la contrase�a coincide
         string attemptedPwd = PlayerPrefs.GetString("AttemptedPwd", "");
