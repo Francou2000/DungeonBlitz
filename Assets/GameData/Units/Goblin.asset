@@ -19,13 +19,13 @@ MonoBehaviour:
   heroe_id: 4
   pop_cost: 1
   maxHP: 8
-  performance: 1.6
+  performance: 2
   affinity: 0
   armor: 15
   magicResistance: 0
   strength: 3
   magicPower: 0
-  actionsPerTurn: 2
+  actionsPerTurn: 3
   reactionsPerTurn: 1
   baseAdrenaline: 0
   adrenalineThreshold: 50
