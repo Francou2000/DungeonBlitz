@@ -1,49 +1,60 @@
-using Photon.Pun;
-using Photon.Realtime;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ChangeSceneWithButton : MonoBehaviourPunCallbacks
+public class ChangeSceneWithButton : MonoBehaviour
 {
-    Button my_button;
-    [SerializeField] Scenes new_scene;
-    public bool forceExit;
-    
-    void Start()
+    private Button myButton;
+
+    [SerializeField] private Scenes new_scene;
+    [SerializeField] private bool forceExit;
+
+    private void Start()
     {
-        my_button = GetComponent<Button>();
-        if (forceExit) my_button.onClick.AddListener(ReturnToMainMenu);
-        else my_button.onClick.AddListener(ChangeScene);
+        myButton = GetComponent<Button>();
+        if (myButton == null)
+        {
+            Debug.LogError("[ChangeSceneWithButton] Missing Button component.");
+            enabled = false;
+            return;
+        }
+
+        if (forceExit)
+        {
+            myButton.onClick.AddListener(ReturnToMainMenu);
+        }
+        else
+        {
+            myButton.onClick.AddListener(ChangeScene);
+        }
     }
 
-    void ChangeScene()
+    private void OnDestroy()
     {
+        if (myButton == null) return;
+
+        if (forceExit)
+        {
+            myButton.onClick.RemoveListener(ReturnToMainMenu);
+        }
+        else
+        {
+            myButton.onClick.RemoveListener(ChangeScene);
+        }
+    }
+
+    private void ChangeScene()
+    {
+        if (SceneLoaderController.Instance == null)
+        {
+            Debug.LogError("[ChangeSceneWithButton] SceneLoaderController.Instance is null.");
+            return;
+        }
+
         SceneLoaderController.Instance.LoadNextLevel(new_scene);
     }
 
     public void ReturnToMainMenu()
     {
-        Debug.Log("[WinLoseMenuButton] Returning to main menu...");
-
-        // Salir de la sala de Photon
-        PhotonNetwork.LeaveRoom();
-
-        ServerConectionManager.Instance?.RequestReturnToMainMenu("ChangeSceneWithButton");
-    }
-
-        ServerConectionManager.Instance?.RequestReturnToMainMenu("ChangeSceneWithButton");
-    {
-        Debug.Log("[WinLoseMenuButton] Successfully left room, loading main menu...");
-
-        // Una vez que hemos salido de la sala, cargar el menú principal
-        SceneLoaderController.Instance.LoadNextLevel(Scenes.MainMenu);
-    }
-
-    public override void OnDisconnected(DisconnectCause cause)
-    {
-        Debug.Log($"[WinLoseMenuButton] Disconnected: {cause}");
-
-        // En caso de desconexión, también cargar el menú principal
         SceneLoaderController.Instance.LoadNextLevel(Scenes.MainMenu);
     }
 }
