@@ -2,7 +2,6 @@ using Photon.Pun;
 using System;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
 public class SceneLoaderController : MonoBehaviour
@@ -18,26 +17,6 @@ public class SceneLoaderController : MonoBehaviour
         Instance = this;
     }
 
-    private void OnEnable()
-    {
-        SceneManager.sceneLoaded += OnSceneLoaded;
-    }
-
-    private void OnDisable()
-    {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
-
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        if (PhotonNetwork.IsConnected && !PhotonNetwork.IsMessageQueueRunning)
-        {
-            Debug.Log($"[SceneLoaderController] Resuming Photon message queue on scene load: {scene.name}");
-            PhotonNetwork.IsMessageQueueRunning = true;
-        }
-
-        sceneLoadInProgress = false;
-    }
 
     //[SerializeField] Scenes scene_to_load2;
     //public UnityEvent<Scenes> scene_to_load1 = new UnityEvent<Scenes>();
@@ -60,18 +39,13 @@ public class SceneLoaderController : MonoBehaviour
 
     IEnumerator LoadLevel(Scenes scene_to_load)
     {
-        if (PhotonNetwork.IsConnected)
-        {
-            Debug.Log($"[SceneLoaderController] Pausing Photon message queue before scene load: {scene_to_load}");
-            PhotonNetwork.IsMessageQueueRunning = false;
-        }
-
         _animator.SetTrigger("Start");
         
         yield return new WaitForSeconds(transition_time);
 
         // Instance = null;
         PhotonNetwork.LoadLevel((int)scene_to_load);
+        sceneLoadInProgress = false;
         // SceneManager.LoadScene((int)scene_to_load - 1);
     }
 
