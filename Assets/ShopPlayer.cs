@@ -2,7 +2,7 @@ using Photon.Pun;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class ShopPlayer : MonoBehaviourPunCallbacks
+public class ShopPlayer : MonoBehaviourPunCallbacks, IPunObservable
 {
     [SerializeField] RuntimeAnimatorController[] animators;
     [SerializeField] Animator my_animator;
@@ -18,14 +18,14 @@ public class ShopPlayer : MonoBehaviourPunCallbacks
     {
         unitLoaderController = UnitLoaderController.Instance;
         HeroesList heroe_idx = unitLoaderController.my_heroe;
-        // HeroesList heroe_idx = unitLoaderController.heroes[player_idx - 3].my_data.heroe_id;
         my_sprint_renderer.sprite = startSprite[(int)heroe_idx];
         my_animator.runtimeAnimatorController = animators[(int)heroe_idx];
     }
 
-    
     void Update()
     {
+        if (!photonView.IsMine) return;
+
         if (Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject())
         {
             my_animator.SetBool("Walking", true);
@@ -45,22 +45,39 @@ public class ShopPlayer : MonoBehaviourPunCallbacks
                 var item = Physics2D.OverlapCircle(transform.position, 1);
                 if (item != null)
                 {
-                    Debug.Log("dsgsg");
                     item.GetComponent<ItemDetector>().ShowUI();
                 }
             }
             return;
         }
+
         transform.Translate(dir_to_move * move_speed * Time.deltaTime);
+    }
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting)
+        {
+            stream.SendNext(transform.position);
+            stream.SendNext(transform.localScale);
+            stream.SendNext(is_walking);
+        }
+        else
+        {
+            transform.position = (Vector3)stream.ReceiveNext();
+            transform.localScale = (Vector3)stream.ReceiveNext();
+            bool walkingState = (bool)stream.ReceiveNext();
+            my_animator.SetBool("Walking", walkingState);
+            is_walking = walkingState;
+        }
     }
 
     public void OnTriggerEnter2D(Collider2D collision)
     {
-        Debug.Log("A");
         if (collision.GetComponent<ItemDetector>() == null) return;
-        Debug.Log("B");
         collision.GetComponent<ItemDetector>().ShowUI();
     }
+
     public void OnTriggerExit2D(Collider2D collision)
     {
         if (collision.GetComponent<ItemDetector>() == null) return;

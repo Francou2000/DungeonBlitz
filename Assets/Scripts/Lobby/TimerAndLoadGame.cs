@@ -68,8 +68,7 @@ public class TimerAndLoadGame : MonoBehaviourPunCallbacks
         slider2.value = sliderValue;
         if (time > preparation_time_limit)
         {
-            // LoadGame();
-            photonView.RPC("LoadGame", RpcTarget.All);
+            LoadGame();
         }
     }
 

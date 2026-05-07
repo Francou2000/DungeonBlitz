@@ -108,6 +108,11 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
         SpawnConsumableItems();
 
     }
+    private void OnDestroy()
+    {
+        StopAllCoroutines();
+    }
+
 
     //-------------------------------------------------------------------------------------------------------------------------------------
     //------------------------------------------------------------Item Spawners------------------------------------------------------------
@@ -385,7 +390,7 @@ public class HeroesShopManager : MonoBehaviourPunCallbacks
         }
         actual_vote++;
 
-        // Si 2 o más jugadores negaron la petición
+        // Si 2 o mÃ¡s jugadores negaron la peticiÃ³n
         if (actual_vote - positive_votes >= 2)
         {
             photonView.RPC("StopPurchase", RpcTarget.All, false);

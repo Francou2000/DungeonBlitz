@@ -16,6 +16,8 @@ public class CreateAndJoinRooms : MonoBehaviourPunCallbacks
     private bool roomID;
     private void Start()
     {
+        PhotonNetwork.AutomaticallySyncScene = true;
+
         nicknameInput.onValueChanged.AddListener(OnNicknameChanged);
         createRoomName.onValueChanged.AddListener(OnRoomIDChanged);
         joinRoomName.onValueChanged.AddListener(OnRoomIDChanged);

@@ -36,6 +36,11 @@ public class SceneLoaderController : MonoBehaviour
         yield return new WaitForSeconds(transition_time);
 
         // Instance = null;
+        if (PhotonNetwork.InRoom && !PhotonNetwork.IsMasterClient)
+        {
+            yield break;
+        }
+
         PhotonNetwork.LoadLevel((int)scene_to_load);
         // SceneManager.LoadScene((int)scene_to_load - 1);
     }
