@@ -59,7 +59,7 @@ public class QuickDisconnectController : MonoBehaviourPunCallbacks
         {
             // Si no estamos en una sala, ir directamente al main menu
             Debug.Log("[QuickDisconnectController] No estamos en una sala, cargando main menu directamente...");
-            LoadMainMenu();
+            ServerConectionManager.Instance?.RequestReturnToMainMenu("QuickDisconnectController");
         }
     }
 
@@ -83,7 +83,7 @@ public class QuickDisconnectController : MonoBehaviourPunCallbacks
     {
         if (SceneLoaderController.Instance != null)
         {
-            SceneLoaderController.Instance.LoadNextLevel(Scenes.MainMenu);
+            ServerConectionManager.Instance?.RequestReturnToMainMenu("QuickDisconnectController.cs");
         }
         else
         {
@@ -102,13 +102,13 @@ public class QuickDisconnectController : MonoBehaviourPunCallbacks
     public override void OnLeftRoom()
     {
         Debug.Log("[QuickDisconnectController] Salido de la sala. Cargando menú principal...");
-        LoadMainMenu();
+        ServerConectionManager.Instance?.RequestReturnToMainMenu("QuickDisconnectController");
     }
 
     public override void OnDisconnected(DisconnectCause cause)
     {
         Debug.Log($"[QuickDisconnectController] Desconectado de Photon: {cause}. Cargando menú principal...");
-        LoadMainMenu();
+        ServerConectionManager.Instance?.RequestReturnToMainMenu("QuickDisconnectController");
     }
 }
 

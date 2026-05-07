@@ -388,8 +388,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             // Expulsar a todos los jugadores al main menu
             if (PhotonNetwork.IsConnected)
             {
-                PhotonNetwork.Disconnect();
-                SceneLoaderController.Instance.LoadNextLevel(mainMenuScene);
+                ServerConectionManager.Instance?.RequestReturnToMainMenu("LobbyManager");
             }
             return;
         }
@@ -452,8 +451,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         
         if (PhotonNetwork.IsConnected)
         {
-            PhotonNetwork.Disconnect();
-            SceneLoaderController.Instance.LoadNextLevel(mainMenuScene);
+            ServerConectionManager.Instance?.RequestReturnToMainMenu("LobbyManager");
         }
     }
     
@@ -471,6 +469,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public override void OnDisconnected(Photon.Realtime.DisconnectCause cause)
     {
         Debug.Log($"[LobbyManager] Disconnected from server: {cause}");
-        SceneLoaderController.Instance.LoadNextLevel(mainMenuScene);
+        ServerConectionManager.Instance?.RequestReturnToMainMenu("LobbyManager");
     }
 }

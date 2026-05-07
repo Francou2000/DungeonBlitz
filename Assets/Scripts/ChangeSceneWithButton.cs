@@ -28,14 +28,14 @@ public class ChangeSceneWithButton : MonoBehaviourPunCallbacks
         // Salir de la sala de Photon
         PhotonNetwork.LeaveRoom();
 
-        // La transición de escena se manejará en el callback OnLeftRoom
+        ServerConectionManager.Instance?.RequestReturnToMainMenu("ChangeSceneWithButton");
     }
 
-    public override void OnLeftRoom()
+        ServerConectionManager.Instance?.RequestReturnToMainMenu("ChangeSceneWithButton");
     {
         Debug.Log("[WinLoseMenuButton] Successfully left room, loading main menu...");
 
-        // Una vez que hemos salido de la sala, cargar el menú principal
+        // Una vez que hemos salido de la sala, cargar el menÃº principal
         SceneLoaderController.Instance.LoadNextLevel(Scenes.MainMenu);
     }
 
@@ -43,7 +43,7 @@ public class ChangeSceneWithButton : MonoBehaviourPunCallbacks
     {
         Debug.Log($"[WinLoseMenuButton] Disconnected: {cause}");
 
-        // En caso de desconexión, también cargar el menú principal
+        // En caso de desconexiÃ³n, tambiÃ©n cargar el menÃº principal
         SceneLoaderController.Instance.LoadNextLevel(Scenes.MainMenu);
     }
 }

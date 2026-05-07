@@ -568,13 +568,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
     // Método para volver al main menu cuando hay una desconexión
     private void ReturnToMainMenu()
     {
-        if (PhotonNetwork.IsConnected)
-        {
-            PhotonNetwork.Disconnect();
-        }
-
-        // Cargar el main menu
-        SceneLoaderController.Instance.LoadNextLevel(Scenes.MainMenu);
+        ServerConectionManager.Instance?.RequestReturnToMainMenu("TurnManager");
     }
 
     private void TryUnpauseIfReady(string reason = "")

@@ -99,7 +99,7 @@ public class PauseMenuController : MonoBehaviourPunCallbacks
         else
         {
             // Si no estamos en una room, simplemente cargar el menú principal
-            ReturnToMainMenu();
+            ServerConectionManager.Instance?.RequestReturnToMainMenu("PauseMenuController.cs");
         }
     }
     
@@ -125,13 +125,13 @@ public class PauseMenuController : MonoBehaviourPunCallbacks
     public override void OnLeftRoom()
     {
         Debug.Log("[PauseMenu] Successfully left room, loading main menu...");
-        ReturnToMainMenu();
+        ServerConectionManager.Instance?.RequestReturnToMainMenu("PauseMenuController.cs");
     }
     
     public override void OnDisconnected(DisconnectCause cause)
     {
         Debug.Log($"[PauseMenu] Disconnected: {cause}");
-        ReturnToMainMenu();
+        ServerConectionManager.Instance?.RequestReturnToMainMenu("PauseMenuController.cs");
     }
     
     private void ReturnToMainMenu()

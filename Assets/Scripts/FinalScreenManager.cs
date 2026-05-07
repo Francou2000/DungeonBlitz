@@ -56,7 +56,7 @@ public class FinalScreenManager : MonoBehaviourPunCallbacks
         Debug.Log("[WinLoseMenuButton] Successfully left room, loading main menu...");
 
         // Una vez que hemos salido de la sala, cargar el menú principal
-        SceneLoaderController.Instance.LoadNextLevel(Scenes.MainMenu);
+        ServerConectionManager.Instance?.RequestReturnToMainMenu("FinalScreenManager");
     }
 
     public override void OnDisconnected(DisconnectCause cause)
@@ -64,7 +64,7 @@ public class FinalScreenManager : MonoBehaviourPunCallbacks
         Debug.Log($"[WinLoseMenuButton] Disconnected: {cause}");
 
         // En caso de desconexión, también cargar el menú principal
-        SceneLoaderController.Instance.LoadNextLevel(Scenes.MainMenu);
+        ServerConectionManager.Instance?.RequestReturnToMainMenu("FinalScreenManager");
     }
 
 }
