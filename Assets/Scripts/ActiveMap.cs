@@ -15,6 +15,11 @@ public class ActiveMap : MonoBehaviour
 
     private void Start()
     {
+        non_standable.Add(non_standable_map1);
+        non_standable.Add(non_standable_map2);
+        non_standable.Add(non_standable_map3);
+        non_standable.Add(non_standable_map4);
+
         if (is_game)
         {
             var unit_l = UnitLoaderController.Instance;
@@ -27,11 +32,6 @@ public class ActiveMap : MonoBehaviour
                 ActivateMap(Maps.MAP_NAME1);
             }
         }
-
-        non_standable.Add(non_standable_map1);
-        non_standable.Add(non_standable_map2);
-        non_standable.Add(non_standable_map3);
-        non_standable.Add(non_standable_map4);
     }
 
     public void ActivateMap(Maps map)

@@ -1,6 +1,6 @@
 using Photon.Pun;
 using UnityEngine;
-using UnityEngine.Rendering;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class TimerAndLoadGame : MonoBehaviourPunCallbacks
@@ -33,6 +33,8 @@ public class TimerAndLoadGame : MonoBehaviourPunCallbacks
     [SerializeField] Slider slider1;
     [SerializeField] Slider slider2;
 
+    bool loadGameInitiated;
+
     void Start()
     {
         time = 0;
@@ -56,27 +58,37 @@ public class TimerAndLoadGame : MonoBehaviourPunCallbacks
             }
             
         }
+        // #region agent log
+        bool s1 = slider1 != null && slider1.gameObject.activeInHierarchy;
+        bool s2 = slider2 != null && slider2.gameObject.activeInHierarchy;
+        DebugSessionNdjson.Write("H4", "TimerAndLoadGame.Start", "shop_timer_ui_after_ui",
+            $"{{\"lvl\":{UnitLoaderController.Instance.lvl},\"isMaster\":{(PhotonNetwork.IsMasterClient ? "true" : "false")},\"slider1Active\":{(s1 ? "true" : "false")},\"slider2Active\":{(s2 ? "true" : "false")},\"shopActive\":{(heroes_shop != null && heroes_shop.activeSelf ? "true" : "false")},\"shopCtrlActive\":{(heroes_shop_controller != null && heroes_shop_controller.activeSelf ? "true" : "false")},\"scene\":\"{SceneManager.GetActiveScene().name.Replace("\"", "'")}\"}}");
+        // #endregion
     }
 
 
     void Update()
     {
         if (PhotonNetwork.MasterClient != PhotonNetwork.LocalPlayer) return;
+        if (loadGameInitiated) return;
         time += Time.deltaTime;
         float sliderValue = time / preparation_time_limit;
         slider1.value = sliderValue;
         slider2.value = sliderValue;
         if (time > preparation_time_limit)
-        {
-            // LoadGame();
-            photonView.RPC("LoadGame", RpcTarget.All);
-        }
+            LoadGame();
     }
 
-    [PunRPC]
+    /// <summary>
+    /// Solo el master debe llamar a <see cref="SceneLoaderController.LoadNextLevel"/> cuando
+    /// <see cref="PhotonNetwork.AutomaticallySyncScene"/> está activo; el resto de clientes
+    /// cargan la escena vía sincronización de sala.
+    /// </summary>
     public void LoadGame()
     {
-        // PhotonNetwork.LoadLevel(game_scene_name);
+        if (!PhotonNetwork.IsMasterClient) return;
+        if (loadGameInitiated) return;
+        loadGameInitiated = true;
         SceneLoaderController.Instance.LoadNextLevel(game_scene_name);
     }
 }

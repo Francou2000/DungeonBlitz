@@ -280,6 +280,7 @@ public class TurnManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void RPC_LoadEndScene(string sceneName)
     {
+        if (!PhotonNetwork.IsMasterClient) return;
         PhotonNetwork.LoadLevel(sceneName);
     }
 

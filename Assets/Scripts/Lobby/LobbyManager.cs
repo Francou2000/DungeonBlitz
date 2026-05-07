@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
+using System.Linq;
 
 public class LobbyManager : MonoBehaviourPunCallbacks
 {
@@ -40,6 +41,22 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        StartCoroutine(InitWhenReady());
+    }
+
+    System.Collections.IEnumerator InitWhenReady()
+    {
+        // Wait until Photon says we are actually in a room.
+        float timeout = 5f;
+        while (!PhotonNetwork.InRoom && timeout > 0f)
+        {
+            timeout -= Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+        if (PhotonNetwork.IsConnected && !PhotonNetwork.IsMessageQueueRunning)
+            PhotonNetwork.IsMessageQueueRunning = true;
+
         // Limpiar todos los slots al iniciar
         playerSlotMap.Clear();
         
@@ -64,27 +81,93 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             }
         }
         
-        CheckPlayerName();
-        ChangeLobbyName();
-        
-        if (!PhotonNetwork.IsMasterClient) 
-        { 
-            if (photonView != null)
-            {
-                photonView.RPC("GetReadyState", RpcTarget.MasterClient);
-            }
+        if (PhotonNetwork.InRoom)
+        {
+            CheckPlayerName();
+            ChangeLobbyName();
         }
-        else 
-        { 
+        
+        // If not in room, don't attempt RPCs. UI will remain in default state.
+        if (!PhotonNetwork.InRoom)
+            yield break;
+
+        // Rebuild mapping from live player list as a fallback.
+        EnsureSlotMapAndUIFromPlayerList();
+
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            if (photonView != null)
+                photonView.RPC("GetReadyState", RpcTarget.MasterClient);
+        }
+        else
+        {
             if (start_game_button != null)
-            {
                 start_game_button.SetActive(true);
+        }
+    }
+
+    void EnsureSlotMapAndUIFromPlayerList()
+    {
+        if (!PhotonNetwork.InRoom) return;
+
+        // Master always maps to slot 0
+        playerSlotMap[PhotonNetwork.MasterClient.ActorNumber] = 0;
+        slots_used[0] = PhotonNetwork.MasterClient.NickName;
+        if (slots_portraits[0] != null)
+        {
+            var text = slots_portraits[0].GetComponentInChildren<TextMeshProUGUI>();
+            if (text != null) text.text = PhotonNetwork.MasterClient.NickName;
+        }
+
+        // Other players (heroes) sorted by actor number fill slots 1..4
+        var others = PhotonNetwork.PlayerList
+            .Where(p => !p.IsMasterClient)
+            .OrderBy(p => p.ActorNumber)
+            .ToList();
+
+        for (int i = 0; i < others.Count && (i + 1) < slots_used.Length; i++)
+        {
+            int slot = i + 1;
+            var p = others[i];
+            playerSlotMap[p.ActorNumber] = slot;
+            slots_used[slot] = p.NickName;
+
+            if (slots_portraits[slot] != null)
+            {
+                var text = slots_portraits[slot].GetComponentInChildren<TextMeshProUGUI>();
+                if (text != null) text.text = p.NickName;
+
+                var portraitComponent = slots_portraits[slot].GetComponentsInChildren<Image>();
+                if (portraitComponent != null && portraitComponent.Length > 1)
+                    portraitComponent[1].sprite = player_portrait;
             }
         }
     }
 
     public void CheckPlayerName()
     {
+        if (!PhotonNetwork.InRoom || PhotonNetwork.LocalPlayer == null)
+        {
+            // #region agent log
+            DebugSessionNdjson.Write("H3", "LobbyManager.CheckPlayerName", "skipped_not_in_room", "{}");
+            // #endregion
+            return;
+        }
+
+        int localActor = PhotonNetwork.LocalPlayer.ActorNumber;
+        if (localActor <= 0)
+        {
+            // #region agent log
+            DebugSessionNdjson.Write("H3", "LobbyManager.CheckPlayerName", "skipped_invalid_actor", $"{{\"localActor\":{localActor}}}");
+            // #endregion
+            return;
+        }
+
+        // #region agent log
+        var actorNums = string.Join(",", PhotonNetwork.PlayerList.Select(p => p.ActorNumber.ToString()).ToArray());
+        DebugSessionNdjson.Write("H3", "LobbyManager.CheckPlayerName", "enter",
+            $"{{\"isMaster\":{(PhotonNetwork.IsMasterClient ? "true" : "false")},\"localActor\":{localActor},\"msgQueue\":{(PhotonNetwork.IsMessageQueueRunning ? "true" : "false")},\"scene\":\"{SceneManager.GetActiveScene().name.Replace("\"", "'")}\",\"actors\":\"{actorNums}\"}}");
+        // #endregion
         if (slots_portraits[0] == null) return;
         
         TextMeshProUGUI text_slot = slots_portraits[0].GetComponentInChildren<TextMeshProUGUI>();
@@ -114,7 +197,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
                 }
             }
             
-            int playernumber = PhotonNetwork.LocalPlayer.ActorNumber;
+            int playernumber = localActor;
             
             // Validar que photonView esté disponible antes de usar RPCs
             if (photonView == null)
@@ -124,11 +207,17 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             }
             
             // Sincronizar todos los jugadores actuales en la sala
+            int askRpcCount = 0;
             foreach (var player in PhotonNetwork.PlayerList)
             {
                 if (player.ActorNumber > playernumber) continue;
                 photonView.RPC("AskForNewCharacter", RpcTarget.MasterClient, player.ActorNumber, player.NickName);
+                askRpcCount++;
             }
+            // #region agent log
+            DebugSessionNdjson.Write("H3", "LobbyManager.CheckPlayerName", "ask_loop_done",
+                $"{{\"playernumber\":{playernumber},\"askRpcCount\":{askRpcCount},\"skippedHigherActors\":{(PhotonNetwork.PlayerList.Any(p => p.ActorNumber > playernumber) ? "true" : "false")}}}");
+            // #endregion
             
             string playername = PhotonNetwork.NickName;
             Debug.Log($"[LobbyManager] Player number: {playernumber}, Player name: {playername}");
@@ -161,6 +250,12 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     [PunRPC]
     public void ReadyPlayer(int playerID)
     {
+        if (!PhotonNetwork.InRoom) return;
+
+        // If mapping is missing, rebuild from current player list to avoid soft-lock.
+        if (!playerSlotMap.ContainsKey(playerID))
+            EnsureSlotMapAndUIFromPlayerList();
+
         // Buscar el slot asignado a este jugador
         if (!playerSlotMap.ContainsKey(playerID))
         {
@@ -269,6 +364,14 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     [PunRPC]
     public void AskForNewCharacter(int playerID, string playerNick)
     {
+        // #region agent log
+        if (PhotonNetwork.IsMasterClient)
+        {
+            var actors = string.Join(",", PhotonNetwork.PlayerList.Select(p => p.ActorNumber.ToString()).ToArray());
+            DebugSessionNdjson.Write("H5", "LobbyManager.AskForNewCharacter", "master_rpc",
+                $"{{\"reqPlayerID\":{playerID},\"msgQueue\":{(PhotonNetwork.IsMessageQueueRunning ? "true" : "false")},\"scene\":\"{SceneManager.GetActiveScene().name.Replace("\"", "'")}\",\"actors\":\"{actors}\"}}");
+        }
+        // #endregion
         // Buscar si el jugador ya tiene un slot asignado
         bool isReady = false;
         if (playerSlotMap.ContainsKey(playerID))
@@ -360,8 +463,8 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     [PunRPC]
     public void LoadGame()
     {
-        // SceneManager.LoadScene(selection_scene);
         AudioManager.Instance.PlayStartGame();
+        if (!PhotonNetwork.IsMasterClient) return;
         SceneLoaderController.Instance.LoadNextLevel(selection_scene);
     }
 

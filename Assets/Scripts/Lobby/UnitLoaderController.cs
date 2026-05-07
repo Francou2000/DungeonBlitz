@@ -52,7 +52,39 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
             players_ready[i] = false;
         }
         
+        _heroDataByActor.Clear();
         Debug.Log("[UnitLoaderController] Arrays inicializados correctamente.");
+    }
+
+    private void SyncHeroesArrayFromActorDictionary()
+    {
+        if (_heroDataByActor.Count == 0 && PhotonNetwork.InRoom)
+        {
+            var hp = PhotonNetwork.PlayerList.Where(p => !p.IsMasterClient).OrderBy(p => p.ActorNumber).ToList();
+            for (int i = 0; i < hp.Count && i < heroes.Length; i++)
+            {
+                if (heroes[i].my_data != null)
+                    _heroDataByActor[hp[i].ActorNumber] = heroes[i];
+            }
+        }
+
+        for (int i = 0; i < heroes.Length; i++)
+            heroes[i] = new HeroeInformation(null, 0, 0, new List<ItemData>());
+
+        if (!PhotonNetwork.InRoom) return;
+
+        var heroPlayers = PhotonNetwork.PlayerList.Where(p => !p.IsMasterClient).OrderBy(p => p.ActorNumber).ToList();
+        for (int i = 0; i < heroPlayers.Count && i < heroes.Length; i++)
+        {
+            int actor = heroPlayers[i].ActorNumber;
+            if (_heroDataByActor.TryGetValue(actor, out var data))
+                heroes[i] = data;
+        }
+    }
+
+    public bool TryGetHeroeDataForActor(int actorNumber, out HeroeInformation info)
+    {
+        return _heroDataByActor.TryGetValue(actorNumber, out info);
     }
 
     /// <summary>
@@ -190,6 +222,10 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
 
     [SerializeField] ItemData[] items;
     Dictionary<int, ItemData> dic_items = new Dictionary<int, ItemData>();
+
+    /// <summary>Datos de héroe por ActorNumber; al desconectar Photon quita al jugador de la lista antes del callback,
+    /// así que no se puede resolver el slot solo con GetHeroIndex(actorId).</summary>
+    readonly Dictionary<int, HeroeInformation> _heroDataByActor = new Dictionary<int, HeroeInformation>();
     [PunRPC]
     public void AddHeroe(HeroesList heroe, int client_id)
     {
@@ -221,7 +257,9 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
         // Limpiar datos previos del slot antes de asignar nuevos
         heroes[heroIndex] = new HeroeInformation(heroes_data[heroeDataIndex], 0, 0, new List<ItemData>());
         players_ready[readyIndex] = true;
-        
+        _heroDataByActor[client_id] = heroes[heroIndex];
+        SyncHeroesArrayFromActorDictionary();
+
         Debug.Log($"[UnitLoaderController] Héroe agregado: {heroe} para jugador client_id: {client_id} (índice héroe: {heroIndex}, índice ready: {readyIndex})");
         
         CheckIfStart(false);
@@ -344,6 +382,8 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
         }
 
         heroes[heroIndex].my_items.Add(dic_items[itemID]);
+        _heroDataByActor[playerID] = heroes[heroIndex];
+        SyncHeroesArrayFromActorDictionary();
         Debug.Log($"[UnitLoaderController] Item agregado al jugador {playerID} (índice héroe: {heroIndex})");
     }
     [PunRPC]
@@ -369,33 +409,34 @@ public class UnitLoaderController : MonoBehaviourPunCallbacks
         int client_id = otherPlayer.ActorNumber;
         Debug.Log($"[UnitLoaderController] Jugador {client_id} abandonó la sala. Limpiando sus datos...");
 
-        // Si es el DM, no hacer nada (el DM no está en el array de heroes)
-        if (client_id == 1)
+        // #region agent log
+        bool inList = PhotonNetwork.PlayerList.Any(p => p.ActorNumber == client_id);
+        int hi = GetHeroIndex(client_id);
+        int ri = GetPlayerReadyIndex(client_id);
+        var actors = string.Join(",", PhotonNetwork.PlayerList.Select(p => p.ActorNumber.ToString()).ToArray());
+        DebugSessionNdjson.Write("H1", "UnitLoaderController.OnPlayerLeftRoom", "player_left",
+            $"{{\"leftActor\":{client_id},\"stillInPlayerList\":{(inList ? "true" : "false")},\"heroIndex\":{hi},\"readyIndex\":{ri},\"msgQueue\":{(PhotonNetwork.IsMessageQueueRunning ? "true" : "false")},\"actors\":\"{actors}\"}}");
+        // #endregion
+
+        // DM: no usa slots de heroes[]; el ActorNumber del master no siempre es 1.
+        if (otherPlayer.IsMasterClient)
         {
             Debug.Log("[UnitLoaderController] El DM abandonó la sala. Limpiando estado del DM.");
             players_ready[0] = false;
             return;
         }
 
-        // Limpiar datos del héroe que se fue
-        int heroIndex = GetHeroIndex(client_id);
-        int readyIndex = GetPlayerReadyIndex(client_id);
+        _heroDataByActor.Remove(client_id);
+        SyncHeroesArrayFromActorDictionary();
 
-        if (heroIndex >= 0)
-        {
-            // Resetear el héroe a valores por defecto
-            heroes[heroIndex] = new HeroeInformation(null, 0, 0, new List<ItemData>());
-            Debug.Log($"[UnitLoaderController] Datos del héroe en índice {heroIndex} limpiados.");
-        }
+        // #region agent log
+        var dictKeys = string.Join(",", _heroDataByActor.Keys.OrderBy(a => a).Select(a => a.ToString()).ToArray());
+        var slotBits = string.Join("", heroes.Select(h => h.my_data != null ? "1" : "0").ToArray());
+        DebugSessionNdjson.Write("H1", "UnitLoaderController.OnPlayerLeftRoom", "after_dict_sync",
+            $"{{\"removedActor\":{client_id},\"heroSlotsWithData\":\"{slotBits}\",\"dictActors\":\"{dictKeys}\"}}");
+        // #endregion
 
-        if (readyIndex >= 0)
-        {
-            // Marcar como no listo
-            players_ready[readyIndex] = false;
-            Debug.Log($"[UnitLoaderController] Estado 'ready' del jugador en índice {readyIndex} limpiado.");
-        }
-
-        Debug.Log($"[UnitLoaderController] Limpieza completada para jugador {client_id}.");
+        Debug.Log($"[UnitLoaderController] Limpieza completada para jugador {client_id} (sync por ActorNumber).");
     }
 
     /// <summary>

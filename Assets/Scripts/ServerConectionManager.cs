@@ -7,6 +7,7 @@ public class ServerConectionManager : MonoBehaviourPunCallbacks
 {
     private void Awake()
     {
+        PhotonNetwork.AutomaticallySyncScene = true;
         DontDestroyOnLoad(gameObject);
     }
     public override void OnDisconnected(DisconnectCause cause)

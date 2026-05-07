@@ -45,9 +45,18 @@ public class HeroSpawner : MonoBehaviourPunCallbacks
             return;
         }
 
-        UnitData data = UnitLoaderController.Instance.heroes[playerIndex].my_data;
+        UnitData data = null;
+        if (UnitLoaderController.Instance.TryGetHeroeDataForActor(PhotonNetwork.LocalPlayer.ActorNumber, out var byActor) && byActor.my_data != null)
+            data = byActor.my_data;
+        if (data == null)
+            data = UnitLoaderController.Instance.heroes[playerIndex].my_data;
         if (data == null)
         {
+            // #region agent log
+            var filled = string.Join(",", UnitLoaderController.Instance.heroes.Select((h, i) => h.my_data != null ? i.ToString() : "_").ToArray());
+            DebugSessionNdjson.Write("H1", "HeroSpawner.LoadHeroes", "null_hero_data",
+                $"{{\"playerIndex\":{playerIndex},\"localActor\":{PhotonNetwork.LocalPlayer.ActorNumber},\"slotsWithData\":\"{filled}\"}}");
+            // #endregion
             Debug.LogError($"[HeroSpawner] No UnitData para el jugador en índice {playerIndex} (ActorNumber: {PhotonNetwork.LocalPlayer.ActorNumber}). " +
                           $"Esto puede ocurrir si el jugador no seleccionó un héroe antes de que comenzara el juego.");
             return;

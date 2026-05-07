@@ -6,6 +6,11 @@ public class ConnectToServer : MonoBehaviourPunCallbacks
 {
     [SerializeField] Scenes main_scene;
 
+    void Awake()
+    {
+        PhotonNetwork.AutomaticallySyncScene = true;
+    }
+
     void Start()
     {
         PhotonNetwork.ConnectUsingSettings();

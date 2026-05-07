@@ -56271,6 +56271,9 @@ MonoBehaviour:
   default_color: {r: 0.1764706, g: 0.1764706, b: 0.1764706, a: 0}
   positive_color: {r: 0.043704987, g: 1, b: 0, a: 0}
   negative_color: {r: 1, g: 0, b: 0, a: 0}
+  unidades: []
+  shopPlayerResourcesPrefab: Player
+  networkShopPlayerSpawn: {fileID: 979379700}
 --- !u!114 &2136047810
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -9,23 +9,64 @@ public class ShopPlayer : MonoBehaviourPunCallbacks
     [SerializeField] Sprite[] startSprite;
     [SerializeField] SpriteRenderer my_sprint_renderer;
     UnitLoaderController unitLoaderController;
+    PhotonView _photonView;
 
     Vector2 pos_to_move;
     Vector2 dir_to_move;
     public float move_speed;
     bool is_walking = false;
+
+    void Awake()
+    {
+        _photonView = GetComponent<PhotonView>();
+    }
+
     void Start()
     {
         unitLoaderController = UnitLoaderController.Instance;
-        HeroesList heroe_idx = unitLoaderController.my_heroe;
-        // HeroesList heroe_idx = unitLoaderController.heroes[player_idx - 3].my_data.heroe_id;
-        my_sprint_renderer.sprite = startSprite[(int)heroe_idx];
-        my_animator.runtimeAnimatorController = animators[(int)heroe_idx];
+        if (PhotonNetwork.IsMasterClient)
+        {
+            // Master is in the same scene but should not see / interact with shop avatars.
+            if (my_sprint_renderer != null) my_sprint_renderer.enabled = false;
+            if (my_animator != null) my_animator.enabled = false;
+            foreach (var c in GetComponentsInChildren<Collider2D>(true))
+                c.enabled = false;
+            enabled = false;
+            return;
+        }
+
+        if (_photonView == null)
+        {
+            ApplyHeroVisual((int)unitLoaderController.my_heroe);
+            return;
+        }
+
+        if (_photonView.IsMine)
+        {
+            int idx = (int)unitLoaderController.my_heroe;
+            ApplyHeroVisual(idx);
+            _photonView.RPC(nameof(RPC_ApplyHeroVisual), RpcTarget.OthersBuffered, idx);
+        }
     }
 
-    
+    void ApplyHeroVisual(int heroeIdx)
+    {
+        if (heroeIdx < 0 || heroeIdx >= startSprite.Length || heroeIdx >= animators.Length) return;
+        my_sprint_renderer.sprite = startSprite[heroeIdx];
+        my_animator.runtimeAnimatorController = animators[heroeIdx];
+    }
+
+    [PunRPC]
+    void RPC_ApplyHeroVisual(int heroeIdx)
+    {
+        ApplyHeroVisual(heroeIdx);
+    }
+
     void Update()
     {
+        if (_photonView != null && !_photonView.IsMine)
+            return;
+
         if (Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject())
         {
             my_animator.SetBool("Walking", true);

@@ -7,6 +7,11 @@ using UnityEngine.UI;
 
 public class CreateAndJoinRooms : MonoBehaviourPunCallbacks
 {
+    void Awake()
+    {
+        PhotonNetwork.AutomaticallySyncScene = true;
+    }
+
     [SerializeField] TMP_InputField createRoomName, createRoomPsw;
     [SerializeField] TMP_InputField joinRoomName, joinRoomPsw;
     [SerializeField] private TMP_InputField nicknameInput;
@@ -88,8 +93,10 @@ public class CreateAndJoinRooms : MonoBehaviourPunCallbacks
     {
         Debug.Log("Intentando entrar a la sala: " + PhotonNetwork.CurrentRoom.Name);
 
-        // Pausar la cola de mensajes para evitar errores de PhotonView durante la carga
-        PhotonNetwork.IsMessageQueueRunning = false;
+        // #region agent log
+        DebugSessionNdjson.Write("H2", "CreateAndJoinRooms.OnJoinedRoom", "before_password_check",
+            $"{{\"msgQueue\":{(PhotonNetwork.IsMessageQueueRunning ? "true" : "false")},\"room\":\"{(PhotonNetwork.CurrentRoom != null ? PhotonNetwork.CurrentRoom.Name.Replace("\"", "'") : "")}\"}}");
+        // #endregion
 
         // Verificamos si la contrase�a coincide
         string attemptedPwd = PlayerPrefs.GetString("AttemptedPwd", "");
