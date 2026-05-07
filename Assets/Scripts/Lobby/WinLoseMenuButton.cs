@@ -31,7 +31,7 @@ public class WinLoseMenuButton : MonoBehaviourPunCallbacks
         Debug.Log("[WinLoseMenuButton] Successfully left room, loading main menu...");
         
         // Una vez que hemos salido de la sala, cargar el menú principal
-        SceneLoaderController.Instance.LoadNextLevel(mainMenu_sceneName);
+        ServerConectionManager.Instance?.RequestReturnToMainMenu("WinLoseMenuButton");
     }
 
     public override void OnDisconnected(DisconnectCause cause)
@@ -39,6 +39,6 @@ public class WinLoseMenuButton : MonoBehaviourPunCallbacks
         Debug.Log($"[WinLoseMenuButton] Disconnected: {cause}");
         
         // En caso de desconexión, también cargar el menú principal
-        SceneLoaderController.Instance.LoadNextLevel(mainMenu_sceneName);
+        ServerConectionManager.Instance?.RequestReturnToMainMenu("WinLoseMenuButton");
     }
 }

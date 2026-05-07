@@ -141,7 +141,7 @@ public class MainMenuController : MonoBehaviourPunCallbacks
             }
             
             // Intentar reconectar
-            PhotonNetwork.ConnectUsingSettings();
+            ServerConectionManager.Instance?.EnsureConnectedFromMainMenu("MainMenuController.CheckAndReconnectPhoton");
         }
         else if (PhotonNetwork.InRoom)
         {
