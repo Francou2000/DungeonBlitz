@@ -39,6 +39,12 @@ public class HealthBarWorld : MonoBehaviour
             return;
         }
 
+        // Ensure child binders (e.g., APBinder) can resolve the target even though
+        // this UI object is instantiated under the world UI canvas (not under the Unit).
+        var apBinder = GetComponentInChildren<APBinder>(true);
+        if (apBinder != null)
+            apBinder.Bind(targetUnit);
+
         if (targetUnit.Model != null)
         {
             targetUnit.Model.OnHealthChanged += OnHealthChanged;

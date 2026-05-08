@@ -18,11 +18,11 @@ MonoBehaviour:
   faction: 1
   heroe_id: 4
   pop_cost: 1
-  maxHP: 8
-  performance: 1.6
+  maxHP: 12
+  performance: 2
   affinity: 0
   armor: 15
-  magicResistance: 0
+  magicResistance: 5
   strength: 3
   magicPower: 0
   actionsPerTurn: 2

@@ -109,20 +109,28 @@ public class TurnManager : MonoBehaviourPunCallbacks
         if (timePool[currentTurn] <= 0f)
         {
             Debug.Log($"[TurnManager] Time's up! {GetOpposingFaction(currentTurn)} wins by timeout");
-            if (currentTurn == UnitFaction.Hero)
+            if (_unitControler.lvl == 3)
             {
                 EndGame(GetOpposingFaction(currentTurn));
-            }
-            else
-            {
-                if (PhotonNetwork.IsMasterClient)
+                Debug.Log($"[TurnManager] Faction defeated! {currentTurn} wins by elimination");
+
+            }else{
+                if (currentTurn == UnitFaction.Hero)
                 {
-                    ChangeLevel = false;
-                    _unitControler.lvl += 1;
-                    photonView.RPC(nameof(NextLevel), RpcTarget.All, _unitControler.lvl);
-                    Debug.Log($"[TurnManager] Time is up! Advancing levels.");
+                    EndGame(GetOpposingFaction(currentTurn));
+                }
+                else
+                {
+                    if (PhotonNetwork.IsMasterClient)
+                    {
+                        ChangeLevel = false;
+                        _unitControler.lvl += 1;
+                        photonView.RPC(nameof(NextLevel), RpcTarget.All, _unitControler.lvl);
+                        Debug.Log($"[TurnManager] Time is up! Advancing levels.");
+                    }
                 }
             }
+           
 
         }
         else if (IsFactionDefeated(GetOpposingFaction(currentTurn)))
